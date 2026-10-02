@@ -1,0 +1,173 @@
+/* Floor design tokens. Import once at the root.
+   Theme: follows the OS; override with <html data-theme="light|dark">. */
+
+:root {
+  /* ---------- type ---------- */
+  --font-sans: "Geist", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --fs-display: clamp(2.5rem, 1.6rem + 3.6vw, 4.5rem); /* 40 -> 72 */
+  --fs-h1: clamp(2rem, 1.5rem + 2vw, 3rem);            /* 32 -> 48 */
+  --fs-h2: clamp(1.5rem, 1.25rem + 1vw, 2rem);         /* 24 -> 32 */
+  --fs-h3: 1.25rem;     /* 20 */
+  --fs-body-lg: 1.125rem; /* 18 */
+  --fs-body: 1rem;      /* 16 */
+  --fs-small: 0.875rem; /* 14 */
+  --fs-label: 0.75rem;  /* 12, mono, uppercase */
+  --fs-num-xl: clamp(2rem, 1.5rem + 2vw, 3rem);
+
+  --ls-display: -0.035em;
+  --ls-heading: -0.02em;
+  --ls-body: 0;
+  --ls-label: 0.08em;
+
+  --lh-tight: 1.05;
+  --lh-heading: 1.15;
+  --lh-body: 1.55;
+
+  /* ---------- spacing (base unit 8px; 4px half-step) ---------- */
+  --u: 8px;
+  --s-0: 0;
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 16px;
+  --s-4: 24px;
+  --s-5: 32px;
+  --s-6: 48px;
+  --s-7: 64px;
+  --s-8: 96px;
+  --s-9: 128px;
+
+  /* ---------- grid ---------- */
+  --cols: 4;                 /* phone */
+  --row: 64px;               /* background row module */
+  --gutter-x: 16px;          /* page side gutter */
+  --container: 100%;
+  --hair: 1px;               /* all grid lines are 1px */
+  --xh-size: 11px;           /* crosshair box: 5px arm + 1px centre + 5px arm */
+  --xh-stroke: 1px;
+
+  /* ---------- shape and motion ---------- */
+  --radius: 0px;             /* squares. Only badges/inputs may use 2px. */
+  --radius-sm: 2px;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast: 120ms;
+  --dur: 240ms;
+  --dur-draw: 900ms;
+
+}
+
+:root, [data-theme="light"] {
+  color-scheme: light;
+  --bg: #FAFAF8;
+  --surface: #FFFFFF;
+  --surface-sunken: #F3F3F0;
+  --grid: #E4E5E0;
+  --grid-strong: #CFD0CA;
+  --crosshair: #8C8E86;
+  --text: #10110F;
+  --text-2: #464843;
+  --text-muted: #686A63;
+  --accent: #2440E0;
+  --accent-ink: #FFFFFF;       /* text on accent */
+  --accent-soft: #E9ECFC;      /* cushion fill, selected rows */
+  --floor-line: #2440E0;
+  --positive: #0B7544;
+  --negative: #B8312A;
+  --warning: #8F5600;
+  --focus: #2440E0;
+}
+
+@media (min-width: 768px) {
+  :root { --cols: 8; --row: 80px; --gutter-x: 32px; }
+}
+@media (min-width: 1200px) {
+  :root { --cols: 12; --row: 96px; --gutter-x: 48px; --container: 1200px; }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0A0B0D;
+    --surface: #111215;
+    --surface-sunken: #0D0E10;
+    --grid: #1C1E21;
+    --grid-strong: #2C2E31;
+    --crosshair: #6E7068;
+    --text: #F2F2EE;
+    --text-2: #B4B6AE;
+    --text-muted: #8D9088;
+    --accent: #7C93FF;
+    --accent-ink: #0A0B0D;
+    --accent-soft: #151A33;
+    --floor-line: #7C93FF;
+    --positive: #3DD68C;
+    --negative: #FF7469;
+    --warning: #F2B84B;
+    --focus: #7C93FF;
+  }
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0A0B0D;
+  --surface: #111215;
+  --surface-sunken: #0D0E10;
+  --grid: #1C1E21;
+  --grid-strong: #2C2E31;
+  --crosshair: #6E7068;
+  --text: #F2F2EE;
+  --text-2: #B4B6AE;
+  --text-muted: #8D9088;
+  --accent: #7C93FF;
+  --accent-ink: #0A0B0D;
+  --accent-soft: #151A33;
+  --floor-line: #7C93FF;
+  --positive: #3DD68C;
+  --negative: #FF7469;
+  --warning: #F2B84B;
+  --focus: #7C93FF;
+}
+
+/* ---------- base ---------- */
+html { background: var(--bg); color: var(--text); font-family: var(--font-sans); font-size: 16px; }
+body { margin: 0; line-height: var(--lh-body); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+.mono, .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums slashed-zero; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* ---------- grid primitives ---------- */
+/* Page frame: centred, hairline rails left and right. */
+.page { position: relative; max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter-x);
+        border-inline: var(--hair) solid var(--grid); }
+/* Section: full-bleed hairline on top; content snaps to columns. */
+.section { position: relative; border-top: var(--hair) solid var(--grid); padding-block: var(--s-8); }
+.cols { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); column-gap: 0; }
+/* Cell: a box on the grid. Neighbouring cells share one hairline (no double borders). */
+.cell { position: relative; padding: var(--s-4); background: var(--surface);
+        box-shadow: inset 0 0 0 var(--hair) var(--grid); }
+.cell + .cell { margin-left: calc(var(--hair) * -1); }
+/* Visible lattice behind a region. Columns are fluid, rows are fixed. */
+.lattice {
+  background-image:
+    linear-gradient(to right, var(--grid) var(--hair), transparent var(--hair)),
+    linear-gradient(to bottom, var(--grid) var(--hair), transparent var(--hair));
+  background-size: calc(100% / var(--cols)) var(--row);
+  background-position: -0.5px -0.5px;
+}
+/* Crosshair: place as <i class="xh" style="left:0;top:0"></i> inside any position:relative box. */
+.xh { position: absolute; width: var(--xh-size); height: var(--xh-size); transform: translate(-50%, -50%);
+      pointer-events: none;
+      background:
+        linear-gradient(var(--crosshair), var(--crosshair)) center / 100% var(--xh-stroke) no-repeat,
+        linear-gradient(var(--crosshair), var(--crosshair)) center / var(--xh-stroke) 100% no-repeat; }
+/* Corner crosshairs on any box (top-left and bottom-right via pseudo-elements). */
+.xh-corners::before, .xh-corners::after { content: ""; position: absolute; width: var(--xh-size); height: var(--xh-size);
+      pointer-events: none; z-index: 1;
+      background:
+        linear-gradient(var(--crosshair), var(--crosshair)) center / 100% var(--xh-stroke) no-repeat,
+        linear-gradient(var(--crosshair), var(--crosshair)) center / var(--xh-stroke) 100% no-repeat; }
+.xh-corners::before { left: 0; top: 0; transform: translate(-50%, -50%); }
+.xh-corners::after  { right: 0; bottom: 0; transform: translate(50%, 50%); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}

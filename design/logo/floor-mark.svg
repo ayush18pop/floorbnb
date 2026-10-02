@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="currentColor" role="img" aria-label="Floor">
+  <title>Floor</title>
+  <!-- 32 x 32 grid, integer coordinates. Square (portfolio) resting on a line (floor). -->
+  <path fill-rule="evenodd" d="M10 9h12v12H10zM12 11v8h8v-8z"/>
+  <rect x="0" y="21" width="32" height="2"/>
+</svg>

@@ -1,0 +1,704 @@
+<title>Floor Screen Prompts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout: the Floor brand's own visible grid. A framed column with hairline rails, sections ruled across,
+   screen cards as square cells. Tokens mirror design/tokens.css. */
+:root {
+  --bg:#FAFAF8; --surface:#FFFFFF; --sunken:#F3F3F0; --grid:#E4E5E0; --grid-strong:#CFD0CA; --cross:#8C8E86;
+  --text:#10110F; --text-2:#464843; --muted:#686A63; --accent:#2440E0; --accent-ink:#FFFFFF; --accent-soft:#E9ECFC;
+  --pos:#0B7544; --neg:#B8312A; --warn:#8F5600;
+  --sans:"Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg:#0A0B0D; --surface:#111215; --sunken:#0D0E10; --grid:#1C1E21; --grid-strong:#2C2E31; --cross:#6E7068;
+  --text:#F2F2EE; --text-2:#B4B6AE; --muted:#8D9088; --accent:#7C93FF; --accent-ink:#0A0B0D; --accent-soft:#151A33;
+  --pos:#3DD68C; --neg:#FF7469; --warn:#F2B84B; color-scheme:dark } }
+:root[data-theme="dark"] {
+  --bg:#0A0B0D; --surface:#111215; --sunken:#0D0E10; --grid:#1C1E21; --grid-strong:#2C2E31; --cross:#6E7068;
+  --text:#F2F2EE; --text-2:#B4B6AE; --muted:#8D9088; --accent:#7C93FF; --accent-ink:#0A0B0D; --accent-soft:#151A33;
+  --pos:#3DD68C; --neg:#FF7469; --warn:#F2B84B; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font:16px/1.55 var(--sans);padding-inline:16px;padding-block:0}
+.page{max-width:1200px;margin:0 auto;border-inline:1px solid var(--grid);position:relative;min-height:100vh}
+.xh{position:absolute;width:11px;height:11px;transform:translate(-50%,-50%);pointer-events:none;
+  background:linear-gradient(var(--cross),var(--cross)) center/100% 1px no-repeat,linear-gradient(var(--cross),var(--cross)) center/1px 100% no-repeat}
+header.top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 24px;border-bottom:1px solid var(--grid);flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:18px}
+.lbl{font:500 12px/1.4 var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+section{border-top:1px solid var(--grid-strong);position:relative;padding:48px 24px}
+section:first-of-type{border-top:0}
+h1{font-size:clamp(32px,5vw,52px);line-height:1.08;letter-spacing:-.03em;margin:8px 0 16px;font-weight:600;text-wrap:balance;max-width:18ch}
+h2{font-size:clamp(22px,3vw,30px);letter-spacing:-.02em;margin:8px 0 12px;font-weight:600;text-wrap:balance}
+h3{font-size:18px;margin:0;font-weight:600;letter-spacing:-.01em}
+p{color:var(--text-2);max-width:68ch;margin:0 0 12px}
+code,.mono{font-family:var(--mono);font-size:.92em}
+.lede{font-size:18px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));border-top:1px solid var(--grid);border-left:1px solid var(--grid);margin-top:24px}
+.cell{border-right:1px solid var(--grid);border-bottom:1px solid var(--grid);padding:20px;min-width:0;background:var(--surface)}
+.cell p{font-size:14px;margin:6px 0 0}
+.num{font:400 28px/1.1 var(--mono);letter-spacing:-.02em;color:var(--text)}
+.mermaid-wrap{overflow-x:auto;border:1px solid var(--grid);background:var(--surface);padding:16px;margin-top:20px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:20px 0 0}
+.seg{display:inline-flex;border:1px solid var(--grid-strong)}
+.seg button{font:500 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:9px 14px;border:0;background:var(--surface);color:var(--text-2);cursor:pointer}
+.seg button+button{border-left:1px solid var(--grid-strong)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.seg button:focus-visible,.btn:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{font:500 13px var(--sans);height:36px;padding:0 14px;border:1px solid var(--grid-strong);background:var(--surface);color:var(--text);cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:hover{border-color:var(--text)}
+pre.prompt{white-space:pre-wrap;word-break:break-word;font:400 12.5px/1.6 var(--mono);color:var(--text-2);background:var(--sunken);border:1px solid var(--grid);padding:16px;margin:12px 0 0;max-height:420px;overflow:auto}
+.refs{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0;border-top:1px solid var(--grid);border-left:1px solid var(--grid);margin-top:20px}
+.ref{border-right:1px solid var(--grid);border-bottom:1px solid var(--grid);padding:12px;background:var(--surface);min-width:0}
+.ref img{display:block;width:100%;height:140px;object-fit:cover;object-position:top;border:1px solid var(--grid);background:var(--sunken)}
+.ref .mono{display:block;margin-top:8px;font-size:12px;word-break:break-all;color:var(--text)}
+.ref span.lbl{display:block;margin-top:4px;text-transform:none;letter-spacing:0;font-family:var(--sans);font-size:13px}
+.group-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:8px}
+.screens{border-top:1px solid var(--grid);margin-top:20px}
+details.screen{border:1px solid var(--grid);border-top:0;background:var(--surface)}
+details.screen summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:72px 1fr auto;gap:12px;align-items:center;padding:14px 16px}
+details.screen summary::-webkit-details-marker{display:none}
+details.screen summary:hover{background:var(--sunken)}
+details.screen[open] summary{border-bottom:1px solid var(--grid)}
+.sid{font:500 13px var(--mono);color:var(--accent)}
+.sname{font-weight:500;min-width:0}
+.sname small{display:block;color:var(--muted);font-size:13px;font-weight:400}
+.badge{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--grid-strong);border-radius:2px;padding:3px 7px;color:var(--text-2);white-space:nowrap}
+.sbody{padding:16px}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 24px;font-size:14px}
+.meta div{min-width:0}
+.meta b{display:block;font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.copied{font:500 12px var(--mono);color:var(--pos)}
+ol.steps{padding-left:20px;margin:12px 0 0;color:var(--text-2);max-width:72ch}
+ol.steps li{margin-bottom:8px}
+.note{border-left:2px solid var(--accent);padding:8px 14px;background:var(--accent-soft);color:var(--text);font-size:14px;margin-top:16px;max-width:80ch}
+footer{border-top:1px solid var(--grid-strong);padding:24px;color:var(--muted);font-size:13px}
+@media (max-width:640px){ section{padding:32px 16px} details.screen summary{grid-template-columns:56px 1fr} details.screen summary .badge{display:none} header.top{padding:12px 16px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="page">
+  <i class="xh" style="left:0;top:0"></i><i class="xh" style="left:100%;top:0"></i>
+  <header class="top">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M10 9h12v12H10zM12 11v8h8v-8z"/><rect x="0" y="21" width="32" height="2" fill="var(--accent)"/></svg>
+      Floor
+    </div>
+    <span class="lbl">Screen prompts v1 · 2026-10-02</span>
+  </header>
+
+  <section id="intro">
+    <span class="lbl">00 / Purpose</span>
+    <h1>Every screen of Floor, as a prompt.</h1>
+    <p class="lede">Each screen below has a ready-to-paste prompt for an image model. Generate them in the order given, attach the listed reference images, and save each result with its ID as the filename. Those screenshots become the reference wireframe and the target for the code.</p>
+    <div class="row">
+      <div class="cell"><span class="lbl">Screens</span><div class="num" id="count">0</div><p>Desktop, phone, component sheets and states.</p></div>
+      <div class="cell"><span class="lbl">Desktop size</span><div class="num">1536×1024</div><p>3:2 landscape. ChatGPT's largest landscape size.</p></div>
+      <div class="cell"><span class="lbl">Phone size</span><div class="num">1024×1536</div><p>2:3 portrait, one 390pt-wide phone screen.</p></div>
+      <div class="cell"><span class="lbl">Save as</span><div class="num" style="font-size:20px">wireframes/<br>generated/ID.png</div><p>For example <code>D01.png</code>. Then hand them back to Claude.</p></div>
+    </div>
+  </section>
+
+  <section id="flow">
+    <span class="lbl">01 / User flow</span>
+    <h2>Two ways in: a person, or an agent.</h2>
+    <p>A person sets a floor in the web app. An agent does the same through the MCP server and pays per call with b402. Both end in the same place: a vault contract that belongs to the user. The keeper only triggers rebalances; it can never move funds out.</p>
+    <div class="mermaid-wrap">
+<pre class="mermaid">
+flowchart LR
+  L[D01-D05 Landing] --> C[A01 Connect wallet]
+  C --> S[A02 Set your floor]
+  S --> R[A03 Review and confirm]
+  R --> OK[A04 Position created]
+  OK --> P[A05 Position: active]
+  P --> RB[A06 Rebalance detail]
+  P --> MC[A07 Market closed]
+  P --> CL[A08 Cash locked]
+  P --> X[A09 Exit]
+  P --> LIST[A10 My positions]
+  L --> AG[G01 Agents page]
+  AG --> TR[G02 Agent run trace]
+  TR --> OK
+  K[Keeper] -. rebalance only .-> P
+  K --> KL[G03 Public keeper log]
+</pre>
+    </div>
+    <div class="row">
+      <div class="cell"><span class="lbl">Person</span><h3>Landing → wallet → floor → confirm → watch → exit</h3><p>Deposit USDT, pick a basket of NVDAB, SPCXB and QQQB, pick a floor (90% by default), confirm two transactions, then follow value, floor and cushion until the term ends.</p></div>
+      <div class="cell"><span class="lbl">Agent</span><h3>Discover → quote (402, pay) → unsigned tx → user's wallet signs</h3><p>The agent calls <code>quote_protection</code>, gets a 402, pays with b402, then calls <code>deposit</code> and receives an unsigned transaction. The user's own Agentic Wallet signs it. Floor never signs for users.</p></div>
+      <div class="cell"><span class="lbl">Keeper</span><h3>Trading window → check drift → swap → log</h3><p>Mon–Fri 15:30–19:30 UTC only. A normal keeper wallet is primary; a Binance Agentic Wallet holds the same role. After 4 idle hours anyone can trigger a rebalance.</p></div>
+    </div>
+  </section>
+
+  <section id="how">
+    <span class="lbl">02 / How to generate</span>
+    <h2>Consistency comes from the order and the attachments.</h2>
+    <ol class="steps">
+      <li><b>Pick the theme once.</b> Dark is the default here; it reads more "agentic". Use the switch below; every copied prompt follows it. Don't mix themes inside one set.</li>
+      <li><b>Generate the three component sheets first</b> (C01, C02, C03). Pick the best result of each, and re-roll until the grid, crosshairs and type look right. They are the style anchor.</li>
+      <li><b>Then D01, the landing hero.</b> Attach the brand sheet, the logo and C01–C03.</li>
+      <li><b>For every later screen, attach</b> the brand sheet, the logo, C01–C03 and your chosen D01, plus the extra references listed on the screen. Say "match the attached screenshots exactly in grid, type and colour" if a result drifts.</li>
+      <li><b>Each copied prompt already includes the shared style block</b> (colours, fonts, sizes, grid, components) followed by the screen's own layout and exact text.</li>
+      <li><b>Numbers marked "example"</b> are display values for the mockup, not results. Backtest numbers are real (see <code>floor/CONTEXT.md</code>).</li>
+    </ol>
+    <div class="controls" role="group" aria-label="Prompt theme">
+      <span class="lbl">Prompt theme</span>
+      <div class="seg"><button id="t-dark" type="button" aria-pressed="true">Dark</button><button id="t-light" type="button" aria-pressed="false">Light</button></div>
+      <button class="btn" id="copy-global" type="button">Copy shared style block only</button>
+      <span class="copied" id="copied-global" hidden>Copied</span>
+    </div>
+    <pre class="prompt" id="global-pre" aria-label="Shared style block"></pre>
+  </section>
+
+  <section id="refs">
+    <span class="lbl">03 / Reference images</span>
+    <h2>Attach these from your disk.</h2>
+    <p>All files are in <code>~/Documents/Projects/floor/wireframes/refs/</code>. Each screen lists which ones to attach.</p>
+    <div class="refs" id="ref-grid"></div>
+  </section>
+
+  <section id="screens">
+    <span class="lbl">04 / Screens</span>
+    <h2>Generate in this order.</h2>
+    <div id="groups"></div>
+  </section>
+
+  <footer>Floor is a hackathon project for BNB Hack: Tokenized Stocks Edition. Backtest numbers use past prices and do not predict the future. Values marked "example" in prompts are mockup data.</footer>
+</div>
+
+<script>
+const THEMES = {
+  dark: {name:"DARK", bg:"#0A0B0D", surface:"#111215", sunken:"#0D0E10", grid:"#1C1E21", gridStrong:"#2C2E31", cross:"#6E7068",
+    text:"#F2F2EE", text2:"#B4B6AE", muted:"#8D9088", accent:"#7C93FF", accentInk:"#0A0B0D", accentSoft:"#151A33",
+    pos:"#3DD68C", neg:"#FF7469", warn:"#F2B84B", brandRef:"brand-sheet-dark.png", logoRef:"floor-lockup-dark.png"},
+  light: {name:"LIGHT", bg:"#FAFAF8", surface:"#FFFFFF", sunken:"#F3F3F0", grid:"#E4E5E0", gridStrong:"#CFD0CA", cross:"#8C8E86",
+    text:"#10110F", text2:"#464843", muted:"#686A63", accent:"#2440E0", accentInk:"#FFFFFF", accentSoft:"#E9ECFC",
+    pos:"#0B7544", neg:"#B8312A", warn:"#8F5600", brandRef:"brand-sheet-light.png", logoRef:"floor-lockup-light.png"}
+};
+
+const REFS = [
+  {f:"BRAND", label:"Brand sheet (theme-matched)", note:"Logo, colours, type, grid. Attach to every prompt."},
+  {f:"LOGO", label:"Logo lockup (theme-matched)", note:"Square on a line + wordmark. Attach to every prompt."},
+  {f:"floor-cushion-explainer.png", label:"Floor and cushion diagram", note:"Chart language: floor line, cushion fill, mono labels."},
+  {f:"bad-years-chart.png", label:"Bad-years bar chart", note:"Bar chart style for proof sections."},
+  {f:"agent-flow.png", label:"Agent flow diagram", note:"Box-and-arrow style for agent screens."}
+];
+
+const DEVICE = {
+  desktop: `Canvas: exactly 1536×1024 px, 3:2 landscape. The whole canvas is the browser viewport (no browser chrome, no window frame).
+Desktop grid: two full-height vertical 1px page rails in the grid hairline colour at x=144 and x=1392. Content runs from x=192 to x=1344: 12 columns of exactly 96px, no gutters, cells share 1px hairlines. Row module 96px. Inner padding inside any box 24px. Top navigation bar: 64px tall, full width between the rails, 1px bottom rule; logo lockup at x=192, height 24px.`,
+  phone: `Canvas: exactly 1024×1536 px, 2:3 portrait, showing ONE phone screen edge to edge (no phone frame, no notch drawing, no status-bar icons). The screen is 390pt wide scaled to fill the canvas width: 1pt = 2.63px. All sizes below are in pt.
+Phone grid: 16pt side margins, 4 columns, no gutters, cells share 1px hairlines, row module 64pt. Inner padding inside boxes 16pt. Top bar 56pt tall with a 1px bottom rule; logo lockup 20pt tall at the left margin; a 40pt square menu button with a 3-line icon at the right. Type on phone: display 40pt, H2 24pt, body 16pt, labels 11pt mono caps, big numbers 32pt mono. Buttons are full width, 48pt tall.`
+};
+
+function globalBlock(t, device){
+  return `FLOOR — SHARED UI STYLE (applies to this whole image)
+
+Output: one flat, straight-on, high-fidelity UI screenshot of a web product called "Floor". It must look like a real production screenshot from a top fintech/devtools company (the precision of Linear, Vercel and Stripe's dashboards), not a concept render. No device mockup, no perspective, no 3D, no shadows, no reflections, no people, no hands, no desk or room scene.
+
+${DEVICE[device]}
+
+Style: a visible-grid, blueprint / Swiss technical-drawing interface. Thin 1px hairlines divide the page into square cells and boxes, and every element snaps exactly to the grid. Small "+" crosshair marks (11px square, 1px strokes, 5px arms) sit where grid lines cross at the corners of key boxes: at most 8 on screen, never on text or buttons. Square corners everywhere (border-radius 0; badges 2px at most). No gradients, no glow, no drop shadows, no blur or glass effects, no illustrations, no photos, no emoji, no crypto coins, no robots, no 3D shapes. Icons only where stated: thin line icons, Lucide style, 1.5px stroke, square caps, monochrome.
+
+Colours — ${t.name} theme, use exactly these hex values:
+- Page background ${t.bg}. Cards, panels and inputs ${t.surface}. Hover/sunken wells ${t.sunken}.
+- Grid hairlines ${t.grid}. Section rules and input borders ${t.gridStrong}. "+" crosshairs ${t.cross}.
+- Primary text ${t.text}. Secondary text ${t.text2}. Labels and captions ${t.muted}.
+- Accent ${t.accent}: links, focus, and at most ONE filled primary button per screen; text on accent ${t.accentInk}. Accent-soft ${t.accentSoft}: the "cushion" fill in charts and selected states.
+- THE FLOOR LINE: a 2px horizontal line in ${t.accent}. On most screens it is the only saturated line.
+- Semantic: gain ${t.pos}, loss and cash lock ${t.neg}, warning and weekend ${t.warn}. Always pair a colour with a sign (+/−) or a word.
+
+Typography: Geist (geometric grotesk sans, like Vercel's Geist) for words; Geist Mono for every number, price, %, ticker, address, label, badge and table header. Tabular figures, slashed zero. Use the true minus sign "−".
+- Display headline: 64px Geist SemiBold, letter-spacing −3.5%, line-height 1.05.
+- H1 44px SemiBold −2%. H2 28px SemiBold −2%. H3 20px SemiBold −1%.
+- Body 16px Geist Regular, line-height 1.55, secondary text colour, lines no longer than about 64 characters. Small text 14px.
+- Labels: Geist Mono 12px Medium, ALL CAPS, letter-spacing +8%, label colour (for example "01 / HOW IT WORKS").
+- Big numbers: Geist Mono 40px Regular, letter-spacing −2%.
+
+Components:
+- Logo lockup: a small square outline (thick stroke) resting on a horizontal line that extends past the square on both sides; the line is in the accent colour; then the word "Floor" in a clean geometric sans at the same height. Match the attached logo exactly.
+- Primary button: 40px tall, 16px side padding, square corners, accent fill, 14px Geist Medium label in the text-on-accent colour. Secondary button: card fill, 1px section-rule border, primary text. Ghost link: label followed by "→".
+- Input: 40px tall, square, 1px section-rule border, card fill; value in Geist Mono 16px; field label above in mono caps 12px; unit (for example "USDT" or "%") inside on the right in label colour. Focused input: 1px accent border plus a 1px accent ring.
+- Segmented control and chips: square, 1px borders shared between options; selected option has an accent border and accent-soft fill.
+- Stat tile: square box with a 1px hairline border; mono caps label at top, big mono value, one muted line under it. Tiles in a row share borders.
+- Table: hairline row dividers only, mono caps 11px header with a section-rule line under it, numbers right-aligned in mono, 12px cell padding.
+- Badge: 24px tall, 1px border and text in the semantic colour, transparent fill, mono caps 11px, 2px radius.
+- Charts sit on the hairline grid: value line 1.5px in primary text colour; holding/benchmark line 1.5px in label colour; floor line 2px accent with 11px end ticks and a mono caps label just under it; the area between value line and floor filled accent-soft and labelled "CUSHION" in mono caps; axis labels mono 11px in label colour; no extra axis lines; straight segments, no smoothing.
+
+Text rules: render every quoted string EXACTLY as written: same spelling, capitals, punctuation and numbers. Do not add any text that is not quoted in this prompt: no lorem ipsum, no extra menu items, no other brand names or logos, no watermark, no signature.`;
+}
+
+
+const SCREENS = [
+ /* ---------- component sheets ---------- */
+ {id:"C01", group:"Component sheets (generate first)", device:"desktop", name:"Controls sheet", step:"Style anchor for every screen",
+  refs:["BRAND","LOGO"],
+  p:`SCREEN C01 — CONTROLS SHEET (a design-system page, not an app screen)
+
+Layout: top bar with the logo lockup at x=192 and the mono label "COMPONENTS / CONTROLS · v1" right-aligned at x=1344. Below, a 12-column board of square cells separated by hairlines, with "+" crosshairs at the four outer corners of the board. Each cell has a mono caps label in its top-left corner naming the component.
+
+Row 1 (cells of 3 columns each): "BUTTON / PRIMARY" showing a primary button "Set your floor" in default, hover (slightly lighter accent) and focus (2px accent outline offset 2px) states stacked with small mono captions "DEFAULT", "HOVER", "FOCUS". "BUTTON / SECONDARY" with "See the proof" in default and hover (border turns primary text colour). "BUTTON / GHOST" with "Read the agent docs →". "BUTTON / DISABLED" with "Create position" on the sunken fill in label-colour text.
+
+Row 2: "INPUT / AMOUNT": label "DEPOSIT", value "10,000.00", suffix "USDT", helper line under it "Balance: 12,480.00 USDT". Same input in "FOCUS" state with the accent border and ring. Same input in "ERROR" state with a loss-coloured border and the message "Not enough USDT. You have 812.40 USDT." in loss colour under it.
+
+Row 3: "SEGMENTED / FLOOR" with four joined options "80%", "85%", "90%", "95%"; "90%" selected. "CHIPS / BASKET" with three square chips, each two lines: "NVDAB" over "NVIDIA", "SPCXB" over "SpaceX", "QQQB" over "Nasdaq-100"; all three selected (accent border, accent-soft fill, a small check mark at the top right); a fourth disabled chip "SPYB" over "optional". "CHECKBOX" with a square 16px box checked (accent fill, check mark) next to the text "I understand the floor can break if prices gap more than 25% before a rebalance." and one unchecked.
+
+Row 4: "BADGES" in a row: "ACTIVE" (gain colour), "MARKET OPEN" (gain colour), "MARKET CLOSED" (warning colour), "WEEKEND" (warning colour), "CASH LOCKED" (loss colour), "CLOSED" (label colour), "BUILDING" (label colour), "EXAMPLE" (label colour), "BNB CHAIN" (label colour). "TABS" with "Set floor", "Positions", "Agents"; "Positions" active with a 2px accent underline. "LINK" showing "View on BscScan →" in accent.`},
+ {id:"C02", group:"Component sheets (generate first)", device:"desktop", name:"Data display sheet", step:"Style anchor",
+  refs:["BRAND","LOGO"],
+  p:`SCREEN C02 — DATA DISPLAY SHEET (design-system page)
+
+Layout: same top bar as a component page: logo at x=192, mono label "COMPONENTS / DATA · v1" at the right. A 12-column board of hairline cells, crosshairs at the board's outer corners, mono caps label in each cell's top-left corner.
+
+Row 1, "STAT TILES": six tiles joined in one row, 2 columns each, sharing borders:
+1 label "VALUE", value "10,412.30", note "USDT · example". 2 label "FLOOR", value "9,000.00", note "90% of deposit". 3 label "CUSHION", value "1,412.30", note "value minus floor". 4 label "IN STOCKS", value "54%", note "5,649.20 USDT". 5 label "IN USDT", value "46%", note "4,763.10 USDT". 6 label "TERM", value "362", note "days left".
+
+Row 2, left 7 columns, "TABLE / ACTIVITY": header row "TIME (UTC)", "ACTION", "AMOUNT", "COST", "TX". Rows:
+"2026-10-07 16:02" | "SELL NVDAB" | "320.11 USDT" | "5.9 bps" | "0xab4…77d"
+"2026-10-06 18:40" | "BUY QQQB" | "212.40 USDT" | "0.7 bps" | "0x19f…c03"
+"2026-10-05 15:31" | "DEPOSIT" | "10,000.00 USDT" | "–" | "0x5d2…8ab"
+Amounts right-aligned mono. A small "EXAMPLE DATA" badge at the table's top right.
+Row 2, right 5 columns, "STACKED SPLIT BAR": a 24px tall horizontal bar split 40% (accent fill, label "STOCKS 40%") and 60% (accent-soft fill, label "USDT 60%"), with a mono caption "STARTING SPLIT AT A 90% FLOOR (4 × CUSHION)".
+
+Row 3, "STEPPER": three steps in a row joined by a hairline: "1 APPROVE USDT" with a check mark (gain colour), "2 CREATE POSITION" current (accent square marker), "3 DONE" upcoming (label colour). "TOAST": a square box with a 2px left border in gain colour, title "Position created", body "Vault 0x7a3f…c91e. First rebalance in the next trading window.", and "View →". "BANNER / WARNING": full-width strip with a 2px left border in warning colour: "Market closed. The vault does not trade on weekends. Next window: Mon 15:30 UTC."
+
+Row 4, "MODAL": a 480px square-cornered dialog on a dimmed backdrop (page background at 70% over the board), title "Exit before the term ends?", body "Leaving now removes the floor. You can close to USDT in the next trading window, or exit in kind right away.", buttons "Request close" (secondary) and "Exit in kind now" (primary).`},
+ {id:"C03", group:"Component sheets (generate first)", device:"desktop", name:"Charts sheet", step:"Style anchor",
+  refs:["BRAND","LOGO","floor-cushion-explainer.png","bad-years-chart.png"],
+  p:`SCREEN C03 — CHARTS SHEET (design-system page). Match the attached diagram and bar chart's line language.
+
+Layout: top bar with logo at x=192 and the mono label "COMPONENTS / CHARTS · v1" at the right. Board of hairline cells, crosshairs at the board corners, mono caps label in each cell's top-left.
+
+Cell A (left 7 columns, 5 rows tall), label "CHART / FLOOR · NVDA 2022 · BACKTEST": x-axis labels "JAN 2022", "APR", "JUL", "OCT", "JAN 2023"; y-axis labels "100", "90", "70", "50", "40". Draw two lines over 13 monthly points:
+HOLD NVDA (1.5px, label colour): 100, 84, 76, 91, 68, 62, 50, 64, 45, 44, 44, 56, 49. End label "HOLD −51.0%" in loss colour.
+FLOOR VAULT (1.5px, primary text colour): 100, 94, 92, 93, 91, 90.4, 90.1, 90.3, 90.1, 90.1, 90.0, 90.1, 90.0. It glides down and sits just above the floor from June. End label "FLOOR −10.0%".
+Floor line at y=90: 2px accent, label under it "YOUR FLOOR: 90%". Fill between the vault line and the floor line with accent-soft and label it "CUSHION". Caption under the chart in muted 13px: "Backtest on real daily prices. Past data, not a prediction."
+
+Cell B (right 5 columns, top), label "BARS / TYPICAL BAD YEAR": horizontal paired bars, axis from "0%" at left to "−40%" at right, rows: "NVDA" hold −36% (label-colour bar) vs Floor −9.9% (accent bar); "NVDA + TSLA + QQQ" −17% vs −8.6%; "QQQ" −19% vs −7.4%; "TSLA" −27% vs −9.7%. Values printed at bar ends in mono. Legend inline: "HOLD" and "FLOOR". Caption: "Median of the windows where holding lost more than 10%."
+
+Cell C (right 5 columns, bottom), label "SPARKLINE + CASH LOCK BAND": a small value line that drops to touch the floor line, after which a hatched band (thin diagonal hairlines on the sunken fill) covers the rest of the chart, labelled "CASH LOCK · USDT UNTIL TERM END" in mono caps loss colour.
+
+Bottom row (full width), label "BIG NUMBER": a single tile with "93 / 93" in mono 64px and the caption "ONE-YEAR WINDOWS WHERE A 90% FLOOR HELD · 2018–2026 · m = 4".`},
+
+ /* ---------- landing ---------- */
+ {id:"D01", group:"Landing page (desktop)", device:"desktop", name:"Landing: hero", step:"Landing, first screen",
+  refs:["BRAND","LOGO","C01","C02","C03"],
+  p:`SCREEN D01 — LANDING PAGE, HERO (top of the page)
+
+Navigation bar (0–64px): logo lockup at x=192. To the right of centre, links in 14px secondary text: "How it works", "Trade-off", "Proof", "Agents", "FAQ". At the right edge (ending x=1344): primary button "Set your floor".
+
+Hero (y=64 to 832): the visible lattice (96px square cells of hairlines) fills the hero background between the rails. Crosshairs at the hero's top-left and top-right where the rails meet the nav rule.
+Left 6 columns (x=192 to 768), vertically centred:
+- mono caps label "BNB CHAIN · bSTOCKS · SPOT ONLY"
+- display headline on three lines: "Set the lowest your" / "portfolio can go."  (64px SemiBold, primary text)
+- body, 18px, secondary text, max 2–3 lines: "Floor protects your tokenized stocks with a line you choose. If prices fall, the vault moves into stablecoins to stay above it. If prices rise, you keep part of the gain."
+- buttons in a row: primary "Set your floor", secondary "See the proof"
+- one line 13px label colour: "Spot trades only on BNB Chain. The floor holds unless prices gap more than 25% before the vault can rebalance."
+Right 6 columns (x=768 to 1344, y=160 to 736): a chart panel with card fill, 1px hairline border and "+" crosshairs on all four corners. Inside, top-left label "FIG. 01 / NVDA, 2022 · BACKTEST", top-right badge "REAL PRICES". The chart exactly as specified in C03 cell A (HOLD NVDA line falling to "HOLD −51.0%", FLOOR VAULT line settling on the floor and ending "FLOOR −10.0%", accent floor line "YOUR FLOOR: 90%", accent-soft "CUSHION" fill). Caption under the chart: "Backtest on real daily prices. Past data, not a prediction."
+
+Bottom band (y=832 to 1024): four stat tiles joined in a row, 3 columns each, sharing borders:
+1 "93 / 93" — label "ONE-YEAR WINDOWS THE FLOOR HELD" — note "2018 to 2026, m = 4"
+2 "−10.0%" — label "NVDA 2022 WITH FLOOR" — note "Holding lost 51.0%"
+3 "~42%" — label "UPSIDE KEPT IN UP YEARS" — note "Three-stock basket, median"
+4 "0.7–6.6 bps" — label "COST PER $10K ROUND TRIP" — note "Measured 2026-10-02"
+(Put the label above the value in each tile.)`},
+ {id:"D02", group:"Landing page (desktop)", device:"desktop", name:"Landing: problem and how it works", step:"Landing, scrolled",
+  refs:["BRAND","LOGO","C01","C02","C03","D01","floor-cushion-explainer.png"],
+  p:`SCREEN D02 — LANDING PAGE, PROBLEM + HOW IT WORKS (scrolled down; keep the same nav bar at the top, 64px)
+
+Section 1 (y=64 to 448), top rule across the container with crosshairs where it meets the rails.
+Left 6 columns: label "02 / THE PROBLEM", H2 "A crash does not ask what you can afford to lose.", body: "You can now hold stocks like NVIDIA and the Nasdaq-100 as tokens on BNB Chain. In 2022, holding NVDA lost 51%. Today you can sell and miss the upside, or hold and hope. Floor adds a third choice: hold, with a floor."
+Right 6 columns: two horizontal bars on the grid, axis "0%" to "−60%": "NVDA 2022, HOLD" bar to −51.0% in loss colour with value "−51.0%"; "NVDA 2022, WITH FLOOR" bar to −10.0% in accent with value "−10.0%". A vertical 2px accent line at −10% labelled "YOUR FLOOR". Caption: "Past data, not a prediction."
+
+Section 2 (y=448 to 1024), top rule with crosshairs.
+Top-left: label "03 / HOW IT WORKS", H2 "You choose one number. Floor does the rest."
+Four step cells in one row, 3 columns each, sharing borders, each 288px tall:
+1 label "STEP 1", H3 "Deposit.", body 14px "Deposit USDT and pick a basket: NVDAB, SPCXB, QQQB."
+2 label "STEP 2", H3 "Pick your floor.", body "Choose the lowest value you accept, for example 90% of your deposit, for one year."
+3 label "STEP 3", H3 "The vault keeps you above the line.", body "When prices fall, it sells some stock for USDT. When prices rise, it buys some back." Inside this cell, a small chart: a value line descending toward an accent floor line, with the accent-soft cushion between them shrinking.
+4 label "STEP 4", H3 "Withdraw when you like.", body "Your money stays in your own vault contract. At the end of the term you take it out."
+Under the steps, one mono caps line in label colour: "THE RULE: STOCK HELD = 4 × CUSHION. THE REST SITS IN USDT. (CPPI)"`},
+ {id:"D03", group:"Landing page (desktop)", device:"desktop", name:"Landing: trade-off and proof", step:"Landing, scrolled",
+  refs:["BRAND","LOGO","C02","C03","D01","bad-years-chart.png"],
+  p:`SCREEN D03 — LANDING PAGE, TRADE-OFF + PROOF (same 64px nav bar on top)
+
+Section 1 (y=64 to 512): label "04 / THE TRADE-OFF", H2 "What it costs: part of the upside."
+Below, a two-column table across all 12 columns, header cells "YOU GIVE" and "YOU GET" (mono caps), three rows separated by hairlines, 16px body text:
+Row 1: "About 58% of the gain in an up year. A three-stock basket kept about 42%." | "Bad years cut to −8.6% where holding lost 17%."
+Row 2: "Small trading costs: 0.7 to 6.6 basis points per $10k round trip." | "A floor you chose, in a public contract you can read."
+Row 3: "In a choppy stock like TSLA, the vault's median year was −6.8% while holding made +22%." | "NVDA in 2022: −10.0% where holding lost 51%."
+Put "−6.8%" and "−10.0%"-type numbers in mono with their semantic colours and signs.
+
+Section 2 (y=512 to 1024), top rule with crosshairs: label "05 / PROOF", H2 "Tested on real prices."
+Left 4 columns: a big tile "93 / 93" (mono 64px) with label "ONE-YEAR WINDOWS WHERE THE FLOOR HELD" and note "NVDA, QQQ, SPY, TSLA and baskets, 2018 to 2026".
+Under it, a small mono list in label colour titled "WE MADE THE TEST HARDER:" with three lines "Full weekend gaps", "0% yield on USDT", "Measured trading costs".
+Right 8 columns: the paired-bar chart from C03 cell B ("TYPICAL BAD YEAR", NVDA −36% vs −9.9%, NVDA + TSLA + QQQ −17% vs −8.6%, QQQ −19% vs −7.4%, TSLA −27% vs −9.7%). Caption: "Backtest on past prices. It does not predict the future."`},
+ {id:"D04", group:"Landing page (desktop)", device:"desktop", name:"Landing: spot only and agents", step:"Landing, scrolled",
+  refs:["BRAND","LOGO","C01","C02","D01","agent-flow.png"],
+  p:`SCREEN D04 — LANDING PAGE, SPOT ONLY + AGENTS (same 64px nav bar on top)
+
+Section 1 (y=64 to 416): label "06 / SPOT ONLY", H2 "Spot trades only. Nothing exotic."
+Four joined cells, 3 columns each: each shows a mono caps word struck through with a single 1px line, then a one-line explanation in 14px:
+"PERPS" — "No bets on future prices." | "OPTIONS" — "No contracts that expire." | "LEVERAGE" — "Exposure never goes above your deposit." | "BORROWING" — "Floor owes no one anything."
+Under the cells, a single centred row in mono: "NVDAB  ⇄  USDT" with the caption "Every move is a normal swap on BNB Chain. You can check every trade on-chain."
+
+Section 2 (y=416 to 1024), top rule with crosshairs: label "07 / AGENTS", H2 "Built for agents, too.", body "Floor lets an AI agent buy protection for the person it works for."
+Left 7 columns: a box-and-arrow flow on the lattice, right-angle connectors with 6px arrowheads, every box square with a hairline border and a mono caps title:
+"AI AGENT" → "MCP · quote_protection" → "402 · PAY WITH b402" → "UNSIGNED TX" → "USER'S AGENTIC WALLET SIGNS" → "YOUR FLOOR VAULT". A separate box "KEEPER" below with an arrow up into "YOUR FLOOR VAULT" labelled "rebalance() only". One small badge "BUILDING" on the MCP and b402 boxes.
+Right 5 columns: a code card (card fill, hairline border, mono 13px), top label "EXAMPLE", content exactly:
+{ "tool": "quote_protection",
+  "input": {
+    "basket": ["NVDAB", "SPCXB", "QQQB"],
+    "amount_usdt": 10000,
+    "floor_pct": 90 } }
+← 402 Payment Required (b402)
+Below the card three short lines in 14px: "Pay per call in stablecoins. No sign-up, no API key." / "State-changing tools return unsigned transactions." / "Floor never signs for users."`},
+ {id:"D05", group:"Landing page (desktop)", device:"desktop", name:"Landing: limits, FAQ, footer", step:"Landing, bottom",
+  refs:["BRAND","LOGO","C01","D01"],
+  p:`SCREEN D05 — LANDING PAGE, WHAT WE DON'T CLAIM + FAQ + CTA + FOOTER (same 64px nav bar on top)
+
+Section 1 (y=64 to 448), left 6 columns: label "08 / LIMITS", H2 "What we don't claim." Then a plain list, each line starting with a small "+" mark in the crosshair colour, 15px text:
+"Floor is not a guarantee. It holds unless prices gap more than 25% before the vault can rebalance."
+"It can miss the recovery. At the floor, the vault holds USDT until the term ends."
+"You give up upside. About 42% of a basket's gain was kept in up years."
+"Token risk. The issuer can pause or block a tokenized stock."
+"Contract risk. The vault is new code."
+Right 6 columns: label "09 / FAQ", an accordion of 5 rows separated by hairlines, each with the question in 16px Medium and a "+" at the right; the first row open:
+open: "Can I lose money?" answer: "Yes. At a 90% floor your worst case is about a 10% loss, unless prices gap more than 25% before the vault can rebalance."
+closed: "What happens if my value hits the floor?" / "How much upside do I give up?" / "Who holds my money?" / "What happens on weekends?"
+
+Section 2 (y=448 to 736), top rule with crosshairs: a large empty lattice cell spanning 12 columns with one "+" at its centre-left, H2 "Pick your floor before the next drop." and a primary button "Set your floor" plus ghost link "Read the agent docs →".
+
+Footer (y=736 to 1024), top rule: logo lockup and the line "Your stocks, with a floor." on the left; four link columns with mono caps headers "PRODUCT", "AGENTS", "CODE", "LEGAL" and 14px links: "How it works", "Trade-off", "Proof" / "MCP server", "b402", "Agent skill" / "Contracts on BscScan", "GitHub", "Backtest scripts" / "Risks", "Terms", "Privacy". Bottom line, 12px label colour: "Floor is a hackathon project for BNB Hack: Tokenized Stocks Edition. Backtests use past prices and do not predict the future. Not financial advice."`},
+
+ /* ---------- app ---------- */
+ {id:"A01", group:"App: person flow (desktop)", device:"desktop", name:"Connect wallet", step:"Flow step 1",
+  refs:["BRAND","LOGO","C01","C02","D01"],
+  p:`SCREEN A01 — APP, CONNECT WALLET
+
+App shell: top bar 64px: logo at x=192; tabs "Set floor" (active, 2px accent underline), "Positions", "Agents"; at the right a badge "BNB CHAIN" and a secondary button "Connect wallet". Behind the modal, the Set-your-floor screen is visible but dimmed (page background at 70% opacity over it).
+
+Centred modal, 480px wide, square corners, card fill, 1px section-rule border, crosshairs on its four corners.
+Title H3 "Connect a wallet". A list of 4 rows, 56px each, separated by hairlines; each row has a 32px square placeholder cell with a thin generic wallet line icon (no brand logos), the name in 16px Medium, and a muted note on the right:
+"Binance Wallet" — "Browser or app"
+"MetaMask" — "Browser extension"
+"WalletConnect" — "Scan with your phone"
+"Binance Agentic Wallet" — "For AI agents"
+Under the list, 13px label colour: "Floor never holds your keys. Your funds sit in your own vault contract on BNB Chain."
+Close button: a square 32px "×" at the modal's top right.`},
+ {id:"A02", group:"App: person flow (desktop)", device:"desktop", name:"Set your floor", step:"Flow step 2 (the core screen)",
+  refs:["BRAND","LOGO","C01","C02","C03","D01"],
+  p:`SCREEN A02 — APP, SET YOUR FLOOR (the most important screen)
+
+App shell top bar 64px as in A01, but the right side shows a connected wallet: badge "BNB CHAIN" and a secondary button "0x4c2…9a1" with a small square status dot in gain colour.
+
+Left panel, 5 columns (x=192 to 672), full height below the bar, card fill, hairline border:
+- label "NEW POSITION", H1 "Set your floor"
+- Field "BASKET": three chips in a row, all selected: "NVDAB" / "NVIDIA", "SPCXB" / "SpaceX", "QQQB" / "Nasdaq-100"; a fourth disabled chip "SPYB" / "optional". Helper: "Equal weight. bStocks only."
+- Field "DEPOSIT": input value "10,000.00", suffix "USDT"; helper "Balance: 12,480.00 USDT · example".
+- Field "FLOOR": segmented control "80%", "85%", "90%", "95%" with "90%" selected; helper in mono "LOWEST VALUE: 9,000.00 USDT".
+- Field "TERM": a read-only row "1 YEAR · ENDS 2027-10-05".
+- A split bar (from C02) labelled "STARTING SPLIT": "STOCKS 40%" accent / "USDT 60%" accent-soft, with the line "The vault starts with 4,000 USDT in stocks and 6,000 USDT in stablecoins."
+- Primary button, full panel width: "Review".
+
+Right area, 7 columns (x=672 to 1344):
+- Top: a chart panel with crosshair corners, label "WHAT A 90% FLOOR DID IN NVDA 2022 · BACKTEST", the chart from C03 cell A at full size.
+- Under it, three stat tiles joined: "WORST CASE" "−10%" note "unless prices gap more than 25%"; "UPSIDE KEPT" "~42%" note "basket, median up year"; "COST PER REBALANCE" "~6 bps" note "per $10k round trip".
+- One mono caps line in label colour at the bottom: "TRADING WINDOW: MON–FRI 15:30–19:30 UTC · NO WEEKEND TRADES".`},
+ {id:"A03", group:"App: person flow (desktop)", device:"desktop", name:"Review and confirm", step:"Flow step 3",
+  refs:["BRAND","LOGO","C01","C02","A02"],
+  p:`SCREEN A03 — APP, REVIEW AND CONFIRM
+
+Same app shell as A02. Centre panel 8 columns wide (x=288 to 1056 at 96px columns), card fill, hairline border, crosshair corners.
+- label "STEP 2 OF 3", H2 "Review your floor"
+- Stepper (from C02): "1 APPROVE USDT" done with a check in gain colour, "2 CREATE POSITION" current, "3 DONE" upcoming.
+- A two-column definition table, hairline rows, left column mono caps label, right column value:
+"BASKET" — "NVDAB · SPCXB · QQQB (equal weight)"
+"DEPOSIT" — "10,000.00 USDT"
+"FLOOR" — "9,000.00 USDT (90%)"
+"TERM" — "1 year, ends 2027-10-05"
+"MULTIPLIER" — "4× cushion"
+"STARTING SPLIT" — "40% stocks / 60% USDT"
+"PROTOCOL FEE" — "0 USDT. Swap costs only."
+- Three checkboxes (all checked), 14px: "I understand the floor can break if prices gap more than 25% before a rebalance." / "I understand that at the floor the vault holds USDT until the term ends." / "I understand I keep only part of the upside."
+- Buttons at the bottom right: secondary "Back", primary "Create position".
+- Right of the panel (columns 10–12), a narrow note cell in label colour: "You will sign one transaction in your wallet. Floor cannot move your funds."`},
+ {id:"A04", group:"App: person flow (desktop)", device:"desktop", name:"Position created", step:"Flow step 4",
+  refs:["BRAND","LOGO","C02","A03"],
+  p:`SCREEN A04 — APP, POSITION CREATED (success)
+
+Same app shell. Centre panel 6 columns wide, crosshair corners. Top: badge "CONFIRMED" in gain colour.
+H2 "Your floor is set."
+Body: "Your vault holds 10,000.00 USDT. It buys your basket in the next trading window."
+Definition rows (hairlines, mono values):
+"VAULT" — "0x7a3f…c91e" with a small copy icon
+"TRANSACTION" — "0x5d2e…08ab" and the link "View on BscScan →"
+"FLOOR" — "9,000.00 USDT"
+"FIRST REBALANCE" — "Mon 2026-10-05, from 15:30 UTC"
+A small "EXAMPLE" badge next to the addresses.
+Buttons: primary "Open position", ghost "Set another floor →".
+Behind the panel, the lattice shows faintly, and a single accent floor line runs the full container width at the panel's lower edge.`},
+ {id:"A05", group:"App: person flow (desktop)", device:"desktop", name:"Position: active", step:"Flow step 5 (home of a user)",
+  refs:["BRAND","LOGO","C02","C03","A02"],
+  p:`SCREEN A05 — APP, POSITION DASHBOARD (healthy, market open)
+
+App shell top bar with "Positions" tab active.
+Header row (y=64 to 256): label "POSITION · NVDAB · SPCXB · QQQB · EXAMPLE", the value in mono 48px "10,412.30 USDT" with "+4.12%" in gain colour beside it, badges "ACTIVE" (gain) and "MARKET OPEN" (gain). At the right: secondary button "Close to USDT" and ghost link "Exit in kind →".
+Stat tile row (y=256 to 352), six joined tiles 2 columns each: "VALUE" "10,412.30"; "FLOOR" "9,000.00"; "CUSHION" "1,412.30"; "IN STOCKS" "54%" note "5,649.20 USDT"; "IN USDT" "46%" note "4,763.10 USDT"; "TERM" "362" note "days left".
+Main chart (columns 1–8, y=352 to 960): panel with crosshair corners, label "VALUE SINCE DEPOSIT · EXAMPLE", x labels "OCT 05" "OCT 06" "OCT 07"; value line rising gently from 10,000 to 10,412, accent floor line at 9,000 labelled "FLOOR 9,000.00", accent-soft cushion fill labelled "CUSHION", small "+" markers on the line where rebalances happened.
+Right column (columns 9–12): label "ACTIVITY", rows separated by hairlines, each with mono time and text:
+"OCT 07 16:02 · SELL 1.84 NVDAB → 320.11 USDT"
+"OCT 06 18:40 · BUY QQQB 212.40 USDT"
+"OCT 05 15:31 · BOUGHT BASKET 4,000.00 USDT"
+"OCT 05 14:58 · DEPOSIT 10,000.00 USDT"
+Under it a mono note: "REBALANCE WHEN STOCK DRIFTS MORE THAN 5% FROM TARGET". (example threshold)`},
+ {id:"A06", group:"App: person flow (desktop)", device:"desktop", name:"Rebalance detail", step:"From the activity list",
+  refs:["BRAND","LOGO","C02","A05"],
+  p:`SCREEN A06 — APP, REBALANCE DETAIL (A05 with a drawer open)
+
+The A05 dashboard is visible on the left, dimmed slightly. A right-side drawer, 480px wide (x=864 to 1344), full height under the top bar, card fill, 1px section-rule left border.
+Drawer header: label "REBALANCE #3 · EXAMPLE", H3 "Sold stock as the cushion shrank", close "×".
+Definition rows (hairlines; left mono caps label, right value):
+"TIME" — "2026-10-07 16:02 UTC"
+"TRIGGER" — "Stock was 6.2% above target"
+"ACTION" — "SELL 1.84 NVDAB → 320.11 USDT"
+"PRICE SOURCE" — "PancakeSwap v3, 10-minute average"
+"MINIMUM OUT" — "318.50 USDT"
+"RECEIVED" — "320.11 USDT" in gain colour
+"COST" — "5.9 bps"
+"KEEPER" — "0x91c…4e2" with a badge "KEEPER WALLET"
+"TRANSACTION" — "0xab4…77d" and "View on BscScan →"
+At the bottom of the drawer, a small diagram: before/after split bars "BEFORE 58% / 42%" and "AFTER 54% / 46%" (stocks accent, USDT accent-soft).
+Note line in label colour: "The keeper can only trigger trades the vault's rules allow. It cannot withdraw."`},
+ {id:"A07", group:"App: person flow (desktop)", device:"desktop", name:"Position: market closed", step:"State",
+  refs:["BRAND","LOGO","C01","C02","A05"],
+  p:`SCREEN A07 — APP, POSITION DASHBOARD, MARKET CLOSED (weekend)
+
+Same layout as A05, with these changes:
+- Badges: "ACTIVE" (gain) and "MARKET CLOSED · WEEKEND" (warning colour).
+- A full-width warning banner under the header (2px left border in warning colour, card fill): "The vault does not trade on weekends. Next trading window: Mon 2026-10-12, 15:30 UTC. The floor maths already assumes the full weekend gap."
+- Header value "10,388.04 USDT" with "−0.23%" in loss colour. Stat tiles: "VALUE" "10,388.04"; "FLOOR" "9,000.00"; "CUSHION" "1,388.04"; "IN STOCKS" "55%"; "IN USDT" "45%"; "TERM" "357".
+- On the chart, the weekend span (Saturday–Sunday) is shaded with the sunken fill and labelled "NO TRADES" in mono caps warning colour. The value line inside it is drawn dashed.
+- Buttons "Close to USDT" shows a small note under it: "Runs in the next trading window".`},
+ {id:"A08", group:"App: person flow (desktop)", device:"desktop", name:"Position: cash locked", step:"State",
+  refs:["BRAND","LOGO","C02","C03","A05"],
+  p:`SCREEN A08 — APP, POSITION DASHBOARD, CASH LOCKED (value reached the floor)
+
+Same layout as A05, with these changes:
+- Header value "9,004.12 USDT" with "−9.96%" in loss colour; badges "CASH LOCKED" (loss colour) and "MARKET OPEN" (gain).
+- Banner (2px left border in loss colour): "Your value reached the floor on 2027-02-11. The vault sold all stock and holds USDT until the term ends on 2027-10-05. You keep 9,004.12 USDT. You will not gain from a recovery during this term."
+- Stat tiles: "VALUE" "9,004.12"; "FLOOR" "9,000.00"; "CUSHION" "4.12"; "IN STOCKS" "0%"; "IN USDT" "100%"; "TERM" "236".
+- Chart labelled "VALUE SINCE DEPOSIT · EXAMPLE", x labels "OCT 2026", "DEC", "FEB 2027": the value line falls and touches the accent floor line; from that point a hatched band (thin diagonal hairlines on sunken fill) fills the rest of the chart, labelled "CASH LOCK · USDT UNTIL 2027-10-05". The line inside the band is flat on the floor.
+- Activity top row: "FEB 11 15:44 · SOLD ALL STOCK → 5,961.30 USDT · CASH LOCK".
+- Buttons: primary "Withdraw 9,004.12 USDT" and ghost "Keep until term end →".`},
+ {id:"A09", group:"App: person flow (desktop)", device:"desktop", name:"Exit", step:"Flow end",
+  refs:["BRAND","LOGO","C01","C02","A05"],
+  p:`SCREEN A09 — APP, EXIT MODAL (over the dimmed A05 dashboard)
+
+Modal 720px wide, centred, crosshair corners. Title H3 "How do you want to leave?" Body: "Leaving before 2027-10-05 removes the floor for this position."
+Two option cells side by side, each 360px, sharing a border:
+Left (selected: accent border, accent-soft fill): label "OPTION 1", H3 "Close to USDT", text "The vault sells all stock in the next trading window, then sends you USDT.", mono line "ESTIMATED: 10,409.70 USDT · AFTER ~6 bps".
+Right: label "OPTION 2", H3 "Exit in kind", text "Get what the vault holds now, straight away. Works even if a token is paused.", mono lines "10.82 NVDAB · 12.64 SPCXB · 3.02 QQQB" and "+ 4,763.10 USDT".
+Buttons at bottom right: secondary "Cancel", primary "Request close".
+A small "EXAMPLE" badge next to the estimates.`},
+ {id:"A10", group:"App: person flow (desktop)", device:"desktop", name:"My positions", step:"Positions tab",
+  refs:["BRAND","LOGO","C02","A05"],
+  p:`SCREEN A10 — APP, MY POSITIONS (list)
+
+App shell with "Positions" tab active. Header: label "POSITIONS · EXAMPLE", H1 "Your floors", primary button at the right "Set a new floor".
+Summary tiles, four joined: "TOTAL VALUE" "29,840.66 USDT"; "TOTAL FLOOR" "27,000.00 USDT"; "ACTIVE" "2"; "CASH LOCKED" "1".
+Table across 12 columns, header "VAULT", "BASKET", "DEPOSIT", "VALUE", "FLOOR", "CUSHION", "STATE", "TERM LEFT":
+"0x7a3f…c91e" | "NVDAB · SPCXB · QQQB" | "10,000.00" | "10,412.30" | "9,000.00" | "1,412.30" | badge "ACTIVE" | "362 d"
+"0x2b81…77f0" | "NVDAB" | "10,000.00" | "10,424.24" | "9,000.00" | "1,424.24" | badge "MARKET OPEN" | "201 d"
+"0x9ce4…1a3d" | "QQQB · SPCXB" | "10,000.00" | "9,004.12" | "9,000.00" | "4.12" | badge "CASH LOCKED" | "236 d"
+"0x44d0…be12" | "NVDAB · QQQB" | "5,000.00" | "5,610.80" | "4,500.00" | "–" | badge "CLOSED" | "–"
+Numbers right-aligned mono. Each row ends with "→".`},
+
+ /* ---------- agents ---------- */
+ {id:"G01", group:"Agent flow (desktop)", device:"desktop", name:"Agents page", step:"Agent entry",
+  refs:["BRAND","LOGO","C01","C02","D04","agent-flow.png"],
+  p:`SCREEN G01 — AGENTS PAGE (developer-facing)
+
+App shell with "Agents" tab active. Hero (y=64 to 352): label "FOR AGENTS · BUILDING", H1 "Use Floor from any agent.", body "Floor's actions are MCP tools. Agents pay per call with b402. Tools that change state return unsigned transactions, and the agent's own wallet signs."
+Left 7 columns: a table "MCP TOOLS", header "TOOL", "WHAT IT DOES", "PRICE", "CHANGES STATE":
+"quote_protection" | "Floor, starting split and backtest for a basket" | badge "PAID · b402" | "No"
+"backtest" | "Run the Floor rule on past prices" | badge "PAID · b402" | "No"
+"status" | "Value, floor, cushion and state of a vault" | badge "FREE" | "No"
+"deposit" | "Returns an unsigned createPosition transaction" | badge "FREE" | "Unsigned tx"
+"withdraw" | "Returns an unsigned exit transaction" | badge "FREE" | "Unsigned tx"
+Tool names in mono accent colour.
+Right 5 columns: a code card labelled "CONNECT · EXAMPLE", mono 13px, content exactly:
+{
+  "mcpServers": {
+    "floor": { "url": "https://mcp.floor.example/mcp" }
+  }
+}
+Under it, label "HOW AN AGENT PAYS", four numbered rows joined by a vertical hairline:
+"1  Agent calls quote_protection"  "2  Floor answers 402 Payment Required"  "3  Agent signs a b402 payment in USD1, U, USDT or USDC"  "4  Floor verifies, settles and returns the quote".
+Bottom strip: "Gas for b402 payments is sponsored. Floor never signs for users."`},
+ {id:"G02", group:"Agent flow (desktop)", device:"desktop", name:"Agent run trace", step:"Agent session, end to end",
+  refs:["BRAND","LOGO","C02","G01","agent-flow.png"],
+  p:`SCREEN G02 — AGENT RUN TRACE (what happens when an agent sets a floor for its user)
+
+App shell, "Agents" tab active. Header: label "AGENT RUN · EXAMPLE", H2 "An agent sets a floor for its user", badge "BUILDING".
+Left 4 columns: six step cells stacked, joined, each with a mono step number and a short 14px line:
+"01 DISCOVER" — "The agent lists Floor's MCP tools."
+"02 QUOTE" — "It asks for a 90% floor on 10,000 USDT."
+"03 PAY" — "Floor answers 402. The agent pays with b402."
+"04 BUILD" — "deposit returns an unsigned transaction."
+"05 SIGN" — "The user's own Agentic Wallet signs it."
+"06 DONE" — "A new vault exists on BNB Chain."
+Step 06 has a check in gain colour; the others have hairline squares.
+Right 8 columns: a terminal-style panel (sunken fill, hairline border, crosshair corners, mono 13px, line-height 1.7), top label "TRACE", lines exactly:
+16:02:11  agent  → tools/call quote_protection  basket=NVDAB,SPCXB,QQQB  amount=10000  floor=90
+16:02:11  floor  ← 402 PAYMENT-REQUIRED  scheme=b402  asset=USD1
+16:02:12  agent  → baw x402-payment sign   ✓
+16:02:14  floor  ← 200  start_split=40/60  worst_case=−10%
+16:02:20  agent  → tools/call deposit  → unsigned tx  FloorFactory.createPosition
+16:02:31  wallet → baw contract-call execute   ✓ BROADCASTED
+16:02:38  bsc    ← PositionCreated  vault=0x7a3f…c91e
+Colour "✓" in gain colour, "402" in warning colour, tool names in accent. Everything else secondary text.`},
+ {id:"G03", group:"Agent flow (desktop)", device:"desktop", name:"Public keeper log", step:"Transparency page",
+  refs:["BRAND","LOGO","C02","A06"],
+  p:`SCREEN G03 — PUBLIC KEEPER LOG
+
+App shell. Header: label "KEEPER · PUBLIC LOG · EXAMPLE", H1 "Every rebalance, in public."
+Status strip (full width, joined cells): "KEEPER" badge "ONLINE" (gain); "LAST RUN" "16:05 UTC"; "TRADING WINDOW" "OPEN · 15:30–19:30 UTC"; "REBALANCES TODAY" "14"; "FALLBACK" "Anyone can rebalance after 4 h idle".
+Table across 12 columns, header "TIME (UTC)", "VAULT", "ACTION", "AMOUNT", "MIN OUT", "RECEIVED", "COST", "SIGNED BY", "TX":
+"16:05" | "0x7a3f…c91e" | "SELL NVDAB" | "1.84" | "318.50" | "320.11" | "5.9 bps" | badge "KEEPER WALLET" | "0xab4…77d"
+"16:03" | "0x2b81…77f0" | "BUY NVDAB" | "402.00 USDT" | "2.29" | "2.31" | "6.1 bps" | badge "AGENTIC WALLET" | "0x3e1…a90"
+"15:47" | "0x9ce4…1a3d" | "SELL ALL · CASH LOCK" | "5,961.30" | "5,940.00" | "5,961.30" | "4.2 bps" | badge "KEEPER WALLET" | "0x7d0…c2b"
+"15:31" | "0x44d0…be12" | "BUY QQQB" | "212.40 USDT" | "0.33" | "0.34" | "0.7 bps" | badge "KEEPER WALLET" | "0x19f…c03"
+Under the table, 13px label colour: "Keepers can only trigger trades the vault's rules allow. No keeper can withdraw user funds."`},
+
+ /* ---------- states ---------- */
+ {id:"E01", group:"States and errors (desktop)", device:"desktop", name:"Errors and edge states sheet", step:"Edge cases",
+  refs:["BRAND","LOGO","C01","C02"],
+  p:`SCREEN E01 — ERRORS AND EDGE STATES (design-system page)
+
+Top bar with logo and the mono label "COMPONENTS / STATES · v1". A board of six joined cells (2 rows × 3), each a small realistic UI fragment with a mono caps label in its corner:
+1 "WRONG NETWORK": banner with 2px warning left border: "Your wallet is on Ethereum. Floor runs on BNB Chain." button "Switch to BNB Chain".
+2 "NOT ENOUGH USDT": the DEPOSIT input in error state, value "10,000.00", message in loss colour "You have 812.40 USDT. Lower the amount or add USDT."
+3 "OUTSIDE TRADING WINDOW": info strip "Rebalances run Mon–Fri 15:30–19:30 UTC. Your deposit is safe; the basket is bought in the next window."
+4 "PRICE CHECK FAILED": activity row in warning colour "16:20 · REBALANCE SKIPPED · pool price moved more than the allowed band" with "Why?" link.
+5 "TOKEN PAUSED BY ISSUER": banner with 2px loss left border "The issuer paused SPCXB. Trades in SPCXB are stopped. You can still exit in kind." button "Exit in kind".
+6 "EMPTY: NO POSITIONS": an empty cell with one "+" crosshair in the centre, H3 "No floors yet", body "Set one in under a minute.", primary button "Set your floor".`},
+
+ /* ---------- phone ---------- */
+ {id:"M01", group:"Phone (generate after desktop)", device:"phone", name:"Phone: landing hero", step:"Landing on phone",
+  refs:["BRAND","LOGO","C01","C03","D01"],
+  p:`SCREEN M01 — PHONE, LANDING HERO
+
+Top bar 56pt: logo lockup left, square menu button right.
+Content from top, all within the 16pt margins, lattice of 64pt cells behind the hero only:
+- label "BNB CHAIN · bSTOCKS · SPOT ONLY"
+- display headline on four lines: "Set the lowest" / "your portfolio" / "can go."  (40pt SemiBold)
+- body 16pt: "Floor protects your tokenized stocks with a line you choose. If prices fall, the vault moves into stablecoins to stay above it."
+- full-width primary button "Set your floor", then full-width secondary "See the proof"
+- the chart panel (full width, 4 columns, about 280pt tall, crosshair corners): label "NVDA, 2022 · BACKTEST", same lines as C03 cell A but simplified to the two lines, the floor line "FLOOR 90%" and the cushion fill; end labels "HOLD −51.0%" and "FLOOR −10.0%".
+- two stat tiles side by side: "93 / 93" label "WINDOWS HELD"; "~42%" label "UPSIDE KEPT".
+- caption 12pt: "Backtest on past prices. Not a prediction."`},
+ {id:"M02", group:"Phone (generate after desktop)", device:"phone", name:"Phone: set your floor", step:"Core flow on phone",
+  refs:["BRAND","LOGO","C01","C02","A02"],
+  p:`SCREEN M02 — PHONE, SET YOUR FLOOR
+
+Top bar 56pt: logo left, a small badge "BNB CHAIN" and a 40pt square wallet button right.
+Stacked, full width:
+- label "NEW POSITION", H2 "Set your floor"
+- "BASKET": chips in a 2×2 grid: "NVDAB" / "NVIDIA" (selected), "SPCXB" / "SpaceX" (selected), "QQQB" / "Nasdaq-100" (selected), "SPYB" / "optional" (disabled)
+- "DEPOSIT": input "10,000.00" suffix "USDT", helper "Balance: 12,480.00 USDT · example"
+- "FLOOR": segmented "80%" "85%" "90%" "95%", "90%" selected; mono helper "LOWEST VALUE: 9,000.00 USDT"
+- split bar "STOCKS 40%" / "USDT 60%"
+- three stat tiles in one joined row (narrow): "WORST CASE" "−10%"; "UPSIDE KEPT" "~42%"; "COST" "~6 bps"
+- bottom: a fixed bar with a 1px top rule containing a full-width primary button "Review", and above it a 12pt line "Holds unless prices gap more than 25% before a rebalance."`},
+ {id:"M03", group:"Phone (generate after desktop)", device:"phone", name:"Phone: position", step:"Position on phone",
+  refs:["BRAND","LOGO","C02","C03","A05"],
+  p:`SCREEN M03 — PHONE, POSITION DASHBOARD
+
+Top bar 56pt as in M02. Stacked:
+- label "POSITION · EXAMPLE", value "10,412.30 USDT" in mono 32pt, "+4.12%" in gain colour, badges "ACTIVE" and "MARKET OPEN"
+- 2×3 grid of joined stat tiles: "VALUE" "10,412.30"; "FLOOR" "9,000.00"; "CUSHION" "1,412.30"; "IN STOCKS" "54%"; "IN USDT" "46%"; "TERM" "362 d"
+- chart panel, full width, about 240pt tall: value line above the accent floor line "FLOOR 9,000", cushion fill
+- "ACTIVITY" list, 3 rows: "OCT 07 · SELL 1.84 NVDAB → 320.11 USDT", "OCT 06 · BUY QQQB 212.40 USDT", "OCT 05 · DEPOSIT 10,000.00 USDT"
+- two buttons stacked full width: secondary "Close to USDT", ghost "Exit in kind →"`}
+];
+
+let theme = "dark";
+const $ = s => document.querySelector(s);
+
+function refFile(r){ if(r==="BRAND") return THEMES[theme].brandRef; if(r==="LOGO") return THEMES[theme].logoRef; return r; }
+function refLabel(r){
+  if(/^[A-Z]\d\d$/.test(r)) return r + ".png (your generated " + r + ")";
+  return refFile(r);
+}
+function fullPrompt(s){ return globalBlock(THEMES[theme], s.device) + "\n\n" + s.p; }
+
+async function copyText(text, flagEl){
+  try { await navigator.clipboard.writeText(text); flagEl.hidden = false; flagEl.textContent = "Copied"; setTimeout(()=>{flagEl.hidden = true}, 1600); }
+  catch(e){ flagEl.hidden = false; flagEl.textContent = "Copy blocked: select the text and copy"; }
+}
+
+function renderRefs(){
+  const g = $("#ref-grid"); g.innerHTML = "";
+  REFS.forEach(r => {
+    const f = refFile(r.f);
+    const d = document.createElement("div"); d.className = "ref";
+    d.innerHTML = `<img src="refs/${f}" alt="${r.label}" loading="lazy"><code class="mono">refs/${f}</code><span class="lbl">${r.note}</span>`;
+    g.appendChild(d);
+  });
+}
+
+function renderScreens(){
+  const host = $("#groups"); host.innerHTML = "";
+  const groups = [...new Set(SCREENS.map(s => s.group))];
+  groups.forEach((gname, gi) => {
+    const items = SCREENS.filter(s => s.group === gname);
+    const wrap = document.createElement("div");
+    wrap.innerHTML = `<div class="group-h" style="margin-top:${gi?40:16}px"><h3>${gname}</h3><span class="lbl">${items.length} screens</span></div>`;
+    const list = document.createElement("div"); list.className = "screens";
+    items.forEach(s => {
+      const det = document.createElement("details"); det.className = "screen"; det.id = s.id;
+      const size = s.device === "phone" ? "1024×1536 · 2:3" : "1536×1024 · 3:2";
+      det.innerHTML = `<summary><span class="sid">${s.id}</span><span class="sname">${s.name}<small>${s.step}</small></span><span class="badge">${size}</span></summary>
+        <div class="sbody">
+          <div class="meta">
+            <div><b>Size</b>${size}</div>
+            <div><b>Attach</b>${s.refs.map(refLabel).join(", ")}</div>
+            <div><b>Save as</b><code>wireframes/generated/${s.id}.png</code></div>
+          </div>
+          <div class="actions"><button class="btn primary" type="button">Copy full prompt</button><span class="copied" hidden>Copied</span><span class="lbl">Includes the shared style block · ${THEMES[theme].name}</span></div>
+          <pre class="prompt"></pre>
+        </div>`;
+      det.querySelector("pre").textContent = s.p;
+      const btn = det.querySelector(".btn"), flag = det.querySelector(".copied");
+      btn.addEventListener("click", () => copyText(fullPrompt(s), flag));
+      list.appendChild(det);
+    });
+    wrap.appendChild(list); host.appendChild(wrap);
+  });
+  const first = document.getElementById("C01"); if(first) first.open = true;
+  $("#count").textContent = SCREENS.length;
+}
+
+function renderGlobal(){ $("#global-pre").textContent = globalBlock(THEMES[theme], "desktop"); }
+
+function setTheme(t){
+  theme = t;
+  $("#t-dark").setAttribute("aria-pressed", t === "dark");
+  $("#t-light").setAttribute("aria-pressed", t === "light");
+  try { localStorage.setItem("floor-prompt-theme", t); } catch(e){}
+  renderGlobal(); renderRefs(); renderScreens();
+}
+
+$("#t-dark").addEventListener("click", () => setTheme("dark"));
+$("#t-light").addEventListener("click", () => setTheme("light"));
+$("#copy-global").addEventListener("click", () => copyText(globalBlock(THEMES[theme], "desktop"), $("#copied-global")));
+
+let saved = "dark"; try { saved = localStorage.getItem("floor-prompt-theme") || "dark"; } catch(e){}
+setTheme(saved === "light" ? "light" : "dark");
+</script>

@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Floor brand preview</title>
+<link rel="icon" href="logo/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Floor design tokens. Import once at the root.
+   Theme: follows the OS; override with <html data-theme="light|dark">. */
+
+:root {
+  /* ---------- type ---------- */
+  --font-sans: "Geist", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --fs-display: clamp(2.5rem, 1.6rem + 3.6vw, 4.5rem); /* 40 -> 72 */
+  --fs-h1: clamp(2rem, 1.5rem + 2vw, 3rem);            /* 32 -> 48 */
+  --fs-h2: clamp(1.5rem, 1.25rem + 1vw, 2rem);         /* 24 -> 32 */
+  --fs-h3: 1.25rem;     /* 20 */
+  --fs-body-lg: 1.125rem; /* 18 */
+  --fs-body: 1rem;      /* 16 */
+  --fs-small: 0.875rem; /* 14 */
+  --fs-label: 0.75rem;  /* 12, mono, uppercase */
+  --fs-num-xl: clamp(2rem, 1.5rem + 2vw, 3rem);
+
+  --ls-display: -0.035em;
+  --ls-heading: -0.02em;
+  --ls-body: 0;
+  --ls-label: 0.08em;
+
+  --lh-tight: 1.05;
+  --lh-heading: 1.15;
+  --lh-body: 1.55;
+
+  /* ---------- spacing (base unit 8px; 4px half-step) ---------- */
+  --u: 8px;
+  --s-0: 0;
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 16px;
+  --s-4: 24px;
+  --s-5: 32px;
+  --s-6: 48px;
+  --s-7: 64px;
+  --s-8: 96px;
+  --s-9: 128px;
+
+  /* ---------- grid ---------- */
+  --cols: 4;                 /* phone */
+  --row: 64px;               /* background row module */
+  --gutter-x: 16px;          /* page side gutter */
+  --container: 100%;
+  --hair: 1px;               /* all grid lines are 1px */
+  --xh-size: 11px;           /* crosshair box: 5px arm + 1px centre + 5px arm */
+  --xh-stroke: 1px;
+
+  /* ---------- shape and motion ---------- */
+  --radius: 0px;             /* squares. Only badges/inputs may use 2px. */
+  --radius-sm: 2px;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast: 120ms;
+  --dur: 240ms;
+  --dur-draw: 900ms;
+
+}
+
+:root, [data-theme="light"] {
+  color-scheme: light;
+  --bg: #FAFAF8;
+  --surface: #FFFFFF;
+  --surface-sunken: #F3F3F0;
+  --grid: #E4E5E0;
+  --grid-strong: #CFD0CA;
+  --crosshair: #8C8E86;
+  --text: #10110F;
+  --text-2: #464843;
+  --text-muted: #686A63;
+  --accent: #2440E0;
+  --accent-ink: #FFFFFF;       /* text on accent */
+  --accent-soft: #E9ECFC;      /* cushion fill, selected rows */
+  --floor-line: #2440E0;
+  --positive: #0B7544;
+  --negative: #B8312A;
+  --warning: #8F5600;
+  --focus: #2440E0;
+}
+
+@media (min-width: 768px) {
+  :root { --cols: 8; --row: 80px; --gutter-x: 32px; }
+}
+@media (min-width: 1200px) {
+  :root { --cols: 12; --row: 96px; --gutter-x: 48px; --container: 1200px; }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0A0B0D;
+    --surface: #111215;
+    --surface-sunken: #0D0E10;
+    --grid: #1C1E21;
+    --grid-strong: #2C2E31;
+    --crosshair: #6E7068;
+    --text: #F2F2EE;
+    --text-2: #B4B6AE;
+    --text-muted: #8D9088;
+    --accent: #7C93FF;
+    --accent-ink: #0A0B0D;
+    --accent-soft: #151A33;
+    --floor-line: #7C93FF;
+    --positive: #3DD68C;
+    --negative: #FF7469;
+    --warning: #F2B84B;
+    --focus: #7C93FF;
+  }
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0A0B0D;
+  --surface: #111215;
+  --surface-sunken: #0D0E10;
+  --grid: #1C1E21;
+  --grid-strong: #2C2E31;
+  --crosshair: #6E7068;
+  --text: #F2F2EE;
+  --text-2: #B4B6AE;
+  --text-muted: #8D9088;
+  --accent: #7C93FF;
+  --accent-ink: #0A0B0D;
+  --accent-soft: #151A33;
+  --floor-line: #7C93FF;
+  --positive: #3DD68C;
+  --negative: #FF7469;
+  --warning: #F2B84B;
+  --focus: #7C93FF;
+}
+
+/* ---------- base ---------- */
+html { background: var(--bg); color: var(--text); font-family: var(--font-sans); font-size: 16px; }
+body { margin: 0; line-height: var(--lh-body); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+.mono, .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums slashed-zero; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* ---------- grid primitives ---------- */
+/* Page frame: centred, hairline rails left and right. */
+.page { position: relative; max-width: var(--container); margin-inline: auto; padding-inline: var(--gutter-x);
+        border-inline: var(--hair) solid var(--grid); }
+/* Section: full-bleed hairline on top; content snaps to columns. */
+.section { position: relative; border-top: var(--hair) solid var(--grid); padding-block: var(--s-8); }
+.cols { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); column-gap: 0; }
+/* Cell: a box on the grid. Neighbouring cells share one hairline (no double borders). */
+.cell { position: relative; padding: var(--s-4); background: var(--surface);
+        box-shadow: inset 0 0 0 var(--hair) var(--grid); }
+.cell + .cell { margin-left: calc(var(--hair) * -1); }
+/* Visible lattice behind a region. Columns are fluid, rows are fixed. */
+.lattice {
+  background-image:
+    linear-gradient(to right, var(--grid) var(--hair), transparent var(--hair)),
+    linear-gradient(to bottom, var(--grid) var(--hair), transparent var(--hair));
+  background-size: calc(100% / var(--cols)) var(--row);
+  background-position: -0.5px -0.5px;
+}
+/* Crosshair: place as <i class="xh" style="left:0;top:0"></i> inside any position:relative box. */
+.xh { position: absolute; width: var(--xh-size); height: var(--xh-size); transform: translate(-50%, -50%);
+      pointer-events: none;
+      background:
+        linear-gradient(var(--crosshair), var(--crosshair)) center / 100% var(--xh-stroke) no-repeat,
+        linear-gradient(var(--crosshair), var(--crosshair)) center / var(--xh-stroke) 100% no-repeat; }
+/* Corner crosshairs on any box (top-left and bottom-right via pseudo-elements). */
+.xh-corners::before, .xh-corners::after { content: ""; position: absolute; width: var(--xh-size); height: var(--xh-size);
+      pointer-events: none; z-index: 1;
+      background:
+        linear-gradient(var(--crosshair), var(--crosshair)) center / 100% var(--xh-stroke) no-repeat,
+        linear-gradient(var(--crosshair), var(--crosshair)) center / var(--xh-stroke) 100% no-repeat; }
+.xh-corners::before { left: 0; top: 0; transform: translate(-50%, -50%); }
+.xh-corners::after  { right: 0; bottom: 0; transform: translate(50%, 50%); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+/* ===== preview-only styles ===== */
+*{box-sizing:border-box}
+h1,h2,h3,p{margin:0}
+.lbl{font:500 var(--fs-label)/1.4 var(--font-mono);letter-spacing:var(--ls-label);text-transform:uppercase;color:var(--text-muted)}
+.lbl i{font-style:normal;margin-left:8px;opacity:.8}
+.topbar{display:flex;justify-content:space-between;align-items:center;height:64px;border-bottom:1px solid var(--grid)}
+.topbar .lock{height:24px;width:auto;color:var(--text)}
+.hero{padding-block:var(--s-8) var(--s-7)}
+.hero h1{font-size:var(--fs-display);letter-spacing:var(--ls-display);line-height:var(--lh-tight);font-weight:600;max-width:14ch}
+.hero p.lead{margin-top:var(--s-4);font-size:var(--fs-body-lg);color:var(--text-2);max-width:48ch}
+.sec-h{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));margin-bottom:var(--s-6)}
+.sec-h .lbl{grid-column:1/-1;margin-bottom:12px}
+.sec-h h2{grid-column:1/-1;font-size:var(--fs-h2);letter-spacing:var(--ls-heading);font-weight:600;line-height:1.15}
+@media(min-width:768px){.sec-h h2{grid-column:1/7}}
+.panel{position:relative;background:var(--bg);color:var(--text);border:1px solid var(--grid);padding:var(--s-5)}
+.two{display:grid;grid-template-columns:1fr;gap:0}
+@media(min-width:900px){.two{grid-template-columns:1fr 1fr} .two>.panel+.panel{border-left:0}}
+.two>.panel+.panel{border-top:0}
+@media(min-width:900px){.two>.panel+.panel{border-top:1px solid var(--grid)}}
+.logos{display:grid;grid-template-columns:repeat(2,1fr);gap:0}
+@media(min-width:768px){.logos{grid-template-columns:repeat(4,1fr)}}
+.logo-cell{position:relative;border:1px solid var(--grid);margin:0 -1px -1px 0;padding:var(--s-5) var(--s-4);display:flex;flex-direction:column;gap:var(--s-5);background:var(--surface);min-height:192px;justify-content:space-between}
+.logo-cell svg{color:var(--text);height:48px;width:auto;max-width:100%}
+.logo-cell.inv{background:#0A0B0D;--text:#F2F2EE;--text-muted:#8D9088;--grid:#1C1E21}
+.logo-cell.acc{background:var(--accent);--text:var(--accent-ink);--text-muted:var(--accent-ink)}
+.sizes{display:flex;align-items:flex-end;gap:24px;color:var(--text)}
+.sizes svg{display:block}
+.clear{position:relative;display:inline-block;padding:16px;outline:1px dashed var(--grid-strong);outline-offset:0}
+.clear svg{height:32px;width:auto;display:block;color:var(--text)}
+.sw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0;margin-top:24px}
+.sw{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--grid);margin:0 -1px -1px 0;background:var(--surface)}
+.chip{width:32px;height:32px;border:1px solid var(--grid-strong);flex:none}
+.swt{display:flex;flex-direction:column;font-size:13px;line-height:1.3}
+.swt .num{font-size:12px;color:var(--text-muted)}
+.trow{display:grid;grid-template-columns:1fr;gap:4px;padding:16px 0;border-top:1px solid var(--grid)}
+@media(min-width:768px){.trow{grid-template-columns:200px 1fr;align-items:baseline}}
+.trow>span:last-child{overflow-wrap:anywhere}
+.mono-demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;margin-top:24px}
+.mono-demo>div{padding:16px;border:1px solid var(--grid);margin:0 -1px -1px 0}
+.mono-demo .num{display:block;font-size:var(--fs-num-xl);letter-spacing:-0.02em;margin-top:8px}
+.gridDemo{position:relative;height:calc(var(--row)*4);border:1px solid var(--grid-strong);background-color:var(--surface)}
+.gridDemo .xh{}
+.gridDemo .blk{position:absolute;display:flex;align-items:flex-start;padding:8px 12px;background:var(--accent-soft);border:1px solid var(--accent);color:var(--accent);font:500 11px var(--font-mono);letter-spacing:.08em}
+.coords{position:absolute;font:500 10px var(--font-mono);color:var(--text-muted);letter-spacing:.08em}
+.cmp-grid{display:grid;grid-template-columns:1fr;gap:0}
+@media(min-width:900px){.cmp-grid{grid-template-columns:1fr 1fr}}
+.cmp-cell{position:relative;padding:var(--s-4);background:var(--surface);border:1px solid var(--grid);margin:0 -1px -1px 0}
+@media(min-width:900px){.cmp-cell.wide{grid-column:span 1}}
+.row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.btn{font:500 14px/1 var(--font-sans);height:40px;padding:0 16px;border:1px solid var(--grid-strong);background:var(--surface);color:var(--text);border-radius:0;cursor:pointer;transition:background var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease)}
+.btn:hover{border-color:var(--text)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{border-color:transparent;background:transparent;padding:0 8px}
+.btn:disabled{color:var(--text-muted);cursor:not-allowed;background:var(--surface-sunken)}
+.field{display:block;margin-top:12px;max-width:320px}
+.inp{display:flex;align-items:center;height:40px;border:1px solid var(--grid-strong);background:var(--surface);margin-top:8px}
+.inp:focus-within{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.inp input{flex:1;min-width:0;height:100%;border:0;background:transparent;color:var(--text);font:400 16px var(--font-mono);padding:0 12px;outline:0}
+.suffix{padding-right:12px;font:400 12px var(--font-mono);color:var(--text-muted);white-space:nowrap}
+.badge{display:inline-flex;align-items:center;height:24px;padding:0 8px;border:1px solid var(--grid-strong);border-radius:2px;font:500 11px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--text-2)}
+.badge.pos{color:var(--positive);border-color:currentColor}.badge.neg{color:var(--negative);border-color:currentColor}.badge.warn{color:var(--warning);border-color:currentColor}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin-top:12px}
+.tile{display:flex;flex-direction:column;gap:6px;padding:16px;border:1px solid var(--grid);margin:0 -1px -1px 0;background:var(--bg)}
+.tile .big{font-size:28px;letter-spacing:-0.02em;line-height:1.1;color:var(--text)}
+.sub{font-size:13px;color:var(--text-muted)}
+.tscroll{overflow-x:auto;margin-top:12px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font:500 11px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);padding:10px 12px;border-bottom:1px solid var(--grid-strong);white-space:nowrap}
+td{padding:12px;border-bottom:1px solid var(--grid)}
+.r{text-align:right}
+tbody tr:hover td{background:var(--surface-sunken)}
+.chart{display:block;width:100%;height:auto;margin-top:12px}
+.draw{stroke-dasharray:1;stroke-dashoffset:0;animation:draw var(--dur-draw) var(--ease) both}
+@keyframes draw{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+.themeblock,.cmp-grid,.cmp-cell,.panel{min-width:0}
+@media(max-width:899px){.two{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.panel{padding:var(--s-3)}.themeblock>.panel{padding:var(--s-3)}.topbar .lbl{display:none}.cmp-cell{padding:var(--s-3)}}
+.themeblock{margin-top:0}
+.themeblock>.panel{padding:var(--s-4)}
+.themeblock .tag{display:block;margin-bottom:16px}
+footer{padding-block:var(--s-6);border-top:1px solid var(--grid)}
+.ic-mark{}
+</style></head>
+<body>
+<div class="page lattice" style="background-color:var(--bg)">
+ <header class="topbar"><span style="color:var(--text);display:flex"><svg class="lock" height="24" viewBox="0 0 126 24" aria-label="Floor"><g fill="currentColor" transform="translate(0 1)"><path fill-rule="evenodd" d="M10 9h12v12H10zM12 11v8h8v-8z"/><rect x="0" y="21" width="32" height="2"/></g><g transform="translate(44 0)" fill="none" stroke="currentColor" stroke-width="3"><path d="M1.5 24V1.5H16M1.5 12H13"/><path d="M23.5 0V24"/><circle cx="38" cy="16" r="6.5"/><circle cx="58" cy="16" r="6.5"/><path d="M71.5 8V24M71.5 16a6.5 6.5 0 0 1 6.5-6.5H82"/></g></svg></span><span class="lbl">Brand preview v1 / 2026-10-02</span></header>
+
+ <section class="hero xh-corners" style="position:relative">
+  <i class="xh" style="left:0;top:0"></i>
+  <p class="lbl" style="margin-bottom:24px">00 / Floor</p>
+  <h1>The line your portfolio holds above.</h1>
+  <p class="lead">Pick a floor. Floor keeps tokenized stocks above it with spot trades only. No perps, no options, no leverage, no borrowing.</p>
+ </section>
+
+ <section class="section" style="background:var(--bg)">
+  <div class="sec-h"><span class="lbl">01 / Logo</span><h2>A square resting on a line.</h2></div>
+  <div class="logos">
+   <div class="logo-cell xh-corners"><span class="lbl">Lockup</span><svg viewBox="0 0 126 24" aria-label="Floor"><g fill="currentColor" transform="translate(0 1)"><path fill-rule="evenodd" d="M10 9h12v12H10zM12 11v8h8v-8z"/><rect x="0" y="21" width="32" height="2"/></g><g transform="translate(44 0)" fill="none" stroke="currentColor" stroke-width="3"><path d="M1.5 24V1.5H16M1.5 12H13"/><path d="M23.5 0V24"/><circle cx="38" cy="16" r="6.5"/><circle cx="58" cy="16" r="6.5"/><path d="M71.5 8V24M71.5 16a6.5 6.5 0 0 1 6.5-6.5H82"/></g></svg></div>
+   <div class="logo-cell"><span class="lbl">Mark</span><svg class="ic-mark" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 9h12v12H10zM12 11v8h8v-8z"/><rect x="0" y="21" width="32" height="2"/></svg></div>
+   <div class="logo-cell inv"><span class="lbl">Lockup, dark</span><svg viewBox="0 0 126 24" data-x="Floor"><g fill="currentColor" transform="translate(0 1)"><path fill-rule="evenodd" d="M10 9h12v12H10zM12 11v8h8v-8z"/><rect x="0" y="21" width="32" height="2"/></g><g transform="translate(44 0)" fill="none" stroke="currentColor" stroke-width="3"><path d="M1.5 24V1.5H16M1.5 12H13"/><path d="M23.5 0V24"/><circle cx="38" cy="16" r="6.5"/><circle cx="58" cy="16" r="6.5"/><path d="M71.5 8V24M71.5 16a6.5 6.5 0 0 1 6.5-6.5H82"/></g></svg></div>
+   <div class="logo-cell acc"><span class="lbl">Mark on accent</span><svg class="ic-mark" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 9h12v12H10zM12 11v8h8v-8z"/><rect x="0" y="21" width="32" height="2"/></svg></div>
+   <div class="logo-cell"><span class="lbl">Wordmark</span><svg style="height:32px" viewBox="0 0 82 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M1.5 24V1.5H16M1.5 12H13"/><path d="M23.5 0V24"/><circle cx="38" cy="16" r="6.5"/><circle cx="58" cy="16" r="6.5"/><path d="M71.5 8V24M71.5 16a6.5 6.5 0 0 1 6.5-6.5H82"/></svg></div>
+   <div class="logo-cell"><span class="lbl">Sizes 16 / 24 / 32 / 48</span><div class="sizes"><span style="width:16px"><svg class="ic-mark" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 9h12v12H10zM12 11v8h8v-8z"/><rect x="0" y="21" width="32" height="2"/></svg></span><span style="width:24px"><svg class="ic-mark" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 9h12v12H10zM12 11v8h8v-8z"/><rect x="0" y="21" width="32" height="2"/></svg></span><span style="width:32px"><svg class="ic-mark" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 9h12v12H10zM12 11v8h8v-8z"/><rect x="0" y="21" width="32" height="2"/></svg></span><span style="width:48px"><svg class="ic-mark" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 9h12v12H10zM12 11v8h8v-8z"/><rect x="0" y="21" width="32" height="2"/></svg></span></div></div>
+   <div class="logo-cell"><span class="lbl">Clear space = 1/2 mark height</span><div class="clear"><svg viewBox="0 0 126 24" aria-label="Floor"><g fill="currentColor" transform="translate(0 1)"><path fill-rule="evenodd" d="M10 9h12v12H10zM12 11v8h8v-8z"/><rect x="0" y="21" width="32" height="2"/></g><g transform="translate(44 0)" fill="none" stroke="currentColor" stroke-width="3"><path d="M1.5 24V1.5H16M1.5 12H13"/><path d="M23.5 0V24"/><circle cx="38" cy="16" r="6.5"/><circle cx="58" cy="16" r="6.5"/><path d="M71.5 8V24M71.5 16a6.5 6.5 0 0 1 6.5-6.5H82"/></g></svg></div></div>
+   <div class="logo-cell"><span class="lbl">Favicon</span><img src="logo/favicon.svg" width="48" height="48" alt="Floor favicon" style="display:block"></div>
+  </div>
+ </section>
+
+ <section class="section">
+  <div class="sec-h"><span class="lbl">02 / Colour</span><h2>One accent. The grid carries the rest.</h2></div>
+  <div class="two">
+   <div class="panel" data-theme="light"><span class="lbl">Light</span><div class="sw-grid"><div class="sw"><span class="chip" style="background:var(--bg)"></span><span class="swt"><b>bg</b><span class="num">#FAFAF8</span></span></div><div class="sw"><span class="chip" style="background:var(--surface)"></span><span class="swt"><b>surface</b><span class="num">#FFFFFF</span></span></div><div class="sw"><span class="chip" style="background:var(--grid)"></span><span class="swt"><b>grid</b><span class="num">#E4E5E0</span></span></div><div class="sw"><span class="chip" style="background:var(--grid-strong)"></span><span class="swt"><b>grid-strong</b><span class="num">#CFD0CA</span></span></div><div class="sw"><span class="chip" style="background:var(--crosshair)"></span><span class="swt"><b>crosshair</b><span class="num">#8C8E86</span></span></div><div class="sw"><span class="chip" style="background:var(--text)"></span><span class="swt"><b>text</b><span class="num">#10110F</span></span></div><div class="sw"><span class="chip" style="background:var(--text-2)"></span><span class="swt"><b>text-2</b><span class="num">#464843</span></span></div><div class="sw"><span class="chip" style="background:var(--text-muted)"></span><span class="swt"><b>text-muted</b><span class="num">#686A63</span></span></div><div class="sw"><span class="chip" style="background:var(--accent)"></span><span class="swt"><b>accent</b><span class="num">#2440E0</span></span></div><div class="sw"><span class="chip" style="background:var(--floor-line)"></span><span class="swt"><b>floor-line</b><span class="num">#2440E0</span></span></div><div class="sw"><span class="chip" style="background:var(--positive)"></span><span class="swt"><b>positive</b><span class="num">#0B7544</span></span></div><div class="sw"><span class="chip" style="background:var(--negative)"></span><span class="swt"><b>negative</b><span class="num">#B8312A</span></span></div><div class="sw"><span class="chip" style="background:var(--warning)"></span><span class="swt"><b>warning</b><span class="num">#8F5600</span></span></div></div></div>
+   <div class="panel" data-theme="dark"><span class="lbl">Dark</span><div class="sw-grid"><div class="sw"><span class="chip" style="background:var(--bg)"></span><span class="swt"><b>bg</b><span class="num">#0A0B0D</span></span></div><div class="sw"><span class="chip" style="background:var(--surface)"></span><span class="swt"><b>surface</b><span class="num">#111215</span></span></div><div class="sw"><span class="chip" style="background:var(--grid)"></span><span class="swt"><b>grid</b><span class="num">#1C1E21</span></span></div><div class="sw"><span class="chip" style="background:var(--grid-strong)"></span><span class="swt"><b>grid-strong</b><span class="num">#2C2E31</span></span></div><div class="sw"><span class="chip" style="background:var(--crosshair)"></span><span class="swt"><b>crosshair</b><span class="num">#6E7068</span></span></div><div class="sw"><span class="chip" style="background:var(--text)"></span><span class="swt"><b>text</b><span class="num">#F2F2EE</span></span></div><div class="sw"><span class="chip" style="background:var(--text-2)"></span><span class="swt"><b>text-2</b><span class="num">#B4B6AE</span></span></div><div class="sw"><span class="chip" style="background:var(--text-muted)"></span><span class="swt"><b>text-muted</b><span class="num">#8D9088</span></span></div><div class="sw"><span class="chip" style="background:var(--accent)"></span><span class="swt"><b>accent</b><span class="num">#7C93FF</span></span></div><div class="sw"><span class="chip" style="background:var(--floor-line)"></span><span class="swt"><b>floor-line</b><span class="num">#7C93FF</span></span></div><div class="sw"><span class="chip" style="background:var(--positive)"></span><span class="swt"><b>positive</b><span class="num">#3DD68C</span></span></div><div class="sw"><span class="chip" style="background:var(--negative)"></span><span class="swt"><b>negative</b><span class="num">#FF7469</span></span></div><div class="sw"><span class="chip" style="background:var(--warning)"></span><span class="swt"><b>warning</b><span class="num">#F2B84B</span></span></div></div></div>
+  </div>
+ </section>
+
+ <section class="section">
+  <div class="sec-h"><span class="lbl">03 / Type</span><h2>Geist for words. Geist Mono for numbers and labels.</h2></div>
+  <div><div class="trow"><span class="lbl">Display <i>40 to 72 px</i></span><span style="font-size:var(--fs-display);letter-spacing:-0.035em;font-weight:600;line-height:1.05">Your floor holds.</span></div><div class="trow"><span class="lbl">H1 <i>32 to 48 px</i></span><span style="font-size:var(--fs-h1);letter-spacing:-0.02em;font-weight:600;line-height:1.15">Your floor holds.</span></div><div class="trow"><span class="lbl">H2 <i>24 to 32 px</i></span><span style="font-size:var(--fs-h2);letter-spacing:-0.02em;font-weight:600;line-height:1.15">Your floor holds.</span></div><div class="trow"><span class="lbl">H3 <i>20 px</i></span><span style="font-size:1.25rem;letter-spacing:-0.01em;font-weight:600;line-height:1.3">Your floor holds.</span></div><div class="trow"><span class="lbl">Body L <i>18 px</i></span><span style="font-size:1.125rem;letter-spacing:0;font-weight:400;line-height:1.55">Your floor holds.</span></div><div class="trow"><span class="lbl">Body <i>16 px</i></span><span style="font-size:1rem;letter-spacing:0;font-weight:400;line-height:1.55">Your floor holds.</span></div><div class="trow"><span class="lbl">Small <i>14 px</i></span><span style="font-size:.875rem;letter-spacing:0;font-weight:400;line-height:1.5">Your floor holds.</span></div></div>
+  <div class="mono-demo">
+   <div><span class="lbl">Mono, numbers</span><span class="num">$9,000.00</span></div>
+   <div><span class="lbl">Mono, basis points</span><span class="num">0.7 bps</span></div>
+   <div><span class="lbl">Mono, address</span><span class="num" style="font-size:14px;word-break:break-all">0x02fca66c1d1afb4e2a7884261eb00f63598a7436</span></div>
+  </div>
+ </section>
+
+ <section class="section">
+  <div class="sec-h"><span class="lbl">04 / Grid</span><h2>Everything snaps to the lines. Crosshairs mark the joins.</h2></div>
+  <div class="gridDemo lattice xh-corners" id="g">
+   <i class="xh" style="left:calc(100%/var(--cols)*1);top:calc(var(--row)*1)"></i>
+   <i class="xh" style="left:calc(100%/var(--cols)*3);top:calc(var(--row)*1)"></i>
+   <i class="xh" style="left:calc(100%/var(--cols)*1);top:calc(var(--row)*3)"></i>
+   <i class="xh" style="left:calc(100%/var(--cols)*3);top:calc(var(--row)*3)"></i>
+   <div class="blk" style="left:calc(100%/var(--cols)*1);top:calc(var(--row)*1);width:calc(100%/var(--cols)*2);height:calc(var(--row)*2)">2 COL x 2 ROW</div>
+   <span class="coords" style="left:8px;top:6px">COL 0 / ROW 0</span>
+  </div>
+  <p class="sub" style="margin-top:12px">Columns are fluid ({4, 8, 12} by breakpoint). Rows are fixed (64, 80, 96 px). Resize to see the column count change.</p>
+ </section>
+
+ <section class="section">
+  <div class="sec-h"><span class="lbl">05 / Components</span><h2>Square, hairline, mono for data.</h2></div>
+  <div>
+   <div class="themeblock" data-theme="light"><div class="panel"><span class="lbl tag">Light</span>
+<div class="cmp-grid">
+ <div class="cmp-cell xh-corners"><p class="lbl">Buttons</p>
+  <div class="row"><button class="btn primary">Set a floor</button><button class="btn">Read the maths</button><button class="btn ghost">Docs <span aria-hidden="true">&#8599;</span></button><button class="btn" disabled>Disabled</button></div>
+  <p class="lbl" style="margin-top:24px">Input</p>
+  <label class="field"><span class="lbl">Floor level</span><span class="inp"><input value="90" inputmode="numeric" aria-label="Floor level percent"><span class="suffix">% of deposit</span></span></label>
+  <p class="lbl" style="margin-top:24px">Badges</p>
+  <div class="row"><span class="badge">BSC</span><span class="badge pos">Floor holding</span><span class="badge warn">Weekend: no rebalance</span><span class="badge neg">Cash lock</span></div>
+ </div>
+ <div class="cmp-cell xh-corners"><p class="lbl">Stat tiles</p>
+  <div class="tiles">
+   <div class="tile"><span class="lbl">Floor</span><span class="num big">$9,000</span><span class="sub">90% of $10,000</span></div>
+   <div class="tile"><span class="lbl">Cushion</span><span class="num big">$2,400</span><span class="sub">above the floor</span></div>
+   <div class="tile"><span class="lbl">Exposure</span><span class="num big">$9,600</span><span class="sub">m = 4</span></div>
+  </div>
+  <p class="sub" style="margin-top:12px">Illustrative values, not measured results.</p>
+ </div>
+ <div class="cmp-cell wide xh-corners"><p class="lbl">Table</p>
+  <div class="tscroll"><table><thead><tr><th>Token</th><th class="r">Round trip, $10k</th><th class="r">Status</th></tr></thead><tbody>
+   <tr><td>QQQB</td><td class="r num">0.7 bps</td><td class="r"><span class="badge pos">v1</span></td></tr>
+   <tr><td>NVDAB</td><td class="r num">5.9 bps</td><td class="r"><span class="badge pos">v1</span></td></tr>
+   <tr><td>SPCXB</td><td class="r num">6.0 bps</td><td class="r"><span class="badge pos">v1</span></td></tr>
+   <tr><td>TSLAB</td><td class="r num">46 bps</td><td class="r"><span class="badge warn">Borderline</span></td></tr>
+  </tbody></table></div>
+ </div>
+ <div class="cmp-cell wide xh-corners"><p class="lbl">Chart: value above the floor line (illustrative)</p><svg class="chart" viewBox="0 0 480 220" role="img" aria-label="Illustrative chart: portfolio value stays above a flat floor line at $9,000">
+<g stroke="var(--grid)" stroke-width="1">
+<path d="M0 .5H480M0 55.5H480M0 110.5H480M0 165.5H480M0 219.5H480"/><path d="M.5 0V220M120.5 0V220M240.5 0V220M360.5 0V220M479.5 0V220"/></g>
+<path d="M0 124L40 112L80 96L120 104L160 80L200 92L240 128L280 150L320 134L360 112L400 88L440 70L480 52V150H0Z" fill="var(--accent-soft)" opacity=".0"/>
+<path d="M0 124L40 112L80 96L120 104L160 80L200 92L240 128L280 150L320 134L360 112L400 88L440 70L480 52V165H0Z" fill="var(--accent-soft)"/>
+<path class="draw" pathLength="1" d="M0 124L40 112L80 96L120 104L160 80L200 92L240 128L280 150L320 134L360 112L400 88L440 70L480 52" fill="none" stroke="var(--text)" stroke-width="1.5"/>
+<path d="M0 165.5H480" stroke="var(--floor-line)" stroke-width="2"/>
+<path d="M.5 160V171M480 160V171" stroke="var(--floor-line)" stroke-width="1"/>
+<g stroke="var(--crosshair)"><path d="M235 150H245M240 145V155"/></g>
+<text x="8" y="184" font-family="var(--font-mono)" font-size="11" fill="var(--floor-line)" letter-spacing=".88">FLOOR $9,000</text>
+<text x="8" y="14" font-family="var(--font-mono)" font-size="11" fill="var(--text-muted)" letter-spacing=".88">VALUE</text>
+<text x="472" y="42" text-anchor="end" font-family="var(--font-mono)" font-size="11" fill="var(--text)">$11,400</text>
+<text x="232" y="210" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--text-muted)">CUSHION</text>
+</svg></div>
+</div></div></div>
+   <div class="themeblock" data-theme="dark"><div class="panel"><span class="lbl tag">Dark</span>
+<div class="cmp-grid">
+ <div class="cmp-cell xh-corners"><p class="lbl">Buttons</p>
+  <div class="row"><button class="btn primary">Set a floor</button><button class="btn">Read the maths</button><button class="btn ghost">Docs <span aria-hidden="true">&#8599;</span></button><button class="btn" disabled>Disabled</button></div>
+  <p class="lbl" style="margin-top:24px">Input</p>
+  <label class="field"><span class="lbl">Floor level</span><span class="inp"><input value="90" inputmode="numeric" aria-label="Floor level percent"><span class="suffix">% of deposit</span></span></label>
+  <p class="lbl" style="margin-top:24px">Badges</p>
+  <div class="row"><span class="badge">BSC</span><span class="badge pos">Floor holding</span><span class="badge warn">Weekend: no rebalance</span><span class="badge neg">Cash lock</span></div>
+ </div>
+ <div class="cmp-cell xh-corners"><p class="lbl">Stat tiles</p>
+  <div class="tiles">
+   <div class="tile"><span class="lbl">Floor</span><span class="num big">$9,000</span><span class="sub">90% of $10,000</span></div>
+   <div class="tile"><span class="lbl">Cushion</span><span class="num big">$2,400</span><span class="sub">above the floor</span></div>
+   <div class="tile"><span class="lbl">Exposure</span><span class="num big">$9,600</span><span class="sub">m = 4</span></div>
+  </div>
+  <p class="sub" style="margin-top:12px">Illustrative values, not measured results.</p>
+ </div>
+ <div class="cmp-cell wide xh-corners"><p class="lbl">Table</p>
+  <div class="tscroll"><table><thead><tr><th>Token</th><th class="r">Round trip, $10k</th><th class="r">Status</th></tr></thead><tbody>
+   <tr><td>QQQB</td><td class="r num">0.7 bps</td><td class="r"><span class="badge pos">v1</span></td></tr>
+   <tr><td>NVDAB</td><td class="r num">5.9 bps</td><td class="r"><span class="badge pos">v1</span></td></tr>
+   <tr><td>SPCXB</td><td class="r num">6.0 bps</td><td class="r"><span class="badge pos">v1</span></td></tr>
+   <tr><td>TSLAB</td><td class="r num">46 bps</td><td class="r"><span class="badge warn">Borderline</span></td></tr>
+  </tbody></table></div>
+ </div>
+ <div class="cmp-cell wide xh-corners"><p class="lbl">Chart: value above the floor line (illustrative)</p><svg class="chart" viewBox="0 0 480 220" role="img" aria-label="Illustrative chart: portfolio value stays above a flat floor line at $9,000">
+<g stroke="var(--grid)" stroke-width="1">
+<path d="M0 .5H480M0 55.5H480M0 110.5H480M0 165.5H480M0 219.5H480"/><path d="M.5 0V220M120.5 0V220M240.5 0V220M360.5 0V220M479.5 0V220"/></g>
+<path d="M0 124L40 112L80 96L120 104L160 80L200 92L240 128L280 150L320 134L360 112L400 88L440 70L480 52V150H0Z" fill="var(--accent-soft)" opacity=".0"/>
+<path d="M0 124L40 112L80 96L120 104L160 80L200 92L240 128L280 150L320 134L360 112L400 88L440 70L480 52V165H0Z" fill="var(--accent-soft)"/>
+<path class="draw" pathLength="1" d="M0 124L40 112L80 96L120 104L160 80L200 92L240 128L280 150L320 134L360 112L400 88L440 70L480 52" fill="none" stroke="var(--text)" stroke-width="1.5"/>
+<path d="M0 165.5H480" stroke="var(--floor-line)" stroke-width="2"/>
+<path d="M.5 160V171M480 160V171" stroke="var(--floor-line)" stroke-width="1"/>
+<g stroke="var(--crosshair)"><path d="M235 150H245M240 145V155"/></g>
+<text x="8" y="184" font-family="var(--font-mono)" font-size="11" fill="var(--floor-line)" letter-spacing=".88">FLOOR $9,000</text>
+<text x="8" y="14" font-family="var(--font-mono)" font-size="11" fill="var(--text-muted)" letter-spacing=".88">VALUE</text>
+<text x="472" y="42" text-anchor="end" font-family="var(--font-mono)" font-size="11" fill="var(--text)">$11,400</text>
+<text x="232" y="210" text-anchor="middle" font-family="var(--font-mono)" font-size="11" fill="var(--text-muted)">CUSHION</text>
+</svg></div>
+</div></div></div>
+  </div>
+ </section>
+ <footer class="lbl">Floor / brand preview / numbers shown are illustrative, not results</footer>
+</div>
+</body></html>

@@ -1,0 +1,8 @@
+node_modules/
+.next/
+out/
+.vercel/
+.env*
+*.log
+.DS_Store
+wireframes/check*.png

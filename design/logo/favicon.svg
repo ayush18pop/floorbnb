@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <rect width="32" height="32" rx="6" fill="#0A0B0D"/>
+  <!-- Square (off-white) resting on the floor line (accent). -->
+  <path fill="#F2F2EE" fill-rule="evenodd" d="M8 6h16v16H8zM10 8v12h12V8z"/>
+  <rect x="3" y="22" width="26" height="3" fill="#7C93FF"/>
+</svg>
