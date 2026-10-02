@@ -9,3 +9,8 @@ wireframes/check*.png
 
 # Marketing workspace (not part of the public submission)
 marketing/
+
+# Pashov audit outputs
+x-ray/
+.solidity-auditor/
+.audit-*
