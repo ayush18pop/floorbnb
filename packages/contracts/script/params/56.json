@@ -1,0 +1,47 @@
+{
+  "_comment": "BSC mainnet (chainId 56). Fill the zero addresses before running (G4: the human verifies every address). Addresses below that are not zero come from docs/CONTRACTS.md section 2 and EXECUTION_PLAN Appendix B. Re-read pools, TVL, cardinality and uiMultiplier with cast before deploy. NO private keys belong in this file.",
+  "owner": "0x0000000000000000000000000000000000000000",
+  "guardian": "0x0000000000000000000000000000000000000000",
+  "keepers": [],
+  "usdt": "0x55d398326f99059fF775485246999027B3197955",
+  "v3Factory": "0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865",
+  "v3SwapRouter": "0x1b81D678ffb9C0263b24A97847620C99d213eB14",
+  "tokenBeacon": "0x156d6dce9a4f6139a3406f1f021f1a4880de93a3",
+  "approvedTokenImpl": "0xCFEd6c4679297ea4889F8183bC057B4A86C64e46",
+  "routerTargets": [
+    "0xB44446b0c8E56988c34f7Ff73Ae904982b5FdDA5",
+    "0x1b81D678ffb9C0263b24A97847620C99d213eB14"
+  ],
+  "routerApproveTargets": [
+    "0xB44446b0c8E56988c34f7Ff73Ae904982b5FdDA5",
+    "0x1b81D678ffb9C0263b24A97847620C99d213eB14"
+  ],
+  "assetTokens": [
+    "0x02fca66c1d1afb4e2a7884261eb00f63598a7436",
+    "0xbe9d156892e55e7154bcd3cb0fea677f9d3103e1",
+    "0x205812cdbed920aff76c6580abd681a46d11efc7"
+  ],
+  "assetPools": [
+    "0x8FB4243b553aC29BA088aCf00B9B7dA24bD6690C",
+    "0x977DaFFC095b33872E2741c19568925015C35b4d",
+    "0xe531fcb1F5a195de7608B9F4f9518544C2cdB693"
+  ],
+  "assetFees": [2500, 2500, 100],
+  "assetMinLiquidity": ["1000000000000000000000", "1000000000000000000000", "1000000000000000000000"],
+  "assetMaxTradeValue": ["25000000000000000000000", "10000000000000000000000", "5000000000000000000000"],
+  "maxDeposit": "1000000000000000000000",
+  "maxTotalTvl": "5000000000000000000000",
+  "defaults": {
+    "sellBandBps": 100,
+    "buyBandBps": 200,
+    "minInterval": 900,
+    "publicDelay": 14400,
+    "twapWindow": 600,
+    "maxTickDev": 300,
+    "tolAggBps": 30,
+    "tolDirectBps": 100,
+    "minTrade": "20000000000000000000",
+    "dust": "1000000000000000000"
+  },
+  "holidaysFile": "holidays/nyse_2026_2027.json"
+}
