@@ -14,7 +14,7 @@ All times are UTC, with IST (UTC+5:30) in brackets where a human is involved.
 
 1. Tonight: monorepo scaffold, contract libraries, and a fork spike that answers the riskiest question first: does aggregator calldata work when the taker is a contract?
 2. Sat: vault and factory code (two authors), a separate test author, the TypeScript SDK and a keeper MVP.
-3. Sun: fork tests, an independent security review, fixes, then a deploy dry-run on a BSC fork with a written runbook.
+3. Sun: fork tests, an independent security review, the Pashov audit (x-ray, then solidity-auditor), fixes, then a deploy dry-run on a BSC fork with a written runbook. A clean Pashov re-run on the frozen commit is a hard blocker for any mainnet deploy (§6.4a).
 4. **Mon 5 Oct, 06:00 to 08:00 UTC (11:30 to 13:30 IST): the team lead deploys to BSC mainnet. 15:30 UTC (21:00 IST): the first live rebalance**, which is the new position's first stock buy.
 5. Mon to Wed: API, MCP server, x402/b402 paywall, Agentic Wallet keeper, skill, ERC-8004 entry, web wired to mainnet.
 6. Thu: three review agents (product UX, first-time user, claims) and a cleanup pass. Demo take 1 in the trading window.
@@ -74,7 +74,7 @@ All times are UTC, with IST (UTC+5:30) in brackets where a human is involved.
 |---|---|---|---|---|
 | **0. Start** | Fri 2 Oct 17:30 / 23:00 | Sat 3 Oct 06:00 / 11:30 | A00 scaffold, A01 libs and interfaces, A02 taker spike, A03 claims audit 1, A04 BW3 client | Spike answer for R1 is known. Interfaces are frozen. |
 | **1. Core build** | Sat 3 Oct 06:00 / 11:30 | Sun 4 Oct 06:00 / 11:30 | A05 vault, A06 factory/lens/scripts, A07 tests, A08 SDK, A09 keeper MVP, A10/A10b web | `forge test` (unit, fuzz, invariant) is green. Keeper `once --dry-run` works on a fork. |
-| **2. Harden** | Sun 4 Oct 06:00 / 11:30 | Mon 5 Oct 03:00 / 08:30 | A11 fork tests, A12 security review, fixes, A12 re-check, A14 deploy dry-run and runbook | Gate G3 (contract freeze) is ready for the human. |
+| **2. Harden** | Sun 4 Oct 06:00 / 11:30 | Mon 5 Oct 03:00 / 08:30 | A11 fork tests, A12 security review, A12a x-ray, A12b Pashov audit and fix loop, fixes, A12 re-check, A14 deploy dry-run and runbook | Gate G3 (contract freeze) is ready for the human. The Pashov re-run is clean on the commit to deploy. |
 | **3. Mainnet** | Mon 5 Oct 03:00 / 08:30 | Mon 5 Oct 19:30 / 01:00 Tue | Human: approve G3, deploy, verify, create positions, run the first live rebalance | A real `Rebalanced` tx from the keeper EOA. |
 | **4. Agents track** | Mon 5 Oct 06:00 | Wed 7 Oct 19:30 | A15 AW keeper, A16 API, A17 x402, A18 MCP, A19 skill, A20 ERC-8004, A21 web wiring, A22 e2e | Paid MCP call settled. AW-signed tx (or a documented failure). Web reads mainnet. |
 | **5. Review and polish** | Thu 8 Oct 06:00 / 11:30 | Fri 9 Oct 12:00 / 17:30 | A23, A24, A25 reviews; A26 cleanup; fixes; A27 submission package; demo takes Thu and Fri | **Feature freeze Fri 12:00 UTC.** |
@@ -96,8 +96,11 @@ gantt
   A07 fuzz + invariants          :a07, 2026-10-03 10:00, 20h
   A11 fork tests                 :crit, a11, 2026-10-04 00:00, 10h
   A12 security review            :crit, a12, 2026-10-04 06:00, 6h
+  A12a x-ray pre-audit           :a12a, 2026-10-04 06:00, 1h
+  A12b Pashov audit + fix loop   :crit, a12b, 2026-10-04 07:00, 5h
   Fixes + A12 re-check           :crit, fix, 2026-10-04 12:00, 8h
   A14 deploy dry-run + runbook   :crit, a14, 2026-10-04 18:00, 5h
+  A12b final re-run (frozen)     :crit, a12c, 2026-10-04 23:00, 3h
   G3 freeze (human)              :milestone, crit, g3, 2026-10-05 03:00, 0h
   Mainnet deploy (human)         :crit, dep, 2026-10-05 06:00, 2h
   First live rebalance           :milestone, crit, lr, 2026-10-05 15:30, 0h
@@ -146,8 +149,12 @@ flowchart LR
   A07 --> A12[A12 security review]
   A11 --> A12
   A12 --> FIX[fixes + re-check]
+  A07 --> A12a[A12a x-ray]
+  A12a --> A12b[A12b Pashov audit]
+  A12b --> FIX
   FIX --> A14[A14 deploy dry-run]
-  A14 --> G3{{G3 human freeze}}
+  A14 --> A12c[A12b final re-run, frozen commit]
+  A12c --> G3{{G3 human freeze}}
   G3 --> DEP[human mainnet deploy<br/>Mon 06:00 UTC]
   A08[A08 SDK] --> A09[A09 keeper MVP]
   A09 --> LR
@@ -196,6 +203,8 @@ floor/
 | `test/fuzz/**`, `test/invariant/**`, `test/mocks/evil/**` | A07 | |
 | `test/fork/**`, `test/fixtures/**` | A11 | |
 | `test/audit/**`, `reviews/security-*.md` | A12 | |
+| `reviews/audit-pashov-*.md` | A12a, A12b | Output of the Pashov skills (§6.4a). Fixes go to A05/A06, never to the auditor. |
+| `.claude/skills/**`, `docs/AUDIT.md` | manager | The skills are installed unmodified (`.claude/skills/PASHOV_SOURCE.md`). Skill scratch output (`x-ray/`, `.solidity-auditor/`, `.audit-*`) must be in `.gitignore`: the manager adds it. |
 | `packages/contracts/deployments/**` | human deploy output, committed by the manager | |
 | `ops/spikes/taker-probe/**`, `ops/spikes/RESULTS-taker.md` | A02 | A separate Foundry project, so it never collides with A01. |
 | `packages/bw3/**` | A04 | |
@@ -244,6 +253,7 @@ floor/
 |---|---|---|
 | A05 FloorVault + SwapGuard | Sonnet by default | **Request Opus.** This contract holds user funds and does balance-delta checks around arbitrary router calldata. A subtle rounding or ordering bug becomes a loss on mainnet with no upgrade path (CONTRACTS.md §14 rollback). If Opus is declined, A07 and A12 are the controls, and A12 gets an extra 2 h. |
 | A12 security review (and its re-check) | Sonnet by default | **Request Opus.** This is the one adversarial read before real money goes in, and the separate-reviewer rule only works if the reviewer is strong. Six hours of Opus, once. |
+| A12a, A12b Pashov audit | Sonnet | No. The skills run their own parallel agents, and A12 is the Opus read. |
 | Everything else (A00 to A27) | Sonnet | No. The briefs are specific enough. |
 | Manager | runs in the team lead's own session | n/a |
 
@@ -484,6 +494,24 @@ Each brief below goes to the agent as-is, after the preamble in 5.1.
 
 ---
 
+### 6.4a Pashov audit (hard blocker for any mainnet deploy)
+
+The Pashov Audit Group skills are installed in `.claude/skills/` (`solidity-auditor`, `x-ray`). How to run them, triage rules and the allowed claim wording are in `docs/AUDIT.md`. This is an AI-assisted audit. It does not replace a human audit.
+
+**A12a: x-ray pre-audit** (Sonnet, Sun 06:00, about 1 h, after A05, A06 and A07 merge)
+- Do: run `/x-ray` on `packages/contracts`. Copy the result to `reviews/audit-pashov-xray.md`.
+- Output: the x-ray report, plus a list of any gaps it names (missing tests, unclear docs). The manager routes the gaps to A07 or A05/A06.
+- Constraint: do not edit `src/`, `test/` or `script/`.
+
+**A12b: solidity-auditor audit and fix loop** (Sonnet, Sun 07:00, about 5 h, then a 3 h final re-run on the frozen commit)
+- Do: run `/solidity-auditor` on `packages/contracts` (default mode, all files, `script/` included). Save the report to `reviews/audit-pashov-01.md` with the commit hash at the top.
+- Triage: every High and Medium is **fixed or accepted in writing** (rules in `docs/AUDIT.md`). Fixes are made by A05/A06 (the contracts owner), not by A12b. A12b re-runs after each fix batch: `reviews/audit-pashov-02.md`, and so on.
+- Final run: after A14's last `script/` commit and the contract freeze, run once more on the exact commit to deploy. It must report no open High or Medium. Save it as `reviews/audit-pashov-final.md`.
+- Hash rule: the audited commit hash must equal the deployed commit hash. Any change to `src/` or `script/` after the final run voids it. The deploy then uses the commit named in `reviews/audit-pashov-final.md`, and the source is verified on BscScan from that commit.
+- Report: the counts by severity, which findings were fixed or accepted, and go/no-go for G3.
+
+---
+
 ## 7. Review gates
 
 | Gate | When | The manager checks | Human? |
@@ -491,7 +519,7 @@ Each brief below goes to the agent as-is, after the preamble in 5.1.
 | **G0 every merge** | after each agent report | Only owned paths changed. `pnpm -r build`, `pnpm -r typecheck` and `pnpm -r test` for the touched packages. `forge build` and `forge test` (non-fork) if contracts changed, then the A08 ABI regen. The secret grep in §4.4. New numbers cited. `ops/progress/<id>.md` updated. DX notes file present if the report mentions friction. | No (P0) |
 | **G1 interfaces frozen** | A01 merge | The interfaces match CONTRACTS.md §11 plus P2. ABIs generate. | No |
 | **G2 R1 verdict** | Sat 06:00 to 12:00 UTC | `ops/spikes/RESULTS-taker.md` table reproduced by `run.sh`. | **Yes**: pick the primary route (aggregator, AMM-only vendor, or direct), which changes the cost claims. |
-| **G3 contract freeze** | Mon 03:00 UTC (08:30 IST) | All unit, fuzz (1,000) and invariant (1,000 × 50) tests green. Fork 1, 2, 3, 5 and 7 green. Coverage ≥ 90%. `reviews/security-02.md` has **zero open Critical or High**, and every Medium is fixed or listed for acceptance. A14's dry-run passed twice. `forge build --sizes` OK. | **Yes**: accept the Mediums, approve the deploy. |
+| **G3 contract freeze** | Mon 03:00 UTC (08:30 IST) | All unit, fuzz (1,000) and invariant (1,000 × 50) tests green. Fork 1, 2, 3, 5 and 7 green. Coverage ≥ 90%. `reviews/security-02.md` has **zero open Critical or High**, and every Medium is fixed or listed for acceptance. **Pashov audit (hard blocker):** `reviews/audit-pashov-xray.md` exists, `reviews/audit-pashov-final.md` is a clean re-run (no open High or Medium, each earlier one fixed or accepted in writing) and its commit hash equals the commit to deploy. A14's dry-run passed twice. `forge build --sizes` OK. | **Yes**: accept the Mediums, approve the deploy. |
 | **G4 deploy params** | Mon 05:30 UTC | `script/params/56.json` addresses match what the human gives (owner, guardian, keeper EOA, AW keeper). Caps per P5. Pools re-read live. Holidays cross-checked. | **Yes**: the human checks the addresses with their own eyes. |
 | **G5 keeper live** | Mon 15:00 UTC | `keeper once --dry-run` against mainnet shows the right previews for the demo vaults. | **Yes**: the human runs the real `once`, then starts `run`. |
 | **G6 web production deploy** | Sat 3 (landing), Tue 6 (wired) | Screenshots for every changed screen ID vs wireframes. Claims table clean for the changed pages. No mock data in production paths. `pnpm --filter web build`. | **Yes**: Vercel production deploy. |
@@ -516,8 +544,8 @@ Each brief below goes to the agent as-is, after the preamble in 5.1.
 | Sat 3, evening | Change the Vercel Root Directory to `apps/web`. Approve G6 for the landing (first production deploy to floorbnb.vercel.app). | Vercel account and deploy approval. |
 | **Sun 4, by 12:00 / 17:30** | Drop any generated wireframes into `wireframes/generated/` (P13 deadline for A01 to A10). | The team lead is generating them. |
 | Sun 4, by 18:00 / 23:30 | Provision the VM (P8), install Node and the keeper key there (`KEEPER_PRIVATE_KEY` in the VM secret store), and send its IP to b402 if they asked. Decide Safe vs EOA (P4). Check the b402 status. | Infrastructure accounts and keys. |
-| **Mon 5, 03:00 / 08:30** | **G3:** read `reviews/security-02.md`, accept the Mediums, approve the freeze. | Risk acceptance for real funds. |
-| Mon 5, 05:30 to 08:00 / 11:00 to 13:30 | **G4 then the mainnet deploy** with `ops/deploy/runbook.md`: deploy, verify, `setKeeper` x2, holidays, P6 `setDefaults`. Commit `deployments/56.json` (or hand it to the manager). | Mainnet signing with real keys. |
+| **Mon 5, 03:00 / 08:30** | **G3:** read `reviews/security-02.md` and `reviews/audit-pashov-final.md`, accept the Mediums, approve the freeze. Check that the Pashov hash equals `git rev-parse HEAD` of the deploy commit. **No Pashov clean run, no deploy.** | Risk acceptance for real funds. |
+| Mon 5, 05:30 to 08:00 / 11:00 to 13:30 | **G4 then the mainnet deploy** with `ops/deploy/runbook.md` (from the audited commit only): deploy, verify, `setKeeper` x2, holidays, P6 `setDefaults`. Commit `deployments/56.json` (or hand it to the manager). | Mainnet signing with real keys. |
 | Mon 5, 08:00 to 10:00 / 13:30 to 15:30 | Create demo positions A and B (appendix A) from the user wallet, then restore the defaults. Outside the window is fine: creation does not trade. | Real funds. |
 | **Mon 5, 15:30 to 19:30 / 21:00 to 01:00** | **G5:** run `keeper once` → **the first live rebalance (position A's first buy)**. Screen-record the terminal, the BscScan tx and the position page. Then start `keeper run` on the VM. Try `baw contract-call preview` of a real `rebalance` on the vault, preview only. | Mainnet signing, recording. |
 | **Tue 6, 15:30 to 19:30 / 21:00 to 01:00** | Supervised AW keeper rebalance (`KEEPER_SIGNER=baw keeper once`). Record it whether it works or not. **18:00 UTC (23:30 IST): b402 vs own facilitator decision (P12).** Approve G6 for the wired web. | Binance App taps, signing, decision. |
@@ -540,12 +568,13 @@ Each brief below goes to the agent as-is, after the preamble in 5.1.
 | R5 | **Fork RPC prunes state** (`missing trie node`) mid-test; no archive. | A02 and A11 flakiness. | A paid or archive key (human, Sat). Keep fork tests short and fork at latest each run. Save the aggregator fixtures from A02. Mark flaky tests and re-run. Required fork tests: 1, 2, 3, 5, 7 only. | **Sat 3 Oct 12:00 UTC** (key in env) |
 | R6 | **Agent usage limits / interruptions.** | A session limit hit (it has happened once today). | At most 4 concurrent agents, checkpoints in `ops/progress/`, commits after each green step, `ops/status.md` for hand-over, and critical-path tasks first. If the Opus quota runs out mid-A05, continue the same brief on Sonnet from the checkpoint and add 2 h to A12. | Continuous. The manager re-plans at 06:00 and 18:00 UTC daily. |
 | R7 | **Wireframes arrive late.** | `wireframes/generated/` empty. | Build from `prompts.html` text (P13). Restyle pass Wed if images arrive. The landing is already built and only needs alignment. | **Sun 4 Oct 12:00 UTC** |
-| R8 | **The security review finds Highs late**, or the fixes take longer than 8 h. | `reviews/security-01.md`. | Use the 9 h of slack before Monday's window first, then deploy Tue 06:00. If Highs are still open on Wed 06:00, deploy with the High-affected feature disabled (for example no `rebalancePublic`) and caps cut to 1,000 total, and state that in the README. | **Mon 5 Oct 03:00 UTC** (G3); hard latest **Wed 7 Oct 12:00 UTC** (P11) |
+| R8 | **The security review finds Highs late**, or the fixes take longer than 8 h, or the Pashov re-run still shows a High or Medium. | `reviews/security-01.md`, `reviews/audit-pashov-*.md`. | Use the 9 h of slack before Monday's window first, then deploy Tue 06:00. If Highs are still open on Wed 06:00, deploy with the High-affected feature disabled (for example no `rebalancePublic`) and caps cut to 1,000 total, and state that in the README. | **Mon 5 Oct 03:00 UTC** (G3); hard latest **Wed 7 Oct 12:00 UTC** (P11) |
 | R9 | **No natural rebalance after the first buy** (a quiet market). | Lens `needsRebalance` false all week. | Position A at a 95% floor needs about a 2% fall to trigger a sell (appendix A). If none happens by Thu 15:30, open position C at a 97% floor (no forced trade). The log shows the settings. **Never fake a trigger.** | Thu 8 Oct 15:30 UTC |
 | R10 | **bStock issuer pause or blocklist** hits a vault during the demo. | `TokenPaused`, or transfer reverts. | Use `exitInKind`, which skips that token. Use it as an honest demo of the emergency path. Switch the asset. | Live |
 | R11 | **VM not ready** by Mon. | No host. | Run the keeper on the laptop during the windows only. The site falls back to on-chain events for the log (P7). | Sun 4 Oct 18:00 UTC |
 | R12 | **Vercel monorepo build fails** after the move. | First deploy errors. | Set the Root Directory and install command (`pnpm install --frozen-lockfile` at the root). Fallback: `vercel build` locally plus `vercel deploy --prebuilt` (human). | Sat 3 Oct evening |
 | R13 | **The direct pool route is used live** and the round-trip cost wipes the small demo cushion. | `Rebalanced.router` = Pancake. | Use QQQB for the demo (0.01% pool). Say the cost on screen. | Mon 5 Oct window |
+| R14 | **The Pashov audit is AI-assisted and is not a human audit.** It can miss bugs and gives no guarantee. | A site, README or video line says "audited". | Never write "audited" alone. The only allowed wording is "AI-assisted audit by Pashov Audit Group skills, not a formal audit" (`docs/AUDIT.md`). A24 and A25 check this. | Every public text; hard check at G7 and G8 |
 
 ---
 
@@ -560,6 +589,8 @@ All four run at once except A03 and A04, which wait for A00's merge (about 1.5 h
 | 3 | **A01 Foundry, libraries, interfaces** | Sonnet | Fri 17:30 / 23:00 | Critical path. A05, A06, A07 and A08 all wait on its frozen interfaces. It owns `packages/contracts`, which A00 does not touch. |
 | 4 | **A03 Claims audit, pass 1** | Sonnet | Fri ~19:30 / ~01:00 (after A00 merges) | Cheap and read-only. Its table feeds A10b on Sat, so the first Vercel deploy is honest. |
 | 5 | **A04 BW3 client** | Sonnet | when a slot frees (≤ 4 running), ~Fri 21:00 | A09 and A16 need it. Not critical tonight. |
+
+The Pashov skills are installed in the repo already. Nothing to audit tonight, so do not run them before A05, A06 and A07 merge.
 
 Manager's own steps before spawning: create the five worktrees (§4.3), seed `ops/status.md`, and paste the §5.1 preamble plus each brief into its agent. After each report: run G0, merge, push, and spawn the next task in the order of section 3.
 
