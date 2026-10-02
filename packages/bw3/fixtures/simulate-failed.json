@@ -1,0 +1,1 @@
+{"code":"000000","msg":"success","data":{"status":"FAILED","failReason":"execution reverted: BEP20: transfer amount exceeds allowance","balanceChanges":[],"allowanceChanges":[]}}
