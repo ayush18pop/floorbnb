@@ -3,6 +3,7 @@ node_modules/
 out/
 .vercel/
 .env*
+!.env.example
 *.log
 .DS_Store
 wireframes/check*.png
@@ -14,3 +15,5 @@ marketing/
 x-ray/
 .solidity-auditor/
 .audit-*
+dist/
+*.tsbuildinfo
