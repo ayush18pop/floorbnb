@@ -3,9 +3,12 @@ node_modules/
 out/
 .vercel/
 .env*
+!.env.example
 *.log
 .DS_Store
 wireframes/check*.png
 
 # Marketing workspace (not part of the public submission)
 marketing/
+dist/
+*.tsbuildinfo
