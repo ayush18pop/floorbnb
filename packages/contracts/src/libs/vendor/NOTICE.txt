@@ -1,0 +1,4 @@
+Vendored, unmodified, from Uniswap v4-core (npm @uniswap/v4-core 1.0.2, src/libraries/):
+TickMath.sol, FullMath.sol, BitMath.sol, CustomRevert.sol.
+Each file keeps its original SPDX-License-Identifier: MIT header. Solidity ^0.8.0.
+Chosen per docs/CONTRACTS.md section 13, option (b). Do not edit; re-vendor to update.
