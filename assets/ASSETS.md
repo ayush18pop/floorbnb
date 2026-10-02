@@ -24,7 +24,7 @@ Last updated 2026-10-02. Written against `CONTEXT.md` and `docs/RESEARCH_RESULTS
 
 | ID | Asset | Where used | Method | Prio | Size | Status |
 |---|---|---|---|---|---|---|
-| B1 | Logo mark + wordmark + lockups | Everywhere | Code/SVG | P0 | SVG: mark 32×32, word 82×24, lockup 126×24 | Delivered by brand designer: design/logo/ |
+| B1 | Logo mark + wordmark + lockups | Everywhere | Code/SVG | P0 | SVG: mark 48×21, word 85×24, lockup 179×36 | Delivered by brand designer: design/logo/ |
 | B2 | Favicon + app icons | Browser tab, bookmarks, PWA, wallet-app listing | Code/SVG | P0 | favicon.svg (done); 32/48 .ico; 180 apple-touch; 192, 512 PWA; 512 maskable | Partly done: favicon.svg exists; PNG/ICO exports to do |
 | L1 | Hero chart: a real stock falls, the portfolio stops at the floor | Landing hero (right half or full width) | Data chart | P0 | Responsive; design at 960×576 (desktop panel), 4:5 on phone | Blocked on data: needs a day-by-day path (see C0). Fallback: svg/floor-cushion-explainer.svg, labelled illustration. |
 | C0 | Data task: export one real window's day-by-day path | Feeds L1 (hero), the demo opener, the #problem visual, deck | Data chart | P0 | CSV, ~252 rows | To do (needs a re-run of gap_backtest.py, network for yfinance) |
@@ -115,11 +115,11 @@ Last updated 2026-10-02. Written against `CONTEXT.md` and `docs/RESEARCH_RESULTS
 - **Where used:** Everywhere
 - **Method:** Code/SVG
 - **Priority:** P0
-- **Size:** SVG: mark 32×32, word 82×24, lockup 126×24
+- **Size:** SVG: mark 48×21, word 85×24, lockup 179×36
 - **Status:** Delivered by brand designer: design/logo/
 
-Delivered in `design/logo/`: `floor-mark.svg` (32×32, `currentColor`), `floor-wordmark.svg` (82×24), `floor-lockup.svg` (126×24), `favicon.svg` (fixed-colour tile). Concept: a square resting on a line that extends past it. Rules (BRAND.md §3): clear space = half the mark height, minimum mark 16 px, lockup 96 px wide; inline the SVG to colour the line with `--floor-line`; never animate the square.
-Open items for this plan: (1) a reversed or accent-ink variant for use on accent fills is not a file yet (BRAND.md says use `--accent-ink`); (2) the lockup is not exported as PNG for slides and video, so export 1× and 2× PNGs on transparent background in ink and in light.
+Delivered in `design/logo/`: `floor-mark.svg` (48×21, adaptive: `currentColor`, `--floor-line`, `--accent-soft`), `floor-mark-dark.svg` / `-light`, `floor-wordmark.svg` (85×24, Geist Bold outlined), `floor-lockup.svg` (179×36) + `-dark` / `-light`, `favicon.svg` (app icon tile), `floor-avatar.svg` (400×400 X/Telegram avatar). Concept: a value line drops steeply, makes one small soft shoulder, then eases and rests flat one stroke width above a blue floor line it never touches or crosses (traced from the NVDA 2022 backtest), with a thin cushion fill and a short tick at the floor line's left end. Rules (BRAND.md §3): clear space = half the mark height, minimum mark 32 px wide, lockup 112 px wide (below that, the app icon); inline the SVG so the floor line and cushion follow the theme tokens; never reshape the curve; the wordmark is outlined Geist Bold, never retype it.
+Open items for this plan: (1) an accent-ink variant for use on accent fills (all parts in accent-ink, no cushion) is not a file yet (BRAND.md says use `--accent-ink`); (2) the lockup is not exported as PNG for slides and video, so export 1× and 2× PNGs on transparent background in ink and in light.
 
 ### B2 Favicon + app icons
 
@@ -129,9 +129,9 @@ Open items for this plan: (1) a reversed or accent-ink variant for use on accent
 - **Size:** favicon.svg (done); 32/48 .ico; 180 apple-touch; 192, 512 PWA; 512 maskable
 - **Status:** Partly done: favicon.svg exists; PNG/ICO exports to do
 
-`design/logo/favicon.svg` already exists (dark tile #0A0B0D, off-white square, accent line #7C93FF). Still needed, all exported from that file or the mark, no AI:
+`design/logo/favicon.svg` already exists (#0A0B0D tile with rx 6 of 32, simplified mark: off-white value line and #7C93FF floor line, no cushion or tick, strokes 3.4 of 48). Still needed, all exported from that file or the mark, no AI:
 - `favicon.ico` 16/32/48.
-- `apple-touch-icon.png` 180×180: the same tile at full bleed (iOS rounds it itself; do not add your own rounded container, BRAND.md §3).
+- `apple-touch-icon.png` 180×180: the same tile at full bleed with square corners (iOS rounds it itself; drop the rx 6 so the corners are not rounded twice, BRAND.md §3).
 - `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` (mark kept inside the central 80% safe zone).
 - In Next.js use `app/icon.svg` and `app/apple-icon.png`. Export with `rsvg-convert` or `next/og`.
 

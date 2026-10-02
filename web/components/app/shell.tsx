@@ -20,7 +20,7 @@ export function AppShell({ active, title, lead, children }: { active: "app" | "p
     <>
       <header className="sticky top-0 z-40 border-b border-grid bg-bg">
         <div className="mx-auto flex flex-wrap items-center justify-between gap-x-3 gap-y-1 py-2 md:h-14 md:flex-nowrap md:py-0" style={{ width: "min(calc(100% - 2 * var(--gutter-x)), 1104px)" }}>
-          <Link href="/" aria-label="Home" className="inline-flex items-center"><Logo height={24} /></Link>
+          <Link href="/" aria-label="Home" className="inline-flex items-center"><Logo height={30} /></Link>
           <nav aria-label="App" className="order-3 flex w-full items-center gap-6 md:order-none md:w-auto">
             {tabs.map(([t, h, k]) => (
               <Link key={k} href={h} className="navlink" aria-current={active === k ? "page" : undefined} style={active === k ? { borderBottom: "2px solid var(--floor-line)", paddingBottom: 6 } : undefined}>

@@ -1,6 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="currentColor" role="img" aria-label="Floor">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 21" width="48" height="21" role="img" aria-label="Floor">
   <title>Floor</title>
-  <!-- 32 x 32 grid, integer coordinates. Square (portfolio) resting on a line (floor). -->
-  <path fill-rule="evenodd" d="M10 9h12v12H10zM12 11v8h8v-8z"/>
-  <rect x="0" y="21" width="32" height="2"/>
+  <!-- Value line resting one stroke above the floor line it never crosses. 48 x 21 grid. -->
+  <path d="M1 1C2.6 5.6 4.6 11.6 7.6 11.6C9.3 11.6 10 10.3 11.8 10.3C14.4 10.3 16.4 12.6 19.4 13.8C21.8 14.6 24 14.75 27 14.75H48V17H1Z" style="fill:var(--accent-soft,#151A33)"/>
+  <path d="M1 1C2.6 5.6 4.6 11.6 7.6 11.6C9.3 11.6 10 10.3 11.8 10.3C14.4 10.3 16.4 12.6 19.4 13.8C21.8 14.6 24 14.75 27 14.75H48" fill="none" stroke="currentColor" stroke-width="1.5"/>
+  <path d="M0 17h48v1.5H0z" style="fill:var(--floor-line,#7C93FF)"/>
+  <path d="M0 14.75h1.5v6H0z" style="fill:var(--floor-line,#7C93FF)"/>
 </svg>

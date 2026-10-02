@@ -1,7 +1,7 @@
 /**
  * Single source of truth for the product name and fixed strings.
  * The team lead may rename "Floor" to "Sill": change NAME here and nowhere else.
- * (The logo SVG paths in components/Logo.tsx spell "Floor" and would need redrawing.)
+ * (The wordmark paths in lib/logo.ts spell "Floor" and would need redrawing.)
  */
 export const BRAND = {
   name: "Floor",

@@ -86,7 +86,7 @@ footer{border-top:1px solid var(--grid-strong);padding:24px;color:var(--muted);f
   <i class="xh" style="left:0;top:0"></i><i class="xh" style="left:100%;top:0"></i>
   <header class="top">
     <div class="brand">
-      <svg width="28" height="28" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M10 9h12v12H10zM12 11v8h8v-8z"/><rect x="0" y="21" width="32" height="2" fill="var(--accent)"/></svg>
+      <svg width="40" height="18" viewBox="0 0 48 21" aria-hidden="true"><path d="M1 1C2.6 5.6 4.6 11.6 7.6 11.6C9.3 11.6 10 10.3 11.8 10.3C14.4 10.3 16.4 12.6 19.4 13.8C21.8 14.6 24 14.75 27 14.75H48V17H1Z" fill="var(--accent-soft)"/><path d="M1 1C2.6 5.6 4.6 11.6 7.6 11.6C9.3 11.6 10 10.3 11.8 10.3C14.4 10.3 16.4 12.6 19.4 13.8C21.8 14.6 24 14.75 27 14.75H48" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M0 17h48v1.5H0z" fill="var(--accent)"/><path d="M0 14.75h1.5v6H0z" fill="var(--accent)"/></svg>
       Floor
     </div>
     <span class="lbl">Screen prompts v1 · 2026-10-02</span>
@@ -183,7 +183,7 @@ const THEMES = {
 
 const REFS = [
   {f:"BRAND", label:"Brand sheet (theme-matched)", note:"Logo, colours, type, grid. Attach to every prompt."},
-  {f:"LOGO", label:"Logo lockup (theme-matched)", note:"Square on a line + wordmark. Attach to every prompt."},
+  {f:"LOGO", label:"Logo lockup (theme-matched)", note:"Value line resting above the floor line + wordmark. Attach to every prompt."},
   {f:"floor-cushion-explainer.png", label:"Floor and cushion diagram", note:"Chart language: floor line, cushion fill, mono labels."},
   {f:"bad-years-chart.png", label:"Bad-years bar chart", note:"Bar chart style for proof sections."},
   {f:"agent-flow.png", label:"Agent flow diagram", note:"Box-and-arrow style for agent screens."}
@@ -221,7 +221,7 @@ Typography: Geist (geometric grotesk sans, like Vercel's Geist) for words; Geist
 - Big numbers: Geist Mono 40px Regular, letter-spacing −2%.
 
 Components:
-- Logo lockup: a small square outline (thick stroke) resting on a horizontal line that extends past the square on both sides; the line is in the accent colour; then the word "Floor" in a clean geometric sans at the same height. Match the attached logo exactly.
+- Logo lockup: a small mark about twice as wide as it is tall: a thin primary-text line that drops steeply from the top-left, makes one small soft shoulder, then eases and runs flat to the right edge, resting just above (one stroke width) a straight horizontal accent-colour floor line that it never touches or crosses; a faint accent-soft fill between the two lines, and a short vertical accent tick at the floor line's left end. Then the word "Floor" in Geist Bold, its baseline level with the bottom of the floor line. Match the attached logo exactly.
 - Primary button: 40px tall, 16px side padding, square corners, accent fill, 14px Geist Medium label in the text-on-accent colour. Secondary button: card fill, 1px section-rule border, primary text. Ghost link: label followed by "→".
 - Input: 40px tall, square, 1px section-rule border, card fill; value in Geist Mono 16px; field label above in mono caps 12px; unit (for example "USDT" or "%") inside on the right in label colour. Focused input: 1px accent border plus a 1px accent ring.
 - Segmented control and chips: square, 1px borders shared between options; selected option has an accent border and accent-soft fill.

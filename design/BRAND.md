@@ -18,13 +18,13 @@ Verdict: usable for a hackathon, weak as a long-term brand and hard to find in s
 
 ### Backups (same meaning: a base you set and rest on)
 Search was a single quick pass per name, not a trademark search.
-1. **Sill**. A sill is the lowest horizontal member of a frame. No crypto product found. Short, and fits the square-and-line mark unchanged. Best backup.
+1. **Sill**. A sill is the lowest horizontal member of a frame. No crypto product found. Short, and the line-above-a-floor mark works unchanged. Best backup.
 2. **Footing**. The base a structure rests on. No crypto clash found in search. Plainer, slightly longer.
 3. **Plinth**. A base block. Clash: Plinth is the Cardano smart-contract language (https://developers.cardano.org/docs/smart-contracts/plinth) and a PLINTH token listing exists (https://www.livecoinwatch.com/price/Plinth-PLINTH). Avoid.
 
 Rejected: Keel (Keel Finance on Solana, https://defillama.com/protocol/keel-finance), Ballast (Ballast.finance, https://web3.career/web3-companies/ballast-finance), Bedrock (Bedrock restaking, BR token).
 
-The mark and grid system do not depend on the name. Wordmark SVG would need redrawing for a rename.
+The mark and grid system do not depend on the name. Wordmark SVG would need re-outlining from Geist Bold for a rename.
 
 ## 2. Direction
 
@@ -33,20 +33,22 @@ Difference from Vercel/Linear/Magic UI: the grid is structural not decorative (c
 
 ## 3. Logo
 
-**Concept.** A square (the portfolio) resting on a line (the floor) that extends past it on both sides. It reads as an object that stops at the line. In the lockup the wordmark baseline and the floor line's bottom edge are the same y.
+**Concept.** A value line (the portfolio) drops steeply, makes one small soft shoulder, then eases and rests flat just above a horizontal line (the floor). It never touches or crosses it. Traced from the NVDA 2022 backtest: the vault line above the 90% floor. A thin cushion fill sits between the two lines, and a short vertical tick marks the floor line's left end. In the lockup the wordmark baseline and the floor line's bottom edge are the same y.
 
-**Geometry.** 32 x 32 grid, integer coordinates. Square 12 x 12 with a 2-unit stroke at (10,9). Line 32 x 2 at y=21. Wordmark: 82 x 24 box, 3-unit strokes, cap height 24, x-height 16, drawn as paths (no font dependency).
+**Geometry.** 48 x 21 grid. Value line stroke 1.5, starts at (1,1), rests flat at y=14.75 from x=27 to 48. Floor line 48 x 1.5 at y=17, so the resting line sits exactly one stroke width above it. Tick 1.5 x 6 at x=0, y=14.75. Cushion fills between the value line and y=17. Wordmark: "Floor" in Geist Bold, outlined to paths, cap height 24, 85 x 24 (no font dependency).
 
-**Files** (all `currentColor`):
-- `logo/floor-mark.svg` symbol, 32 x 32.
-- `logo/floor-wordmark.svg` word, 82 x 24.
-- `logo/floor-lockup.svg` mark + word, 126 x 24.
-- `logo/favicon.svg` fixed-colour tile (#0A0B0D, off-white square, accent line #7C93FF). Reads at 16px: the line is 1.5px, square stroke 1px.
-Inline the SVG (not `<img>`) when you want the line in `--floor-line`: give the `<rect>` `fill="var(--floor-line)"`. Default is one colour.
+**Files** (adaptive: line and word in `currentColor`, floor line and tick in `var(--floor-line)`, cushion in `var(--accent-soft)`):
+- `logo/floor-mark.svg` symbol, 48 x 21. Fixed-colour `-dark` / `-light` variants.
+- `logo/floor-wordmark.svg` word, 85 x 24.
+- `logo/floor-lockup.svg` mark (scaled 36/21) + word, 179 x 36. Fixed-colour `-dark` / `-light` variants.
+- `logo/favicon.svg` app icon: #0A0B0D tile, rx 6 of 32, simplified mark (no cushion, no tick, strokes 3.4 of 48). Same file as `web/app/icon.svg`.
+- `logo/floor-avatar.svg` X / Telegram avatar, 400 x 400, dark.
+- `logo/source/` the approved renders the mark was traced from. Reference only, never ship them.
+Inline the SVG (not `<img>`) when you want it to follow the theme tokens. Use the fixed variants where CSS vars do not reach (slides, PNG export, third-party sites).
 
-**Clear space** = half the mark's height (12 units of the 24-unit lockup) on all sides. **Minimum size**: mark 16px, lockup 96px wide (below that, use the mark alone).
-**Colour:** text colour on neutral backgrounds; `--accent-ink` on accent. Never recolour parts other than the line.
-**Do:** place on the grid, align the floor line to a grid line when possible. **Don't:** add effects, outline, rotate, stretch, put the mark in a rounded container (favicon tile excepted), animate the square (the line may draw in once), set the wordmark in a font.
+**Clear space** = half the mark's height on all sides (18 units of the 36-unit lockup). **Minimum size**: mark 32px wide, lockup 112px wide. Below 32px use the app icon, which drops the cushion and tick and thickens the strokes.
+**Colour:** line and word in text colour on neutral backgrounds; floor line and tick in `--floor-line`; cushion in `--accent-soft`. On accent fills, everything in `--accent-ink` and no cushion. Never recolour anything else.
+**Do:** place on the grid, align the floor line to a grid line when possible. **Don't:** let the value line touch or cross the floor line, redraw or smooth the curve, add effects, outline, rotate, stretch, put the mark in a rounded container (the app icon tile is the only exception), animate the curve's shape (the lines may draw in once, floor first), retype the wordmark in a font: it is Geist Bold outlined, so always use the SVG.
 
 ## 4. Colour tokens
 

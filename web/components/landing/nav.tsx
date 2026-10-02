@@ -20,7 +20,7 @@ export function Nav() {
   return (
     <header className="sticky top-0 z-40 border-b border-grid bg-bg">
       <div className="mx-auto flex h-14 items-center justify-between gap-4" style={{ width: "min(calc(100% - 2 * var(--gutter-x)), 1104px)" }}>
-        <Link href="/" aria-label="Home" className="inline-flex items-center"><Logo height={24} /></Link>
+        <Link href="/" aria-label="Home" className="inline-flex items-center"><Logo height={30} /></Link>
         <nav aria-label="Primary" className="hidden items-center gap-6 md:flex">
           {links.map(([t, h]) => <Link key={h} href={h} className="navlink">{t}</Link>)}
         </nav>

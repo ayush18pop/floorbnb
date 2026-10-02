@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { BRAND } from "@/lib/brand";
+import { LOCKUP, MARK, WORDMARK } from "@/lib/logo";
 import { loadPath } from "@/lib/data";
 
 export const alt = `${BRAND.name}: ${BRAND.headline}`;
@@ -64,12 +65,16 @@ export default async function Image() {
           ))}
         </svg>
 
-        <div style={{ position: "absolute", left: 64, top: 36, display: "flex", alignItems: "center", gap: 12 }}>
-          <svg width="32" height="32" viewBox="0 0 32 32">
-            <path fillRule="evenodd" d="M10 9h12v12H10zM12 11v8h8v-8z" fill={C.text} />
-            <rect x="0" y="21" width="32" height="2" fill={C.accent} />
+        <div style={{ position: "absolute", left: 64, top: 34, display: "flex" }}>
+          <svg width={(40 * LOCKUP.width) / LOCKUP.height} height="40" viewBox={LOCKUP.viewBox}>
+            <g transform={`scale(${LOCKUP.markScale})`}>
+              <path d={MARK.cushion} fill={C.soft} />
+              <path d={MARK.value} fill="none" stroke={C.text} strokeWidth={MARK.strokeWidth} />
+              <path d={MARK.floor} fill={C.accent} />
+              <path d={MARK.tick} fill={C.accent} />
+            </g>
+            <path transform={`translate(${LOCKUP.wordX} ${LOCKUP.wordY})`} fill={C.text} d={WORDMARK} />
           </svg>
-          <div style={{ fontSize: 30, fontWeight: 600, color: C.text, letterSpacing: -0.5 }}>{BRAND.name}</div>
         </div>
 
         <div style={{ position: "absolute", left: 64, top: 130, width: 540, display: "flex", flexDirection: "column", background: C.bg, padding: "8px 0" }}>
