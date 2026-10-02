@@ -6,7 +6,7 @@ Re-derivation was done with Python over the CSVs (commands at the end). Rendered
 Note on the build: the site renders only static text and CSV-driven numbers, so reading TSX is equivalent for copy.
 
 ## Verdict counts (by claim row below)
-OK 33 | wrong 2 | unsourced 6 | stale vs DECISIONS/plan 4 | needs caveat (honesty rule) 6
+Approximate (some rows group several occurrences): OK ~40 | wrong 2 | unsourced 4 | stale vs DECISIONS 1 | caveat (honesty rule or scope) ~10
 
 ## Top 5 fixes
 1. `web/app/docs/spot-only/page.tsx:10` "Your exposure never goes above your deposit" is wrong. E* = min(4C, V) is capped at current value V, which exceeds the deposit after gains (K section 5). Say "never above your vault's value".
