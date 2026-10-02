@@ -8,11 +8,11 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { ButtonLink } from "@/components/ui/button";
 
 const links = [
-  ["How it works", "#how-it-works"],
-  ["Trade-off", "#trade-off"],
-  ["Proof", "#proof"],
-  ["Agents", "#agents"],
-  ["FAQ", "#faq"],
+  ["How it works", "/docs/how-it-works"],
+  ["Backtest", "/docs/backtest"],
+  ["Agents", "/docs/agents"],
+  ["Risks", "/docs/risks"],
+  ["Docs", "/docs"],
 ];
 
 export function Nav() {
@@ -22,8 +22,7 @@ export function Nav() {
       <div className="mx-auto flex h-14 items-center justify-between gap-4" style={{ width: "min(calc(100% - 2 * var(--gutter-x)), 1104px)" }}>
         <Link href="/" aria-label="Home" className="inline-flex items-center"><Logo height={24} /></Link>
         <nav aria-label="Primary" className="hidden items-center gap-6 md:flex">
-          {links.map(([t, h]) => <a key={h} href={h} className="navlink">{t}</a>)}
-          <Link href="/agents" className="navlink">Agent docs</Link>
+          {links.map(([t, h]) => <Link key={h} href={h} className="navlink">{t}</Link>)}
         </nav>
         <div className="flex items-center gap-2">
           <ThemeToggle />
@@ -36,8 +35,7 @@ export function Nav() {
       {open && (
         <nav id="mobile-nav" aria-label="Mobile" className="border-t border-grid bg-bg md:hidden">
           <div className="mx-auto flex flex-col" style={{ width: "min(calc(100% - 2 * var(--gutter-x)), 1104px)" }}>
-            {links.map(([t, h]) => <a key={h} href={h} onClick={() => setOpen(false)} className="navlink border-b border-grid py-3">{t}</a>)}
-            <Link href="/agents" className="navlink border-b border-grid py-3">Agent docs</Link>
+            {links.map(([t, h]) => <Link key={h} href={h} onClick={() => setOpen(false)} className="navlink border-b border-grid py-3">{t}</Link>)}
             <div className="py-3"><ButtonLink variant="primary" href="/app" className="w-full">Set your floor</ButtonLink></div>
           </div>
         </nav>

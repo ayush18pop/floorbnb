@@ -57,7 +57,7 @@ export function Builder() {
       <div className="col-span-4 md:col-span-8 lg:col-span-5 !p-0">
         <form className="flex flex-col" onSubmit={(e) => e.preventDefault()} aria-label="Protection settings">
           <div className="border-b border-grid p-4 md:p-6">
-            <p className="label mb-3" id="assets-l">1 / Basket (assets_, equal weights)</p>
+            <p className="label mb-3" id="assets-l">1 / Basket</p>
             <div className="flex flex-wrap gap-2" role="group" aria-labelledby="assets-l">
               {ASSETS.map((a) => (
                 <button key={a.symbol} type="button" className="chip" aria-pressed={picked.includes(a.symbol)} onClick={() => toggle(a.symbol)}>
@@ -70,7 +70,7 @@ export function Builder() {
 
           <div className="border-b border-grid p-4 md:p-6">
             <div className="flex items-baseline justify-between">
-              <label className="label" htmlFor="floor">2 / Floor (floorBps)</label>
+              <label className="label" htmlFor="floor">2 / Floor</label>
               <span className="mono text-[20px]">{floorPct}%</span>
             </div>
             <input id="floor" className="range mt-3" type="range" min={FLOOR_BPS_MIN / 100} max={FLOOR_BPS_MAX / 100} step={1} value={floorPct} onChange={(e) => setFloorPct(Number(e.target.value))} aria-valuetext={`${floorPct} percent of the deposit`} />
@@ -79,7 +79,7 @@ export function Builder() {
           </div>
 
           <div className="border-b border-grid p-4 md:p-6">
-            <label className="label" htmlFor="amount">3 / Amount (amount)</label>
+            <label className="label" htmlFor="amount">3 / Amount</label>
             <div className="field mt-3">
               <div className="input-wrap">
                 <input id="amount" className="input pr-16" inputMode="numeric" value={amountStr} onChange={(e) => setAmountStr(e.target.value.replace(/[^0-9,]/g, ""))} aria-invalid={!!amountErr} aria-describedby="amount-msg" style={amountErr ? { borderColor: "var(--negative)" } : undefined} />
@@ -90,7 +90,7 @@ export function Builder() {
           </div>
 
           <div className="p-4 md:p-6">
-            <p className="label mb-2">Term (termSeconds)</p>
+            <p className="label mb-2">Term</p>
             <p className="mono text-[15px]">365 days <span className="text-muted">({TERM_SECONDS.toLocaleString("en-US")} s)</span></p>
             <p className="small mt-2">One year at launch. Fee: none in v1. Gas is paid by you in BNB.</p>
             <div className="btn-stack mt-6 flex flex-col gap-3">

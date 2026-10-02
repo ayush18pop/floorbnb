@@ -1,7 +1,6 @@
 import { ChartPanel } from "@/components/charts/panel";
 import { PairedBars, SingleBars } from "@/components/charts/bars";
 import { NumberTicker } from "@/components/ui/number-ticker";
-import { Section } from "./section";
 
 export type BadYear = { name: string; sub: string; hold: number; vault: number };
 export type Upside = { name: string; value: number; note?: string };
@@ -22,55 +21,46 @@ const COSTS = [
   { t: "SPYB", k1: "1.1", k10: "6.6", k50: "13.6" },
 ];
 
-export function Proof({ bad, upside, breach, ms }: { bad: BadYear[]; upside: Upside[]; breach: BreachRow[]; ms: number[] }) {
+export function WindowsStat() {
   return (
-    <Section
-      id="proof"
-      index="04"
-      label="Proof"
-      title="Tested on real prices."
-      intro={
-        <div className="space-y-4">
-          <p className="body-l">We ran the Floor rule over every one-year window from 2018 to October 2026 on real daily prices of NVDA, QQQ, SPY, TSLA and baskets of them. The floor held in 93 of 93 windows.</p>
-          <p className="small">We made the test harder on purpose: weekend price gaps hit in full (Floor does not trade on weekends), stablecoins earn 0%, and trading costs are as measured in calm markets.</p>
-        </div>
-      }
-    >
-      <div className="cellgrid">
-        {/* 1. hero stat */}
-        <div className="col-span-4 md:col-span-4 lg:col-span-4 flex flex-col justify-between">
+    <div className="border border-grid bg-surface p-4 md:p-6">
           <p className="stat-label">One-year windows where the floor held</p>
           <p className="mono mt-4 leading-none tracking-tight" style={{ fontSize: "clamp(2.75rem, 2rem + 3vw, 3.75rem)", letterSpacing: "-0.04em", whiteSpace: "nowrap" }}>
             <NumberTicker value={93} /> <span className="text-muted" style={{ fontSize: "0.4em" }}>of</span> 93
           </p>
-          <p className="stat-note mt-4">At m ≤ 5, on NVDA, QQQ, SPY, TSLA and baskets, 2018 to 2026-10. Backtest on past prices. It does not predict the future.</p>
+          <p className="stat-note mt-4">At m = 4 (also with one rebalance a day, matching the contract's trading window), on NVDA, QQQ, SPY, TSLA and baskets, 2018 to 2026-10. Backtest on past prices. It does not predict the future.</p>
         </div>
+  );
+}
 
-        {/* 2. bad years */}
-        <div className="col-span-4 md:col-span-4 lg:col-span-8 !p-0">
-          <ChartPanel className="h-full border-0" corners={false} fig="FIG. 05 / TYPICAL BAD YEAR" title="Hold vs Floor" source="docs/data/gap_backtest.csv (open_close, m = 4, bad_yr_vault and bad_yr_hold)" note="Median one-year return in the windows where holding lost more than 10%.">
+export function BadYearsPanel({ bad }: { bad: BadYear[] }) {
+  return (
+    <ChartPanel fig="FIG. 05 / TYPICAL BAD YEAR" title="Hold vs Floor" source="docs/data/gap_backtest.csv (open_close, m = 4, bad_yr_vault and bad_yr_hold)" note="Median one-year return in the windows where holding lost more than 10%.">
             <PairedBars rows={bad} max={40} />
           </ChartPanel>
-        </div>
+  );
+}
 
-        {/* 3. upside kept */}
-        <div className="col-span-4 md:col-span-4 lg:col-span-6 !p-0">
-          <ChartPanel className="h-full border-0" corners={false} fig="FIG. 06 / UPSIDE KEPT AT 4X" title="Share of the gain in up years" source="docs/data/gap_backtest.csv (open_close, m = 4, capture_up)">
+export function UpsidePanel({ upside }: { upside: Upside[] }) {
+  return (
+    <ChartPanel fig="FIG. 06 / UPSIDE KEPT AT 4X" title="Share of the gain in up years" source="docs/data/gap_backtest.csv (open_close, m = 4, capture_up)">
             <SingleBars rows={upside.map((u) => ({ ...u, kind: u.value < 0 ? "warn" : "vault", text: u.value < 0 ? `−${Math.abs(u.value)}%` : `${u.value}%` }))} max={100} />
             <p className="small mt-4">TSLA is shown on purpose. Choppy price swings made the vault give up the whole gain and lose a little: whipsaw.</p>
           </ChartPanel>
-        </div>
+  );
+}
 
-        {/* 4. gaps */}
-        <div className="col-span-4 md:col-span-4 lg:col-span-6 !p-0">
-          <ChartPanel className="h-full border-0" corners={false} fig="FIG. 07 / BIGGEST ONE-NIGHT OR WEEKEND DROPS SINCE 2018" title="vs the 25% limit" source="docs/RESEARCH_RESULTS.md, via CONTEXT.md. SPCX has 76 days of history (listed June 2026).">
+export function GapsPanel() {
+  return (
+    <ChartPanel fig="FIG. 07 / BIGGEST ONE-NIGHT OR WEEKEND DROPS SINCE 2018" title="vs the 25% limit" source="docs/RESEARCH_RESULTS.md, via CONTEXT.md. SPCX has 76 days of history (listed June 2026).">
             <SingleBars rows={GAPS.map((g) => ({ ...g, kind: "ink" as const, text: `−${g.value.toFixed(1)}%` }))} max={30} refLine={{ at: 25, label: "FLOOR HOLDS UP TO −25%" }} />
           </ChartPanel>
-        </div>
+  );
+}
 
-        {/* 5. breach table (the 93/93 windows table) */}
-        <div className="col-span-4 md:col-span-8 lg:col-span-12 !p-0">
-          <ChartPanel className="border-0" corners={false} fig="FIG. 08 / WINDOWS WHERE THE FLOOR HELD, BY MULTIPLIER" title="Why we use 4x" source="docs/data/gap_backtest.csv (open_close). Held = 93 windows minus breach rate. 90% floor, full weekend gaps, 0% yield.">
+export function BreachTable({ breach, ms }: { breach: BreachRow[]; ms: number[] }) {
+  return (
+    <ChartPanel fig="FIG. 08 / WINDOWS WHERE THE FLOOR HELD, BY MULTIPLIER" title="Why we use 4x" source="docs/data/gap_backtest.csv (open_close). Held = 93 windows minus breach rate. 90% floor, full weekend gaps, 0% yield.">
             <p className="label mb-2 md:hidden">Scroll sideways to see every multiplier</p>
             <div className="tbl-wrap">
               <table className="tbl">
@@ -97,11 +87,12 @@ export function Proof({ bad, upside, breach, ms }: { bad: BadYear[]; upside: Ups
             </div>
             <p className="small mt-3">This is why we use 4x. At 6x, NVDA breached its floor in 11 windows. At 8x, NVDA in 19 and TSLA in 8. ▼ marks a miss.</p>
           </ChartPanel>
-        </div>
+  );
+}
 
-        {/* rebalance cost */}
-        <div className="col-span-4 md:col-span-8 lg:col-span-12 !p-0">
-          <ChartPanel className="border-0" corners={false} fig="FIG. 09 / WHAT EACH REBALANCE COSTS" title="Round trip, basis points" caption={null} source="Live aggregator quotes, Thu 2026-10-02 12:06 UTC (US pre-market)" note="1 bp = 0.01%. Weekend and crash-time costs are not yet measured.">
+export function CostsPanel() {
+  return (
+    <ChartPanel fig="FIG. 09 / WHAT EACH REBALANCE COSTS" title="Round trip, basis points" caption={null} source="Live aggregator quotes, Thu 2026-10-02 12:06 UTC (US pre-market)" note="1 bp = 0.01%. Weekend and crash-time costs are not yet measured.">
             <div className="grid gap-6 lg:grid-cols-12">
               <div className="lg:col-span-5">
                 <SingleBars rows={[
@@ -126,8 +117,5 @@ export function Proof({ bad, upside, breach, ms }: { bad: BadYear[]; upside: Ups
               </div>
             </div>
           </ChartPanel>
-        </div>
-      </div>
-    </Section>
   );
 }
