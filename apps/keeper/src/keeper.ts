@@ -35,6 +35,8 @@ export interface RunOpts {
   /** pending-vault guard shared across ticks (idempotency inside one process) */
   inFlight?: Set<string>;
   fetchImpl?: typeof fetch;
+  /** max age of aggregator calldata before a re-quote + re-simulate (default 10 s; the quote TTL is 20-40 s) */
+  aggMaxAgeMs?: number;
 }
 
 export interface VaultOutcome {
@@ -150,35 +152,35 @@ export async function runOnce(cfg: Config, chain: Chain, log: Logger, o: RunOpts
       const v3Router = await rd<Address>(factory, factoryAbi as never, 'v3SwapRouter');
 
       // 4. route. The aggregator is optional; the direct Pancake route is always the fallback.
-      let route: Route = 'direct';
-      let swap: Swap | undefined;
-      if (o.route === 'agg') {
-        if (!o.agg) log.log('warn', 'agg_disabled', { reason: 'BW3 keys absent, using direct route' });
-        else {
-          try {
-            const a = await buildAggSwap(o.agg, {
-              vault, tokenIn, tokenOut, amountIn, minOutAgg,
-              routerOk: async (r) => {
-                const [ok, approveTarget] = await rd<readonly [boolean, Address]>(factory, factoryAbi as never, 'routerOk', [r]);
-                return { ok, approveTarget };
-              },
-            });
-            swap = { assetIdx, buy, amountIn, router: a.router, data: a.data };
-            route = 'agg';
-          } catch (e) {
-            const reason = e instanceof AggRejected ? e.reason : e instanceof Error ? e.message : String(e);
-            log.log('warn', 'agg_fallback_to_direct', { vault, reason });
-          }
+      const direct = (): Swap => ({
+        assetIdx, buy, amountIn, router: v3Router,
+        data: buildDirectCalldata({ tokenIn, tokenOut, fee: asset[1], vault, amountIn, minOut: minOutDirect, deadline: BigInt(now + 600), router: v3Router }),
+      });
+      const tryAgg = async (): Promise<Swap | undefined> => {
+        if (o.route !== 'agg') return undefined;
+        if (!o.agg) { log.log('warn', 'agg_disabled', { reason: 'BW3 keys absent, using direct route' }); return undefined; }
+        try {
+          const a = await buildAggSwap(o.agg, {
+            vault, buy, tokenIn, tokenOut, amountIn, minOutAgg,
+            routerOk: async (r) => {
+              const [ok, approveTarget] = await rd<readonly [boolean, Address]>(factory, factoryAbi as never, 'routerOk', [r]);
+              return { ok, approveTarget };
+            },
+          });
+          return { assetIdx, buy, amountIn, router: a.router, data: a.data };
+        } catch (e) {
+          const reason = e instanceof AggRejected ? e.reason : e instanceof Error ? e.message.split('\n')[0] : String(e);
+          log.log('warn', 'agg_fallback_to_direct', { vault, reason });
+          return undefined;
         }
-      }
-      if (!swap) {
-        swap = {
-          assetIdx, buy, amountIn, router: v3Router,
-          data: buildDirectCalldata({ tokenIn, tokenOut, fee: asset[1], vault, amountIn, minOut: minOutDirect, deadline: BigInt(now + 600), router: v3Router }),
-        };
-      }
+      };
+      const first = await tryAgg();
+      let swap: Swap = first ?? direct();
+      let route: Route = first ? 'agg' : 'direct';
+      let builtAt = Date.now();
 
-      // 5. simulate (eth_call). Works without a key when KEEPER_ADDRESS is set.
+      // 5. simulate (eth_call of the full rebalance, which models the vault's approve + balance-delta checks; the API's own
+      // pre-transaction simulate cannot, the vault has not approved the router yet). An agg failure falls back to direct.
       let gas: bigint;
       if (!from) {
         log.log('warn', 'simulation_skipped', { vault, reason: 'no KEEPER_ADDRESS and no signer' });
@@ -186,19 +188,37 @@ export async function runOnce(cfg: Config, chain: Chain, log: Logger, o: RunOpts
         log.log('info', 'dry_run_plan', plan(vault, swap, token, route));
         continue;
       }
-      try {
-        gas = await chain.simulate(vault, swap, from);
-      } catch (e) {
-        const rv = e instanceof SimError ? e.revert : String(e);
+      const simulate = async (): Promise<bigint | SimError> => {
+        try { return await chain.simulate(vault, swap, from); } catch (e) { if (e instanceof SimError) return e; throw e; }
+      };
+      let sim = await simulate();
+      if (sim instanceof SimError && route === 'agg') {
+        log.log('warn', 'agg_sim_failed_fallback_to_direct', { vault, revert: sim.revert });
+        swap = direct(); route = 'direct';
+        sim = await simulate();
+      }
+      if (sim instanceof SimError) {
+        const rv = sim.revert;
         skip(vault, 'simulation_failed', { revert: rv });
         // expected reverts (TooSoon, NoTradeNeeded) are normal; anything else is worth a look
         if (!/^(TooSoon|NoTradeNeeded)/.test(rv)) { allOk = false; await alert(cfg, log, `simulation failed for ${vault}: ${rv}`, o.fetchImpl); }
         continue;
       }
+      gas = sim;
       if (o.dryRun || !o.sender) {
         out({ vault, status: 'simulated', route });
         log.log('info', 'dry_run_plan', { ...plan(vault, swap, token, route), gas });
         continue;
+      }
+
+      // 5b. quote TTL (20-40 s measured): if the aggregator calldata is older than aggMaxAgeMs, re-quote and re-simulate right before sending
+      if (route === 'agg' && Date.now() - builtAt > (o.aggMaxAgeMs ?? 10_000)) {
+        const fresh = await tryAgg();
+        swap = fresh ?? direct(); route = fresh ? 'agg' : 'direct'; builtAt = Date.now();
+        log.log('info', 'agg_requoted', { vault, route });
+        const again = await simulate();
+        if (again instanceof SimError) { skip(vault, 'simulation_failed', { revert: again.revert }); continue; }
+        gas = again;
       }
 
       // 6. send, wait, decode

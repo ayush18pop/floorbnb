@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { createPublicClient, createTestClient, createWalletClient, encodeAbiParameters, getAddress, http, keccak256, pad, parseAbi, toHex, type Address, type Hex } from 'viem';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const OUT = resolve(here, '../../../packages/contracts/out');
+const outDir = () => process.env.FLOOR_CONTRACTS_OUT ?? resolve(here, '../../../packages/contracts/out');
 
 export const BSC = {
   USDT: '0x55d398326f99059fF775485246999027B3197955' as Address,
@@ -22,7 +22,7 @@ export const BSC = {
 };
 
 const artifact = (name: string) => {
-  const j = JSON.parse(readFileSync(resolve(OUT, `${name}.sol/${name}.json`), 'utf8')) as { abi: never; bytecode: { object: Hex } };
+  const j = JSON.parse(readFileSync(resolve(outDir(), `${name}.sol/${name}.json`), 'utf8')) as { abi: never; bytecode: { object: Hex } };
   return { abi: j.abi, bytecode: j.bytecode.object };
 };
 
@@ -34,9 +34,11 @@ export interface ForkFixture {
   user: Address;
   keeper: Address;
   chainTime: number;
+  /** block timestamp of the factory deploy (routers are active from then on) */
+  factoryDeployedAt: number;
 }
 
-export async function setupFork(rpc: string, keeper?: Address): Promise<ForkFixture> {
+export async function setupFork(rpc: string, keeper?: Address, opts: { allowAggRouter?: boolean; warp?: boolean } = {}): Promise<ForkFixture> {
   const host = new URL(rpc).hostname;
   if (host !== '127.0.0.1' && host !== 'localhost') throw new Error('fork-setup only talks to a local anvil');
   const pub = createPublicClient({ transport: http(rpc) });
@@ -50,8 +52,10 @@ export async function setupFork(rpc: string, keeper?: Address): Promise<ForkFixt
   let day = Math.floor(head / 86400) + 1;
   while ((day + 3) % 7 !== 1) day++;
   const t = day * 86400 + 15 * 3600 + 35 * 60;
-  await test.setNextBlockTimestamp({ timestamp: BigInt(t) });
-  await test.mine({ blocks: 1 });
+  if (opts.warp !== false) {
+    await test.setNextBlockTimestamp({ timestamp: BigInt(t) });
+    await test.mine({ blocks: 1 });
+  }
 
   const send = async (to: Address | undefined, data: Hex, from: Address) => {
     const hash = await wallet.sendTransaction({ account: from, chain: null, to, data, gas: 12_000_000n });
@@ -83,8 +87,10 @@ export async function setupFork(rpc: string, keeper?: Address): Promise<ForkFixt
     [{ type: 'address' }, { type: 'address' }, { type: 'address' }, { type: 'address' }, { type: 'address' }, { type: 'address' }, defaults, { type: 'address[]' }, { type: 'address[]' }],
     [owner, owner, BSC.USDT, BSC.V3_FACTORY, BSC.PANCAKE_ROUTER, impl,
       { sellBandBps: 100, buyBandBps: 200, minInterval: 900, publicDelay: 3600, twapWindow: 600, maxTickDev: 300, tolAggBps: 30, tolDirectBps: 100, minTrade: 20n * 10n ** 18n, dust: 10n ** 18n },
-      [BSC.AGG_ROUTER, BSC.PANCAKE_ROUTER], [BSC.AGG_ROUTER, BSC.PANCAKE_ROUTER]],
+      opts.allowAggRouter === false ? [BSC.PANCAKE_ROUTER] : [BSC.AGG_ROUTER, BSC.PANCAKE_ROUTER],
+      opts.allowAggRouter === false ? [BSC.PANCAKE_ROUTER] : [BSC.AGG_ROUTER, BSC.PANCAKE_ROUTER]],
   );
+  const factoryDeployedAt = Number((await pub.getBlock()).timestamp); // latest block is the factory deploy
   const lens = await deploy('FloorLens', [{ type: 'address' }], [factory]);
 
   const impl0 = (await pub.readContract({ address: BSC.BEACON, abi: parseAbi(['function implementation() view returns (address)']), functionName: 'implementation' })) as Address;
@@ -105,7 +111,7 @@ export async function setupFork(rpc: string, keeper?: Address): Promise<ForkFixt
   const r = await call(factory, 'createPosition', 'function createPosition(uint256,uint16,uint32,address[],uint16[]) returns (address)', [amt, 9000, 365 * 86400, [BSC.NVDAB], [10_000]], user);
   const vault = (await pub.readContract({ address: factory, abi: parseAbi(['function positions(uint256) view returns (address)']), functionName: 'positions', args: [0n] })) as Address;
   void r;
-  return { factory, lens, vault: getAddress(vault), owner, user, keeper: keeperAddr, chainTime: t };
+  return { factory, lens, vault: getAddress(vault), owner, user, keeper: keeperAddr, chainTime: opts.warp === false ? head : t, factoryDeployedAt };
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
