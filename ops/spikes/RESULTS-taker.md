@@ -39,3 +39,11 @@ Costs are for 100 USDT only, one block, on a fork. Not comparable with the CONTE
    then `bash ops/spikes/taker-probe/run.sh` (it replays every fixture with the probe etched at X).
 3. Signature encoding is **unverified**: docs were behind an AWS WAF challenge and `afterbell/research/bw3.py`, which the plan says to port, does not exist at that path. `fetch_fixture.mjs` assumes base64 HMAC-SHA256 over `timestamp+GET+/build/path?query`; set `BW3_SIGN_ENC=hex` if the API rejects it. A04's client has the same open point.
 4. Fixtures of sells (bStock -> USDT) need the fixture `fromToken` set to a bStock; the test moves it in from the pool.
+
+## Update 2026-10-03: aggregator replay run with live keys (read-only, local fork)
+- Signature encoding **verified**: base64 HMAC-SHA256 over `timestamp+GET+/build/path?query` is accepted (`packages/bw3 live-check`, and `fetch_fixture.mjs`).
+- **Q1/T17 on a fork:** aggregator calldata (vendor LiquidMesh, mode SWAP) executed from a contract taker (probe etched at a fresh address X), both directions:
+  - USDT -> NVDAB: spent 10 USDT, got 0.04264 NVDAB.
+  - NVDAB -> USDT: spent 0.0426 NVDAB, got 9.9869 USDT.
+- Not yet shown: execution on mainnet with the real factory-created vault as taker, quote TTL timing in the keeper, other vendors, QQQB and SPCXB. Monday's smoke test settles the mainnet case.
+- Fixtures contain no keys (grep checked).
