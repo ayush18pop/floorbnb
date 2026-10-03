@@ -4,9 +4,15 @@
   "private": true,
   "type": "module",
   "main": "src/index.ts",
+  "types": "src/index.ts",
   "scripts": {
+    "gen:abis": "node scripts/gen-abis.mjs",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "viem": "^2.21.0",
+    "zod": "^4.6.5"
   }
 }
