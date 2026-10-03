@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { BRAND } from "@/lib/brand";
 
 /**
  * Agent flow (assets/svg/agent-flow.svg as boxes): orthogonal lines, 6px arrowheads, mono labels.
@@ -40,10 +41,10 @@ function Link({ dir, label, back = false, className = "" }: { dir: "h" | "v"; la
 
 export function AgentFlow() {
   const agent = <Node title="Your agent" sub="Any MCP client" lines={["Claude, ChatGPT, OpenClaw", "its own wallet signs"]} />;
-  const mcp = <Node title="Floor MCP server" sub="Streamable HTTP" lines={["quote_protection", "build_deposit_tx", "get_status, backtest"]} />;
+  const mcp = <Node title={`${BRAND.name} MCP server`} sub="Streamable HTTP" lines={["quote_protection", "build_create_position_tx", "get_status, backtest"]} />;
   const b402 = <Node title="b402 facilitator" sub="Binance x402 on BSC" lines={["verifies the signed payment", "settles on BSC", "gas sponsored"]} />;
   const keeper = <Node title="Keeper" sub="EOA, plus Agentic Wallet" lines={["rebalance(swap)", "cannot withdraw", "cannot set prices"]} />;
-  const vault = <Node accent title="Floor vault" sub="One contract per position" lines={["holds user funds", "CPPI, m = 4", "owner can always exit"]} />;
+  const vault = <Node accent title={`${BRAND.name} vault`} sub="One contract per position" lines={["holds user funds", "CPPI, m = 4", "owner can always exit"]} />;
   const dex = <Node title="PancakeSwap" sub="BSC tokenized-stock liquidity" lines={["spot swaps only", "stock for USDT and back"]} />;
 
   return (

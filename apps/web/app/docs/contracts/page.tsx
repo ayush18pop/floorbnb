@@ -7,14 +7,14 @@ export default function Page() {
   return (
     <DocPage
       slug="contracts"
-      lead={<p>The on-chain design in plain words. No audit is published yet.</p>}
+      lead={<p>The on-chain design in plain words. Not yet on mainnet. No audit is published yet.</p>}
       toc={[["vault", "One vault per position"], ["deposit", "Deposits"], ["price", "Price"], ["window", "Trading window"], ["roles", "Roles"], ["exits", "Exits"]]}
     >
       <h2 id="vault" style={{ marginTop: 0 }}>One vault per position</h2>
       <p>A factory contract creates one small vault contract for each position. Your USDT goes into that vault and nowhere else. One user&apos;s gap loss cannot touch another user&apos;s money. Your position id is the vault&apos;s address.</p>
 
       <h2 id="deposit">Deposits</h2>
-      <p>You deposit USDT only. You approve USDT to the factory, then create the position with an amount, a floor and a term (one year at launch). There is no protocol fee in v1. You pay gas in BNB. The rule the vault follows is on <L href="/docs/how-it-works">How it works</L>.</p>
+      <p>You deposit USDT only, up to the launch caps: 1,000 USDT per position and 5,000 USDT in total. You approve USDT to the factory, then create the position with an amount, a floor and a term (one year at launch). There is no protocol fee in v1. You pay gas in BNB. The rule the vault follows is on <L href="/docs/how-it-works">How it works</L>.</p>
 
       <h2 id="price">Price</h2>
       <p>The vault reads a 10-minute time-weighted average price (TWAP) from the PancakeSwap v3 pool, on-chain. The keeper supplies no price. Each asset has a trade cap, with QQQB the lowest, so a small pool cannot be pushed around cheaply.</p>
@@ -27,12 +27,12 @@ export default function Page() {
         <li><strong>Keeper.</strong> Calls rebalance, one swap per call. The vault re-validates direction, size, router and minimum out. The keeper cannot withdraw or set prices. An EOA is the primary keeper; a Binance Agentic Wallet holds the same role as a supervised second keeper. See <L href="/docs/agents#keeper">Agents</L>.</li>
         <li><strong>Anyone.</strong> After 4 hours idle, anyone can call a public rebalance through the direct Pancake pool.</li>
         <li><strong>Guardian.</strong> Can pause, halt trading, set holidays and remove a router. A halt does not block exits.</li>
-        <li><strong>Owner (multisig).</strong> Adds assets and routers, sets the keeper.</li>
+        <li><strong>Owner (Safe or hardware wallet, to be confirmed).</strong> Adds assets and routers, sets the keeper. Cannot touch any position.</li>
         <li><strong>You.</strong> Only you can exit your position.</li>
       </ul>
 
       <h2 id="exits">Exits</h2>
-      <p>You can always leave. <code>exitInKind</code> sends you your USDT and any tokens that can still move, with no keeper, no factory and no market hours. It skips a token the issuer has paused. Or you can request a close, and the vault swaps everything to USDT and sends it to you. See <L href="/docs/risks">Risks</L> for issuer pause and blocklist cases.</p>
+      <p>You can always leave. <code>exitInKind</code> is always allowed and sends you your USDT and any tokens that can still move, with no keeper, no factory and no market hours. It skips a token the issuer has paused. Or you can request a close, and the vault swaps everything to USDT and sends it to you. See <L href="/docs/risks">Risks</L> for issuer pause and blocklist cases.</p>
       <p>{BRAND.name} supports bStocks only in v1: NVDAB, SPCXB and QQQB, with SPYB optional. Next: <L href="/docs/risks">Risks</L>.</p>
     </DocPage>
   );

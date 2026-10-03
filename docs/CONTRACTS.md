@@ -126,8 +126,7 @@ Reproduce: `cast call 0x0BFb...1865 "getPool(address,address,uint24)(address)" <
 `cast call <pool> "liquidity()(uint128)"` and `"slot0()(uint160,int24,uint16,uint16,uint16,uint32,bool)"`.
 
 **TWAP pools to use (deepest, with large oracle history): NVDAB 0.25%, SPCXB 0.25%, QQQB 0.01%.**
-Token order: NVDAB < USDT (token0 = NVDAB). SPCXB and QQQB > USDT address (token0 = USDT). The code must read
-`token0()` instead of assuming.
+Token order: NVDAB < USDT (token0 = NVDAB). SPCXB > USDT (token0 = USDT). QQQB is token0 on its pool (QQQB < USDT by address; correcting the earlier note). The code must read `token0()` from the pool instead of assuming.
 
 Price sanity: NVDAB pool tick 54,624 gives 235.6 USDT. Venus ResilientOracle gives 234.98 (section 3).
 SPCXB pool 149.4; Venus 149.6. TWAP check: `observe([1800,0])` on the NVDAB pool gave an average tick 54,613
@@ -398,7 +397,7 @@ What the market flag blocks: `rebalance`, `rebalancePublic`. It does not block `
 |---|---|---|---|
 | **Owner** | Multisig (Safe) if the team can set one up in time; otherwise the team lead's hardware-wallet EOA. **Decision for team lead.** | Add or retire asset (pool, weights cap, trade cap), add router to the allowlist (activation delayed 24 h), add or remove keepers, set defaults for **new** positions, change launch caps, transfer ownership (2-step). | Touch any position. Move any user funds. Change params of existing positions. |
 | **Guardian** | Separate EOA (hot, fast) | `pause()` and `unpause()` (blocks new positions and all rebalances), `setHalted`, `setNonTradingDay`, **remove** a router or asset immediately, approve a new beacon implementation. | Add a router. Move funds. Unpause is allowed for guardian but owner can also pause. |
-| **Keeper** | Binance Agentic Wallet address (plus a spare EOA running `cast`) | Call `rebalance(...)` on any position, `pokeMultiplier`. | Withdraw, set prices, choose recipients, choose a non-allowlisted router, trade the wrong direction or size, trade outside market hours, trade faster than `minInterval`. |
+| **Keeper** | EOA (primary). A Binance Agentic Wallet address is a supervised second keeper (DECISIONS P3) | Call `rebalance(...)` on any position, `pokeMultiplier`. | Withdraw, set prices, choose recipients, choose a non-allowlisted router, trade the wrong direction or size, trade outside market hours, trade faster than `minInterval`. |
 | **Position owner** (user) | Depositor | `requestClose`, `closeToUSDT`, `exitInKind`, `rescue`. | Change floor, term or weights after creation. |
 | **Anyone** | n/a | `rebalancePublic`, `pokeMultiplier`, `createPosition` for self. | n/a |
 
@@ -912,8 +911,7 @@ Team lead runs these manually. No step spends more than the stated amounts.
 1. All tests green. Fork tests 1, 2, 3, 5, 7 green on a fresh fork.
 2. External read or audit pass: at minimum a second person reads `FloorVault.sol` and `SwapGuard.sol` against section 12's invariants.
 3. Generate `holidays/nyse_2026_2027.json` from nyse.com; cross-check with the Pyth schedule string.
-4. Choose addresses: **Owner** (Safe if available, else hardware EOA), **Guardian** (different EOA), **Keeper** (Agentic Wallet
-   address; get it with `baw wallet balance` or its address command) and a spare EOA keeper. **Deployer**: a fresh key funded with ~0.05 BNB.
+4. Choose addresses: **Owner** (Safe if available, else hardware EOA), **Guardian** (different EOA), **Keeper** (primary EOA) and the Agentic Wallet address (second keeper; get it with `baw wallet balance` or its address command). **Deployer**: a fresh key funded with ~0.05 BNB.
 5. Re-read pools, TVL, `observationCardinality` and `uiMultiplier` live; update caps if needed.
 
 **Deploy order (script `Deploy.s.sol`)**

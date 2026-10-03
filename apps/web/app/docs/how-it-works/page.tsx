@@ -20,10 +20,10 @@ export default function Page() {
     >
       <h2 id="steps" style={{ marginTop: 0 }}>The four steps</h2>
       <ul className="list">
-        <li><strong>1. Deposit.</strong> Deposit USDT and pick a basket: NVDAB, SPCXB, QQQB.</li>
-        <li><strong>2. Pick your floor.</strong> Choose the lowest value you accept, for example 90% of your deposit, for a one-year term. At 90%, your worst case is about a 10% loss.</li>
+        <li><strong>1. Deposit.</strong> Deposit USDT only and pick a basket: NVDAB, SPCXB, QQQB. Launch caps: 1,000 USDT per position, 5,000 USDT in total.</li>
+        <li><strong>2. Pick your floor.</strong> Choose the lowest value you accept, for example 90% of your deposit, for a one-year term. At 90%, your loss is about 10% or less, unless prices gap more than 25% before the vault can rebalance.</li>
         <li><strong>3. The vault keeps you above the line.</strong> The gap between your value and your floor is a cushion. The vault holds more stock when the cushion is big, and less when it is small. When prices fall, it sells some stock for USDT. When prices rise, it buys some back. Each move is a normal <L href="/docs/spot-only">swap on BNB Chain</L>.</li>
-        <li><strong>4. Withdraw when you like.</strong> Your money stays in the vault contract. You can exit at any time, or take it all out at the end of the term. See <L href="/docs/contracts#exits">exits</L>.</li>
+        <li><strong>4. Withdraw when you like.</strong> Your money stays in your own vault contract, one per position. You can exit at any time with <code>exitInKind</code>, or take it all out as USDT at the end of the term. See <L href="/docs/contracts#exits">exits</L>.</li>
       </ul>
 
       <h2 id="cushion">The floor and the cushion</h2>
@@ -36,7 +36,7 @@ export default function Page() {
 
       <h2 id="rule">The 4× rule</h2>
       <p>The rule is called constant proportion portfolio insurance (CPPI). The vault holds 4 times your cushion in stocks (never more than your whole value), and the rest in USDT. In symbols: stock = min(4 × (value − floor), value).</p>
-      <p>The 4 is why the floor survives a sudden drop: if stock falls by less than 25% in one jump, the cushion absorbs it, because 4 × 25% = 100% of the cushion. This is the &ldquo;gap limit&rdquo;. Why 4 and not higher is shown on the <L href="/docs/backtest#multiplier">backtest page</L>: at higher multipliers the floor was breached in some windows.</p>
+      <p>The 4 is why the floor survives a sudden drop: if stock falls by less than about 25% in one jump, the cushion absorbs it, because 4 × 25% = 100% of the cushion. Trading costs and the vault&apos;s sell band eat a little of that, so the real limit is slightly below 25%. This is the &ldquo;gap limit&rdquo;. Why 4 and not higher is shown on the <L href="/docs/backtest#multiplier">backtest page</L>: at higher multipliers the floor was breached in some windows.</p>
       <div className="block">
         <ChartPanel fig="FIG. 03 / STOCK HELD AS THE PRICE FALLS" title="NVDA 2022" source="docs/data/vault_path_nvda_worst.csv">
           <ExposureChart data={worst} />
@@ -66,7 +66,7 @@ export default function Page() {
       <p>The vault moves fully into USDT and stays there until the term ends. This protects your floor. It also means you miss any recovery during that term. We call this the cash lock. The one-year term resets it.</p>
 
       <h2 id="origin">Where the rule comes from</h2>
-      <p>CPPI is not new. André Perold described the idea in 1986. Fischer Black and Robert Jones published it as &ldquo;Simplifying Portfolio Insurance&rdquo; in 1987. Banks have used it for decades inside principal-protected notes. {BRAND.name} runs the same rule with public contracts and plain spot swaps.</p>
+      <p>CPPI is not new. André Perold described the idea in 1986. Fischer Black and Robert Jones published it as &ldquo;Simplifying Portfolio Insurance&rdquo; in 1987 (from memory, not yet checked against the paper). Banks have used it for decades inside principal-protected notes. {BRAND.name} runs the same rule with public contracts and plain spot swaps.</p>
       <p>Next: what it costs you, on <L href="/docs/trade-off">The trade-off</L>.</p>
     </DocPage>
   );

@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { ReactNode } from "react";
 import { DOCS } from "@/lib/docs-nav";
 import { Xh } from "@/components/ui/xh";
+import { BRAND } from "@/lib/brand";
 
 export type Toc = [id: string, title: string][];
 
@@ -17,7 +18,7 @@ export function DocPage({ slug, lead, toc, children }: { slug: string; lead: Rea
       <header className="relative border-b border-grid pad pt-10 md:pt-14">
         <Xh style={{ left: 0, top: 0 }} />
         <p className="label mb-3">Docs / {cur.title}</p>
-        <h1 className="h1" style={{ marginTop: 0, fontSize: "var(--fs-h1)" }}>{slug === "" ? "Floor documentation" : cur.title}</h1>
+        <h1 className="h1" style={{ marginTop: 0, fontSize: "var(--fs-h1)" }}>{slug === "" ? `${BRAND.name} documentation` : cur.title}</h1>
         <div className="mt-3 max-w-[64ch] text-[18px] leading-[1.55]" style={{ color: "var(--text-2)" }}>{lead}</div>
         {toc && toc.length > 0 && (
           <nav aria-label="On this page" className="mt-6 border border-grid bg-surface p-4">

@@ -15,13 +15,14 @@ export function Hero({ data }: { data: PathPoint[] }) {
         <div className="flex flex-col justify-end p-4 pt-12 md:p-6 md:pt-16 lg:col-span-5 lg:pb-10">
           <p className="label mb-4">{BRAND.chain} · Tokenized stocks · Spot only</p>
           <h1 id="hero-h" className="display" style={{ fontSize: "clamp(2.5rem, 1.5rem + 3vw, 4rem)" }}>{BRAND.headline}</h1>
-          <p className="body-l mt-5 bg-bg">Floor keeps your tokenized stocks above a line you pick.</p>
+          <p className="body-l mt-5 bg-bg">{BRAND.name} sets a line under your tokenized stocks and trades to stay above it.</p>
+          <p className="small mt-3 max-w-[44ch] bg-bg">{BRAND.disclosure}</p>
           <div className="btn-stack mt-6 flex flex-col gap-3 sm:flex-row">
             <ButtonLink variant="primary" href="/app">Set your floor</ButtonLink>
             <ButtonLink variant="secondary" href="/docs/how-it-works">How it works</ButtonLink>
           </div>
           <p className="small mt-6 max-w-[40ch] bg-bg">
-            Built on CPPI, the floor method Fischer Black published in 1987.{" "}
+            Built on CPPI, a portfolio insurance method from the 1980s.{" "}
             <Link href="/docs/how-it-works#origin" className="prose-link">Read how</Link>
           </p>
         </div>
@@ -30,8 +31,8 @@ export function Hero({ data }: { data: PathPoint[] }) {
             className="flex w-full flex-col"
             fig="FIG. 01 / BACKTEST"
             title="NVDA, 4 Jan 2022 to 4 Jan 2023"
-            source="docs/data/vault_path_nvda_worst.csv. Floor 90%, m = 4, full weekend gaps, 0% stablecoin yield."
-            note="The worst one-year window since 2018. Hold: −51.0%. With Floor: −10.0%."
+            source="docs/data/vault_path_nvda_worst.csv. Floor 90%, m = 4, full weekend gaps, 0% stablecoin yield, rebalanced at open and close (not the contract's trading window)."
+            note="NVDA's worst one-year window since 2018. Hold: −51.0%. With Floor: −10.0%. Backtest on past prices, not a prediction."
           >
             <ValueChart data={data} height={420} animate label="NVDA 2022 backtest: holding the stock versus the Floor vault" />
           </ChartPanel>
