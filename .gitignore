@@ -17,3 +17,4 @@ x-ray/
 .audit-*
 dist/
 *.tsbuildinfo
+.vercel

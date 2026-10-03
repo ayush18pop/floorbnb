@@ -1,0 +1,12 @@
+/packages/contracts/lib
+/packages/contracts/out
+/packages/contracts/cache
+/wireframes
+/research
+/ops
+/reviews
+/assets
+/.solidity-auditor
+/x-ray
+/.claude
+/web
