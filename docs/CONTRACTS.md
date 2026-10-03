@@ -196,7 +196,7 @@ Guards (all fail closed: revert and do nothing):
 - Per-trade value cap `maxTradeValue[asset]` (launch: NVDAB 25k, SPCXB 10k, QQQB 5k USDT; **proposed**, tune
   from quotes at deploy).
 - Global launch cap on TVL per position (`maxDeposit`, launch: 5,000 USDT) and total (`maxTotalTvl`, 50,000). `totalTvl` counts deposits of OPEN positions: a vault reports its close once to `factory.onPositionClosed()` (from `closeToUSDT` / `exitInKind`, best effort, gas capped, result ignored) and the deposit is released. Minimum deposit is 1 USDT (A12 F-07 / F-01).
-- Pricing when a pool guard fails (A12 F-03, A12r M-01): the asset cannot be traded and buys are suppressed, but it is still VALUED at its 10-minute TWAP (history is required, the spot-deviation and liquidity guards are not), so pushing one pool's spot for a block cannot understate V and force a sale of another asset. Only an asset with no TWAP at all (history too short) counts as 0, which can only make the vault sell more, never buy more. Preview (`previewRebalance`) skips an asset that cannot be traded and treats a reverting token beacon as "buys blocked" (A12r L-02).
+- Pricing when a pool guard fails (A12 F-03, A12r M-01): the asset cannot be traded and buys are suppressed, but it is still VALUED at its 10-minute TWAP (history is required, the spot-deviation and liquidity guards are not), so pushing one pool's spot for a block cannot understate V and force a sale of another asset. Only an asset with no TWAP at all (history too short) counts as 0, which can only make the vault sell more, never buy more. Preview (`previewRebalance`) skips an asset that cannot be traded (failed price, or a multiplier in its transition window; Pashov 02 #10) and treats a reverting token beacon as "buys blocked" (A12r L-02).
 - Multiplier guard (section 4).
 
 Failure modes of the TWAP design and what happens:
@@ -307,12 +307,20 @@ Definitions (per position):
 - After maturity or when `closing`: `E* = 0`.
 
 Trade rule for asset i (one swap per call):
-- **Sell** if `E_i > T_i` and `(E_i - T_i) * BPS >= sellBandBps * V`, or if `E* == 0` and `E_i > dust` (the final unwind may be smaller than `minTrade`, so `closeToUSDT` can always finish; Pashov F-01).
+- **Sell** if `E_i > T_i` and `(E_i - T_i) * BPS >= band_i * V`, or if `E* == 0` and `E_i > dust` (the final unwind may be smaller than `minTrade`, so `closeToUSDT` can always finish; Pashov F-01).
   `amountValue = E_i - T_i` (all of E_i when `E* == 0`). Bands default: `sellBandBps = 100` (1% of V).
+  `band_i = max(1, sellBandBps * bandMul * w_i / BPS)` (Pashov 02 #9, FIX3): the sell band is scaled by the asset's weight, so the
+  sum of the per-asset drifts of a basket stays inside ONE band instead of one band per asset. A single asset (w = 100%) is unchanged.
 - **Buy** if `T_i > E_i` and `(T_i - E_i) * BPS >= buyBandBps * V`. `amountValue = min(T_i - E_i, usdtBal)`.
   Default `buyBandBps = 200` (2% of V). Buying is the lazier side: it only adds risk, so we wait for a bigger gap
   and save trading cost. Selling protects the floor, so it triggers sooner.
-- Ignore if `amountValue < minTrade` (default 20 USDT) except full unwind.
+- Buys ignore `amountValue < minTrade` (default 20 USDT). SELLS ignore `minTrade` and only need `amountValue > dust` (Pashov 02 #4,
+  FIX3): a small position (the demo positions are tiny) must be able to de-risk and finish its unwind; the band already keeps
+  sells from being noise.
+- A HELD asset with no TWAP at all (`observe` reverts) counts as 0, so V is understated and E* may even be 0. Since FIX3 (Pashov 02 #8)
+  CPPI sells of OTHER assets are suspended while that is the case (`State.noPrice`), instead of selling them against a wrong V. Not
+  suspended: a disabled asset, and the lifecycle unwind (Closing or matured), which do not depend on V. Exits are never affected.
+- A failed price of a DISABLED asset (target 0) does not suppress buys of the others (Pashov 02 #7).
 - Fail-soft pricing (A12 F-03, Pashov F-02): an asset whose price fails a guard (history, deviation, liquidity) is valued
   at 0 instead of reverting the whole call. V is then understated, so the vault only sells more; BUYS are suppressed
   while any asset is unpriceable. The asset being traded must itself pass every guard (no price, no trade).
@@ -325,8 +333,8 @@ Trade rule for asset i (one swap per call):
   Round **down** (a lower minimum would favour the swapper; rounding down is the tolerant direction, so the tolerance
   bound is the real protection). `tolBps` default 30 for the aggregator path, 100 for the direct Pancake path
   (must cover the 25 bps pool fee).
-- The vault enforces that the keeper's `amountIn` is `<= computed amountIn` and `>= computed / 2` (so a keeper
-  cannot nibble pennies to burn the rate limit, nor overshoot).
+- The vault enforces that the keeper's `amountIn` is `<= computed amountIn` and `>= ceil(computed / 2)` and non-zero (so a keeper
+  cannot nibble pennies to burn the rate limit, nor overshoot, nor send a zero-size trade that only resets `lastRebalance`).
 
 Invariant by construction: `E* <= V` and `E* <= M * C`. `sum T_i <= E*` (flooring). USDT never goes
 negative because buys are capped by `usdtBal`.
@@ -442,7 +450,11 @@ prices (**estimate**). Keeper gas is paid by the keeper wallet. No gas refund fr
 `rebalancePublic(assetIdx)`: anyone, no calldata. The vault itself computes the trade and swaps through the
 **direct Pancake v3 pool** (`exactInputSingle` on the registered pool and fee). Allowed only when:
 - market open, not paused, same checks as keeper path;
-- `block.timestamp >= lastRebalance + publicDelay` (default 4 h of idle time on that position), and
+- `publicDelay` seconds of OPEN-MARKET time have passed since `lastRebalance` (default 4 h; Pashov 02 #11, FIX3). Closed hours and
+  weekends do not count, so the keeper always gets a full session before the public path opens. Holidays and halts are not
+  subtracted (the count is O(1) and over-counts there). NOTE: with the 4 h window and a 4 h delay the public path opens from
+  the second trading day after the last rebalance; a position created at 08:00 cannot use it the same day. Use a lower
+  `publicDelay` (minimum 1 h) if a same-day public trade is needed (the fork tests use 3600), and
 - drift >= **2x** the normal band (so it only fires when something is clearly wrong), and
 - `tolBps` = 100 (pool fee 25 bps one way plus impact).
 
@@ -556,7 +568,7 @@ detects an upgrade; it cannot detect a malicious token that was upgraded and rep
 
 - `requestClose()`: sets `closing = true`. Target exposure becomes 0. Keeper or public path sells everything.
   Why not sell inside this call: swaps need a route; keep owner calls simple and non-failing.
-- `closeToUSDT()`: requires each asset's stock value <= dust (`dustValue` default 1 USDT; per asset, not the sum, so it matches the unwind rule `E_i > dust`; A12r L-01) and transfers all USDT to
+- `closeToUSDT()`: requires each asset's stock value <= dust at the plain 10-minute TWAP, no spot or liquidity guard (so 1 wei of stock plus a pushed pool cannot block closing, Pashov 02 #6; no TWAP at all fails closed, use `exitInKind`) (`dustValue` default 1 USDT; per asset, not the sum, so it matches the unwind rule `E_i > dust`; A12r L-01) and transfers all USDT to
   the owner. Marks the position `Closed`. After this, if dust bStocks remain, `rescue(token)` moves them.
 - `exitInKind(address to)`: **always callable by owner**. Marks `Closed`, sends ALL USDT to `to` FIRST, then for each
   asset reads `balanceOf` (staticcall, 100k gas, exactly 32 bytes of return data or the token is skipped) and calls
@@ -677,7 +689,7 @@ interface IFloorFactory {
 }
 ```
 `addAsset` checks: `IERC20Metadata(token).decimals() == 18`, `v3Factory.getPool(token, usdt, fee) == pool`, pool
-`observationCardinality >= 200`, a successful `observe`, and a readable `uiMultiplier()`. A token can be listed ONCE: `addAsset`
+`observationCardinality >= max(200, ceil(twapWindow * 4 / 3))` (one observation per 0.75 s BSC block, so a pool swapped in every block still covers the window; 800 slots for 600 s; `createPosition` re-checks every basket pool against the current window; Pashov 02 #13), a successful `observe`, and a readable `uiMultiplier()`, `hasPendingMultiplier()` and `effectiveAt()`. FIX3 also rejects a zero multiplier, `maxTradeValue < defaults.minTrade`, and a pool fee at or above `tolDirectBps` (every public swap would revert). `createPosition` rejects `paused` or `halted`, and a term maturing after `holidayHorizonDay` (guardian `setHolidayHorizon`, set by the deploy script from `coversThroughDay` in the holiday JSON; 0 = unchecked). `setDefaults` now also requires `minInterval >= 60` and `dust > 0`. A token can be listed ONCE: `addAsset`
 reverts `AssetExists` for a listed token, so pool, fee, `minLiquidity` and `maxTradeValue` of a live asset can never be
 changed (A12 F-02, Pashov F-03). `reenableAsset` switches a disabled asset back on with its original parameters. Changing
 limits needs a new factory (no in-place edit in v1; a delayed `setAssetLimits` is a possible v2 addition).
@@ -988,6 +1000,8 @@ pages returning 403 to scripts; browsing by hand is fine. **Unverified: the key 
 | T16 | Router delay means the router allowlist is stale when API changes router address | Keeper txs revert | Allowlist several aggregator routers; poll `routerOk`; public fallback. |
 | T17 | RFQ routes fail for contract wallets | Aggregator path unusable for some venues | Smoke test day 3; filter to AMM vendors; fallback to direct path. |
 | T-lag | Fast fall: spot falls more than the swap tolerance (30 bps aggregator, 100 bps Pancake) under the 10-minute TWAP | Honest sells revert `MinOutNotMet` (and `PriceDeviation` above 3%) until the TWAP catches up, so de-risking can be late in a sustained fall (A12 F-04) | ACCEPTED by the team lead (reviews/acceptances.md, 2026-10-03), tolerance not widened. Disclosure on the risks page and FAQ: in a fast crash a sell can be delayed until spot and the 10-minute average agree, which can let the value fall below the floor. Pinned by `test_audit_F04_KNOWN_...`. The Pancake route's bound is 100 bps, not 30 (A12 F-08). |
+| T-tvl | One address (or many) fills `maxTotalTvl` with its own USDT and blocks other users (Pashov 02 #5) | Griefing only, no loss; the squatter can close at any time and `setLimits` raises the cap | Launch cap is a temporary guard. A per-owner cap does not stop many addresses. Listed in reviews/audit-pashov-02-triage.md. |
+| T-pub | `rebalancePublic` sandwiched: caller moves spot inside `maxTickDev`, vault swaps at `tolDirectBps` tolerance (Pashov 02 #12) | Loss <= `tolDirectBps` (100 bps) of one capped trade per `minInterval` | A spot-based `minOut` cannot detect a same-block push; the TWAP bound is the guard. Launch caps bound it (1,000 USDT per position). Listed in reviews/audit-pashov-02-triage.md. |
 | T18 | USDT depeg (BSC-USD) | Floor in USDT value falls with USDT | Disclose. v1 accepts USDT risk. |
 | T19 | Position owner loses key | Funds stuck until maturity then still need owner | No admin recovery by design. State in UI. |
 | T20 | Legal / jurisdiction gating on bStocks (EXECUTION.md: Binance account-level) | Users in restricted regions | Out of scope for contracts, flag to team lead. |

@@ -129,12 +129,15 @@ describe('planSwap vs FloorVault._plan (real Solidity vectors)', () => {
     expect(planVectors.vectors.some((v) => !v.buy && v.value !== '0')).toBe(true);
     // the new rule: a full-unwind sale below minTrade
     expect(planVectors.vectors.some((v) => v.estar === '0' && v.value !== '0' && b(v.value) < b(v.mt))).toBe(true);
+    // Pashov 02 #4: a CPPI sell below minTrade; #8: a suspended sell
+    expect(planVectors.vectors.some((v) => v.estar !== '0' && v.active && !v.buy && v.value !== '0' && b(v.value) < b(v.mt))).toBe(true);
+    expect(planVectors.vectors.some((v) => v.noPrice && v.estar !== '0' && v.active && !v.closing)).toBe(true);
   });
   it.each(planVectors.vectors.map((v, i) => [i, v] as const))('vector %i matches bit for bit', (_i, v) => {
     const r = cppi.planSwap({
       Ei: b(v.Ei), Ti: b(v.Ti), V: b(v.V), estarI: v.active ? b(v.estar) : 0n, usdtBal: b(v.usdtBal), price: b(v.price),
       bal: b(v.bal), sellBandBps: b(v.sb), buyBandBps: b(v.bb), bandMul: b(v.mul), minTrade: b(v.mt), dust: b(v.dust),
-      maxTradeValue: b(v.mx), anyFailed: v.anyFailed,
+      maxTradeValue: b(v.mx), anyFailed: v.anyFailed, weightBps: b(v.w), noPrice: v.noPrice, unwinding: !v.active || v.closing,
     });
     expect(r).toEqual({ buy: v.buy, value: b(v.value), amountIn: b(v.amountIn) });
   });

@@ -23,6 +23,9 @@ contract PlanHarness is FloorVault {
         uint256 dust_;
         uint256 mx;
         bool anyFailed;
+        uint256 w; // weight bps of the asset (sell band is scaled by it)
+        bool noPrice;
+        bool closing; // vault status Closing (lifecycle unwind)
     }
 
     function plan(In memory x) external returns (bool buy, uint256 value, uint256 amountIn) {
@@ -37,6 +40,10 @@ contract PlanHarness is FloorVault {
         st.bal[0] = x.bal;
         st.price[0] = x.price;
         st.anyFailed = x.anyFailed;
+        st.noPrice = x.noPrice;
+        weightBps[0] = uint16(x.w);
+        maturity = type(uint40).max;
+        status = x.closing ? Status.Closing : Status.Active;
         st.value[0] = x.Ei;
         st.target[0] = x.Ti;
         st.cfg[0].active = x.active;
@@ -73,6 +80,23 @@ contract PlanVectorsTest is Test {
         x.bal = x.Ei * 1e18 / x.price;
         x.usdtBal = _r(s + 11, 0, 20_000e18);
         x.anyFailed = (i % 7) == 0;
+        x.w = _r(s + 12, 1000, 10_000);
+        x.noPrice = (i % 11) == 0;
+        x.closing = (i % 13) == 0;
+        // every sixth vector is a small CPPI sell (gap between the band and minTrade, Pashov 02 #4)
+        if (i % 6 == 1 && !unwind) {
+            x.V = _r(s + 13, 100e18, 1500e18);
+            x.sb = 20;
+            x.w = 10_000;
+            x.estar = _r(s + 14, 50e18, x.V);
+            x.Ti = _r(s + 15, 0, x.estar);
+            x.Ei = x.Ti + _r(s + 16, 4e18, x.mt);
+            x.bal = x.Ei * 1e18 / x.price;
+            x.active = true;
+            x.noPrice = false;
+            x.closing = false;
+            x.mul = 1;
+        }
     }
 
     /// Sanity on the pinned rule itself (no JSON): a full-unwind residue between dust and minTrade IS sold.
@@ -85,6 +109,7 @@ contract PlanVectorsTest is Test {
         x.sb = 100;
         x.bb = 200;
         x.mul = 1;
+        x.w = 10_000;
         x.V = 1000e18;
         x.active = true;
         x.estar = 0;
@@ -123,6 +148,7 @@ contract PlanVectorsTest is Test {
         a = string.concat(a, ',"bb":"', vm.toString(x.bb), '","mul":"', vm.toString(x.mul), '"');
         a = string.concat(a, ',"mt":"', vm.toString(x.mt), '","dust":"', vm.toString(x.dust_), '"');
         a = string.concat(a, ',"mx":"', vm.toString(x.mx), '","anyFailed":', x.anyFailed ? "true" : "false");
+        a = string.concat(a, ',"w":"', vm.toString(x.w), '","noPrice":', x.noPrice ? "true" : "false");
         return string.concat(
             a,
             ',"buy":',

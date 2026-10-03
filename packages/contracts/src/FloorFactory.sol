@@ -34,6 +34,9 @@ contract FloorFactory is IFloorFactory {
     uint32 internal constant MAX_TERM = 400 days;
     /// @dev CONTRACTS.md section 3: oracle history guard.
     uint16 internal constant MIN_CARDINALITY = 200;
+    /// @dev Pancake writes at most one observation per block and BSC blocks are 0.75 s, so a window of `w` seconds can
+    ///      need ceil(w * 4 / 3) slots when somebody swaps in every block (Pashov 02 #13).
+    uint256 internal constant SLOTS_PER_4_SECONDS = 4;
     /// @dev CONTRACTS.md section 7: routers added after deploy are active after 24 h.
     uint40 internal constant ROUTER_DELAY = 24 hours;
     /// @dev EXECUTION_PLAN P5 launch caps (USDT, 18 decimals).
@@ -48,6 +51,7 @@ contract FloorFactory is IFloorFactory {
     error NotPendingOwner();
     error NotOwnerOrGuardian();
     error BeaconAlreadySet();
+    event HolidayHorizonSet(uint32 day);
 
     // --------------------------------------------------------------- storage
 
@@ -78,6 +82,8 @@ contract FloorFactory is IFloorFactory {
     mapping(address => uint40) public override lastMultiplierChange;
     address[] public override positions;
     mapping(address => address[]) internal _byOwner;
+    /// @dev Last unix day the holiday table is known to cover (0 = unchecked). A position cannot mature after it.
+    uint32 public holidayHorizonDay;
 
     // ------------------------------------------------------------- modifiers
 
@@ -156,12 +162,15 @@ contract FloorFactory is IFloorFactory {
         address[] calldata assets_,
         uint16[] calldata weightsBps
     ) external override returns (address vault) {
-        if (paused) revert PausedErr();
+        // Halted too: a deposit would only wait in USDT, but a guardian halt is an incident (Pashov 02 lead).
+        if (paused || halted) revert PausedErr();
         if (amount < MIN_DEPOSIT) revert BadAmount();
         if (amount > maxDeposit) revert DepositTooLarge();
         if (totalTvl + amount > maxTotalTvl) revert TvlCapReached();
         if (floorBps < MIN_FLOOR_BPS || floorBps > MAX_FLOOR_BPS) revert BadFloor();
         if (termSeconds < MIN_TERM || termSeconds > MAX_TERM) revert BadTerm();
+        // The holiday table must cover the whole term (Pashov 02 lead): no vault may trade on an unlisted holiday.
+        if (holidayHorizonDay != 0 && (block.timestamp + termSeconds) / 1 days > holidayHorizonDay) revert BadTerm();
         _checkBasket(assets_, weightsBps);
 
         totalTvl += amount;
@@ -182,6 +191,17 @@ contract FloorFactory is IFloorFactory {
         emit PositionCreated(vault, msg.sender, amount, floor_, uint32(maturity), assets_, weightsBps);
     }
 
+    /// @dev The pool must hold enough observation slots for the CURRENT `twapWindow` (Pashov 02 #13 and lead).
+    function _requireHistory(address pool) internal view {
+        (,,, uint16 cardinality,,,) = IPancakeV3Pool(pool).slot0();
+        if (cardinality < _minCardinality(defaults.twapWindow)) revert OracleHistoryTooShort();
+    }
+
+    function _minCardinality(uint32 window) internal pure returns (uint256) {
+        uint256 need = (uint256(window) * SLOTS_PER_4_SECONDS + 2) / 3; // ceil(window * 4 / 3)
+        return need > MIN_CARDINALITY ? need : MIN_CARDINALITY;
+    }
+
     function _checkBasket(address[] calldata a, uint16[] calldata w) internal view {
         uint256 n = a.length;
         if (n == 0 || n > 3) revert BadAssets();
@@ -189,6 +209,7 @@ contract FloorFactory is IFloorFactory {
         uint256 sum;
         for (uint256 i; i < n; ++i) {
             if (!assets[a[i]].active) revert AssetNotActive(a[i]);
+            _requireHistory(assets[a[i]].pool);
             for (uint256 j; j < i; ++j) {
                 if (a[j] == a[i]) revert BadAssets();
             }
@@ -279,6 +300,12 @@ contract FloorFactory is IFloorFactory {
         emit NonTradingDaySet(day, closed);
     }
 
+    /// @notice Declares how far the holiday table reaches. `createPosition` rejects a term that matures after it.
+    function setHolidayHorizon(uint32 day) external onlyGuardian {
+        holidayHorizonDay = day;
+        emit HolidayHorizonSet(day);
+    }
+
     function setNonTradingDays(uint32[] calldata days_, bool closed) external override onlyGuardian {
         for (uint256 i; i < days_.length; ++i) {
             nonTradingDay[days_[i]] = closed;
@@ -321,13 +348,26 @@ contract FloorFactory is IFloorFactory {
     {
         if (token != address(0) && assets[token].pool != address(0)) revert AssetExists(token);
         bool usdtIsToken0 = _checkPool(token, pool, fee);
-        if (maxTradeValue == 0) revert BadPool();
+        // A trade cap below `minTrade` would make buys impossible; a pool fee at or above the public tolerance would make
+        // every `rebalancePublic` swap revert (Pashov 02 leads).
+        if (maxTradeValue < defaults.minTrade || uint256(fee) / 100 >= defaults.tolDirectBps) revert BadPool();
 
         assets[token] = Asset(pool, fee, true, minLiquidity, maxTradeValue, usdtIsToken0);
-        // Must be readable now: a zero `lastMultiplier` would make the vault guard block forever.
-        try ISecuritiesToken(token).uiMultiplier() returns (uint256 m) {
+        // Every multiplier function the vault calls must be readable now, and the baseline must be non-zero: a zero
+        // `lastMultiplier` or a reverting getter would block the token forever.
+        ISecuritiesToken t = ISecuritiesToken(token);
+        try t.uiMultiplier() returns (uint256 m) {
+            if (m == 0) revert BadPool();
             lastMultiplier[token] = m;
         } catch {
+            revert BadPool();
+        }
+        try t.hasPendingMultiplier() returns (bool) {}
+        catch {
+            revert BadPool();
+        }
+        try t.effectiveAt() returns (uint256) {}
+        catch {
             revert BadPool();
         }
         emit AssetAdded(token, pool, fee);
@@ -353,7 +393,7 @@ contract FloorFactory is IFloorFactory {
         usdtIsToken0 = t0 == usdt;
         if (!((usdtIsToken0 && t1 == token) || (t0 == token && t1 == usdt))) revert BadPool();
         (,,, uint16 cardinality,,,) = p.slot0();
-        if (cardinality < MIN_CARDINALITY) revert OracleHistoryTooShort();
+        if (cardinality < _minCardinality(defaults.twapWindow)) revert OracleHistoryTooShort();
         uint32[] memory ago = new uint32[](2);
         ago[0] = defaults.twapWindow;
         try p.observe(ago) returns (int56[] memory, uint160[] memory) {}
@@ -425,11 +465,11 @@ contract FloorFactory is IFloorFactory {
     /// @dev Bounds on every economic default. `minTrade` allows 1e18 and up (P6 demo needs 6e18).
     function _checkDefaults(Defaults memory d) internal pure {
         if (
-            d.sellBandBps == 0 || d.sellBandBps > 1000 || d.buyBandBps == 0 || d.buyBandBps > 1000
+            d.sellBandBps == 0 || d.sellBandBps > 1000 || d.buyBandBps == 0 || d.buyBandBps > 1000 || d.minInterval < 60
                 || d.minInterval > 1 days || d.publicDelay < 1 hours || d.publicDelay > 7 days || d.twapWindow < 60
                 || d.twapWindow > 1 hours || d.maxTickDev < 10 || d.maxTickDev > 1000 || d.tolAggBps == 0
                 || d.tolAggBps > 500 || d.tolDirectBps == 0 || d.tolDirectBps > 500 || d.minTrade < 1e18
-                || d.minTrade > 1000e18 || d.dust > 100e18
+                || d.minTrade > 1000e18 || d.dust == 0 || d.dust > 100e18
         ) revert BadDefaults();
     }
 }

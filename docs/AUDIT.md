@@ -19,6 +19,13 @@ Notes:
 - Do not run them where `.env` or key files sit in the audited tree. The auditor reads every `.sol` file into model context.
 - `x-ray/`, `.solidity-auditor/` and `.audit-*` are scratch. They stay out of git. Only `reviews/audit-pashov-*.md` is committed.
 
+## Scope
+
+In scope: `packages/contracts/src`, `packages/contracts/script`. Out of scope: everything under `ops/` (research spikes such as
+`ops/spikes/taker-probe`, never deployed) and test code. The 02 run included `ops/spikes/taker-probe/src/TakerProbe.sol`
+by accident; its findings 1-3 are fixed there anyway (owner-only, `minOut > 0`, router is not a token). Next run: pass
+`packages/contracts/src` and `packages/contracts/script` only.
+
 ## Who does what
 
 - A12a runs x-ray. A12b runs solidity-auditor and writes the reports.

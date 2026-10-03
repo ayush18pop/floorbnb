@@ -75,7 +75,8 @@ contract Deploy is Script {
         );
         FloorLens lens = new FloorLens(address(factory));
 
-        factory.setTokenBeacon(p.tokenBeacon, p.approvedTokenImpl);
+        // Zero beacon = a chain without the bStock beacon (the buy guard is then off); `setTokenBeacon` rejects zero.
+        if (p.tokenBeacon != address(0)) factory.setTokenBeacon(p.tokenBeacon, p.approvedTokenImpl);
         for (uint256 i; i < p.assetTokens.length; ++i) {
             factory.addAsset(
                 p.assetTokens[i],
@@ -99,6 +100,7 @@ contract Deploy is Script {
                 days_[i] = uint32(raw[i]);
             }
             factory.setNonTradingDays(days_, true);
+            factory.setHolidayHorizon(uint32(h.readUint(".coversThroughDay")));
         }
 
         if (p.guardian != deployer) factory.setGuardian(p.guardian);
@@ -159,7 +161,7 @@ contract Deploy is Script {
         require(p.maxTotalTvl <= 100_000e18, "Deploy: maxTotalTvl above 100k USDT launch ceiling");
         IFloorFactory.Defaults memory d = p.defaults;
         require(d.sellBandBps > 0 && d.sellBandBps <= 1000, "Deploy: sellBand");
-        require(d.buyBandBps >= d.sellBandBps && d.buyBandBps <= 2000, "Deploy: buyBand");
+        require(d.buyBandBps >= d.sellBandBps && d.buyBandBps <= 1000, "Deploy: buyBand");
         require(d.tolAggBps > 0 && d.tolAggBps <= 200 && d.tolDirectBps > 0 && d.tolDirectBps <= 300, "Deploy: tol");
         require(d.twapWindow >= 300 && d.twapWindow <= 3600, "Deploy: twapWindow");
         require(d.maxTickDev > 0 && d.maxTickDev <= 1000, "Deploy: maxTickDev");
@@ -187,6 +189,10 @@ contract Deploy is Script {
             require(raw[i] > raw[i - 1], "Deploy: holidays not sorted");
         }
         require(raw[raw.length - 1] >= 21_176, "Deploy: holiday table must reach 2027-12-24");
+        require(raw[raw.length - 1] <= 30_000, "Deploy: holidays look like unix seconds, not days");
+        uint256 horizon =
+            vm.readFile(string.concat(vm.projectRoot(), "/", p.holidaysFile)).readUint(".coversThroughDay");
+        require(horizon >= raw[raw.length - 1] && horizon <= type(uint32).max, "Deploy: coversThroughDay");
     }
 
     function _preflightAsset(Params memory p, uint256 i) internal view {
@@ -208,7 +214,11 @@ contract Deploy is Script {
         require((t0 == p.usdt && t1 == token) || (t0 == token && t1 == p.usdt), "Deploy: pool token order");
         require(pl.liquidity() >= p.assetMinLiquidity[i], "Deploy: pool liquidity below minLiquidity");
         (,,, uint16 cardinality,,,) = pl.slot0();
-        require(cardinality >= 200, "Deploy: TWAP cardinality < 200");
+        // BSC blocks are 0.75 s and a pool writes one observation per block: ceil(window * 4 / 3) slots (Pashov 02 #13)
+        require(
+            cardinality >= 200 && uint256(cardinality) * 3 >= uint256(p.defaults.twapWindow) * 4,
+            "Deploy: TWAP cardinality"
+        );
         uint32[] memory ago = new uint32[](2);
         ago[0] = p.defaults.twapWindow;
         pl.observe(ago); // reverts when the pool history is shorter than the window

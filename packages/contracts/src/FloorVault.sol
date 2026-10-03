@@ -14,6 +14,7 @@ import {IBeacon} from "./interfaces/IBeacon.sol";
 import {CPPIMath} from "./libs/CPPIMath.sol";
 import {TwapOracle} from "./libs/TwapOracle.sol";
 import {SwapGuard} from "./libs/SwapGuard.sol";
+import {MarketHours} from "./libs/MarketHours.sol";
 
 /// @title FloorVault
 /// @notice One Floor position (EIP-1167 clone). Holds the owner's USDT and bStocks, recomputes the CPPI target from a
@@ -87,6 +88,7 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
         uint256[3] price; // USDT per 1e18 raw (WAD); 0 when not priced (inactive and empty, or no TWAP at all)
         bool[3] failed; // pricing reverted (guard tripped): value counted as 0, buys suppressed, see `_load`
         bool anyFailed;
+        bool noPrice; // a HELD asset has no TWAP at all: V is understated, so CPPI sells are suspended (Pashov 02 #8)
         uint256[3] value; // E_i
         uint256[3] target; // T_i
         IFloorFactory.Asset[3] cfg;
@@ -213,7 +215,9 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
     ///      The caller chooses only the asset; direction, amount and recipient are fixed by the vault.
     function rebalancePublic(uint8 assetIdx) external nonReentrant {
         _requireTradable(assetIdx);
-        if (uint256(lastRebalance) + publicDelay > block.timestamp) revert PublicTooEarly();
+        // Pashov 02 #11: `publicDelay` is measured in OPEN-market seconds since the last rebalance, so closed hours,
+        // weekends and halts-by-closing do not count and the keeper always gets a full session before the public path.
+        if (MarketHours.openSeconds(lastRebalance, block.timestamp) < publicDelay) revert PublicTooEarly();
         if (uint256(lastTradeAt[assetIdx]) + minInterval > block.timestamp) revert TooSoon();
         address token = assetAt[assetIdx];
         if (_multiplierSettle(token)) return;
@@ -269,7 +273,14 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
             (, uint256 bal) = _readBalance(token);
             if (bal == 0) continue;
             IFloorFactory.Asset memory a = _asset(token);
-            uint256 p = _price(a);
+            // The dust test needs the TWAP only (no spot or liquidity guard), so pushing a pool or sending 1 wei cannot
+            // block closing (Pashov 02 #6). No TWAP at all: fail closed, `exitInKind` stays available.
+            uint256 p;
+            try this.twapOf(a.pool, a.usdtIsToken0) returns (uint256 r) {
+                p = r;
+            } catch {
+                revert StockNotUnwound();
+            }
             // Per asset, not the sum (A12r L-01): the unwind sells any asset worth more than `dust`, so what is left
             // is at most `dust` per asset and must never block closing.
             if (CPPIMath.valueOf(bal, p) > dust) revert StockNotUnwound();
@@ -335,6 +346,8 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
     ///      return data). Reverts only if the caller gave too little gas for the cap (see `exitInKind`).
     function _capTransfer(address token, address to, uint256 amount) internal returns (bool good) {
         if (gasleft() < EXIT_TRANSFER_GAS * 64 / 63 + 50_000) revert BadStatus();
+        // A call to an address without code succeeds with no return data: that is not a transfer (Pashov 02 lead).
+        if (token.code.length == 0) return false;
         bytes memory data = abi.encodeCall(IERC20.transfer, (to, amount));
         bool ok;
         uint256 size;
@@ -408,6 +421,9 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
         for (uint8 i; i < n; ++i) {
             if (uint256(lastTradeAt[i]) + minInterval > block.timestamp) continue;
             if (st.failed[i]) continue; // the traded asset must pass every guard, as in `rebalance`
+            // Skip a token that `rebalance` would reject for the multiplier guard, so the keeper sees the next one
+            // (Pashov 02 #10). A stale multiplier is armed by the keeper's separate `pokeMultiplier`.
+            if (_multiplierBlocked(assetAt[i])) continue;
             (bool b, uint256 value, uint256 amt) = _plan(st, i, 1);
             if (value == 0 || amt == 0) continue;
             if (b && beaconBad) continue;
@@ -492,11 +508,17 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
                 // cannot understate V and force a sale of another asset (A12r M-01). Only an asset with no TWAP at
                 // all counts as 0 (V understated: the vault only sells more, never buys more).
                 st.failed[i] = true;
-                st.anyFailed = true;
+                // A disabled asset (target 0) must not stop buys of the others, 1 wei of it is enough (Pashov 02 #7).
+                if (a.active) st.anyFailed = true;
                 try this.twapOf(a.pool, a.usdtIsToken0) returns (uint256 r) {
                     p = r;
                 } catch {}
-                if (p == 0) continue;
+                if (p == 0) {
+                    // A held asset with no TWAP at all lowers V to an unknown extent: CPPI sells are suspended
+                    // instead of selling the others against an understated V (Pashov 02 #8, see `_plan`).
+                    if (bal != 0) st.noPrice = true;
+                    continue;
+                }
             }
             st.price[i] = p;
             uint256 v = CPPIMath.valueOf(bal, p);
@@ -525,14 +547,23 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
         uint256 estarI = st.cfg[i].active ? st.estar : 0;
         // Full unwind (E* == 0): the last chunk may be below `minTrade`, any stock worth more than `dust` is sold, so
         // `closeToUSDT` can always finish (Pashov F-01).
-        uint256 sellMin = minTrade;
-        if (estarI == 0 && dust + 1 < sellMin) sellMin = dust + 1;
-        value = CPPIMath.sellAmount(
-            st.value[i], st.target[i], st.V, estarI, uint256(sellBandBps) * bandMul, sellMin, maxTrade
-        );
-        if (value > 0) {
-            amountIn = CPPIMath.sellAmountIn(value, st.price[i], st.bal[i]);
-            return (false, value, amountIn);
+        // Sells ignore `minTrade` above `dust`: stock worth more than `dust` may always be sold, so a small position can
+        // de-risk and the final unwind finishes (Pashov 02 #4, Pashov 01 F-01). `minTrade` still limits buys.
+        uint256 sellMin = dust + 1 < minTrade ? dust + 1 : minTrade;
+        // Pashov 02 #9: the sell band is scaled by the token weight, so the SUM of the per-token drifts stays inside
+        // one band for the whole basket.
+        uint256 band = uint256(sellBandBps) * bandMul * weightBps[i] / CPPIMath.BPS;
+        if (band == 0) band = 1;
+        // Pashov 02 #8: with a held asset unpriced, V is understated (so E* may be 0 too), and a CPPI sell of another
+        // asset is not trusted. Selling still goes through for a disabled asset and in the lifecycle unwind (Closing or
+        // matured): neither depends on V.
+        bool unwinding = !st.cfg[i].active || status != Status.Active || block.timestamp >= maturity;
+        if (unwinding || !st.noPrice) {
+            value = CPPIMath.sellAmount(st.value[i], st.target[i], st.V, estarI, band, sellMin, maxTrade);
+            if (value > 0) {
+                amountIn = CPPIMath.sellAmountIn(value, st.price[i], st.bal[i]);
+                return (false, value, amountIn);
+            }
         }
         value = CPPIMath.buyAmount(
             st.value[i], st.target[i], st.V, st.usdtBal, uint256(buyBandBps) * bandMul, minTrade, maxTrade
@@ -582,6 +613,32 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
         if (t.hasPendingMultiplier() && t.effectiveAt() <= block.timestamp + PENDING_LEAD) {
             revert MultiplierTransition();
         }
+    }
+
+    /// @dev View twin of `_multiplierSettle` for `previewRebalance`: true when `rebalance` would REVERT for this token
+    ///      now (multiplier recently changed or about to change, or an unreadable token). A stale multiplier is not
+    ///      blocked: the next `rebalance` call arms it (A12 F-05). Never reverts.
+    function _multiplierBlocked(address token) internal view returns (bool) {
+        IFloorFactory f = IFloorFactory(factory);
+        ISecuritiesToken t = ISecuritiesToken(token);
+        try t.uiMultiplier() returns (uint256 m) {
+            if (m != f.lastMultiplier(token)) return false;
+        } catch {
+            return true;
+        }
+        if (block.timestamp < uint256(f.lastMultiplierChange(token)) + twapWindow) return true;
+        try t.hasPendingMultiplier() returns (bool pending) {
+            if (pending) {
+                try t.effectiveAt() returns (uint256 at) {
+                    if (at <= block.timestamp + PENDING_LEAD) return true;
+                } catch {
+                    return true;
+                }
+            }
+        } catch {
+            return true;
+        }
+        return false;
     }
 
     /// @dev CONTRACTS.md section 9: if the shared token implementation differs from the approved one, buys are blocked.

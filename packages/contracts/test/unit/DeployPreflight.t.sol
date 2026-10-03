@@ -88,6 +88,22 @@ contract DeployPreflightTest is Test {
         p.holidaysFile = "holidays/nyse_2026_2027.json";
     }
 
+    /// Pashov 02 lead: the preflight bound must equal the factory bound (1000), not a looser 2000.
+    function test_buyBand_above_factory_bound_reverts() public {
+        p.defaults.buyBandBps = 1001;
+        vm.expectRevert("Deploy: buyBand");
+        h.check(p);
+    }
+
+    /// Pashov 02 #13: 600 s window on 0.75 s blocks needs 800 observation slots.
+    function test_cardinality_below_window_need_reverts() public {
+        pool.setCardinality(799);
+        vm.expectRevert("Deploy: TWAP cardinality");
+        h.check(p);
+        pool.setCardinality(800);
+        h.check(p);
+    }
+
     function test_good_params_pass() public view {
         h.check(p);
     }
@@ -140,7 +156,7 @@ contract DeployPreflightTest is Test {
 
     function test_cardinality_low_reverts() public {
         pool.setCardinality(50);
-        vm.expectRevert("Deploy: TWAP cardinality < 200");
+        vm.expectRevert("Deploy: TWAP cardinality");
         h.check(p);
     }
 
