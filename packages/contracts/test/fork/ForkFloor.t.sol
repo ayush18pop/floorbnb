@@ -18,6 +18,14 @@ interface IVenusOracle {
     function getPrice(address asset) external view returns (uint256);
 }
 
+interface IBeaconUpgrade {
+    function upgradeTo(address newImplementation) external;
+}
+
+interface ISecuritiesAdmin {
+    function setUIMultiplier(uint256 newMultiplier, uint256 effectiveAt) external;
+}
+
 interface IQuoterV2 {
     struct QuoteExactInputSingleParams {
         address tokenIn;
@@ -263,20 +271,24 @@ contract ForkFloorTest is ForkBase {
         address live = IBeacon(BEACON).implementation();
         address copy = makeAddr("implCopy");
         vm.etch(copy, live.code);
-        vm.mockCall(BEACON, abi.encodeWithSignature("implementation()"), abi.encode(copy));
+        vm.prank(BEACON_OWNER);
+        IBeaconUpgrade(BEACON).upgradeTo(copy);
+        assertEq(IBeacon(BEACON).implementation(), copy, "real beacon owner swapped the implementation");
         (bool needed,,,,,,,) = v.previewRebalance();
         assertFalse(needed, "preview suppresses buys while the implementation differs");
         vm.prank(keeper);
         vm.expectRevert(IFloorVault.TokenImplChanged.selector);
         v.rebalance(IFloorVault.Swap(0, true, amt, PANCAKE_ROUTER, data));
-        vm.clearMockedCalls();
+        vm.prank(BEACON_OWNER);
+        IBeaconUpgrade(BEACON).upgradeTo(live);
 
         // buy normally, then change the beacon and sell
         vm.prank(keeper);
         v.rebalance(IFloorVault.Swap(0, true, amt, PANCAKE_ROUTER, data));
         vm.prank(user);
         v.requestClose();
-        vm.mockCall(BEACON, abi.encodeWithSignature("implementation()"), abi.encode(copy));
+        vm.prank(BEACON_OWNER);
+        IBeaconUpgrade(BEACON).upgradeTo(copy);
         vm.warp(block.timestamp + 61 minutes);
         v.rebalancePublic(0); // a sell: allowed while the implementation differs
         (,, uint256[3] memory sv) = v.valuation();
@@ -297,5 +309,137 @@ contract ForkFloorTest is ForkBase {
         assertTrue(factory.isTradingOpen(block.timestamp), "Monday 16:00 open");
         vm.warp(tue + 6 days);
         assertFalse(factory.isTradingOpen(block.timestamp), "Monday 15:00 closed");
+    }
+    // ----------------------------------------------------------------- 6. multiplier
+
+    function test_fork6_multiplierChange_blocksUntilPokedAndWindowPassed() public {
+        vm.warp(_tuesday1535());
+        FloorVault v = _open(1000e18, 9000, NVDAB);
+        (,,, address tin, address tout, uint256 amt,, uint256 mDir) = v.previewRebalance();
+        bytes memory data = _pancakeData(tin, tout, address(v), amt, mDir);
+        vm.prank(keeper);
+        v.rebalance(IFloorVault.Swap(0, true, amt, PANCAKE_ROUTER, data));
+        uint256 raw = IERC20(NVDAB).balanceOf(address(v));
+        (uint256 V0,,) = v.valuation();
+
+        uint256 oldM = ISecuritiesToken(NVDAB).uiMultiplier();
+        uint256 newM = oldM * 102 / 100; // a 2% corporate-action style step
+        uint256 eff = block.timestamp + 2 hours;
+        vm.prank(TOKEN_ADMIN);
+        ISecuritiesAdmin(NVDAB).setUIMultiplier(newM, eff);
+        assertTrue(ISecuritiesToken(NVDAB).hasPendingMultiplier(), "pending set");
+        assertEq(ISecuritiesToken(NVDAB).pendingMultiplier(), newM);
+        assertEq(ISecuritiesToken(NVDAB).effectiveAt(), eff);
+        assertEq(IERC20(NVDAB).balanceOf(address(v)), raw, "raw balance unchanged");
+        (uint256 V1,,) = v.valuation();
+        assertEq(V1, V0, "V unchanged by a pending change");
+
+        // inside the 1 h lead before effectiveAt: blocked
+        vm.warp(eff - 30 minutes);
+        vm.prank(keeper);
+        vm.expectRevert(IFloorVault.MultiplierTransition.selector);
+        v.rebalance(IFloorVault.Swap(0, true, amt, PANCAKE_ROUTER, data));
+
+        // after it takes effect but before the poke: blocked; raw balance and V still unchanged
+        vm.warp(eff + 1);
+        assertEq(ISecuritiesToken(NVDAB).uiMultiplier(), newM, "multiplier applied");
+        assertEq(IERC20(NVDAB).balanceOf(address(v)), raw, "raw balance still unchanged");
+        (uint256 V2,,) = v.valuation();
+        assertApproxEqRel(V2, V0, 0.01e18, "V unchanged by the multiplier itself");
+        vm.prank(keeper);
+        vm.expectRevert(IFloorVault.MultiplierTransition.selector);
+        v.rebalance(IFloorVault.Swap(0, true, amt, PANCAKE_ROUTER, data));
+        vm.expectRevert(IFloorVault.MultiplierTransition.selector);
+        v.rebalancePublic(0);
+
+        // poke: still blocked until the TWAP window has passed
+        factory.pokeMultiplier(NVDAB);
+        assertEq(factory.lastMultiplier(NVDAB), newM);
+        vm.prank(keeper);
+        vm.expectRevert(IFloorVault.MultiplierTransition.selector);
+        v.rebalance(IFloorVault.Swap(0, true, amt, PANCAKE_ROUTER, data));
+
+        // after the window: the multiplier guard no longer fires (any other revert, or success, is fine)
+        vm.warp(block.timestamp + 601);
+        vm.prank(keeper);
+        try v.rebalance(IFloorVault.Swap(0, true, amt, PANCAKE_ROUTER, data)) {}
+        catch (bytes memory err) {
+            assertTrue(bytes4(err) != IFloorVault.MultiplierTransition.selector, "guard cleared");
+        }
+        // and exit is never blocked
+        vm.prank(user);
+        v.exitInKind(user);
+    }
+
+    // ------------------------------ Q3 (and 5): who does a blocklist hit, sender or receiver?
+
+    function test_fork5_Q3_blocklistHitsWhichSide() public {
+        address a = makeAddr("holderA"); // holds bStock, will be blocklisted
+        address b = makeAddr("clean");
+        vm.prank(POOL_NVDAB);
+        IERC20(NVDAB).transfer(a, 5e18);
+        vm.prank(POOL_NVDAB);
+        IERC20(NVDAB).transfer(b, 5e18);
+
+        address[] memory list = new address[](1);
+        list[0] = a;
+        vm.prank(COMPLIANCE_ADMIN);
+        ICompliance(COMPLIANCE).addToBlocklist(NVDAB, list);
+
+        // blocked address as RECEIVER (clean sender)
+        vm.prank(b);
+        (bool recvOk, bytes memory recvErr) = NVDAB.call(abi.encodeCall(IERC20.transfer, (a, 1e18)));
+        // blocked address as SENDER (clean receiver)
+        vm.prank(a);
+        (bool sendOk, bytes memory sendErr) = NVDAB.call(abi.encodeCall(IERC20.transfer, (b, 1e18)));
+        emit log_named_bytes("receiver revert data", recvErr);
+        emit log_named_bytes("sender revert data", sendErr);
+        // control: clean to clean works, so the reverts above are the blocklist
+        vm.prank(b);
+        assertTrue(IERC20(NVDAB).transfer(makeAddr("clean2"), 1e18), "control transfer");
+        emit log_named_string("blocklisted as RECEIVER", recvOk ? "transfer OK" : "REVERTS");
+        emit log_named_string("blocklisted as SENDER", sendOk ? "transfer OK" : "REVERTS");
+        // Q3 answer, pinned: both directions revert if this holds
+        assertFalse(recvOk, "Q3: blocklist blocks the receiver");
+        assertFalse(sendOk, "Q3: blocklist blocks the sender");
+
+        // other tokens are unaffected (the list is per token)
+        vm.prank(POOL_SPCXB);
+        IERC20(SPCXB).transfer(a, 1e18);
+        assertEq(IERC20(SPCXB).balanceOf(a), 1e18, "blocklist is per token");
+    }
+
+    // --------------------------------------------- 9. a contract holds and moves real bStocks
+
+    function test_fork9_vaultReceivesAndSendsRealBStocks() public {
+        vm.warp(_tuesday1535());
+        FloorVault v = _open(1000e18, 9000, NVDAB);
+        address[3] memory toks = [NVDAB, SPCXB, QQQB];
+        address[3] memory pools = [POOL_NVDAB, POOL_SPCXB, POOL_QQQB];
+        for (uint256 i; i < 3; i++) {
+            vm.prank(pools[i]);
+            IERC20(toks[i]).transfer(address(v), 1e18);
+            assertEq(IERC20(toks[i]).balanceOf(address(v)), 1e18, "vault received");
+        }
+        // exitInKind pushes stock out of the vault contract (the asset list holds NVDAB only; others via rescue)
+        vm.startPrank(user);
+        v.exitInKind(user);
+        assertEq(IERC20(NVDAB).balanceOf(user), 1e18, "vault sent NVDAB");
+        v.rescue(SPCXB, user);
+        v.rescue(QQQB, user);
+        vm.stopPrank();
+        assertEq(IERC20(SPCXB).balanceOf(user), 1e18);
+        assertEq(IERC20(QQQB).balanceOf(user), 1e18);
+    }
+
+    function _pancakeData(address tin, address tout, address to, uint256 amt, uint256 minOut)
+        internal
+        view
+        returns (bytes memory)
+    {
+        return abi.encodeCall(
+            IPancakeV3SwapRouter.exactInputSingle,
+            (IPancakeV3SwapRouter.ExactInputSingleParams(tin, tout, 2500, to, block.timestamp + 600, amt, minOut, 0))
+        );
     }
 }

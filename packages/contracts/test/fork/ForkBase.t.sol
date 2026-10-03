@@ -26,6 +26,7 @@ abstract contract ForkBase is Test {
     address internal constant PAUSE_ADMIN = 0xF3eFf082d1b859C75cdE44871E96968E543EA491;
     address internal constant COMPLIANCE = 0x53dBa7AaBDe774787A1F57236B235567dA8e14F4;
     address internal constant COMPLIANCE_ADMIN = 0x6f64F80B50efbf0f5f13D72d16eC17a59abBe5C6;
+    address internal constant TOKEN_ADMIN = 0x45e35Fe982F3869221b222Abea372fA97AA7679d;
     address internal constant BEACON_OWNER = 0x4333DAf4481F281F3D3d2B8735cE80bc00028d0C;
 
     address internal constant NVDAB = 0x02Fca66C1D1aFB4E2A7884261eB00F63598a7436;
