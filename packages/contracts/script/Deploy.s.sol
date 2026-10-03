@@ -11,6 +11,7 @@ import {FloorLens} from "../src/FloorLens.sol";
 import {IFloorFactory} from "../src/interfaces/IFloorFactory.sol";
 import {IBeacon} from "../src/interfaces/IBeacon.sol";
 import {IPancakeV3Factory} from "../src/interfaces/IPancakeV3Factory.sol";
+import {IPancakeV3SwapRouter} from "../src/interfaces/IPancakeV3SwapRouter.sol";
 import {IPancakeV3Pool} from "../src/interfaces/IPancakeV3Pool.sol";
 import {ISecuritiesToken} from "../src/interfaces/ISecuritiesToken.sol";
 import {DefaultsCheck} from "../src/libs/DefaultsCheck.sol";
@@ -141,7 +142,11 @@ contract Deploy is Script {
         bool pancakeListed;
         for (uint256 i; i < p.routerTargets.length; ++i) {
             require(p.routerTargets[i] != address(0) && p.routerApproveTargets[i] != address(0), "Deploy: zero router");
-            if (p.routerTargets[i] == p.v3SwapRouter) pancakeListed = true;
+            if (p.routerTargets[i] == p.v3SwapRouter) {
+                pancakeListed = true;
+                // The Pancake SwapRouter pulls tokens as msg.sender, so it is its own approve target (Pashov 04 lead).
+                require(p.routerApproveTargets[i] == p.v3SwapRouter, "Deploy: pancake approveTarget != router");
+            }
         }
         require(pancakeListed, "Deploy: v3SwapRouter must be allowlisted");
         require(p.keepers.length > 0, "Deploy: no keeper");
@@ -153,6 +158,8 @@ contract Deploy is Script {
         require(p.usdt.code.length > 0, "Deploy: usdt has no code");
         require(IERC20Metadata(p.usdt).decimals() == 18, "Deploy: usdt decimals != 18");
         require(p.v3Factory.code.length > 0 && p.v3SwapRouter.code.length > 0, "Deploy: pancake address has no code");
+        // the router must swap in the pools of the listed factory (Pashov 04 lead)
+        require(IPancakeV3SwapRouter(p.v3SwapRouter).factory() == p.v3Factory, "Deploy: router.factory != v3Factory");
 
         // --- token beacon (zero only on chains without one; then the buy guard is off)
         if (block.chainid == 56) require(p.tokenBeacon != address(0), "Deploy: beacon required on BSC");

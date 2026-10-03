@@ -85,7 +85,9 @@ contract PashovFix4Test is AuditBase {
         // the attacker raises the thin disabled pool's TWAP to 200 and the spot is not at the TWAP: the guard fails
         pool2.setTick(TICK_100 + 6932, TICK_100); // price about x2
         (uint256 V,,) = v.valuation();
-        assertLt(V, 951e18, "the raised TWAP of a disabled token does not inflate V");
+        // Pashov 04 #2: a disabled token is valued at its TWAP like an active one (it only sizes sells)...
+        assertGt(V, 951e18, "FIX5: the disabled token keeps its TWAP value in V (sizes sells only)");
+        // ...but it never drives a buy.
         (bool needed,, bool buy,,,,,) = v.previewRebalance();
         assertTrue(!needed || !buy, "no buy against an inflated V");
     }
@@ -366,12 +368,15 @@ contract PashovFix4Test is AuditBase {
         vm.stopPrank();
     }
 
-    function test_lead_smallPositionBasket_oneTokenReachingMinTradeIsEnough() public {
+    function test_lead_smallPositionBasket_everyTokenMustReachMinTrade() public {
         (address[] memory a, uint16[] memory w) = _two(); // 60 / 40
-        usdt.mint(user, 100e18);
+        usdt.mint(user, 250e18);
         vm.startPrank(user);
-        usdt.approve(address(factory), 100e18);
-        factory.createPosition(100e18, 9000, 30 days, a, w); // E* = 40: targets 24 and 16, the 60% token trades
+        usdt.approve(address(factory), 250e18);
+        // Pashov 04: EVERY target must reach minTrade, so 100 USDT at 60/40 (targets 24 and 16) is rejected now
+        vm.expectRevert(FloorFactory.PositionTooSmall.selector);
+        factory.createPosition(100e18, 9000, 30 days, a, w);
+        factory.createPosition(150e18, 9000, 30 days, a, w); // E* = 60: 36 and 24, both buyable
         vm.stopPrank();
     }
 

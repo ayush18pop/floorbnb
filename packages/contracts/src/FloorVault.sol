@@ -209,12 +209,23 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
         if (!routerOk) revert RouterNotAllowed();
 
         State memory st = _load();
-        _lockCheck(st);
-        if (st.failed[s.assetIdx]) _price(st.cfg[s.assetIdx]); // traded asset must be priceable: surface its error
+        // Pashov 04 lead: a lock set here must survive the checks below. If the call cannot trade anyway it ENDS
+        // (returns) instead of reverting, because a revert would roll the lock back.
+        bool locked = _lockCheck(st);
+        if (st.failed[s.assetIdx]) {
+            if (locked) return;
+            _price(st.cfg[s.assetIdx]); // traded asset must be priceable: surface its error
+        }
         (bool buy, uint256 value, uint256 amountIn) = _plan(st, s.assetIdx, 1);
-        if (value == 0 || amountIn == 0) revert NoTradeNeeded();
-        if (buy != s.buy) revert WrongDirection();
-        if (!CPPIMath.amountInOk(s.amountIn, amountIn)) revert AmountOutOfRange();
+        if (value == 0 || amountIn == 0) {
+            if (locked) return;
+            revert NoTradeNeeded();
+        }
+        if (buy != s.buy || !CPPIMath.amountInOk(s.amountIn, amountIn)) {
+            if (locked) return;
+            if (buy != s.buy) revert WrongDirection();
+            revert AmountOutOfRange();
+        }
 
         // Direct Pancake router uses the wider tolerance (fee 25 bps), the aggregator path the tight one.
         uint16 tol = s.router == IFloorFactory(factory).v3SwapRouter() ? tolDirectBps : tolAggBps;
@@ -245,10 +256,8 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
         if (!routerOk) revert RouterNotAllowed();
 
         State memory st = _load();
-        _lockCheck(st);
-        if (st.failed[assetIdx]) _price(st.cfg[assetIdx]);
-        (bool buy, uint256 value, uint256 amountIn) = _plan(st, assetIdx, PUBLIC_BAND_MULT);
-        if (value == 0 || amountIn == 0) revert NoTradeNeeded();
+        (bool go, bool buy, uint256 amountIn) = _publicPlan(st, assetIdx);
+        if (!go) return;
         if (buy) _beaconGuard();
 
         uint256 minOut_ = CPPIMath.minOut(amountIn, st.price[assetIdx], tolDirectBps, buy);
@@ -266,6 +275,23 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
                 }))
         );
         _swap(st, Req(assetIdx, buy, tolDirectBps, amountIn, router, approveTarget, data));
+    }
+
+    /// @dev Lock check plus the plan of the public path. `go` is false when a lock was just set and no trade can follow:
+    ///      the call then ENDS instead of reverting, so the lock persists (Pashov 04 lead).
+    function _publicPlan(State memory st, uint8 assetIdx) internal returns (bool go, bool buy, uint256 amountIn) {
+        bool locked = _lockCheck(st);
+        if (st.failed[assetIdx]) {
+            if (locked) return (false, false, 0);
+            _price(st.cfg[assetIdx]);
+        }
+        uint256 value;
+        (buy, value, amountIn) = _plan(st, assetIdx, PUBLIC_BAND_MULT);
+        if (value == 0 || amountIn == 0) {
+            if (locked) return (false, false, 0);
+            revert NoTradeNeeded();
+        }
+        go = true;
     }
 
     // =====================================================================
@@ -300,6 +326,7 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
             } catch {
                 revert StockNotUnwound();
             }
+            if (p == 0) revert StockNotUnwound();
             // Per asset, not the sum (A12r L-01): the unwind sells any asset worth more than `dust`, so what is left
             // is at most `dust` per asset and must never block closing.
             if (CPPIMath.valueOf(bal, p) > dust) revert StockNotUnwound();
@@ -377,7 +404,8 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
             size := returndatasize()
             if gt(size, 0x1f) { word := mload(ptr) }
         }
-        good = ok && (size == 0 || (size == 32 && word == 1));
+        // A longer return is not a failure either (Pashov 04 lead): only a false word or a failed call is.
+        good = ok && (size == 0 || (size >= 32 && (size > 32 || word == 1)));
     }
 
     /// @dev Best-effort, gas-capped report to the factory so the deposit stops counting against `maxTotalTvl`. The
@@ -401,7 +429,10 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
 
     /// @notice Permissionless: persists the cash lock when the position is at or below its floor right now (TWAP
     ///         valuation, every held asset priced). A keeper can call it whenever it sees V <= F but has nothing to sell.
+    ///         Same preconditions as a rebalance (Pashov 04 #4): the market must be open and not halted or paused, and
+    ///         `_lockCheck` needs every price to pass every guard. Reverts `TradingClosed` otherwise.
     function lockIfBelowFloor() external override nonReentrant {
+        if (!IFloorFactory(factory).isTradingOpen(block.timestamp)) revert TradingClosed();
         _lockCheck(_load());
     }
 
@@ -509,13 +540,25 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
         return false;
     }
 
-    /// @dev Persists the cash lock when V <= F (see `cashLocked`). Never from an understated V, so a missing price cannot
-    ///      lock a healthy position.
-    function _lockCheck(State memory st) internal {
-        if (cashLocked || status != Status.Active || block.timestamp >= maturity) return;
-        if (st.understated || st.V > floor) return;
+    /// @dev Persists the cash lock when V <= F (see `cashLocked`). Returns true when it was set by this call. The lock is
+    ///      PERMANENT, so it is set only from a price that passed EVERY guard (Pashov 04 #3, #4 and leads):
+    ///        - no asset failed its TWAP, spot-deviation or liquidity guard, none held is paused, none is unpriced;
+    ///        - every token's multiplier is settled (not stale, not recently changed, no change within the hour);
+    ///        - V is below the floor by a confirmation margin of `tolDirectBps` of V, so the fill loss of one swap
+    ///          (at most `tolDirectBps` of the traded value, which is at most V) cannot trip it by itself.
+    ///      Callers other than `lockIfBelowFloor` are already inside the open-market and rebalance checks.
+    function _lockCheck(State memory st) internal returns (bool) {
+        if (cashLocked || status != Status.Active || block.timestamp >= maturity) return false;
+        if (st.understated || st.anyFailed) return false;
+        if (st.V * (CPPIMath.BPS + tolDirectBps) > floor * CPPIMath.BPS) return false;
+        uint256 n = nAssets;
+        for (uint256 i; i < n; ++i) {
+            if (st.failed[i] && st.bal[i] != 0) return false;
+            if (!_multiplierClean(assetAt[i])) return false;
+        }
         cashLocked = true;
         emit CashLocked(st.V, floor);
+        return true;
     }
 
     /// @dev Price or 0 when any oracle guard fails. Runs `_price` through an external self-call so a revert can be
@@ -530,7 +573,9 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
     function twapOf(address pool, bool usdtIsToken0) external view returns (uint256) {
         (,,, uint16 cardinality,,,) = IPancakeV3Pool(pool).slot0();
         if (cardinality < _minCardinality()) revert OracleHistoryTooShort();
-        return TwapOracle.priceWad(TwapOracle.twapTick(pool, twapWindow), usdtIsToken0);
+        uint256 p = TwapOracle.priceWad(TwapOracle.twapTick(pool, twapWindow), usdtIsToken0);
+        if (p == 0) revert PoolIlliquid(); // a zero price must never value a stock at 0 (Pashov 04 lead)
+        return p;
     }
 
     /// @notice Guarded TWAP price for a pool (same checks as `_price`). Reverts when a guard fails. Exposed only so
@@ -571,18 +616,21 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
                     p = r;
                 } catch {}
                 if (!a.active) {
-                    // Pashov 03 #2: a DISABLED asset whose guarded price fails is left OUT of V (its unguarded TWAP can be
-                    // raised in a thin pool, which would inflate V and make the vault buy). Left out is the safe side:
-                    // V is understated, so the vault only sells more. Buys stay suppressed while it is worth more than
-                    // `dust` (1 wei of it must not stop buys, Pashov 02 #7). It still cannot be sold until it prices.
-                    if (p == 0 || CPPIMath.valueOf(bal, p) > dust) {
+                    // Pashov 04 #2: a DISABLED asset whose guarded price fails is valued at its last good TWAP like an
+                    // active one, so pushing its spot cannot understate V and make the vault sell the ACTIVE tokens.
+                    // The TWAP only sizes sells; buys are suppressed while it is worth more than `dust` (1 wei of it must
+                    // not stop buys, Pashov 02 #7), and it never sets the cash lock (`_lockCheck`). Without any TWAP
+                    // it is unpriced: V is understated and CPPI sells are suspended (`noPrice`).
+                    if (p == 0) {
                         st.anyFailed = true;
                         st.understated = true;
+                        st.noPrice = true;
+                        continue;
                     }
-                    if (p == 0) st.noPrice = true;
-                    continue;
+                    if (CPPIMath.valueOf(bal, p) > dust) st.anyFailed = true;
+                } else {
+                    st.anyFailed = true;
                 }
-                st.anyFailed = true;
                 if (p == 0) {
                     // A held asset with no TWAP at all lowers V to an unknown extent: CPPI sells are suspended
                     // instead of selling the others against an understated V (Pashov 02 #8, see `_plan`).
@@ -634,7 +682,8 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
         // Pashov 02 #8: with a held asset unpriced, V is understated (so E* may be 0 too), and a CPPI sell of another
         // asset is not trusted. Selling still goes through for a disabled asset and in the lifecycle unwind (Closing or
         // matured): neither depends on V.
-        bool unwinding = !st.cfg[i].active || status != Status.Active || block.timestamp >= maturity;
+        // A cash-locked vault sells every stock with no V dependence (E* == 0), so an unpriced token cannot block it.
+        bool unwinding = !st.cfg[i].active || status != Status.Active || block.timestamp >= maturity || cashLocked;
         if (unwinding || !st.noPrice) {
             value = CPPIMath.sellAmount(st.value[i], st.target[i], st.V, estarI, band, sellMin, maxTrade);
             if (value > 0) {
@@ -688,6 +737,16 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
         if (t.hasPendingMultiplier() && t.effectiveAt() <= block.timestamp + PENDING_LEAD) {
             revert MultiplierTransition();
         }
+    }
+
+    /// @dev True only when `_multiplierSettle` would pass and arm nothing: used by the cash lock (Pashov 04 lead).
+    function _multiplierClean(address token) internal view returns (bool) {
+        try ISecuritiesToken(token).uiMultiplier() returns (uint256 m) {
+            if (m != IFloorFactory(factory).lastMultiplier(token)) return false;
+        } catch {
+            return false;
+        }
+        return !_multiplierBlocked(token);
     }
 
     /// @dev View twin of `_multiplierSettle` for `previewRebalance`: true when `rebalance` would REVERT for this token
