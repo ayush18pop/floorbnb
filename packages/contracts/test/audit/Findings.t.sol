@@ -7,9 +7,10 @@ import {FloorFactory} from "../../src/FloorFactory.sol";
 import {IFloorFactory} from "../../src/interfaces/IFloorFactory.sol";
 import {IFloorVault} from "../../src/interfaces/IFloorVault.sol";
 import {MockPool} from "../mocks/MockPool.sol";
+import {MockRouter} from "../mocks/MockRouter.sol";
 
 /// @notice A12 (reviews/security-01.md) proof-of-concept tests. Each test asserts the SECURE behaviour, so each one
-///         FAILS on the reviewed commit and should PASS once the finding is fixed.
+///         FAILED on the reviewed commit; FIX1 fixed them (F-04 is accepted-needs-lead and pinned as KNOWN).
 ///         No finding reached High, so these are the Medium and Low items; they are kept so the re-check is mechanical.
 contract AuditFindingsTest is AuditBase {
     // ---------------------------------------------------------------------------------------------------------
@@ -68,30 +69,34 @@ contract AuditFindingsTest is AuditBase {
     }
 
     // ---------------------------------------------------------------------------------------------------------
-    // F-04 (Medium): minOut is anchored to a lagging 10-minute TWAP with a symmetric 30 bps tolerance, so a SELL in a
-    // falling market reverts whenever spot is more than 0.3% under the TWAP (exactly when selling matters).
+    // F-04 (Medium): ACCEPTED-NEEDS-LEAD, NOT FIXED. minOut is anchored to a lagging 10-minute TWAP with a symmetric
+    // tolerance (30 bps aggregator, 100 bps Pancake), so a SELL reverts whenever spot is more than the tolerance under
+    // the TWAP. Widening the SELL tolerance would loosen invariant I1 / threat T1 (compromised keeper loss bound), which
+    // FIX1 is not allowed to do. This test pins the current behaviour; if the lead decides on an asymmetric tolerance,
+    // flip it to assertLt(...) as the original PoC did (git history: A12 `test_audit_F04_...`).
     // ---------------------------------------------------------------------------------------------------------
-    function test_audit_F04_sellSucceedsWhenSpotLagsBelowTwapByOnePercent() public {
+    function test_audit_F04_KNOWN_sellRevertsWhenSpotLagsBelowTwapByOnePercent() public {
         (address[] memory a, uint16[] memory w) = _one(address(stock1));
         FloorVault v = _create(user, 1000e18, 9000, a, w);
-        // State after the first buy at price 100: 4 stock (400 USDT) and 600 USDT cash. F = 900, C = 100, E* = 400.
         deal(address(usdt), address(v), 600e18);
         stock1.mint(address(v), 4e18);
-        // The market falls 10%: TWAP 90, and spot is another 1% lower (89.1) because the TWAP lags.
         int24 twap = TICK_100 - 1054;
         pool1.setTick(twap, twap - 100);
         vm.warp(block.timestamp + 1 hours);
-        // V = 600 + 4 * 90 = 960, C = 60, E* = 240, E = 360: the vault must sell 120 USDT of stock.
         (bool needed,, bool buy,,, uint256 amountIn,,) = v.previewRebalance();
         assertTrue(needed && !buy, "a sell is due");
-        // The honest market pays spot, 89.1, which is 1% under the TWAP. Secure behaviour: the sell goes through.
-        _keeperSwap(v, 0, false, address(stock1), amountIn, 89.1e18);
-        assertLt(stock1.balanceOf(address(v)), 4e18, "stock was sold");
+        uint256 execPrice = 89.1e18;
+        bytes memory data = abi.encodeCall(
+            MockRouter.swapExact, (address(stock1), address(usdt), amountIn, amountIn * execPrice / 1e18, address(v))
+        );
+        vm.prank(keeper);
+        vm.expectRevert(); // MinOutNotMet: documented limitation, see CONTRACTS.md section 15 (T-lag)
+        v.rebalance(IFloorVault.Swap({assetIdx: 0, buy: false, amountIn: amountIn, router: address(agg), data: data}));
     }
 
     // ---------------------------------------------------------------------------------------------------------
-    // F-06 (Low): a stock residue between `dust` (1 USDT) and `minTrade` (20 USDT) can never be sold, so
-    // `closeToUSDT` is blocked. A third party can create it by donating (cost: the donated amount).
+    // F-06 (Low, fixed): a stock residue between `dust` (1 USDT) and `minTrade` (20 USDT) is sold in the unwind, so
+    // `closeToUSDT` can finish. A third party can still donate it, but it no longer blocks anything.
     // ---------------------------------------------------------------------------------------------------------
     function test_audit_F06_closeToUsdtWorksWithResidueBelowMinTrade() public {
         (address[] memory a, uint16[] memory w) = _one(address(stock1));
@@ -102,8 +107,11 @@ contract AuditFindingsTest is AuditBase {
         vm.prank(user);
         v.requestClose();
         vm.warp(block.timestamp + 1 hours);
+        (bool needed,, bool buy,,, uint256 amountIn,,) = v.previewRebalance();
+        assertTrue(needed && !buy, "residue sell is allowed");
+        _keeperSwap(v, 0, false, address(stock1), amountIn, _price(pool1));
         vm.prank(user);
-        v.closeToUSDT(); // secure behaviour: the owner can leave in USDT (the residue goes to rescue)
+        v.closeToUSDT();
     }
 
     // ---------------------------------------------------------------------------------------------------------

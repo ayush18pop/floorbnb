@@ -24,6 +24,8 @@ contract FloorFactory is IFloorFactory {
 
     // ------------------------------------------------------------- constants
 
+    /// @dev Smallest position (A12 F-07): 1 USDT, so 1-wei positions cannot bloat `positions[]` and keeper scans.
+    uint256 internal constant MIN_DEPOSIT = 1e18;
     /// @dev CONTRACTS.md section 11.1 `createPosition`: floorBps in [5000, 9800].
     uint16 internal constant MIN_FLOOR_BPS = 5000;
     uint16 internal constant MAX_FLOOR_BPS = 9800;
@@ -67,9 +69,11 @@ contract FloorFactory is IFloorFactory {
     Defaults public override defaults;
     uint256 public override maxDeposit;
     uint256 public override maxTotalTvl;
-    /// @dev Cumulative USDT deposited into positions (a launch cap on lifetime deposits; it does not decrease when a
-    ///      position closes because vaults have no callback into the factory).
+    /// @dev USDT deposited into positions that are still open. A vault reports its close once through
+    ///      `onPositionClosed` (from `closeToUSDT` / `exitInKind`), which releases its deposit from this counter.
     uint256 public override totalTvl;
+    /// @dev Deposit still counted in `totalTvl` per vault; zero for unknown or already released vaults.
+    mapping(address => uint256) public liveDeposit;
     mapping(address => uint256) public override lastMultiplier;
     mapping(address => uint40) public override lastMultiplierChange;
     address[] public override positions;
@@ -153,7 +157,7 @@ contract FloorFactory is IFloorFactory {
         uint16[] calldata weightsBps
     ) external override returns (address vault) {
         if (paused) revert PausedErr();
-        if (amount == 0) revert BadAmount();
+        if (amount < MIN_DEPOSIT) revert BadAmount();
         if (amount > maxDeposit) revert DepositTooLarge();
         if (totalTvl + amount > maxTotalTvl) revert TvlCapReached();
         if (floorBps < MIN_FLOOR_BPS || floorBps > MAX_FLOOR_BPS) revert BadFloor();
@@ -166,6 +170,7 @@ contract FloorFactory is IFloorFactory {
 
         vault = Clones.clone(vaultImplementation);
         positions.push(vault);
+        liveDeposit[vault] = amount;
         _byOwner[msg.sender].push(vault);
 
         IERC20 u = IERC20(usdt);
@@ -196,6 +201,16 @@ contract FloorFactory is IFloorFactory {
     // =====================================================================
     // anyone
     // =====================================================================
+
+    /// @inheritdoc IFloorFactory
+    /// @dev Called by a vault when it closes. Releases that vault's deposit from `totalTvl` exactly once. Anyone else
+    ///      (not a registered, unreleased vault) is a no-op, so this can never be used to lower the counter.
+    function onPositionClosed() external override {
+        uint256 d = liveDeposit[msg.sender];
+        if (d == 0) return;
+        liveDeposit[msg.sender] = 0;
+        totalTvl -= d;
+    }
 
     /// @inheritdoc IFloorFactory
     function pokeMultiplier(address token) external override {
@@ -295,21 +310,47 @@ contract FloorFactory is IFloorFactory {
     // =====================================================================
 
     /// @inheritdoc IFloorFactory
-    /// @dev Checks (CONTRACTS.md section 11.1): 18 decimals, `getPool` matches, cardinality >= 200, `observe` works.
-    ///      Re-adding a disabled asset re-runs every check.
+    /// @dev Checks (CONTRACTS.md section 11.1): 18 decimals, `getPool` matches, cardinality >= 200, `observe` works,
+    ///      `uiMultiplier()` readable. A token can be listed ONCE: live vaults read pool, fee, `minLiquidity` and
+    ///      `maxTradeValue` from here, so they can never be overwritten (A12 F-02, Pashov F-03). A disabled asset is
+    ///      switched back on with `reenableAsset`, which keeps the stored parameters.
     function addAsset(address token, address pool, uint24 fee, uint128 minLiquidity, uint256 maxTradeValue)
         external
         override
         onlyOwner
     {
-        if (token == address(0) || pool == address(0)) revert ZeroAddress();
+        if (token != address(0) && assets[token].pool != address(0)) revert AssetExists(token);
+        bool usdtIsToken0 = _checkPool(token, pool, fee);
         if (maxTradeValue == 0) revert BadPool();
+
+        assets[token] = Asset(pool, fee, true, minLiquidity, maxTradeValue, usdtIsToken0);
+        // Must be readable now: a zero `lastMultiplier` would make the vault guard block forever.
+        try ISecuritiesToken(token).uiMultiplier() returns (uint256 m) {
+            lastMultiplier[token] = m;
+        } catch {
+            revert BadPool();
+        }
+        emit AssetAdded(token, pool, fee);
+    }
+
+    /// @notice Switch a previously disabled asset back on with its ORIGINAL pool and limits, re-running the pool checks.
+    ///         The multiplier is not touched (an unpoked change is still blocked and armed by `pokeMultiplier`).
+    function reenableAsset(address token) external onlyOwner {
+        Asset memory a = assets[token];
+        if (a.pool == address(0) || a.active) revert AssetNotActive(token);
+        _checkPool(token, a.pool, a.fee);
+        assets[token].active = true;
+        emit AssetAdded(token, a.pool, a.fee);
+    }
+
+    function _checkPool(address token, address pool, uint24 fee) internal view returns (bool usdtIsToken0) {
+        if (token == address(0) || pool == address(0)) revert ZeroAddress();
         if (IERC20Metadata(token).decimals() != 18) revert BadDecimals();
         if (IPancakeV3Factory(v3Factory).getPool(token, usdt, fee) != pool) revert BadPool();
         IPancakeV3Pool p = IPancakeV3Pool(pool);
         address t0 = p.token0();
         address t1 = p.token1();
-        bool usdtIsToken0 = t0 == usdt;
+        usdtIsToken0 = t0 == usdt;
         if (!((usdtIsToken0 && t1 == token) || (t0 == token && t1 == usdt))) revert BadPool();
         (,,, uint16 cardinality,,,) = p.slot0();
         if (cardinality < MIN_CARDINALITY) revert OracleHistoryTooShort();
@@ -319,17 +360,15 @@ contract FloorFactory is IFloorFactory {
         catch {
             revert OracleHistoryTooShort();
         }
-
-        assets[token] = Asset(pool, fee, true, minLiquidity, maxTradeValue, usdtIsToken0);
-        try ISecuritiesToken(token).uiMultiplier() returns (uint256 m) {
-            lastMultiplier[token] = m;
-        } catch {}
-        emit AssetAdded(token, pool, fee);
     }
 
     /// @dev Active after 24 h (CONTRACTS.md section 7). Constructor routers are the P2 exception.
     function addRouter(address target, address approveTarget) external override onlyOwner {
         if (target == address(0) || approveTarget == address(0)) revert ZeroAddress();
+        // An existing (active or still pending) router cannot be overwritten: that would switch it off for 24 h.
+        // A removed router can be re-added; the 24 h delay applies again.
+        Router memory old = routers[target];
+        if (old.target != address(0) && !old.removed) revert RouterExists(target);
         uint40 at = uint40(block.timestamp) + ROUTER_DELAY;
         routers[target] = Router(target, approveTarget, at, false);
         emit RouterAdded(target, approveTarget, at);

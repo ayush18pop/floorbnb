@@ -346,15 +346,16 @@ contract ForkFloorTest is ForkBase {
         assertEq(IERC20(NVDAB).balanceOf(address(v)), raw, "raw balance still unchanged");
         (uint256 V2,,) = v.valuation();
         assertApproxEqRel(V2, V0, 0.01e18, "V unchanged by the multiplier itself");
+        // A12 F-05: the vault pokes the factory itself and the call is a no-op (no revert, no trade)
         vm.prank(keeper);
-        vm.expectRevert(IFloorVault.MultiplierTransition.selector);
         v.rebalance(IFloorVault.Swap(0, true, amt, PANCAKE_ROUTER, data));
+        assertEq(factory.lastMultiplier(NVDAB), newM, "vault poked the factory");
+        assertEq(IERC20(NVDAB).balanceOf(address(v)), raw, "no trade on the poke call");
         vm.expectRevert(IFloorVault.MultiplierTransition.selector);
         v.rebalancePublic(0);
 
-        // poke: still blocked until the TWAP window has passed
-        factory.pokeMultiplier(NVDAB);
-        assertEq(factory.lastMultiplier(NVDAB), newM);
+        // poked: still blocked until the TWAP window has passed
+        factory.pokeMultiplier(NVDAB); // idempotent
         vm.prank(keeper);
         vm.expectRevert(IFloorVault.MultiplierTransition.selector);
         v.rebalance(IFloorVault.Swap(0, true, amt, PANCAKE_ROUTER, data));

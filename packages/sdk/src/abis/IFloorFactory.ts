@@ -387,6 +387,13 @@ export const floorFactoryAbi = [
   },
   {
     "type": "function",
+    "name": "onPositionClosed",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "owner",
     "inputs": [],
     "outputs": [
@@ -1204,6 +1211,17 @@ export const floorFactoryAbi = [
   },
   {
     "type": "error",
+    "name": "AssetExists",
+    "inputs": [
+      {
+        "name": "token",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
+  },
+  {
+    "type": "error",
     "name": "AssetNotActive",
     "inputs": [
       {
@@ -1272,6 +1290,17 @@ export const floorFactoryAbi = [
     "type": "error",
     "name": "RouterDelayTooShort",
     "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "RouterExists",
+    "inputs": [
+      {
+        "name": "router",
+        "type": "address",
+        "internalType": "address"
+      }
+    ]
   },
   {
     "type": "error",

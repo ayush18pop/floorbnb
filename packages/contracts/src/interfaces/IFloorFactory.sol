@@ -98,6 +98,8 @@ interface IFloorFactory {
     error BadDecimals();
     error OracleHistoryTooShort();
     error ZeroAddress();
+    error AssetExists(address token);
+    error RouterExists(address router);
 
     // ------------------------------------------------------------------- user
 
@@ -120,6 +122,8 @@ interface IFloorFactory {
 
     /// @notice Records a `uiMultiplier` change for `token` (CONTRACTS.md section 4, MultiplierWatch).
     function pokeMultiplier(address token) external;
+    /// @notice Called by a vault when it closes; releases its deposit from `totalTvl` once. No-op for anyone else.
+    function onPositionClosed() external;
     function positionsOf(address user) external view returns (address[] memory);
     function positionsCount() external view returns (uint256);
     /// @notice MarketHours.isOpen(ts) and not paused and not halted.
