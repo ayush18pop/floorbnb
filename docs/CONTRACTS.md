@@ -195,7 +195,7 @@ Guards (all fail closed: revert and do nothing):
 - Pool `liquidity()` >= `minLiquidity[asset]` (guards a drained pool).
 - Per-trade value cap `maxTradeValue[asset]` (launch: NVDAB 25k, SPCXB 10k, QQQB 5k USDT; **proposed**, tune
   from quotes at deploy).
-- Global launch cap on TVL per position (`maxDeposit`, launch: 5,000 USDT) and total (`maxTotalTvl`, 50,000).
+- Global launch cap on TVL per position (`maxDeposit`, launch: 5,000 USDT) and total (`maxTotalTvl`, 50,000). `totalTvl` counts deposits of OPEN positions: a vault reports its close once to `factory.onPositionClosed()` (from `closeToUSDT` / `exitInKind`, best effort, gas capped, result ignored) and the deposit is released. Minimum deposit is 1 USDT (A12 F-07 / F-01).
 - Multiplier guard (section 4).
 
 Failure modes of the TWAP design and what happens:
@@ -246,7 +246,10 @@ Failure modes of the TWAP design and what happens:
   a 10-minute TWAP is stale for up to 10 minutes. Guard: `MultiplierWatch` in the factory.
   - `pokeMultiplier(token)` (permissionless) stores `lastMultiplier[token]` and `lastChange[token]` when
     `uiMultiplier()` differs.
-  - `rebalance` reverts `MultiplierTransition` if `uiMultiplier() != lastMultiplier[token]` (needs a poke), or
+  - If `uiMultiplier() != lastMultiplier[token]` the vault itself calls `pokeMultiplier(token)` and the `rebalance` /
+    `rebalancePublic` call ends as a no-op that does NOT revert (so the update persists; A12 F-05). No keeper poke is
+    needed, though a keeper poking every cycle starts the settle window earlier. Then `rebalance` reverts
+    `MultiplierTransition` if
     `block.timestamp < lastChange[token] + twapWindow`, or `hasPendingMultiplier()` with
     `effectiveAt() - 1 hour <= block.timestamp`.
   - Sells in a transition are blocked too (conservative; transitions are rare and short). Open question:
@@ -303,12 +306,17 @@ Definitions (per position):
 - After maturity or when `closing`: `E* = 0`.
 
 Trade rule for asset i (one swap per call):
-- **Sell** if `E_i > T_i` and `(E_i - T_i) * BPS >= sellBandBps * V`, or if `E* == 0` and `E_i >= minTrade`.
+- **Sell** if `E_i > T_i` and `(E_i - T_i) * BPS >= sellBandBps * V`, or if `E* == 0` and `E_i > dust` (the final unwind may be smaller than `minTrade`, so `closeToUSDT` can always finish; Pashov F-01).
   `amountValue = E_i - T_i` (all of E_i when `E* == 0`). Bands default: `sellBandBps = 100` (1% of V).
 - **Buy** if `T_i > E_i` and `(T_i - E_i) * BPS >= buyBandBps * V`. `amountValue = min(T_i - E_i, usdtBal)`.
   Default `buyBandBps = 200` (2% of V). Buying is the lazier side: it only adds risk, so we wait for a bigger gap
   and save trading cost. Selling protects the floor, so it triggers sooner.
 - Ignore if `amountValue < minTrade` (default 20 USDT) except full unwind.
+- Fail-soft pricing (A12 F-03, Pashov F-02): an asset whose price fails a guard (history, deviation, liquidity) is valued
+  at 0 instead of reverting the whole call. V is then understated, so the vault only sells more; BUYS are suppressed
+  while any asset is unpriceable. The asset being traded must itself pass every guard (no price, no trade).
+  `valuation()` / `claimValue()` return the understated V in that state. Residual: an attacker who pushes one pool
+  off its TWAP can force the vault to de-risk (sell) other holdings; bounded by `maxTradeValue` and `tol`.
 - Cap `amountValue <= maxTradeValue[asset]`.
 - Sell input `amountIn = floor(amountValue * WAD / p_i)`, capped at `bal_i`. Rounds down.
 - Buy input `amountIn = amountValue` (USDT).
@@ -549,9 +557,12 @@ detects an upgrade; it cannot detect a malicious token that was upgraded and rep
   Why not sell inside this call: swaps need a route; keep owner calls simple and non-failing.
 - `closeToUSDT()`: requires all stock balances <= dust (`dustValue` default 1 USDT) and transfers all USDT to
   the owner. Marks the position `Closed`. After this, if dust bStocks remain, `rescue(token)` moves them.
-- `exitInKind(address to)`: **always callable by owner**. For each asset: `try token.transfer(to, bal)`; failures are
-  skipped, not reverted. Then all USDT to `to`. Marks `Closed` even if some tokens remain. Why `try`: one paused
-  token must not trap the USDT.
+- `exitInKind(address to)`: **always callable by owner**. Marks `Closed`, sends ALL USDT to `to` FIRST, then for each
+  asset reads `balanceOf` (staticcall, 100k gas, exactly 32 bytes of return data or the token is skipped) and calls
+  `transfer` (500k gas, 32-byte return limit); any failure (revert, gas burn, empty or oversized data) skips that
+  token, never reverts the exit. A caller supplying too little gas reverts the whole call (nothing is skipped
+  silently). Why: one paused or malicious token (all bStocks share one beacon) must not trap the USDT (A12 F-00).
+  `closeToUSDT` treats a failing `balanceOf` as an empty balance.
 - `rescue(address token, address to)`: owner only, only when `Closed`, any token. Recovers a paused or blocklisted bStock
   after the issuer lifts the restriction, and any airdropped token.
 
@@ -655,7 +666,9 @@ interface IFloorFactory {
 
     // --- owner ---
     function addAsset(address token, address pool, uint24 fee, uint128 minLiquidity, uint256 maxTradeValue) external;
-    function addRouter(address target, address approveTarget) external;         // active after 24h
+    function reenableAsset(address token) external;                             // owner: disabled asset back on, SAME pool and limits
+    function onPositionClosed() external;                                       // vault -> factory, releases totalTvl once
+    function addRouter(address target, address approveTarget) external;         // active after 24h; reverts RouterExists if listed and not removed
     function setGuardian(address g) external;
     function setDefaults(Defaults calldata d) external;                         // new positions only; bounds-checked
     function setLimits(uint256 maxDeposit_, uint256 maxTotalTvl_) external;
@@ -663,7 +676,10 @@ interface IFloorFactory {
 }
 ```
 `addAsset` checks: `IERC20Metadata(token).decimals() == 18`, `v3Factory.getPool(token, usdt, fee) == pool`, pool
-`observationCardinality >= 200`, and a successful `observe`.
+`observationCardinality >= 200`, a successful `observe`, and a readable `uiMultiplier()`. A token can be listed ONCE: `addAsset`
+reverts `AssetExists` for a listed token, so pool, fee, `minLiquidity` and `maxTradeValue` of a live asset can never be
+changed (A12 F-02, Pashov F-03). `reenableAsset` switches a disabled asset back on with its original parameters. Changing
+limits needs a new factory (no in-place edit in v1; a delayed `setAssetLimits` is a possible v2 addition).
 
 Access control: as in the table in section 7. `pause`, `setHalted`, `removeRouter`, `disableAsset` are
 callable by guardian **or** owner. `addRouter` and `addAsset` only by owner.
@@ -967,9 +983,10 @@ pages returning 403 to scripts; browsing by hand is fine. **Unverified: the key 
 | T12 | Liquidity dries up in a crash (QQQB range empty) | Sells fail or partial, floor breach | Per-asset trade caps, `PoolIlliquid` revert, retry, public fallback, disclose. Weekend and crash costs are **not yet measured** (RESEARCH_RESULTS.md). |
 | T13 | Contract bug (maths, rounding) | Loss for positions | Small codebase, invariants, fuzz, second reader, launch caps ($5k per position, $50k total). |
 | T14 | Reentrancy via hostile router or token | Drain | `nonReentrant`, state before external calls where possible, balance-delta checks. |
-| T15 | Owner or guardian key compromise | Can pause, halt, list a malicious router (24 h delay), disable assets. Cannot take funds or edit positions. | Safe for owner, delay on routers, guardian cannot add routers. |
+| T15 | Owner or guardian key compromise | Can pause, halt, list a malicious router (24 h delay), disable assets (a guardian can also approve a token implementation, which silences the beacon guard, and unmark holidays). Cannot take funds, re-point a listed asset's pool or limits, or edit positions. | Safe for owner, delay on routers, guardian cannot add routers. |
 | T16 | Router delay means the router allowlist is stale when API changes router address | Keeper txs revert | Allowlist several aggregator routers; poll `routerOk`; public fallback. |
 | T17 | RFQ routes fail for contract wallets | Aggregator path unusable for some venues | Smoke test day 3; filter to AMM vendors; fallback to direct path. |
+| T-lag | Fast fall: spot falls more than the swap tolerance (30 bps aggregator, 100 bps Pancake) under the 10-minute TWAP | Honest sells revert `MinOutNotMet` (and `PriceDeviation` above 3%) until the TWAP catches up, so de-risking can be late in a sustained fall (A12 F-04) | OPEN, needs team-lead decision: accept with disclosure, or add a wider SELL tolerance (loosens I1/T1). Pinned by `test_audit_F04_KNOWN_...`. The Pancake route's bound is 100 bps, not 30 (A12 F-08). |
 | T18 | USDT depeg (BSC-USD) | Floor in USDT value falls with USDT | Disclose. v1 accepts USDT risk. |
 | T19 | Position owner loses key | Funds stuck until maturity then still need owner | No admin recovery by design. State in UI. |
 | T20 | Legal / jurisdiction gating on bStocks (EXECUTION.md: Binance account-level) | Users in restricted regions | Out of scope for contracts, flag to team lead. |

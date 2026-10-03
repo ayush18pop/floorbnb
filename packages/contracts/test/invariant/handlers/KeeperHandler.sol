@@ -25,6 +25,8 @@ contract KeeperHandler is HandlerBase {
         bool pBuy;
         uint256 computed;
         uint8 idx;
+        uint40 lastTradeBefore;
+        uint256 tradedBalBefore;
         bool buy;
         uint256 amountIn;
         address router;
@@ -150,6 +152,8 @@ contract KeeperHandler is HandlerBase {
         c.beaconBad = sys.beacon().implementation() != sys.factory().approvedTokenImpl();
         c.multBad = MockToken(token).uiMultiplier() != sys.factory().lastMultiplier(token); // traded asset only
         c.closed = c.v.status() == IFloorVault.Status.Closed;
+        c.lastTradeBefore = c.v.lastTradeAt(c.idx);
+        c.tradedBalBefore = IERC20(c.v.assetAt(c.idx)).balanceOf(address(c.v));
         c.floor = c.v.floor();
         c.other = _snap(address(otherVault(c.v)));
         c.self = _snap(address(c.v));
@@ -188,6 +192,8 @@ contract KeeperHandler is HandlerBase {
     /// @dev Checks that run after a call that SUCCEEDED. Pre-state facts are in `c`.
     function _post(Ctx memory c, bool isPublic) internal {
         FloorVault v = c.v;
+        // A stale multiplier makes the vault poke the factory and return WITHOUT trading (A12 F-05): not a trade.
+        if (c.multBad && v.lastTradeAt(c.idx) == c.lastTradeBefore) return;
         // I7: no trade outside the window / on pause / halt / holiday (recomputed independently)
         if (!_windowOpen(block.timestamp)) _violate("I7_window");
         if (c.closed) _violate("I10_closedStatus");
@@ -206,16 +212,18 @@ contract KeeperHandler is HandlerBase {
         if (c.buy && c.beaconBad) _violate("T7_buyWithChangedImpl");
         if (c.multBad) _violate("T8_multiplier");
 
-        // section 3 guards on every pool the vault prices
+        // section 3 guards: the TRADED asset's pool must pass every guard. Any other priced pool may fail (fail-soft,
+        // A12 F-03 / Pashov F-02: it is valued at 0), but then the trade must be a sell (buys are suppressed).
+        bool bought = IERC20(v.assetAt(c.idx)).balanceOf(address(v)) > c.tradedBalBefore;
         for (uint256 i; i < v.nAssets(); ++i) {
             if (!c.priced[i]) continue; // a disabled, empty asset is not priced (and need not be guarded)
             MockPool pl = _pool(v.assetAt(i));
             int256 d = int256(pl.spot()) - int256(pl.twapTick());
             if (d < 0) d = -d;
-            if (d > 300) _violate("GUARD_deviation");
-            if (pl.liquidity() < 1e20) _violate("GUARD_liquidity");
-            if (pl.revertObserve()) _violate("GUARD_history");
-            if (pl.cardinality() < 200) _violate("GUARD_cardinality");
+            bool bad = d > 300 || pl.liquidity() < 1e20 || pl.revertObserve() || pl.cardinality() < 200;
+            if (!bad) continue;
+            if (i == c.idx) _violate("GUARD_tradedAsset");
+            else if (bought) _violate("GUARD_buyWithFailedPool");
         }
 
         // I5: no buy while V <= F

@@ -9,6 +9,7 @@ import {FloorVault} from "../../src/FloorVault.sol";
 import {IFloorVault} from "../../src/interfaces/IFloorVault.sol";
 import {IFloorFactory} from "../../src/interfaces/IFloorFactory.sol";
 import {IPancakeV3SwapRouter} from "../../src/interfaces/IPancakeV3SwapRouter.sol";
+import {ISecuritiesToken} from "../../src/interfaces/ISecuritiesToken.sol";
 import {TwapOracle} from "../../src/libs/TwapOracle.sol";
 import {MockToken} from "../mocks/MockToken.sol";
 import {MockPool} from "../mocks/MockPool.sol";
@@ -71,6 +72,21 @@ contract VaultTestFactory {
     function setMultiplier(address token, uint256 m, uint40 at) external {
         lastMultiplier[token] = m;
         lastMultiplierChange[token] = at;
+    }
+
+    uint256 public closedReports;
+
+    function onPositionClosed() external {
+        ++closedReports;
+    }
+
+    /// @dev Same behaviour as the real factory's `pokeMultiplier`.
+    function pokeMultiplier(address token) external {
+        uint256 m = ISecuritiesToken(token).uiMultiplier();
+        if (m != lastMultiplier[token]) {
+            lastMultiplier[token] = m;
+            lastMultiplierChange[token] = uint40(block.timestamp);
+        }
     }
 
     function assets(address token)
@@ -593,13 +609,13 @@ contract VaultTest is VaultBase {
 
     function test_multiplierGuard() public {
         IFloorVault.Swap memory s = _swapStruct(true, 4000e18, address(router));
-        // unpoked change
+        // unpoked change (A12 F-05): the vault arms the guard itself and the call is a no-op that does NOT revert
         stock.setUiMultiplier(1.001e18);
         vm.prank(keeper);
-        vm.expectRevert(IFloorVault.MultiplierTransition.selector);
         vault.rebalance(s);
+        assertEq(factory.lastMultiplier(address(stock)), 1.001e18, "vault poked the factory");
+        assertEq(stock.balanceOf(address(vault)), 0, "no trade happened");
         // poked just now: window not elapsed
-        factory.setMultiplier(address(stock), 1.001e18, uint40(block.timestamp));
         vm.prank(keeper);
         vm.expectRevert(IFloorVault.MultiplierTransition.selector);
         vault.rebalance(s);
