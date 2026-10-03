@@ -1,0 +1,138 @@
+== variant=direct-only fork=https://bsc-mainnet.public.blastapi.io 2026-10-03T06:58:17Z
+fork head block 125440368 ts 1791010697
+== 1. Deploy.s.sol --broadcast (deployer = anvil acct0, owner acct1, guardian acct2, keeper acct3)
+  maxDeposit / maxTotalTvl 1000000000000000000000 5000000000000000000000
+
+## Setting up 1 EVM.
+
+==========================
+
+Chain 31337
+
+Estimated gas price: 0.05 gwei
+
+Estimated total gas used for script: 12704342
+
+Estimated amount required: 0.0006352171 ETH
+
+==========================
+
+
+==========================
+
+ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.
+
+Transactions saved to: /home/hyprayush/Documents/Projects/floor-wt/A14/packages/contracts/broadcast/Deploy.s.sol/31337/run-latest.json
+
+Sensitive values saved to: /home/hyprayush/Documents/Projects/floor-wt/A14/packages/contracts/cache/Deploy.s.sol/31337/run-latest.json
+
+[ok] deploy: FloorVault 4383008
+[ok] deploy: FloorFactory 3404797
+[ok] deploy: FloorLens 611337
+[ok] deploy: FloorFactory setTokenBeacon 70159
+[ok] deploy: FloorFactory addAsset 222694
+[ok] deploy: FloorFactory addAsset 185623
+[ok] deploy: FloorFactory addAsset 227802
+[ok] deploy: FloorFactory setKeeper 47899
+[ok] deploy: FloorFactory setLimits 29842
+[ok] deploy: FloorFactory setNonTradingDays 412725
+[ok] deploy: FloorFactory setGuardian 30141
+[ok] deploy: FloorFactory transferOwnership 47788
+factory=0x4d90a1F73C96d0bAcfB6BC901A98420F279e4189 lens=0x237efF8729B8F24816719B18760fB21fd552A69F
+[ok] acceptOwnership (owner) gas=28346
+owner=0x70997970C51812dc3A010C7d01b50e0d17dc79C8 guardian=0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC keeper=true
+pancake router ok: true 0x1b81D678ffb9C0263b24A97847620C99d213eB14 
+aggregator router ok: false 0x0000000000000000000000000000000000000000 
+== 2. SetHolidays (re-apply; Deploy already set them; guardian signs)
+Transactions saved to: /home/hyprayush/Documents/Projects/floor-wt/A14/packages/contracts/broadcast/SetHolidays.s.sol/31337/run-latest.json
+
+Sensitive values saved to: /home/hyprayush/Documents/Projects/floor-wt/A14/packages/contracts/cache/SetHolidays.s.sol/31337/run-latest.json
+
+nonTradingDay(2026-12-25)=true
+== 3. fund user with USDT from a whale (anvil impersonation), P6 setDefaults, positions
+user USDT: 2000000000000000000000 [2e21]
+warp -> Tue 2026-10-06 15:35:00 UTC
+[ok] setDefaults demo minTrade=6 (P6, owner) gas=43670
+[ok] USDT approve 500 (user) gas=46206
+[ok] createPosition A: 500 USDT, floor 95%, 365d, NVDAB 100% gas=535148
+[ok] setDefaults restore minTrade=20 (owner) gas=43682
+[ok] USDT approve 300 (user) gas=46206
+[ok] createPosition B: 300 USDT, floor 90%, 365d, NVDAB/SPCXB/QQQB 40/30/30 gas=543627
+vault A=0x597B943FF51636278911198d0882Ef239E80fDd4 (minTrade 6000000000000000000 [6e18]) vault B=0x375A9d4816cB5a407D7Baa212D661aDD085Db923 (minTrade 20000000000000000000 [2e19])
+A valuation/targets: 25000000000000000000 [2.5e19] 100000000000000000000 [1e20] [100000000000000000000 [1e20], 0, 0] 
+warp -> Wed 2026-10-07 15:35:00 UTC
+isTradingOpen=true
+== 4a. rebalancePublic(0) on B (anyone, direct Pancake): called by the USER address
+[ok] rebalancePublic(0) on B (anyone) gas=417646
+B NVDAB balance: 204278229568162685 [2.042e17]
+== keeper once --route direct (A buy + B other assets, cycle 1)
+{"t":"2026-10-03T06:59:21.516Z","level":"info","event":"start","cmd":"once","dryRun":false,"route":"direct","aggEnabled":false,"factory":"0x4d90a1F73C96d0bAcfB6BC901A98420F279e4189","signer":"0x90F79bf6EB2c4f870365E785982E1f101E93b906"}
+{"t":"2026-10-03T06:59:21.588Z","level":"info","event":"scan","positions":2,"needing":2}
+{"t":"2026-10-03T06:59:21.595Z","level":"info","event":"vault_status","vault":"0x597B943FF51636278911198d0882Ef239E80fDd4","V":"500000000000000000000","floor":"475000000000000000000","cushion":"25000000000000000000","exposure":"0","target":"100000000000000000000","sdkTarget":"100000000000000000000","cppiMirrorMatches":true}
+{"t":"2026-10-03T06:59:22.437Z","level":"info","event":"vault_outcome","vault":"0x597B943FF51636278911198d0882Ef239E80fDd4","status":"sent","hash":"0x97b5889fbdf37d65b4edeeb61460b1f7ccb7fd228b5827a8e874005fae86b80d","route":"direct"}
+{"t":"2026-10-03T06:59:22.437Z","level":"info","event":"rebalanced","vault":"0x597B943FF51636278911198d0882Ef239E80fDd4","hash":"0x97b5889fbdf37d65b4edeeb61460b1f7ccb7fd228b5827a8e874005fae86b80d","block":"125440393","route":"direct","buy":true,"amountIn":"100000000000000000000","amountOut":"425579088704806060","V":"500000000000000000000","exposureTarget":"100000000000000000000"}
+{"t":"2026-10-03T06:59:22.441Z","level":"info","event":"vault_status","vault":"0x375A9d4816cB5a407D7Baa212D661aDD085Db923","V":"299877938023603720080","floor":"270000000000000000000","cushion":"29877938023603720080","exposure":"47877938023603720080","target":"119511752094414880320","sdkTarget":"119511752094414880320","cppiMirrorMatches":true}
+{"t":"2026-10-03T06:59:28.455Z","level":"info","event":"vault_outcome","vault":"0x375A9d4816cB5a407D7Baa212D661aDD085Db923","status":"sent","hash":"0xf47bd23aab8d8f794d0cc29da58b369c590c91bdf553996efd176a1224246f18","route":"direct"}
+{"t":"2026-10-03T06:59:28.455Z","level":"info","event":"rebalanced","vault":"0x375A9d4816cB5a407D7Baa212D661aDD085Db923","hash":"0xf47bd23aab8d8f794d0cc29da58b369c590c91bdf553996efd176a1224246f18","block":"125440394","route":"direct","buy":true,"amountIn":"35853525628324464096","amountOut":"225001120450887462","V":"299877938023603720080","exposureTarget":"119511752094414880320"}
+{"t":"2026-10-03T06:59:28.455Z","level":"info","event":"done","ok":true,"windowOpen":true,"outcomes":2}
+[ok] keeper rebalance (A buy + B other assets, cycle 1) 0x97b5889fbdf37d65b4edeeb61460b1f7ccb7fd228b5827a8e874005fae86b80d gas=320483
+[ok] keeper rebalance (A buy + B other assets, cycle 1) 0xf47bd23aab8d8f794d0cc29da58b369c590c91bdf553996efd176a1224246f18 gas=450671
+warp -> Wed 2026-10-07 15:51:56 UTC
+== keeper once --route direct (cycle 2)
+{"t":"2026-10-03T06:59:31.093Z","level":"info","event":"start","cmd":"once","dryRun":false,"route":"direct","aggEnabled":false,"factory":"0x4d90a1F73C96d0bAcfB6BC901A98420F279e4189","signer":"0x90F79bf6EB2c4f870365E785982E1f101E93b906"}
+{"t":"2026-10-03T06:59:31.150Z","level":"info","event":"scan","positions":2,"needing":1}
+{"t":"2026-10-03T06:59:31.155Z","level":"info","event":"vault_status","vault":"0x375A9d4816cB5a407D7Baa212D661aDD085Db923","V":"299790374963348170202","floor":"270000000000000000000","cushion":"29790374963348170202","exposure":"83643900591672634298","target":"119161499853392680808","sdkTarget":"119161499853392680808","cppiMirrorMatches":true}
+{"t":"2026-10-03T06:59:36.208Z","level":"info","event":"vault_outcome","vault":"0x375A9d4816cB5a407D7Baa212D661aDD085Db923","status":"sent","hash":"0xb66eeea47c1f57d6bfd5bf48f37d9ba5143145944c2c1e245564218a51034bc3","route":"direct"}
+{"t":"2026-10-03T06:59:36.209Z","level":"info","event":"rebalanced","vault":"0x375A9d4816cB5a407D7Baa212D661aDD085Db923","hash":"0xb66eeea47c1f57d6bfd5bf48f37d9ba5143145944c2c1e245564218a51034bc3","block":"125440396","route":"direct","buy":true,"amountIn":"35748449956017804242","amountOut":"47620576756319267","V":"299790374963348170202","exposureTarget":"119161499853392680808"}
+{"t":"2026-10-03T06:59:36.209Z","level":"info","event":"done","ok":true,"windowOpen":true,"outcomes":1}
+[ok] keeper rebalance (cycle 2) 0xb66eeea47c1f57d6bfd5bf48f37d9ba5143145944c2c1e245564218a51034bc3 gas=451001
+A balances: NVDAB=425579088704806060 [4.255e17] USDT=400000000000000000000 [4e20]
+B balances: NVDAB=204278229568162685 [2.042e17] SPCXB=225001120450887462 [2.25e17] QQQB=47620576756319267 [4.762e16] USDT=180398024415657731662 [1.803e20]
+== 5. A: requestClose, keeper sell, closeToUSDT; B: exitInKind
+warp -> Wed 2026-10-07 16:08:43 UTC
+[ok] requestClose on A (user) gas=32510
+== keeper once --route direct (A closing sell)
+{"t":"2026-10-03T06:59:39.385Z","level":"info","event":"start","cmd":"once","dryRun":false,"route":"direct","aggEnabled":false,"factory":"0x4d90a1F73C96d0bAcfB6BC901A98420F279e4189","signer":"0x90F79bf6EB2c4f870365E785982E1f101E93b906"}
+{"t":"2026-10-03T06:59:39.458Z","level":"info","event":"scan","positions":2,"needing":1}
+{"t":"2026-10-03T06:59:39.464Z","level":"warn","event":"vault_status","vault":"0x597B943FF51636278911198d0882Ef239E80fDd4","V":"499745573849079832534","floor":"475000000000000000000","cushion":"24745573849079832534","exposure":"99745573849079832534","target":"0","sdkTarget":"98982295396319330136","cppiMirrorMatches":false}
+{"t":"2026-10-03T06:59:39.467Z","level":"info","event":"skip","vault":"0x597B943FF51636278911198d0882Ef239E80fDd4","reason":"below_min_trade","amountIn":"425579088704806059","minTrade":"6000000000000000000"}
+{"t":"2026-10-03T06:59:39.467Z","level":"info","event":"done","ok":true,"windowOpen":true,"outcomes":1}
+NO Rebalanced from keeper (A closing sell)
+(keeper skipped the sell, KEEPER BUG K-1; doing the sell by hand, same calldata the keeper builds)
+preview: needed=true idx=0 buy=false amountIn=425579088704806059 minOutDirect=98748118110589033977
+[ok] rebalance (manual sell of A via Pancake, keeper key) gas=290001
+A status=1 NVDAB=1
+[ok] closeToUSDT on A (user) gas=116157
+user USDT back from A close: before=1200000000000000000000 [1.2e21] after=1699500625219673048783 [1.699e21]
+[ok] exitInKind(user) on B (user) gas=241879
+B status=2; user holds NVDAB=204278229568162685 [2.042e17] SPCXB=225001120450887462 [2.25e17] QQQB=47620576756319267 [4.762e16] USDT=1879898649635330780445 [1.879e21]
+factory totalTvl after both closed: 0
+== GAS TABLE (variant direct-only)
+deploy: FloorVault                                                      4383008
+deploy: FloorFactory                                                    3404797
+deploy: FloorLens                                                       611337
+deploy: FloorFactory setTokenBeacon                                     70159
+deploy: FloorFactory addAsset                                           222694
+deploy: FloorFactory addAsset                                           185623
+deploy: FloorFactory addAsset                                           227802
+deploy: FloorFactory setKeeper                                          47899
+deploy: FloorFactory setLimits                                          29842
+deploy: FloorFactory setNonTradingDays                                  412725
+deploy: FloorFactory setGuardian                                        30141
+deploy: FloorFactory transferOwnership                                  47788
+acceptOwnership (owner)                                                 28346
+setDefaults demo minTrade=6 (P6, owner)                                 43670
+USDT approve 500 (user)                                                 46206
+createPosition A: 500 USDT, floor 95%, 365d, NVDAB 100%                 535148
+setDefaults restore minTrade=20 (owner)                                 43682
+USDT approve 300 (user)                                                 46206
+createPosition B: 300 USDT, floor 90%, 365d, NVDAB/SPCXB/QQQB 40/30/30  543627
+rebalancePublic(0) on B (anyone)                                        417646
+keeper rebalance (A buy + B other assets, cycle 1) 0x97b5889f           320483
+keeper rebalance (A buy + B other assets, cycle 1) 0xf47bd23a           450671
+keeper rebalance (cycle 2) 0xb66eeea4                                   451001
+requestClose on A (user)                                                32510
+rebalance (manual sell of A via Pancake, keeper key)                    290001
+closeToUSDT on A (user)                                                 116157
+exitInKind(user) on B (user)                                            241879
+== RESULT: PASS (direct-only) 2026-10-03T06:59:43Z
