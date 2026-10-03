@@ -98,8 +98,9 @@ library CPPIMath {
         return FullMath.mulDiv(fair, BPS - tolBps, BPS);
     }
 
-    /// @notice The keeper's `amountIn` must lie in [computed / 2, computed] (CONTRACTS.md section 5).
+    /// @notice The keeper's `amountIn` must lie in [ceil(computed / 2), computed] and be non-zero (CONTRACTS.md section 5).
+    ///         The bound rounds UP so a computed amount of 1 cannot be answered with a zero-size trade (Pashov 02 lead).
     function amountInOk(uint256 amountIn, uint256 computed) internal pure returns (bool) {
-        return amountIn <= computed && amountIn >= computed / 2;
+        return amountIn != 0 && amountIn <= computed && amountIn >= (computed + 1) / 2;
     }
 }

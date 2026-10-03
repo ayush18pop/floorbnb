@@ -222,8 +222,13 @@ contract KeeperHandler is HandlerBase {
             if (d < 0) d = -d;
             bool bad = d > 300 || pl.liquidity() < 1e20 || pl.revertObserve() || pl.cardinality() < 200;
             if (!bad) continue;
-            if (i == c.idx) _violate("GUARD_tradedAsset");
-            else if (bought) _violate("GUARD_buyWithFailedPool");
+            if (i == c.idx) {
+                _violate("GUARD_tradedAsset");
+            } else if (bought) {
+                // Pashov 02 #7: a DISABLED asset (target 0) with a failed pool no longer suppresses buys of the others
+                (,, bool act,,,) = sys.factory().assets(v.assetAt(i));
+                if (act) _violate("GUARD_buyWithFailedPool");
+            }
         }
 
         // I5: no buy while V <= F

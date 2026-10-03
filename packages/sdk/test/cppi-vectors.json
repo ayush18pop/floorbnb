@@ -1,5 +1,5 @@
 {
- "_note": "Generated from packages/contracts/src/libs/CPPIMath.sol via a throwaway forge test (keccak-seeded inputs). Do not hand-edit.",
+ "_note": "Generated from packages/contracts/src/libs/CPPIMath.sol via a throwaway forge test (keccak-seeded inputs). Do not hand-edit. inRange re-derived by FIX3 for the ceil(computed/2) rule (Pashov 02 lead); other fields untouched.",
  "vectors": [
   {
    "D": "11841186632126350659435",
@@ -25,7 +25,7 @@
    "minOutSell": "1833903999999999999605",
    "minOutBuy": "0",
    "given": "1457116647819622340",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "48064626510316316219958",
@@ -103,7 +103,7 @@
    "minOutSell": "4196037999999999999384",
    "minOutBuy": "0",
    "given": "2438952010450722488",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "40641662930067716630987",
@@ -259,7 +259,7 @@
    "minOutSell": "1673366799999999999760",
    "minOutBuy": "0",
    "given": "1606544444082688278",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "16295734781576082660389",
@@ -415,7 +415,7 @@
    "minOutSell": "2455307399999999999910",
    "minOutBuy": "0",
    "given": "7910245707176202142",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "37435163290728498836861",
@@ -571,7 +571,7 @@
    "minOutSell": "2607859499999999999725",
    "minOutBuy": "0",
    "given": "2898012201987044708",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "14041329759867474232224",
@@ -805,7 +805,7 @@
    "minOutSell": "2368052899999999999224",
    "minOutBuy": "0",
    "given": "1336616168820348822",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "19413024162379870563897",
@@ -883,7 +883,7 @@
    "minOutSell": "307774799999999999611",
    "minOutBuy": "0",
    "given": "288414688760148092",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "23377305795491218539346",
@@ -961,7 +961,7 @@
    "minOutSell": "1214407599999999999976",
    "minOutBuy": "0",
    "given": "2175779889675486374",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "9192276237831240784572",
@@ -1039,7 +1039,7 @@
    "minOutSell": "0",
    "minOutBuy": "6142348538524729774",
    "given": "0",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "45660190827767388592480",
@@ -1195,7 +1195,7 @@
    "minOutSell": "0",
    "minOutBuy": "6091352374142432232",
    "given": "0",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "17023024290893992441096",
@@ -1273,7 +1273,7 @@
    "minOutSell": "2561273399999999999812",
    "minOutBuy": "0",
    "given": "4474295029300844143",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "42165435938689324193948",
@@ -1429,7 +1429,7 @@
    "minOutSell": "0",
    "minOutBuy": "0",
    "given": "0",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "20592525192566344779273",
@@ -1507,7 +1507,7 @@
    "minOutSell": "0",
    "minOutBuy": "0",
    "given": "0",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "30599270560297094735751",
@@ -1663,7 +1663,7 @@
    "minOutSell": "0",
    "minOutBuy": "0",
    "given": "0",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "6781152717241064876009",
@@ -1819,7 +1819,7 @@
    "minOutSell": "0",
    "minOutBuy": "6380490545863708755",
    "given": "0",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "18676888359759534586428",
@@ -1975,7 +1975,7 @@
    "minOutSell": "1362554599999999999977",
    "minOutBuy": "0",
    "given": "14988418146879941075",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "9764462809188127920375",
@@ -2053,7 +2053,7 @@
    "minOutSell": "748429199999999999784",
    "minOutBuy": "0",
    "given": "733368772904709141",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "12407476909498434311733",
@@ -2131,7 +2131,7 @@
    "minOutSell": "1232615796338831082679",
    "minOutBuy": "0",
    "given": "44839927559574544638",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "6706281742059641019930",
@@ -2287,7 +2287,7 @@
    "minOutSell": "1245173999999999999765",
    "minOutBuy": "0",
    "given": "2350823169625573571",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "15623838415369899977088",
@@ -2443,7 +2443,7 @@
    "minOutSell": "2404403999999999999826",
    "minOutBuy": "0",
    "given": "5653052458218650469",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "2895767575043524886614",
@@ -2599,7 +2599,7 @@
    "minOutSell": "0",
    "minOutBuy": "73880509675521001",
    "given": "0",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "44561794367581202609288",
@@ -2677,7 +2677,7 @@
    "minOutSell": "3951757999999999999596",
    "minOutBuy": "0",
    "given": "2947454478346565941",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "22776281524942528448079",
@@ -3223,7 +3223,7 @@
    "minOutSell": "82714799999999999829",
    "minOutBuy": "0",
    "given": "75400084701262296",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "17880073435379897836600",
@@ -3457,7 +3457,7 @@
    "minOutSell": "0",
    "minOutBuy": "3045737781171123314",
    "given": "0",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "39260442144219000993369",
@@ -3613,7 +3613,7 @@
    "minOutSell": "1730321999999999999738",
    "minOutBuy": "0",
    "given": "2746908267914166611",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "22947516207202909454835",
@@ -3691,7 +3691,7 @@
    "minOutSell": "4485381999999999999729",
    "minOutBuy": "0",
    "given": "6407384072698909662",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "33171127892462598718905",
@@ -3769,7 +3769,7 @@
    "minOutSell": "2214698999999999999650",
    "minOutBuy": "0",
    "given": "1796405414654042533",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "21218559640746105934402",
@@ -3847,7 +3847,7 @@
    "minOutSell": "0",
    "minOutBuy": "8280432146051225562",
    "given": "0",
-   "inRange": true
+   "inRange": false
   },
   {
    "D": "37266603318369541522060",

@@ -373,7 +373,11 @@ contract FactoryTest is FactoryBase {
         p.setCardinality(199);
         vm.expectRevert(IFloorFactory.OracleHistoryTooShort.selector);
         factory.addAsset(address(tok), address(p), 2500, 1, 1e18);
+        // 200 slots do not cover a 600 s window on 0.75 s blocks (Pashov 02 #13): 800 are needed
         p.setCardinality(200);
+        vm.expectRevert(IFloorFactory.OracleHistoryTooShort.selector);
+        factory.addAsset(address(tok), address(p), 2500, 1, 1e18);
+        p.setCardinality(800);
         // observe reverts
         p.setRevertObserve(true);
         vm.expectRevert(IFloorFactory.OracleHistoryTooShort.selector);
@@ -382,7 +386,10 @@ contract FactoryTest is FactoryBase {
         // zero trade cap
         vm.expectRevert(IFloorFactory.BadPool.selector);
         factory.addAsset(address(tok), address(p), 2500, 1, 0);
+        // trade cap below minTrade (20e18 in this fixture)
+        vm.expectRevert(IFloorFactory.BadPool.selector);
         factory.addAsset(address(tok), address(p), 2500, 1, 1e18);
+        factory.addAsset(address(tok), address(p), 2500, 1, 25e18);
         (address pool,, bool active,,, bool u0) = factory.assets(address(tok));
         assertEq(pool, address(p));
         assertTrue(active);

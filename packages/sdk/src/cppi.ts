@@ -94,9 +94,9 @@ export function minOut(amountIn: bigint, price: bigint, tolBps: bigint | number,
   return mulDiv(fair, BPS - BigInt(tolBps), BPS);
 }
 
-/** The keeper's amountIn must lie in [computed / 2, computed]. */
+/** The keeper's amountIn must lie in [ceil(computed / 2), computed] and be non-zero (Pashov 02 lead). */
 export function amountInOk(amountIn: bigint, computed: bigint): boolean {
-  return amountIn <= computed && amountIn >= computed / 2n;
+  return amountIn !== 0n && amountIn <= computed && amountIn >= (computed + 1n) / 2n;
 }
 
 export interface CppiState {
@@ -128,7 +128,8 @@ export function cppiFloat(V: number, F: number, m = 4) {
  * Per-asset swap decision as the vault makes it (FloorVault._plan, CONTRACTS.md section 5). Differs from the bare
  * `sellAmount` in one rule (A12 F-06 / Pashov F-01): in a full unwind (E* == 0 for the asset, which includes a
  * disabled asset) any stock worth MORE than `dust` is sold, even below `minTrade`, so `closeToUSDT` can finish.
- * Buys need every asset priced (`anyFailed` false).
+ * Buys need every asset priced (`anyFailed` false). Pashov 02: sells ignore `minTrade` above `dust` (#4), the sell band is
+ * scaled by the asset weight (#9), and CPPI sells are suspended while a held asset has no TWAP (#8).
  */
 export function planSwap(p: {
   Ei: bigint;
@@ -147,11 +148,21 @@ export function planSwap(p: {
   dust: bigint;
   maxTradeValue: bigint;
   anyFailed?: boolean;
+  /** asset weight in bps; the sell band is scaled by it (Pashov 02 #9). Default 10000 (single asset). */
+  weightBps?: bigint;
+  /** a held asset has no TWAP at all: CPPI sells are suspended (Pashov 02 #8) ... */
+  noPrice?: boolean;
+  /** ... except for a disabled asset and in the lifecycle unwind (vault Closing or matured). */
+  unwinding?: boolean;
 }): { buy: boolean; value: bigint; amountIn: bigint } {
-  let sellMin = p.minTrade;
-  if (p.estarI === 0n && p.dust + 1n < sellMin) sellMin = p.dust + 1n;
-  const sell = sellAmount(p.Ei, p.Ti, p.V, p.estarI, p.sellBandBps * p.bandMul, sellMin, p.maxTradeValue);
-  if (sell > 0n) return { buy: false, value: sell, amountIn: sellAmountIn(sell, p.price, p.bal) };
+  // Sells ignore minTrade above dust (Pashov 02 #4); the sell band is scaled by the weight (#9).
+  const sellMin = p.dust + 1n < p.minTrade ? p.dust + 1n : p.minTrade;
+  let band = (p.sellBandBps * p.bandMul * (p.weightBps ?? 10_000n)) / BPS;
+  if (band === 0n) band = 1n;
+  if (p.unwinding || !p.noPrice) {
+    const sell = sellAmount(p.Ei, p.Ti, p.V, p.estarI, band, sellMin, p.maxTradeValue);
+    if (sell > 0n) return { buy: false, value: sell, amountIn: sellAmountIn(sell, p.price, p.bal) };
+  }
   const buy = buyAmount(p.Ei, p.Ti, p.V, p.usdtBal, p.buyBandBps * p.bandMul, p.minTrade, p.maxTradeValue);
   if (buy > 0n && !p.anyFailed) return { buy: true, value: buy, amountIn: buy };
   return { buy: false, value: 0n, amountIn: 0n };

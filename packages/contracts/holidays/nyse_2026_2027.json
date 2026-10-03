@@ -1,5 +1,5 @@
 {
-  "_note": "Verified 2026-10-03 against https://www.nyse.com/trade/hours-calendars (holiday table for 2026, 2027, 2028). Covers every NYSE full-day closure from 2026-09-07 through 2027-12-31. Early closes (1:00 p.m. ET: 2026-11-27, 2026-12-24, 2027-11-26) are treated as full closures, which is the contract's model (isTradingOpen has no half-day). No early close in July 2027. 2027-12-31 is a normal trading day (New Year's Day 2028 falls on a Saturday, no observed holiday). Extend before any term crosses 2028-01-17. unixDays = unix seconds / 86400.",
+  "_note": "Verified 2026-10-03 against https://www.nyse.com/trade/hours-calendars (holiday table for 2026, 2027, 2028). Covers every NYSE full-day closure from 2026-09-07 through 2027-12-31. Early closes (1:00 p.m. ET: 2026-11-27, 2026-12-24, 2027-11-26) are treated as full closures, which is the contract's model (isTradingOpen has no half-day). No early close in July 2027. 2027-12-31 is a normal trading day (New Year's Day 2028 falls on a Saturday, no observed holiday). coversThroughDay = 2027-12-31: the factory rejects a position whose maturity is later than this day, so extend the table and call setHolidayHorizon before it.  unixDays = unix seconds / 86400.",
   "dates": [
     "2026-09-07",
     "2026-11-26",
@@ -18,6 +18,7 @@
     "2027-11-26",
     "2027-12-24"
   ],
+  "coversThroughDay": 21183,
   "unixDays": [
     20703,
     20783,

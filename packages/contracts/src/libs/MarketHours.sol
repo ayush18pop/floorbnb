@@ -31,4 +31,26 @@ library MarketHours {
         if (!inWindow(ts)) return false;
         return !nonTradingDay[uint32(dayOf(ts))];
     }
+
+    /// @dev Open-window seconds from the epoch to `ts` (weekday windows only, holidays are NOT excluded).
+    function _openUntil(uint256 ts) private pure returns (uint256) {
+        uint256 d = ts / 1 days;
+        // Weekdays among days [0, d): the epoch day 0 is a Thursday, so a 7-day block starts on Thursday.
+        uint256 r = d % 7;
+        uint256 extra = r == 0 ? 0 : r == 1 ? 1 : r == 2 ? 2 : r == 3 ? 2 : r == 4 ? 2 : r == 5 ? 3 : 4;
+        uint256 total = ((d / 7) * 5 + extra) * (WINDOW_END - WINDOW_START);
+        if (weekday(ts) < 5) {
+            uint256 s = ts % 1 days;
+            if (s > WINDOW_START) total += (s < WINDOW_END ? s : WINDOW_END) - WINDOW_START;
+        }
+        return total;
+    }
+
+    /// @notice Seconds of Monday to Friday trading window between `from` and `to` (0 when `to <= from`).
+    /// @dev O(1). Holidays and the guardian halt are not subtracted, so this can only over-count open time, which is
+    ///      the lenient direction for its one user (`FloorVault.rebalancePublic`).
+    function openSeconds(uint256 from, uint256 to) internal pure returns (uint256) {
+        if (to <= from) return 0;
+        return _openUntil(to) - _openUntil(from);
+    }
 }
