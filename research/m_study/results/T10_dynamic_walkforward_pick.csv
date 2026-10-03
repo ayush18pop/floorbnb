@@ -1,0 +1,9 @@
+split,part,rule,param,avg_m,n,breach_any,breach_mat,worst,mean_ret,capture_up,bad_yr,cal_breach_mat,cal_mean_ret,chosen_param
+cut2014,test,fixed,4.5,4.5,1625,1.85,0.31,-12.59,11.26,47.58,-8.64,0.9,9.48,4.5
+cut2014,test,trailing-worst-gap,0.35,5.58,1625,1.29,0.25,-18.17,9.63,42.88,-9.36,0.74,10.06,0.35
+cut2014,test,trailing-vol,0.1,6.18,1625,2.34,0.74,-14.79,11.41,49.55,-9.32,0.78,10.58,0.1
+cut2014,test,oracle (hindsight),,7.78,1625,8.37,0.0,-10.18,12.87,55.41,-9.93,,,
+cut2019,test,fixed,4.5,4.5,870,2.53,0.57,-12.59,13.1,48.22,-8.77,0.76,9.26,4.5
+cut2019,test,trailing-worst-gap,0.35,5.17,870,1.49,0.46,-18.17,10.62,40.82,-9.44,0.63,9.84,0.35
+cut2019,test,trailing-vol,0.1,5.83,870,2.41,1.03,-14.79,13.19,49.16,-9.28,0.78,10.33,0.1
+cut2019,test,oracle (hindsight),,7.8,870,9.89,0.0,-10.18,15.56,57.41,-9.94,,,
