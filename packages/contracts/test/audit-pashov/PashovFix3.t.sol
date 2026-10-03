@@ -51,17 +51,17 @@ contract PashovFix3Test is AuditBase {
         for (uint256 i; i < 5; ++i) {
             vs[i] = _create(attacker, 1000e18, 9000, a, w);
         }
-        usdt.mint(user, 10e18);
+        usdt.mint(user, 100e18);
         vm.startPrank(user);
-        usdt.approve(address(factory), 10e18);
+        usdt.approve(address(factory), 100e18);
         vm.expectRevert(IFloorFactory.TvlCapReached.selector);
-        factory.createPosition(10e18, 9000, 30 days, a, w);
+        factory.createPosition(100e18, 9000, 30 days, a, w);
         vm.stopPrank();
         // the squatter gets the capital back at any time, which frees the room (cost to the attacker: nothing)
         vm.prank(attacker);
         vs[0].closeToUSDT();
         vm.prank(user);
-        factory.createPosition(10e18, 9000, 30 days, a, w);
+        factory.createPosition(100e18, 9000, 30 days, a, w);
     }
 
     // ---------------------------------------------------------------- #6 1 wei + pushed pool blocks close
@@ -247,9 +247,9 @@ contract PashovFix3Test is AuditBase {
         usdt.mint(user, 200e18);
         vm.startPrank(user);
         usdt.approve(address(factory), 200e18);
-        factory.createPosition(100e18, 9000, 99 days, a, w);
+        factory.createPosition(100e18, 9000, 85 days, a, w); // + 14 days unwind buffer still inside the table
         vm.expectRevert(IFloorFactory.BadTerm.selector);
-        factory.createPosition(100e18, 9000, 101 days, a, w);
+        factory.createPosition(100e18, 9000, 90 days, a, w);
         vm.stopPrank();
     }
 

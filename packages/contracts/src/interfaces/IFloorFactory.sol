@@ -128,6 +128,10 @@ interface IFloorFactory {
     function positionsCount() external view returns (uint256);
     /// @notice MarketHours.isOpen(ts) and not paused and not halted.
     function isTradingOpen(uint256 ts) external view returns (bool);
+
+    /// @notice True when at least `needed` seconds of real trading window (weekday window, no listed holiday, and not
+    ///         before the last unpause or un-halt) lie in `[from, to]`. Used by the vault's public delay.
+    function hasOpenSeconds(uint256 from, uint256 to, uint256 needed) external view returns (bool);
     /// @notice Whether `router` is allowlisted, active and not removed, and the address to approve for it.
     function routerOk(address router) external view returns (bool ok, address approveTarget);
 

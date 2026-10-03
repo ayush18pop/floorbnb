@@ -47,10 +47,36 @@ library MarketHours {
     }
 
     /// @notice Seconds of Monday to Friday trading window between `from` and `to` (0 when `to <= from`).
-    /// @dev O(1). Holidays and the guardian halt are not subtracted, so this can only over-count open time, which is
-    ///      the lenient direction for its one user (`FloorVault.rebalancePublic`).
+    /// @dev O(1). Holidays are NOT subtracted: it can only over-count. The public delay uses `hasOpenSeconds`.
     function openSeconds(uint256 from, uint256 to) internal pure returns (uint256) {
         if (to <= from) return 0;
         return _openUntil(to) - _openUntil(from);
+    }
+
+    /// @notice True when at least `needed` seconds of REAL trading window lie in `[from, to]`: Monday to Friday
+    ///         windows minus guardian-set non-trading days (Pashov 03 #5). Walks the days backwards from `to` and stops
+    ///         as soon as `needed` is reached, so the cost is bounded by the needed sessions plus the closed days
+    ///         between them (the factory bounds `publicDelay`, and the holiday table is sparse).
+    function hasOpenSeconds(uint256 from, uint256 to, uint256 needed, mapping(uint32 => bool) storage nonTradingDay)
+        internal
+        view
+        returns (bool ok)
+    {
+        if (needed == 0) return true;
+        if (to <= from) return false;
+        uint256 dFrom = from / 1 days;
+        uint256 d = to / 1 days;
+        uint256 acc;
+        while (true) {
+            if (!nonTradingDay[uint32(d)]) {
+                uint256 a = d * 1 days;
+                uint256 lo = from > a ? from : a;
+                uint256 hi = to < a + 1 days ? to : a + 1 days;
+                acc += openSeconds(lo, hi);
+                if (acc >= needed) return true;
+            }
+            if (d == dFrom) return ok;
+            --d;
+        }
     }
 }

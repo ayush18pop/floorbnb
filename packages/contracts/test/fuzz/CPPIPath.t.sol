@@ -152,7 +152,7 @@ contract CPPIPathFuzzTest is Test {
     /// @notice Random floors, weights and deposits: targets are consistent and the first rebalance lands on target.
     function testFuzz_randomBasketAndFloor(uint16 floorBps, uint16 w0, uint16 w1, uint96 dep) public {
         floorBps = uint16(bound(floorBps, 5000, 9800));
-        uint256 amt = bound(dep, 50e18, 1000e18);
+        uint256 amt = bound(dep, 500e18, 1000e18); // C >= 10: E* >= 40, so the larger weight reaches minTrade
         w0 = uint16(bound(w0, 1, 9998));
         w1 = uint16(bound(w1, 1, 9999 - w0));
         uint16 w2 = 10_000 - w0 - w1;

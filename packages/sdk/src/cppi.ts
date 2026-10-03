@@ -129,7 +129,7 @@ export function cppiFloat(V: number, F: number, m = 4) {
  * `sellAmount` in one rule (A12 F-06 / Pashov F-01): in a full unwind (E* == 0 for the asset, which includes a
  * disabled asset) any stock worth MORE than `dust` is sold, even below `minTrade`, so `closeToUSDT` can finish.
  * Buys need every asset priced (`anyFailed` false). Pashov 02: sells ignore `minTrade` above `dust` (#4), the sell band is
- * scaled by the asset weight (#9), and CPPI sells are suspended while a held asset has no TWAP (#8).
+ * scaled by the asset weight (#9, and the buy band too since Pashov 03 #3), and CPPI sells are suspended while a held asset has no TWAP (#8).
  */
 export function planSwap(p: {
   Ei: bigint;
@@ -148,7 +148,7 @@ export function planSwap(p: {
   dust: bigint;
   maxTradeValue: bigint;
   anyFailed?: boolean;
-  /** asset weight in bps; the sell band is scaled by it (Pashov 02 #9). Default 10000 (single asset). */
+  /** asset weight in bps; the sell and buy bands are scaled by it (Pashov 02 #9, Pashov 03 #3). Default 10000 (single asset). */
   weightBps?: bigint;
   /** a held asset has no TWAP at all: CPPI sells are suspended (Pashov 02 #8) ... */
   noPrice?: boolean;
@@ -159,11 +159,14 @@ export function planSwap(p: {
   const sellMin = p.dust + 1n < p.minTrade ? p.dust + 1n : p.minTrade;
   let band = (p.sellBandBps * p.bandMul * (p.weightBps ?? 10_000n)) / BPS;
   if (band === 0n) band = 1n;
+  // Pashov 03 #3: the buy band is scaled by the weight too.
+  let bBand = (p.buyBandBps * p.bandMul * (p.weightBps ?? 10_000n)) / BPS;
+  if (bBand === 0n) bBand = 1n;
   if (p.unwinding || !p.noPrice) {
     const sell = sellAmount(p.Ei, p.Ti, p.V, p.estarI, band, sellMin, p.maxTradeValue);
     if (sell > 0n) return { buy: false, value: sell, amountIn: sellAmountIn(sell, p.price, p.bal) };
   }
-  const buy = buyAmount(p.Ei, p.Ti, p.V, p.usdtBal, p.buyBandBps * p.bandMul, p.minTrade, p.maxTradeValue);
+  const buy = buyAmount(p.Ei, p.Ti, p.V, p.usdtBal, bBand, p.minTrade, p.maxTradeValue);
   if (buy > 0n && !p.anyFailed) return { buy: true, value: buy, amountIn: buy };
   return { buy: false, value: 0n, amountIn: 0n };
 }

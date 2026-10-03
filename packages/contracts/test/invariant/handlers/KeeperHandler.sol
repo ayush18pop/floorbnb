@@ -116,7 +116,9 @@ contract KeeperHandler is HandlerBase {
         c.v = vaultAt(vSel);
         c.idx = uint8(assetSel % c.v.nAssets());
         _pre(c);
-        bool tooEarly = uint256(c.v.lastRebalance()) + c.v.publicDelay() > block.timestamp;
+        // I10 (per asset since Pashov 03): never earlier than publicDelay after this asset's last trade or the start.
+        uint256 since = c.v.lastTradeAt(c.idx) > c.v.start() ? c.v.lastTradeAt(c.idx) : c.v.start();
+        bool tooEarly = since + c.v.publicDelay() > block.timestamp;
         vm.prank(address(0xBEEF));
         try c.v.rebalancePublic(c.idx) {
             _count("public_ok");

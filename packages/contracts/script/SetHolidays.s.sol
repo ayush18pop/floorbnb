@@ -29,11 +29,13 @@ contract SetHolidays is Script {
         }
         require(raw.length > 0 && raw[raw.length - 1] >= 21_176, "SetHolidays: table must reach 2027-12-24");
         require(raw[raw.length - 1] <= 30_000, "SetHolidays: values look like unix seconds, not days");
+        // The horizon is a unix DAY: not before the last listed holiday and not a seconds value (Pashov 03 lead).
+        uint256 horizon = h.readUint(".coversThroughDay");
+        require(horizon >= raw[raw.length - 1] && horizon <= 30_000, "SetHolidays: bad coversThroughDay");
         vm.startBroadcast();
         IFloorFactory(factory).setNonTradingDays(days_, true);
         // Not in IFloorFactory (concrete-only, like setTokenBeacon): the factory rejects terms past the table.
-        (bool ok,) =
-            factory.call(abi.encodeWithSignature("setHolidayHorizon(uint32)", uint32(h.readUint(".coversThroughDay"))));
+        (bool ok,) = factory.call(abi.encodeWithSignature("setHolidayHorizon(uint32)", uint32(horizon)));
         require(ok, "SetHolidays: setHolidayHorizon failed");
         vm.stopBroadcast();
         console2.log("non-trading days set:", days_.length);

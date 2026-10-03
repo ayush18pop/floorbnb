@@ -65,6 +65,8 @@ contract AuditControlsTest is AuditBase {
 
     function test_audit_control_F07_oneUsdtPositionWorks() public {
         (address[] memory a, uint16[] memory w) = _one(address(stock1));
-        _create(attacker, 1e18, 9000, a, w);
+        // Pashov 03: below the size where a target can reach `minTrade` the factory rejects the deposit (see
+        // PashovFix4.t.sol); 100 USDT at floor 90% (E* = 40) is the small position that still works.
+        _create(attacker, 100e18, 9000, a, w);
     }
 }
