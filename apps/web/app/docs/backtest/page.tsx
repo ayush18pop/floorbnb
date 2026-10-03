@@ -13,13 +13,13 @@ export default function Page() {
     <DocPage
       slug="backtest"
       lead={<p>We ran the {BRAND.name} rule over every one-year window from 2018 to October 2026 on real daily prices. Backtest, past data, not a prediction.</p>}
-      toc={[["method", "Method"], ["windows", "93 of 93"], ["worst-year", "Worst window"], ["bad-years", "Bad years"], ["upside", "Upside kept"], ["gaps", "Worst gaps"], ["multiplier", "Why 4×"], ["trading-window", "Trading-window check"], ["costs", "Costs"]]}
+      toc={[["method", "Method"], ["windows", "2018 to 2026 sample"], ["worst-year", "Worst window"], ["bad-years", "Bad years"], ["upside", "Upside kept"], ["gaps", "Worst gaps"], ["multiplier", "Why 4×"], ["trading-window", "Trading-window check"], ["costs", "Costs"]]}
     >
       <h2 id="method" style={{ marginTop: 0 }}>Method and assumptions</h2>
-      <p>We ran the {BRAND.name} rule over every one-year window from 2018 to October 2026 on real daily prices of NVDA, QQQ, SPY, TSLA and baskets of them. The floor held in 93 of 93 windows.</p>
+      <p>We ran the {BRAND.name} rule over every one-year window from 2018 to October 2026 on real daily prices of NVDA, QQQ, SPY, TSLA and baskets of them. In that short sample the floor held in 93 of 93 windows. A longer test, back to 1928, found rare failures: see <L href="/docs/evidence">Evidence</L>.</p>
       <p>We made the test harder on purpose: weekend price gaps hit in full ({BRAND.name} does not trade on weekends), stablecoins earn 0%, and trading costs are as measured in calm markets. The rule is explained on <L href="/docs/how-it-works">How it works</L>.</p>
 
-      <h2 id="windows">One-year windows where the floor held</h2>
+      <h2 id="windows">The 2018 to 2026 sample</h2>
       <div className="block"><WindowsStat /></div>
 
       <h2 id="worst-year">The single worst window</h2>
@@ -39,7 +39,7 @@ export default function Page() {
       <div className="block"><UpsidePanel upside={upside} /></div>
 
       <h2 id="gaps">Worst one-night and weekend gaps</h2>
-      <p>The floor holds unless prices gap more than 25% before the vault can rebalance. The biggest drops since 2018 were smaller.</p>
+      <p>The floor holds unless prices gap more than about 24% before the vault can rebalance. The biggest drops since 2018 were smaller.</p>
       <div className="block"><GapsPanel /></div>
 
       <h2 id="multiplier">Why we use 4×</h2>

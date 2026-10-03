@@ -16,7 +16,7 @@ const TRACE: [number, string, string, string, string][] = [
   [1, "16:02:11", "agent →", "tools/call quote_protection", "assets=NVDAB,SPCXB,QQQB depositUsd=500 floorPct=90"],
   [2, "16:02:11", "floor ←", "402 PAYMENT-REQUIRED", "scheme=b402 asset=USD1"],
   [2, "16:02:12", "agent →", "baw x402-payment sign", "ok"],
-  [2, "16:02:14", "floor ←", "200", "startingExposurePct=40 floorValue=450 gapTolerance=25%"],
+  [2, "16:02:14", "floor ←", "200", "startingExposurePct=40 floorValue=450 gapTolerance=24%"],
   [3, "16:02:20", "agent →", "tools/call build_create_position_tx", "2 unsigned txs: approve, createPosition"],
   [4, "16:02:31", "wallet →", "baw contract-call execute", "approve BROADCASTED"],
   [4, "16:02:36", "wallet →", "baw contract-call execute", "createPosition BROADCASTED"],

@@ -90,7 +90,7 @@ export default async function Image() {
         <div style={{ position: "absolute", right: 1200 - (px + pw) + 4, top: Y(90) - 26, fontFamily: monoFam, fontSize: 14, color: C.text, background: C.surface, padding: "0 4px" }}>WITH FLOOR −10.0%</div>
 
         <div style={{ position: "absolute", left: 64, bottom: 40, fontFamily: monoFam, fontSize: 14, color: C.muted, letterSpacing: 0.5 }}>
-          BACKTEST, PAST DATA, NOT A PREDICTION. HOLDS UNLESS PRICES GAP MORE THAN 25%.
+          BACKTEST, PAST DATA, NOT A PREDICTION. HOLDS UNLESS PRICES GAP MORE THAN ABOUT 24%.
         </div>
       </div>
     ),

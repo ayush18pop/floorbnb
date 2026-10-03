@@ -116,9 +116,9 @@ export function ProofTiles() {
   return (
     <Section id="proof" index="02" label="Proof" title="Tested on real prices.">
       <div className="cellgrid">
-        <Tile href="/docs/backtest#windows" label="One-year windows held" note="2018 to October 2026"><NumberTicker value={93} /> <span className="text-muted" style={{ fontSize: "0.4em" }}>/</span> 93</Tile>
+        <Tile href="/docs/evidence" label="1,581 years tested, 1928 to 2026" note="ended clearly below a 90% floor (7 periods). A one-day drop bigger than about 24% breaks it, and single stocks have had them."><span>0.44%</span></Tile>
         <Tile href="/docs/backtest#worst-year" label="NVDA worst year, with Floor" note="Holding lost 51.0%"><span className="acc">−10.0%</span></Tile>
-        <Tile href="/docs/trade-off#upside" label="Upside kept, up years" note="Of a basket's gain, at m = 4"><span>~42%</span></Tile>
+        <Tile href="/docs/trade-off#upside" label="Upside kept, up years" note="Average of up-year gains, at m = 4. A typical year keeps less."><span>~42%</span></Tile>
         <Tile href="/docs/spot-only" label="How it trades" note="No perps, options, leverage or borrowing" cap={false}><span style={{ fontSize: "0.7em" }}>Spot only</span></Tile>
       </div>
     </Section>
@@ -172,7 +172,7 @@ export function NotAGuarantee() {
       <div className="pad py-6 md:!py-8">
         <div className="border-l-2 pl-4" style={{ borderColor: "var(--warning)" }}>
           <p className="label warn">Not a guarantee</p>
-          <p className="body mt-1">The floor holds unless prices gap more than {BRAND.gapLimitPct}% before the vault can rebalance. You also give up part of the upside, and the token issuer can pause a stock token. <Link href="/docs/risks" className="prose-link">Read the risks</Link></p>
+          <p className="body mt-1">The floor holds unless prices gap more than about {BRAND.gapLimitPct}% before the vault can rebalance. You also give up part of the upside, and the token issuer can pause a stock token. <Link href="/docs/risks" className="prose-link">Read the risks</Link></p>
         </div>
       </div>
     </section>

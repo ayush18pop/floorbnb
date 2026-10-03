@@ -11,7 +11,7 @@ export const BRAND = {
     "Floor protects tokenized stocks on BNB Chain with a line you choose. The vault moves into USDT as prices fall and keeps part of the gain as they rise. Spot trades only.",
   chain: "BNB Chain",
   multiplier: 4,
-  gapLimitPct: 25,
+  gapLimitPct: 24,
   /** Launch facts, from docs/CONTRACTS.md. Change here only. */
   depositAsset: "USDT",
   tradingWindow: "Monday to Friday, 15:30 to 19:30 UTC",
@@ -24,6 +24,6 @@ export const BRAND = {
   /** Public site URL used for metadata. Override with NEXT_PUBLIC_SITE_URL. */
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   disclosure:
-    "A floor that holds unless prices gap more than 25% before the vault can rebalance. Not a guarantee.",
+    "A floor that holds unless prices gap more than about 24% before the vault can rebalance. Not a guarantee.",
   backtestCaption: "Backtest on past prices. It does not predict the future.",
 } as const;

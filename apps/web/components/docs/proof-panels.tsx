@@ -24,11 +24,11 @@ const COSTS = [
 export function WindowsStat() {
   return (
     <div className="border border-grid bg-surface p-4 md:p-6">
-          <p className="stat-label">One-year windows where the floor held</p>
+          <p className="stat-label">2018 to 2026 sample: one-year windows where the floor held</p>
           <p className="mono mt-4 leading-none tracking-tight" style={{ fontSize: "clamp(2.75rem, 2rem + 3vw, 3.75rem)", letterSpacing: "-0.04em", whiteSpace: "nowrap" }}>
             <NumberTicker value={93} /> <span className="text-muted" style={{ fontSize: "0.4em" }}>of</span> 93
           </p>
-          <p className="stat-note mt-4">At m = 4 (also with one rebalance a day, matching the contract&apos;s trading window), on NVDA, QQQ, SPY, TSLA and baskets, 2018 to 2026-10. Backtest on past prices. It does not predict the future.</p>
+          <p className="stat-note mt-4">At m = 4 (also with one rebalance a day), on NVDA, QQQ, SPY, TSLA and baskets. This is the short sample. It had no 1987, 2000 or 2008. The 98-year test is on the Evidence page. Backtest on past prices. It does not predict the future.</p>
         </div>
   );
 }
@@ -52,8 +52,8 @@ export function UpsidePanel({ upside }: { upside: Upside[] }) {
 
 export function GapsPanel() {
   return (
-    <ChartPanel fig="FIG. 07 / BIGGEST ONE-NIGHT OR WEEKEND DROPS SINCE 2018" title="vs the 25% limit" source="docs/RESEARCH_RESULTS.md, via CONTEXT.md. SPCX has 76 days of history (listed June 2026).">
-            <SingleBars rows={GAPS.map((g) => ({ ...g, kind: "ink" as const, text: `−${g.value.toFixed(1)}%` }))} max={30} refLine={{ at: 25, label: "FLOOR HOLDS UP TO −25%" }} />
+    <ChartPanel fig="FIG. 07 / BIGGEST ONE-NIGHT OR WEEKEND DROPS SINCE 2018" title="vs the 24% limit" source="docs/RESEARCH_RESULTS.md, via CONTEXT.md. SPCX has 76 days of history (listed June 2026).">
+            <SingleBars rows={GAPS.map((g) => ({ ...g, kind: "ink" as const, text: `−${g.value.toFixed(1)}%` }))} max={30} refLine={{ at: 24, label: "ABOUT −24%: THE LIMIT AT m = 4 (1 ÷ m, MINUS COSTS)" }} />
           </ChartPanel>
   );
 }

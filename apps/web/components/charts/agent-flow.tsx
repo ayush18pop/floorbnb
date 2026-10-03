@@ -50,7 +50,7 @@ export function AgentFlow() {
   return (
     <div role="group" aria-label="How an agent uses Floor. The agent calls the MCP server and pays through b402. A keeper calls rebalance on the vault. The vault swaps on PancakeSwap.">
       {/* tablet and up: 3 columns with connectors */}
-      <div className="hidden md:grid items-stretch" style={{ gridTemplateColumns: "1fr 96px 1fr 96px 1fr", rowGap: 0 }}>
+      <div className="hidden lg:grid items-stretch" style={{ gridTemplateColumns: "minmax(0,1fr) 64px minmax(0,1fr) 64px minmax(0,1fr)", rowGap: 0 }}>
         <div>{agent}</div>
         <Link dir="h" label="1 call" />
         <div>{mcp}</div>
@@ -71,7 +71,7 @@ export function AgentFlow() {
       </div>
 
       {/* phone: one column */}
-      <div className="md:hidden flex flex-col">
+      <div className="lg:hidden flex flex-col">
         {agent}
         <Link dir="v" label="1 call" />
         {mcp}

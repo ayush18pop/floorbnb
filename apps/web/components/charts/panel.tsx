@@ -44,7 +44,7 @@ export function ChartPanel({
         <div className="border-t border-grid px-4 py-3 md:px-6">
           {note && <p className="small mb-1">{note}</p>}
           {caption && <p className="label text-ink-2!" style={{ textTransform: "none", letterSpacing: "0.02em" }}>{caption}</p>}
-          {source && <p className="label mt-1" style={{ textTransform: "none", letterSpacing: "0.02em" }}>Source: {source}</p>}
+          {source && <p className="label mt-1 [overflow-wrap:anywhere]" style={{ textTransform: "none", letterSpacing: "0.02em" }}>Source: {source}</p>}
         </div>
       )}
     </figure>
