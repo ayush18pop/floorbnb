@@ -84,7 +84,7 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
         uint256 cushion;
         uint256 estar; // exposure target E*
         uint256[3] bal; // raw balances
-        uint256[3] price; // USDT per 1e18 raw (WAD); 0 when not priced (inactive and empty, or pricing failed)
+        uint256[3] price; // USDT per 1e18 raw (WAD); 0 when not priced (inactive and empty, or no TWAP at all)
         bool[3] failed; // pricing reverted (guard tripped): value counted as 0, buys suppressed, see `_load`
         bool anyFailed;
         uint256[3] value; // E_i
@@ -258,12 +258,11 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
     }
 
     /// @inheritdoc IFloorVault
-    /// @dev Needs total stock value <= `dust` at the TWAP. Skips pricing for empty assets so a dead pool cannot block
+    /// @dev Needs each asset's stock value <= `dust` at the TWAP. Skips pricing for empty assets so a dead pool cannot block
     ///      closing a fully unwound position. A bStock whose `balanceOf` fails or returns garbage counts as empty
     ///      (A12 F-00); use `rescue` afterwards.
     function closeToUSDT() external onlyOwner nonReentrant {
         if (status == Status.Closed) revert BadStatus();
-        uint256 stockValue;
         uint256 n = nAssets;
         for (uint256 i; i < n; ++i) {
             address token = assetAt[i];
@@ -271,9 +270,10 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
             if (bal == 0) continue;
             IFloorFactory.Asset memory a = _asset(token);
             uint256 p = _price(a);
-            stockValue += CPPIMath.valueOf(bal, p);
+            // Per asset, not the sum (A12r L-01): the unwind sells any asset worth more than `dust`, so what is left
+            // is at most `dust` per asset and must never block closing.
+            if (CPPIMath.valueOf(bal, p) > dust) revert StockNotUnwound();
         }
-        if (stockValue > dust) revert StockNotUnwound();
         status = Status.Closed;
         uint256 out = IERC20(usdt).balanceOf(address(this));
         if (out > 0) IERC20(usdt).safeTransfer(owner, out);
@@ -403,10 +403,11 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
     {
         if (status == Status.Closed) return (false, 0, false, address(0), address(0), 0, 0, 0);
         State memory st = _load();
-        bool beaconBad = _beaconChanged();
+        bool beaconBad = _beaconChangedSoft();
         uint256 n = nAssets;
         for (uint8 i; i < n; ++i) {
             if (uint256(lastTradeAt[i]) + minInterval > block.timestamp) continue;
+            if (st.failed[i]) continue; // the traded asset must pass every guard, as in `rebalance`
             (bool b, uint256 value, uint256 amt) = _plan(st, i, 1);
             if (value == 0 || amt == 0) continue;
             if (b && beaconBad) continue;
@@ -456,6 +457,13 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
         } catch {}
     }
 
+    /// @notice TWAP price for valuation only: history and TWAP, no spot-deviation or liquidity guard (A12r M-01).
+    function twapOf(address pool, bool usdtIsToken0) external view returns (uint256) {
+        (,,, uint16 cardinality,,,) = IPancakeV3Pool(pool).slot0();
+        if (cardinality < MIN_CARDINALITY) revert OracleHistoryTooShort();
+        return TwapOracle.priceWad(TwapOracle.twapTick(pool, twapWindow), usdtIsToken0);
+    }
+
     /// @notice Guarded TWAP price for a pool (same checks as `_price`). Reverts when a guard fails. Exposed only so
     ///         `_load` can catch failures; reads no vault state except `twapWindow` and `maxTickDev`.
     function priceOf(address pool, uint128 minLiquidity, bool usdtIsToken0) external view returns (uint256) {
@@ -479,11 +487,16 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
             if (bal == 0 && !a.active) continue;
             uint256 p = _tryPrice(a);
             if (p == 0) {
-                // Fail soft (A12 F-03, Pashov F-02): an unpriceable asset counts as 0 (V is understated, so the vault
-                // only ever sells more, never buys more) and cannot block the other assets.
+                // Fail soft (A12 F-03, Pashov F-02): a pool whose guard fails cannot be TRADED and blocks buys, but it
+                // cannot block the other assets. Valuation uses the TWAP alone, so pushing one pool's spot for a block
+                // cannot understate V and force a sale of another asset (A12r M-01). Only an asset with no TWAP at
+                // all counts as 0 (V understated: the vault only sells more, never buys more).
                 st.failed[i] = true;
                 st.anyFailed = true;
-                continue;
+                try this.twapOf(a.pool, a.usdtIsToken0) returns (uint256 r) {
+                    p = r;
+                } catch {}
+                if (p == 0) continue;
             }
             st.price[i] = p;
             uint256 v = CPPIMath.valueOf(bal, p);
@@ -577,6 +590,19 @@ contract FloorVault is IFloorVault, ReentrancyGuardTransient {
         address beacon = IFloorFactory(factory).tokenBeacon();
         if (beacon == address(0)) return false;
         return IBeacon(beacon).implementation() != IFloorFactory(factory).approvedTokenImpl();
+    }
+
+    /// @dev Fail-soft variant for `previewRebalance` (A12r L-02): a beacon that reverts counts as "changed", which only
+    ///      hides buys; sells never read the beacon.
+    function _beaconChangedSoft() internal view returns (bool) {
+        address beacon = IFloorFactory(factory).tokenBeacon();
+        if (beacon == address(0)) return false;
+        address approved = IFloorFactory(factory).approvedTokenImpl();
+        try IBeacon(beacon).implementation() returns (address impl) {
+            return impl != approved;
+        } catch {
+            return true;
+        }
     }
 
     function _beaconGuard() internal view {

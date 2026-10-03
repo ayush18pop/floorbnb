@@ -9,10 +9,10 @@ export const WINDOW_END_SECONDS = 19 * 3600 + 30 * 60;
 
 /**
  * Non-trading days as unix days (seconds / 86400). Copied from packages/contracts/holidays/nyse_2026_2027.json,
- * which is UNVERIFIED against nyse.com. A test keeps this table equal to the JSON file.
+ * verified against nyse.com/trade/hours-calendars (2026-10-03). A test keeps this table equal to the JSON file.
  */
 export const HOLIDAY_UNIX_DAYS: readonly number[] = [
-  20703, 20783, 20784, 20811, 20812, 20819, 20836, 20864, 20903, 20969, 20987, 21004,
+  20703, 20783, 20784, 20811, 20812, 20819, 20836, 20864, 20903, 20969, 20987, 21004, 21067, 21147, 21148, 21176,
 ];
 
 export function dayOf(ts: number): number {

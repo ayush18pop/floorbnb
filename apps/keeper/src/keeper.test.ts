@@ -24,11 +24,12 @@ const ROUTER = '0x1b81D678ffb9C0263b24A97847620C99d213eB14' as Address;
 const TUE_1600 = 1_791_302_400; // any ts; the fake chain decides the window
 const WAD = 10n ** 18n;
 
-const cfg: Config = { factory: FACTORY, lens: LENS, keeperAddress: KEEPER, route: 'direct', intervalSec: 300, txTimeoutMs: 1000 };
+const cfg: Config = { assets: [], factory: FACTORY, lens: LENS, keeperAddress: KEEPER, route: 'direct', intervalSec: 300, txTimeoutMs: 1000 };
 
 interface World {
   open?: boolean; paused?: boolean; halted?: boolean; holiday?: boolean; now?: number;
   preview?: unknown[] | 'revert'; minTrade?: bigint; last?: number; tokenPaused?: boolean; simulate?: () => Promise<bigint>;
+  liveMult?: bigint; storedMult?: bigint;
 }
 
 function fakeChain(w: World): Chain {
@@ -43,6 +44,7 @@ function fakeChain(w: World): Chain {
         isTradingOpen: w.open ?? true, paused: w.paused ?? false, halted: w.halted ?? false, nonTradingDay: w.holiday ?? false,
         positionsCount: 1n, v3SwapRouter: ROUTER, assets: ['0x1', 2500, true, 0n, 0n, true], routerOk: [true, ROUTER],
         previewRebalance: preview, minTrade: w.minTrade ?? 20n * WAD, minInterval: 900, lastTradeAt: w.last ?? 0,
+        uiMultiplier: w.liveMult ?? WAD, lastMultiplier: w.storedMult ?? WAD,
         pauseManager: '0x00000000000000000000000000000000000000c1', isTokenPaused: w.tokenPaused ?? false,
       };
       if (fn === 'previewRebalance' && preview === 'revert') throw new Error('PriceDeviation');
@@ -54,9 +56,10 @@ function fakeChain(w: World): Chain {
 
 const logs: string[] = [];
 const quiet = () => { logs.length = 0; return jsonLogger((l) => logs.push(l)); };
-const sender = (): Sender & { send: ReturnType<typeof vi.fn> } => ({
+const sender = (): Sender & { send: ReturnType<typeof vi.fn>; poke: ReturnType<typeof vi.fn> } => ({
   address: KEEPER,
-  send: vi.fn(async () => ({ hash: '0x' + '11'.repeat(32), success: true, blockNumber: 1n, rebalanced: undefined })) as never,
+  poke: vi.fn(async () => ({ hash: '0x' + '22'.repeat(32), success: true })) as never,
+  send: vi.fn(async () => ({ hash: '0x' + '11'.repeat(32), success: true, blockNumber: 1n, rebalanced: { assetIdx: 0, buy: true, amountIn: 1n, amountOut: 1n, V: 1n, exposureTarget: 1n, router: ROUTER } })) as never,
 }) as never;
 
 describe('window reasons (SDK mirror)', () => {
@@ -130,6 +133,24 @@ describe('runOnce', () => {
     const r2 = await runOnce(cfg, fakeChain({}), quiet(), { dryRun: false, route: 'direct', sender: s, inFlight });
     expect(r2.outcomes[0]).toMatchObject({ reason: 'already_pending' });
     expect(s.send).toHaveBeenCalledTimes(1);
+  });
+  it('a success without a Rebalanced event is a poke no-op, not a failure and not a trade', async () => {
+    const s = sender();
+    s.send.mockResolvedValueOnce({ hash: ('0x' + '33'.repeat(32)) as never, success: true, blockNumber: 1n, rebalanced: undefined });
+    const r = await runOnce(cfg, fakeChain({}), quiet(), { dryRun: false, route: 'direct', sender: s });
+    expect(r.ok).toBe(true);
+    expect(r.outcomes[0]).toMatchObject({ status: 'skipped', reason: 'poke_noop' });
+  });
+  it('pokes the factory every cycle when a configured asset multiplier is stale, even with the window closed', async () => {
+    const s = sender();
+    const c = { ...cfg, assets: [NVDAB] };
+    await runOnce(c, fakeChain({ open: false, liveMult: 1_002n * WAD / 1000n }), quiet(), { dryRun: false, route: 'direct', sender: s });
+    expect(s.poke).toHaveBeenCalledWith(FACTORY, NVDAB);
+    s.poke.mockClear();
+    await runOnce(c, fakeChain({ open: false }), quiet(), { dryRun: false, route: 'direct', sender: s });
+    expect(s.poke).not.toHaveBeenCalled(); // unchanged multiplier: no transaction
+    await runOnce(c, fakeChain({ open: false, liveMult: 2n * WAD }), quiet(), { dryRun: true, route: 'direct', sender: s });
+    expect(s.poke).not.toHaveBeenCalled(); // dry run never sends
   });
   it('a simulation revert skips the vault; expected TooSoon does not raise an alert', async () => {
     const fetchImpl = vi.fn(async () => new Response('ok'));

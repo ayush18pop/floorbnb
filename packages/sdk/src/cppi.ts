@@ -123,3 +123,36 @@ export function cppiFloat(V: number, F: number, m = 4) {
   const E = Math.min(m * C, V);
   return { C, E, cash: V - E };
 }
+
+/**
+ * Per-asset swap decision as the vault makes it (FloorVault._plan, CONTRACTS.md section 5). Differs from the bare
+ * `sellAmount` in one rule (A12 F-06 / Pashov F-01): in a full unwind (E* == 0 for the asset, which includes a
+ * disabled asset) any stock worth MORE than `dust` is sold, even below `minTrade`, so `closeToUSDT` can finish.
+ * Buys need every asset priced (`anyFailed` false).
+ */
+export function planSwap(p: {
+  Ei: bigint;
+  Ti: bigint;
+  V: bigint;
+  /** E* for this asset: the vault E*, or 0 when the asset is disabled */
+  estarI: bigint;
+  usdtBal: bigint;
+  price: bigint;
+  bal: bigint;
+  sellBandBps: bigint;
+  buyBandBps: bigint;
+  /** 1 for the keeper path, 2 for the public path */
+  bandMul: bigint;
+  minTrade: bigint;
+  dust: bigint;
+  maxTradeValue: bigint;
+  anyFailed?: boolean;
+}): { buy: boolean; value: bigint; amountIn: bigint } {
+  let sellMin = p.minTrade;
+  if (p.estarI === 0n && p.dust + 1n < sellMin) sellMin = p.dust + 1n;
+  const sell = sellAmount(p.Ei, p.Ti, p.V, p.estarI, p.sellBandBps * p.bandMul, sellMin, p.maxTradeValue);
+  if (sell > 0n) return { buy: false, value: sell, amountIn: sellAmountIn(sell, p.price, p.bal) };
+  const buy = buyAmount(p.Ei, p.Ti, p.V, p.usdtBal, p.buyBandBps * p.bandMul, p.minTrade, p.maxTradeValue);
+  if (buy > 0n && !p.anyFailed) return { buy: true, value: buy, amountIn: buy };
+  return { buy: false, value: 0n, amountIn: 0n };
+}

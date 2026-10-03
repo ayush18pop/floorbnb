@@ -5,6 +5,7 @@ export const metadata = { title: "FAQ" };
 
 const faqs: [string, React.ReactNode][] = [
   ["Can I lose money?", <>Yes. You set the floor, for example 90%, so your loss is about 10% or less. It can be larger if prices gap more than 25% before the vault can rebalance. Your money is still in the market, so it can fall to the floor. The token issuer can also pause or block a stock token. See <L href="/docs/risks">Risks</L>.</>],
+  ["Can a sell be delayed?", <>Yes. The vault sells only when the current price and the 10-minute average agree closely. In a fast crash a sell can wait until they agree, and your value can fall below the floor in the meantime. See <L href="/docs/risks">Risks</L>.</>],
   ["What happens if my value hits the floor?", <>The vault holds only USDT until your one-year term ends. Your value stays at about the floor, not exactly: a gap loss or rounding can leave it slightly below. You miss any recovery in that term. This is the <L href="/docs/how-it-works#cash-lock">cash lock</L>.</>],
   ["How much upside do I give up?", <>In our backtest, about 42% of the gain was kept in up years for a three-stock basket. So you gave up about 58%. It was 45% kept for NVDA and 32% for QQQ. See <L href="/docs/trade-off">The trade-off</L>.</>],
   ["Is this insurance? Is anyone paying me if I lose?", "No. No one pays you. It is a rule the vault follows: sell stock as prices fall, buy as they rise."],

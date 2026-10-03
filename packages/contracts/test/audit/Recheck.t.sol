@@ -167,24 +167,40 @@ contract RecheckTest is AuditBase {
         usdt.transfer(address(0xbeef), e1 + e2); // keeps V == 1000e18 once the amounts are in 18 decimals
     }
 
-    /// M-01 (new, Medium): fail-soft valuation lets anyone who can trip ONE held pool's 300-tick spot guard in a single
-    /// block (flash-loanable, TWAP is unaffected) understate V and force a full unwind of a healthy asset through the
-    /// permissionless path. The pinned behaviour: the sell plan appears while the position is on target.
-    function test_r2_M01_KNOWN_failedHeldPoolForcesUnwindOfHealthyAsset() public {
+    /// M-01 (FIXED in FIX2): a failed spot guard on one held pool no longer understates V (valuation uses the TWAP),
+    /// so pushing pool 2 for a block cannot force a sale of healthy asset 1.
+    function test_fix2_M01_pushedHeldPoolDoesNotForceUnwind() public {
         (address[] memory a, uint16[] memory w) = _two();
         FloorVault v = _create(user, 1000e18, 9000, a, w);
-        _fundHeld(v, 240e18, 160e18); // E* = 4 * 100 = 400: T1 = 240, T2 = 160 -> exactly on target
+        _fundHeld(v, 240e18, 160e18); // exactly on target
+        (uint256 V0,,) = v.valuation();
+        pool2.setTick(TICK_100, TICK_100 + 400); // spot pushed 400 ticks: PriceDeviation guard fails for pool2
+        (uint256 V1,,) = v.valuation();
+        assertEq(V1, V0, "valuation unchanged by the spot push");
         (bool needed,,,,,,,) = v.previewRebalance();
-        assertFalse(needed, "on target, nothing to do");
+        assertFalse(needed, "no sale forced");
+    }
 
-        pool2.setTick(TICK_100, TICK_100 + 400); // spot pushed 400 ticks: PriceDeviation for pool2 only
-        bool buy;
-        uint256 amountIn;
-        (needed,, buy,,, amountIn,,) = v.previewRebalance();
-        assertTrue(needed && !buy, "healthy asset 1 is now planned for SALE");
-        assertApproxEqRel(
-            amountIn, 2.4e18, 0.01e18, "entire asset-1 position (V understated below the floor => E* = 0)"
-        );
+    function test_fix2_M01_rebalancePublicCannotBeForced() public {
+        (address[] memory a, uint16[] memory w) = _two();
+        FloorVault v = _create(user, 1000e18, 9000, a, w);
+        _fundHeld(v, 240e18, 160e18);
+        vm.warp(T0 + 3 days);
+        pool2.setTick(TICK_100, TICK_100 + 400);
+        vm.prank(attacker);
+        vm.expectRevert(IFloorVault.NoTradeNeeded.selector);
+        v.rebalancePublic(0);
+    }
+
+    /// A held asset with no TWAP at all (history too short) still values 0 and cannot be traded.
+    function test_fix2_M01_noTwapAtAll_valuedZero() public {
+        (address[] memory a, uint16[] memory w) = _two();
+        FloorVault v = _create(user, 1000e18, 9000, a, w);
+        _fundHeld(v, 240e18, 160e18);
+        (uint256 V0,,) = v.valuation();
+        pool2.setRevertObserve(true);
+        (uint256 V1,,) = v.valuation();
+        assertLt(V1, V0, "asset with no TWAP counts as 0");
     }
 
     function test_r2_failedHeldPool_buysSuppressed_keeperCannotBuy() public {
@@ -199,9 +215,8 @@ contract RecheckTest is AuditBase {
     }
 
     // --------------------------------------------------------------- unwind residue (F-06)
-    /// N-01 (Low): per-asset unwind threshold is dust+1 but closeToUSDT compares the SUM of stock values to dust, so
-    /// with two assets each worth 0.9 USDT the keeper has nothing to sell and closeToUSDT reverts.
-    function test_r2_N01_KNOWN_residueOfSeveralAssetsBlocksCloseToUsdt() public {
+    /// L-01 (FIXED in FIX2): closeToUSDT compares each asset to dust, so leftovers of several assets cannot block it.
+    function test_fix2_L01_residueOfSeveralAssetsDoesNotBlockCloseToUsdt() public {
         (address[] memory a, uint16[] memory w) = _two();
         FloorVault v = _create(user, 1000e18, 9000, a, w);
         stock1.mint(address(v), 0.009e18); // 0.9 USDT
@@ -211,12 +226,17 @@ contract RecheckTest is AuditBase {
         (bool needed,,,,,,,) = v.previewRebalance();
         assertFalse(needed, "keeper has nothing to sell");
         vm.prank(user);
+        v.closeToUSDT();
+        assertEq(usdt.balanceOf(user), 1000e18);
+    }
+
+    function test_fix2_L01_assetAboveDustStillBlocksClose() public {
+        (address[] memory a, uint16[] memory w) = _two();
+        FloorVault v = _create(user, 1000e18, 9000, a, w);
+        stock1.mint(address(v), 0.02e18); // 2 USDT > dust 1
+        vm.prank(user);
         vm.expectRevert(IFloorVault.StockNotUnwound.selector);
         v.closeToUSDT();
-        // exit in kind still works
-        vm.prank(user);
-        v.exitInKind(user);
-        assertEq(usdt.balanceOf(user), 1000e18);
     }
 
     function test_r2_residueSingleAssetBetweenDustAndMinTrade_unwinds() public {
@@ -277,16 +297,18 @@ contract RecheckTest is AuditBase {
     }
 
     // --------------------------------------------------------------- beacon read (pre-existing, Low)
-    /// N-02 (Low): `previewRebalance` reads the beacon unconditionally, so a reverting beacon blinds the keeper and Lens
-    /// even for SELLS (the on-chain sell path never reads the beacon).
-    function test_r2_N02_KNOWN_revertingBeaconBlindsPreview() public {
+    /// L-02 (FIXED in FIX2): a reverting beacon hides buys only; previewRebalance does not revert and still shows sells.
+    function test_fix2_L02_revertingBeaconDoesNotBlindPreview() public {
         (address[] memory a, uint16[] memory w) = _one(address(stock1));
         FloorVault v = _create(user, 1000e18, 9000, a, w);
         RevertingBeacon b = new RevertingBeacon();
         vm.prank(owner);
         factory.setTokenBeacon(address(b), address(0x1234));
-        vm.expectRevert();
-        v.previewRebalance();
+        stock1.mint(address(v), 5e18); // 500 USDT of stock, above E* after close request
+        vm.prank(user);
+        v.requestClose();
+        (bool needed,, bool buy,,,,,) = v.previewRebalance();
+        assertTrue(needed && !buy, "sell still previewed");
     }
 }
 

@@ -23,6 +23,11 @@ contract SetHolidays is Script {
         for (uint256 i; i < raw.length; ++i) {
             days_[i] = uint32(raw[i]);
         }
+        // Table must be sorted and reach the end of 2027 (NYSE source in the JSON note); a stale file aborts here.
+        for (uint256 i = 1; i < raw.length; ++i) {
+            require(raw[i] > raw[i - 1], "SetHolidays: not sorted");
+        }
+        require(raw.length > 0 && raw[raw.length - 1] >= 21_176, "SetHolidays: table must reach 2027-12-24");
         vm.startBroadcast();
         IFloorFactory(factory).setNonTradingDays(days_, true);
         vm.stopBroadcast();
