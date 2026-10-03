@@ -1,10 +1,11 @@
-import { encodeFunctionData, type Address, type Hex } from 'viem';
-import { pancakeRouterAbi } from './abi.js';
+import { buildPancakeExactIn } from '@floor/sdk';
+import type { Address, Hex } from 'viem';
 
 /** Selector of the deployed Pancake v3 SwapRouter `exactInputSingle` (with `deadline`), verified by A02 (RESULTS-taker.md Q9). */
 export const EXACT_INPUT_SINGLE_SELECTOR = '0x414bf389';
 
 export interface DirectParams {
+  router: Address;
   tokenIn: Address;
   tokenOut: Address;
   fee: number;
@@ -12,26 +13,14 @@ export interface DirectParams {
   amountIn: bigint;
   /** `minOutDirect` from `previewRebalance`. The vault enforces its own minOut regardless. */
   minOut: bigint;
-  /** unix seconds; the vault executes in the same block as the keeper tx lands, so give it some slack */
+  /** unix seconds; give slack for the block the tx lands in */
   deadline: bigint;
 }
 
-/** Calldata for the router. The recipient is always the vault (SwapGuard checks balance deltas on the vault). */
+/** Calldata for the router via the SDK builder. The recipient is always the vault (SwapGuard checks the vault's balance deltas). */
 export function buildDirectCalldata(p: DirectParams): Hex {
-  return encodeFunctionData({
-    abi: pancakeRouterAbi,
-    functionName: 'exactInputSingle',
-    args: [
-      {
-        tokenIn: p.tokenIn,
-        tokenOut: p.tokenOut,
-        fee: p.fee,
-        recipient: p.vault,
-        deadline: p.deadline,
-        amountIn: p.amountIn,
-        amountOutMinimum: p.minOut,
-        sqrtPriceLimitX96: 0n,
-      },
-    ],
-  });
+  return buildPancakeExactIn({
+    router: p.router, tokenIn: p.tokenIn, tokenOut: p.tokenOut, fee: p.fee, recipient: p.vault,
+    deadline: p.deadline, amountIn: p.amountIn, amountOutMinimum: p.minOut,
+  }).data;
 }

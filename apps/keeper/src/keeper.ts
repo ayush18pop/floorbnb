@@ -1,5 +1,6 @@
 import type { Address, Hex } from 'viem';
-import { factoryAbi, lensAbi, pauseManagerAbi, tokenAbi, vaultAbi } from './abi.js';
+import { cppi } from '@floor/sdk';
+import { factoryAbi, pauseManagerAbi, tokenAbi, vaultAbi } from './abi.js';
 import { buildAggSwap, AggRejected, type AggClient } from './agg.js';
 import { SimError, type Chain, type Sender } from './chain.js';
 import type { Config, Route } from './config.js';
@@ -102,7 +103,7 @@ export async function runOnce(cfg: Config, chain: Chain, log: Logger, o: RunOpts
     vaults = [];
     for (let from = 0n; from < total; from += SCAN_PAGE) {
       const to = from + SCAN_PAGE > total ? total : from + SCAN_PAGE;
-      vaults.push(...(await rd<Address[]>(cfg.lens, lensAbi as never, 'scan', [from, to])));
+      vaults.push(...(await chain.scan(cfg.lens, from, to)));
     }
     log.log('info', 'scan', { positions: Number(total), needing: vaults.length });
   }
@@ -132,6 +133,8 @@ export async function runOnce(cfg: Config, chain: Chain, log: Logger, o: RunOpts
       }
       const [needed, assetIdx, buy, tokenIn, tokenOut, amountIn, minOutAgg, minOutDirect] = p;
       if (!needed) { skip(vault, 'no_trade_needed'); continue; }
+
+      if (cfg.lens) await logStatus(chain, log, cfg.lens, vault);
 
       const minTrade = await rd<bigint>(vault, vaultAbi as never, 'minTrade');
       if (amountIn < minTrade) { skip(vault, 'below_min_trade', { amountIn, minTrade }); continue; }
@@ -171,7 +174,7 @@ export async function runOnce(cfg: Config, chain: Chain, log: Logger, o: RunOpts
       if (!swap) {
         swap = {
           assetIdx, buy, amountIn, router: v3Router,
-          data: buildDirectCalldata({ tokenIn, tokenOut, fee: asset[1], vault, amountIn, minOut: minOutDirect, deadline: BigInt(now + 600) }),
+          data: buildDirectCalldata({ tokenIn, tokenOut, fee: asset[1], vault, amountIn, minOut: minOutDirect, deadline: BigInt(now + 600), router: v3Router }),
         };
       }
 
@@ -237,5 +240,18 @@ async function isTokenPaused(rd: <T>(a: Address, abi: never, fn: string, args?: 
     return await rd<boolean>(pm, pauseManagerAbi as never, 'isTokenPaused', [token]);
   } catch {
     return false; // token has no pause manager (mocks); the vault's own call would revert anyway
+  }
+}
+
+/** Logs the Lens view and cross-checks E* with the SDK CPPI mirror (E* = min(m * cushion, V)). A mismatch is a warning, not a stop: the vault decides. */
+async function logStatus(chain: Chain, log: Logger, lens: Address, vault: Address): Promise<void> {
+  try {
+    const s = await chain.status(lens, vault);
+    const mirror = cppi.exposureTarget(s.cushion, s.V);
+    log.log(mirror === s.target ? 'info' : 'warn', 'vault_status', {
+      vault, V: s.V, floor: s.floor, cushion: s.cushion, exposure: s.exposure, target: s.target, sdkTarget: mirror, cppiMirrorMatches: mirror === s.target,
+    });
+  } catch (e) {
+    log.log('warn', 'status_failed', { vault, error: e instanceof Error ? e.message.split('\n')[0] : String(e) });
   }
 }

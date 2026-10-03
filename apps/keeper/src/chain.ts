@@ -12,6 +12,7 @@ import {
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { vaultAbi } from './abi.js';
+import { readLensStatus, scanVaults, type LensStatus } from '@floor/sdk';
 import type { Swap } from './keeper.js';
 
 /** Thin interface so the loop is testable without an RPC. */
@@ -19,6 +20,10 @@ export interface Chain {
   /** timestamp of the latest block (the window check uses chain time, like the contract) */
   now(): Promise<number>;
   read<T>(address: Address, abi: Abi, functionName: string, args?: readonly unknown[]): Promise<T>;
+  /** FloorLens.scan via the SDK */
+  scan(lens: Address, from: bigint, to: bigint): Promise<Address[]>;
+  /** FloorLens.status via the SDK (V, floor, exposure, target) */
+  status(lens: Address, vault: Address): Promise<LensStatus>;
   /** Simulates `vault.rebalance(swap)` with eth_call from `from`; returns the gas estimate. Throws SimError. */
   simulate(vault: Address, swap: Swap, from: Address): Promise<bigint>;
 }
@@ -64,6 +69,8 @@ export function makeChain(rpcUrl: string): { chain: Chain; client: PublicClient 
     read(address, abi, functionName, args = []) {
       return client.readContract({ address, abi, functionName, args } as never) as never;
     },
+    scan: (lens, from, to) => scanVaults(client, lens, from, to),
+    status: (lens, vault) => readLensStatus(client, lens, vault),
     async simulate(vault, swap, from) {
       try {
         await client.simulateContract({ address: vault, abi: vaultAbi, functionName: 'rebalance', args: [swap], account: from });

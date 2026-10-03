@@ -25,6 +25,9 @@ importers:
       '@floor/bw3':
         specifier: workspace:*
         version: link:../../packages/bw3
+      '@floor/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
       viem:
         specifier: ^2.57.2
         version: 2.57.2(typescript@5.9.3)(zod@4.6.5)
