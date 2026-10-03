@@ -7,6 +7,19 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "dev": "tsx src/server.ts",
+    "start": "tsx src/server.ts"
+  },
+  "dependencies": {
+    "@floor/bw3": "workspace:*",
+    "@floor/sdk": "workspace:*",
+    "@hono/node-server": "^1.13.0",
+    "hono": "^4.6.0",
+    "viem": "^2.57.2",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.15"
   }
 }
