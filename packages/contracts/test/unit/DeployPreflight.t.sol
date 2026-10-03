@@ -66,6 +66,7 @@ contract DeployPreflightTest is Test {
         v3f = new PfV3Factory();
         v3f.set(address(stock), address(usdt), 2500, address(pool));
         router = new MockRouter();
+        router.setFactory(address(v3f));
         beacon = new PfBeacon(address(0xBEEF));
         // the live bStocks are EIP-1967 beacon proxies of the one beacon: imitate the slot (Pashov 03 lead)
         vm.store(address(stock), BEACON_SLOT, bytes32(uint256(uint160(address(beacon)))));
@@ -178,6 +179,20 @@ contract DeployPreflightTest is Test {
         p.routerTargets = new address[](0);
         p.routerApproveTargets = new address[](0);
         vm.expectRevert("Deploy: router allowlist empty");
+        h.check(p);
+    }
+
+    /// Pashov 04 lead: the router must swap in the pools of the listed factory.
+    function test_router_factory_mismatch_reverts() public {
+        router.setFactory(address(0xBAD));
+        vm.expectRevert("Deploy: router.factory != v3Factory");
+        h.check(p);
+    }
+
+    /// Pashov 04 lead: the Pancake SwapRouter is its own approve target.
+    function test_pancake_approveTarget_must_be_router() public {
+        p.routerApproveTargets = [address(0x1234)];
+        vm.expectRevert("Deploy: pancake approveTarget != router");
         h.check(p);
     }
 

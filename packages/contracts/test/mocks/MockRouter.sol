@@ -9,6 +9,12 @@ contract MockRouter {
     /// @dev rate[tokenIn][tokenOut]: tokenOut per 1e18 tokenIn, WAD.
     mapping(address => mapping(address => uint256)) public rate;
     uint256 public feeBps;
+    /// @dev The v3 factory this router claims to swap in (the real SwapRouter exposes `factory()`).
+    address public factory;
+
+    function setFactory(address f) external {
+        factory = f;
+    }
 
     function setRate(address tokenIn, address tokenOut, uint256 rateWad) external {
         rate[tokenIn][tokenOut] = rateWad;

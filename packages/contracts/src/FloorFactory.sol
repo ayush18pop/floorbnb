@@ -205,15 +205,20 @@ contract FloorFactory is IFloorFactory {
         emit PositionCreated(vault, msg.sender, amount, floor_, uint32(maturity), assets_, weightsBps);
     }
 
-    /// @dev At the start E* = min(M * (D - F), D). If no token's target reaches `minTrade` the vault could never buy and the
-    ///      deposit would sit in USDT for the whole term: reject it with a clear error instead (Pashov 03 lead).
+    /// @dev At the start E* = min(M * (D - F), D). EVERY token's first target must be buyable: at least `minTrade` and
+    ///      past the weighted buy band (Pashov 03 and 04 leads). Otherwise a token would never be bought and its weight
+    ///      would sit in USDT for the whole term, so the position is rejected with a clear error instead. A floor so high
+    ///      that the first buy cannot pass the band (`BadFloor`) is rejected the same way.
     function _checkNotTooSmall(uint256 amount, uint256 floor_, uint16[] calldata w) internal view {
         uint256 estar = CPPIMath.exposureTarget(CPPIMath.cushion(amount, floor_), amount);
         uint256 minTrade = defaults.minTrade;
+        uint256 buyBand = defaults.buyBandBps;
         for (uint256 i; i < w.length; ++i) {
-            if (CPPIMath.assetTarget(estar, w[i]) >= minTrade) return;
+            uint256 t = CPPIMath.assetTarget(estar, w[i]);
+            if (t < minTrade) revert PositionTooSmall();
+            uint256 band = buyBand * w[i] / CPPIMath.BPS;
+            if (t * CPPIMath.BPS < (band == 0 ? 1 : band) * amount) revert BadFloor();
         }
-        revert PositionTooSmall();
     }
 
     /// @dev The pool must hold enough observation slots for the CURRENT `twapWindow` (Pashov 02 #13 and lead).
@@ -317,20 +322,26 @@ contract FloorFactory is IFloorFactory {
     }
 
     function unpause() external override onlyGuardianOrOwner {
-        paused = false;
-        tradingResumedAt = uint40(block.timestamp);
+        // Only a real state change restarts the public delay (Pashov 04 lead).
+        if (paused) {
+            paused = false;
+            tradingResumedAt = uint40(block.timestamp);
+        }
         emit Unpaused(msg.sender);
     }
 
     function setHalted(bool on) external override onlyGuardianOrOwner {
+        if (halted == on) {
+            emit Halted(on);
+            return;
+        }
         halted = on;
         if (!on) tradingResumedAt = uint40(block.timestamp);
         emit Halted(on);
     }
 
     function setNonTradingDay(uint32 day, bool closed) external override onlyGuardian {
-        nonTradingDay[day] = closed;
-        emit NonTradingDaySet(day, closed);
+        _setNonTrading(day, closed);
     }
 
     /// @notice Declares how far the holiday table reaches. `createPosition` rejects a term that matures after it.
@@ -341,9 +352,18 @@ contract FloorFactory is IFloorFactory {
 
     function setNonTradingDays(uint32[] calldata days_, bool closed) external override onlyGuardian {
         for (uint256 i; i < days_.length; ++i) {
-            nonTradingDay[days_[i]] = closed;
-            emit NonTradingDaySet(days_[i], closed);
+            _setNonTrading(days_[i], closed);
         }
+    }
+
+    /// @dev Clearing a closed day that was listed closed is a real reopening: it restarts the public delay, so closed hours
+    ///      never count as open time (Pashov 04 lead). Clearing a day that was not closed changes nothing.
+    function _setNonTrading(uint32 day, bool closed) internal {
+        if (nonTradingDay[day] && !closed && day <= block.timestamp / 1 days) {
+            tradingResumedAt = uint40(block.timestamp);
+        }
+        nonTradingDay[day] = closed;
+        emit NonTradingDaySet(day, closed);
     }
 
     /// @dev Removal is instant; a removed router is re-enabled only by a fresh `addRouter` with the 24 h delay.
