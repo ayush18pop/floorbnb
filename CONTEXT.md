@@ -27,7 +27,7 @@ and no hype.
 - Stock exposure E = min(m × (V − F), V), with m = 4. The rest is held in stablecoins (USDT).
 - Prices fall → the vault sells stock for USDT. Prices rise → it buys back. All spot swaps on BSC.
 - No rebalancing on weekends (weekend on-chain prices are noise vs Monday, see research), so the full
-  weekend gap is assumed in the risk maths. m = 4 survives any single gap smaller than 25%.
+  weekend gap is assumed in the risk maths. m = 4 survives a single gap smaller than about 24% (1/m = 25% before costs; tested in research/m_study).
 - Once value hits the floor the vault holds only USDT until the term ends ("cash lock"); the one-year
   term resets this.
 - Optional later: idle USDT supplied to Venus for yield (lending, not borrowing). Not in v1.
@@ -50,6 +50,16 @@ Full detail: `docs/RESEARCH_RESULTS.md`. Scripts and raw data:
 - **Floor held in 93 of 93 one-year windows (2018 → 2026-10)** at m = 4 (also with one rebalance a day, matching the
   contract's trading window; m = 5 broke in 3.2% of TSLA windows in that case), on NVDA, QQQ, SPY, TSLA and
   baskets. Assumes full weekend gaps and 0% stablecoin yield.
+- **Long-history study (2026-10-03, `research/m_study/REPORT.md`, supersedes '93/93' as the headline):** 1,581
+  non-overlapping one-year windows over 38 series, 1928 to 2026, 90% floor, m = 4, 6 bps one-way, daily rebalance at the
+  close. The vault ended more than 1 point below its floor in **0.44%** of windows (95% CI 0.11% to 0.91%) and slightly
+  below the floor in 2.85%. S&P 500 alone: 0 breaches in 98 years. Single stocks: 0.61% material, 4.07% any shortfall
+  (real one-day drops of -30% to -61% exist: AIG 2008, AAPL 2000, NFLX 2004, Citi 2009). The 1/m rule held: 0 material
+  breaches in 1,552 windows without a one-day drop above 25%; all 7 material breaches at m = 4 came from the 29 windows
+  that had one. Keep m = 4 fixed (no dial, no dynamic m, no ML: none beat fixed m out of sample). Caveats: daily closes
+  only, survivorship bias (no delisted names), no intraday or halt gaps. '93 of 93' is true only for 2018 to 2026; never
+  write 'the floor always holds'. The '42% of upside' figure is a pooled mean ratio in up years, not a typical year (the
+  median year is +1.6% for the vault vs +13.7% holding).
 - **Bad years (median of the windows where holding lost >10%):** NVDA vault −9.9% vs holding −36%
   (17 windows). NVDA+TSLA+QQQ basket −8.6% vs −17%. QQQ −7.4% vs −19%. These are medians, NOT the
   single worst year; never write "worst year: −36%".
