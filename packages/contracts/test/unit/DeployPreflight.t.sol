@@ -41,6 +41,10 @@ contract DeployHarness is Deploy {
     function check(Params memory p) external view {
         _preflight(p);
     }
+
+    function load(string memory j) external pure returns (Params memory) {
+        return _load(j);
+    }
 }
 
 /// @notice Deploy-script preflight (Pashov F-06/F-07, A12 deploy checks). Nothing is broadcast.
@@ -63,8 +67,12 @@ contract DeployPreflightTest is Test {
         v3f.set(address(stock), address(usdt), 2500, address(pool));
         router = new MockRouter();
         beacon = new PfBeacon(address(0xBEEF));
+        // the live bStocks are EIP-1967 beacon proxies of the one beacon: imitate the slot (Pashov 03 lead)
+        vm.store(address(stock), BEACON_SLOT, bytes32(uint256(uint160(address(beacon)))));
         _fill();
     }
+
+    bytes32 internal constant BEACON_SLOT = 0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50;
 
     function _fill() internal {
         p.owner = address(1);
@@ -91,7 +99,7 @@ contract DeployPreflightTest is Test {
     /// Pashov 02 lead: the preflight bound must equal the factory bound (1000), not a looser 2000.
     function test_buyBand_above_factory_bound_reverts() public {
         p.defaults.buyBandBps = 1001;
-        vm.expectRevert("Deploy: buyBand");
+        vm.expectRevert("Deploy: defaults.buyBand");
         h.check(p);
     }
 
@@ -193,6 +201,70 @@ contract DeployPreflightTest is Test {
     function test_no_keeper_reverts() public {
         p.keepers = new address[](0);
         vm.expectRevert("Deploy: no keeper");
+        h.check(p);
+    }
+
+    // ------------------------------------------------------------ Pashov 03 leads
+
+    function _json(string memory sellBand, string memory publicDelay) internal pure returns (string memory) {
+        return string.concat(
+            '{"owner":"0x0000000000000000000000000000000000000001","guardian":"0x0000000000000000000000000000000000000002",',
+            '"usdt":"0x0000000000000000000000000000000000000003","v3Factory":"0x0000000000000000000000000000000000000004",',
+            '"v3SwapRouter":"0x0000000000000000000000000000000000000005","tokenBeacon":"0x0000000000000000000000000000000000000006",',
+            '"approvedTokenImpl":"0x0000000000000000000000000000000000000007","keepers":[],"routerTargets":[],',
+            '"routerApproveTargets":[],"assetTokens":[],"assetPools":[],"assetFees":[],"assetMinLiquidity":[],',
+            '"assetMaxTradeValue":[],"maxDeposit":"1","maxTotalTvl":"1","defaults":{"sellBandBps":',
+            sellBand,
+            ',"buyBandBps":200,"minInterval":900,"publicDelay":',
+            publicDelay,
+            ',"twapWindow":600,"maxTickDev":300,"tolAggBps":30,"tolDirectBps":100,"minTrade":"20000000000000000000",',
+            '"dust":"1000000000000000000"},"holidaysFile":""}'
+        );
+    }
+
+    function test_load_checksNarrowingBeforeCast() public {
+        Deploy.Params memory ok = h.load(_json("100", "14400"));
+        assertEq(ok.defaults.sellBandBps, 100);
+        // 65636 would wrap to 100 as uint16, and 4294981696 to 14400 as uint32: both must abort instead
+        vm.expectRevert(bytes("Deploy: .defaults.sellBandBps exceeds uint16"));
+        h.load(_json("65636", "14400"));
+        vm.expectRevert(bytes("Deploy: .defaults.publicDelay exceeds uint32"));
+        h.load(_json("100", "4294981696"));
+    }
+
+    function test_publicDelay_boundIsOpenSeconds() public {
+        p.defaults.publicDelay = 24 hours;
+        h.check(p);
+        p.defaults.publicDelay = 24 hours + 1;
+        vm.expectRevert("Deploy: defaults.publicDelay");
+        h.check(p);
+    }
+
+    function test_defaults_sameBoundsAsFactory_dust() public {
+        p.defaults.dust = 1; // one wei: a stray raw unit of stock could then block closeToUSDT
+        vm.expectRevert("Deploy: defaults.dust");
+        h.check(p);
+    }
+
+    function test_poolFee_vs_tolDirect() public {
+        p.defaults.tolDirectBps = 49; // pool fee 25 bps needs tolDirect >= 50
+        vm.expectRevert("Deploy: pool fee vs tolDirectBps");
+        h.check(p);
+    }
+
+    function test_multiplierGetters_mustBeReadable() public {
+        vm.mockCallRevert(address(stock), abi.encodeWithSignature("effectiveAt()"), "x");
+        vm.expectRevert("Deploy: effectiveAt unreadable");
+        h.check(p);
+        vm.clearMockedCalls();
+        vm.mockCallRevert(address(stock), abi.encodeWithSignature("hasPendingMultiplier()"), "x");
+        vm.expectRevert("Deploy: hasPendingMultiplier unreadable");
+        h.check(p);
+    }
+
+    function test_token_mustBeBeaconProxy() public {
+        vm.store(address(stock), BEACON_SLOT, bytes32(uint256(uint160(address(0xBAD)))));
+        vm.expectRevert("Deploy: token is not a proxy of tokenBeacon");
         h.check(p);
     }
 }

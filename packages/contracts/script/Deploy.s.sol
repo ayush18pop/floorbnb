@@ -13,6 +13,7 @@ import {IBeacon} from "../src/interfaces/IBeacon.sol";
 import {IPancakeV3Factory} from "../src/interfaces/IPancakeV3Factory.sol";
 import {IPancakeV3Pool} from "../src/interfaces/IPancakeV3Pool.sol";
 import {ISecuritiesToken} from "../src/interfaces/ISecuritiesToken.sol";
+import {DefaultsCheck} from "../src/libs/DefaultsCheck.sol";
 
 /// @title Deploy
 /// @notice Deploys FloorVault (implementation), FloorFactory and FloorLens, then configures the factory.
@@ -23,10 +24,15 @@ import {ISecuritiesToken} from "../src/interfaces/ISecuritiesToken.sol";
 ///                     (or `--account <keystore-name> --sender <addr>`)
 ///      The broadcaster deploys with itself as owner AND guardian so it can configure everything, then hands
 ///      guardian to `params.guardian` and starts the 2-step ownership transfer to `params.owner` (the new owner must
-///      call `acceptOwnership()`). Parameters come from `script/params/<chainId>.json`; the output is written to
+///      call `acceptOwnership()`). RUNBOOK: until the new owner has called `acceptOwnership()`, the hot deployer key IS
+///      still the factory owner (it can list assets, change defaults, set keepers, set limits). Do the handover in
+///      the same session, confirm `owner()` on chain, then discard the deployer key (Pashov 03 lead). Parameters come from `script/params/<chainId>.json`; the output is written to
 ///      `deployments/<chainId>.json` (only when FLOOR_WRITE_DEPLOYMENT=true, so a plain simulation never writes files).
 contract Deploy is Script {
     using stdJson for string;
+
+    /// @dev EIP-1967 beacon slot: bytes32(uint256(keccak256("eip1967.proxy.beacon")) - 1).
+    bytes32 internal constant BEACON_SLOT = 0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50;
 
     struct Params {
         address owner;
@@ -112,7 +118,7 @@ contract Deploy is Script {
         console2.log("FloorVault (impl) ", address(impl));
         console2.log("FloorFactory      ", address(factory));
         console2.log("FloorLens         ", address(lens));
-        console2.log("pending owner     ", p.owner);
+        console2.log("pending owner     ", p.owner, "(deployer stays OWNER until it calls acceptOwnership)");
         console2.log("guardian          ", p.guardian);
         console2.log("keepers           ", p.keepers.length);
         console2.log("assets            ", p.assetTokens.length);
@@ -155,18 +161,15 @@ contract Deploy is Script {
             require(IBeacon(p.tokenBeacon).implementation() == p.approvedTokenImpl, "Deploy: beacon impl != approved");
         }
 
-        // --- limits and defaults
+        // --- limits and defaults (the same bounds the factory enforces: `DefaultsCheck`)
         require(p.maxDeposit >= 1e18, "Deploy: maxDeposit below MIN_DEPOSIT");
         require(p.maxDeposit <= p.maxTotalTvl, "Deploy: maxDeposit > maxTotalTvl");
         require(p.maxTotalTvl <= 100_000e18, "Deploy: maxTotalTvl above 100k USDT launch ceiling");
         IFloorFactory.Defaults memory d = p.defaults;
-        require(d.sellBandBps > 0 && d.sellBandBps <= 1000, "Deploy: sellBand");
-        require(d.buyBandBps >= d.sellBandBps && d.buyBandBps <= 1000, "Deploy: buyBand");
-        require(d.tolAggBps > 0 && d.tolAggBps <= 200 && d.tolDirectBps > 0 && d.tolDirectBps <= 300, "Deploy: tol");
-        require(d.twapWindow >= 300 && d.twapWindow <= 3600, "Deploy: twapWindow");
-        require(d.maxTickDev > 0 && d.maxTickDev <= 1000, "Deploy: maxTickDev");
-        require(d.minInterval >= 60 && d.publicDelay >= d.minInterval, "Deploy: intervals");
-        require(d.dust > 0 && d.dust <= d.minTrade && d.minTrade <= 1000e18, "Deploy: minTrade/dust");
+        {
+            string memory why = DefaultsCheck.reason(d);
+            require(bytes(why).length == 0, string.concat("Deploy: defaults.", why));
+        }
 
         // --- each asset: token order, decimals, pool identity, liquidity, history
         for (uint256 i; i < n; ++i) {
@@ -174,6 +177,7 @@ contract Deploy is Script {
             require(p.assetMinLiquidity[i] > 0 && p.assetMinLiquidity[i] <= type(uint128).max, "Deploy: minLiq range");
             require(p.assetMaxTradeValue[i] >= d.minTrade, "Deploy: maxTradeValue < minTrade");
             require(p.assetMaxTradeValue[i] <= p.maxTotalTvl * 10, "Deploy: maxTradeValue absurd");
+            require(DefaultsCheck.feeFits(uint24(p.assetFees[i]), d.tolDirectBps), "Deploy: pool fee vs tolDirectBps");
             _preflightAsset(p, i);
             for (uint256 j; j < i; ++j) {
                 require(p.assetTokens[j] != p.assetTokens[i], "Deploy: duplicate asset");
@@ -192,7 +196,7 @@ contract Deploy is Script {
         require(raw[raw.length - 1] <= 30_000, "Deploy: holidays look like unix seconds, not days");
         uint256 horizon =
             vm.readFile(string.concat(vm.projectRoot(), "/", p.holidaysFile)).readUint(".coversThroughDay");
-        require(horizon >= raw[raw.length - 1] && horizon <= type(uint32).max, "Deploy: coversThroughDay");
+        require(horizon >= raw[raw.length - 1] && horizon <= 30_000, "Deploy: coversThroughDay");
     }
 
     function _preflightAsset(Params memory p, uint256 i) internal view {
@@ -202,6 +206,23 @@ contract Deploy is Script {
         require(IERC20Metadata(token).decimals() == 18, "Deploy: asset decimals != 18");
         // reading the multiplier must work, it is the listing baseline (A12 F-02)
         require(ISecuritiesToken(token).uiMultiplier() > 0, "Deploy: uiMultiplier unreadable");
+        // the two other multiplier getters the vault calls must be readable too (`addAsset` checks them and would revert)
+        try ISecuritiesToken(token).hasPendingMultiplier() returns (bool) {}
+        catch {
+            revert("Deploy: hasPendingMultiplier unreadable");
+        }
+        try ISecuritiesToken(token).effectiveAt() returns (uint256) {}
+        catch {
+            revert("Deploy: effectiveAt unreadable");
+        }
+        // the token must be a beacon proxy of `tokenBeacon` (EIP-1967 beacon slot): the vault's buy guard watches that
+        // beacon's implementation, so a token outside it would never trip the guard (Pashov 03 lead)
+        if (p.tokenBeacon != address(0)) {
+            require(
+                address(uint160(uint256(vm.load(token, BEACON_SLOT)))) == p.tokenBeacon,
+                "Deploy: token is not a proxy of tokenBeacon"
+            );
+        }
         // 18-decimal pair means raw ratio == price, so token order is the only thing the oracle needs
         // forge-lint: disable-next-line(unsafe-typecast)
         require(
@@ -243,18 +264,33 @@ contract Deploy is Script {
         p.maxDeposit = _uint(j, ".maxDeposit");
         p.maxTotalTvl = _uint(j, ".maxTotalTvl");
         p.defaults = IFloorFactory.Defaults({
-            sellBandBps: uint16(j.readUint(".defaults.sellBandBps")),
-            buyBandBps: uint16(j.readUint(".defaults.buyBandBps")),
-            minInterval: uint32(j.readUint(".defaults.minInterval")),
-            publicDelay: uint32(j.readUint(".defaults.publicDelay")),
-            twapWindow: uint32(j.readUint(".defaults.twapWindow")),
-            maxTickDev: uint16(j.readUint(".defaults.maxTickDev")),
-            tolAggBps: uint16(j.readUint(".defaults.tolAggBps")),
-            tolDirectBps: uint16(j.readUint(".defaults.tolDirectBps")),
+            sellBandBps: _u16(j, ".defaults.sellBandBps"),
+            buyBandBps: _u16(j, ".defaults.buyBandBps"),
+            minInterval: _u32(j, ".defaults.minInterval"),
+            publicDelay: _u32(j, ".defaults.publicDelay"),
+            twapWindow: _u32(j, ".defaults.twapWindow"),
+            maxTickDev: _u16(j, ".defaults.maxTickDev"),
+            tolAggBps: _u16(j, ".defaults.tolAggBps"),
+            tolDirectBps: _u16(j, ".defaults.tolDirectBps"),
             minTrade: _uint(j, ".defaults.minTrade"),
             dust: _uint(j, ".defaults.dust")
         });
         p.holidaysFile = j.readString(".holidaysFile");
+    }
+
+    /// @dev Checked narrowing: a value that does not fit aborts the script instead of being cut (Pashov 03 lead).
+    function _u16(string memory j, string memory key) internal pure returns (uint16) {
+        uint256 v = j.readUint(key);
+        require(v <= type(uint16).max, string.concat("Deploy: ", key, " exceeds uint16"));
+        // forge-lint: disable-next-line(unsafe-typecast)
+        return uint16(v);
+    }
+
+    function _u32(string memory j, string memory key) internal pure returns (uint32) {
+        uint256 v = j.readUint(key);
+        require(v <= type(uint32).max, string.concat("Deploy: ", key, " exceeds uint32"));
+        // forge-lint: disable-next-line(unsafe-typecast)
+        return uint32(v);
     }
 
     /// @dev Big numbers are JSON strings (a JSON number above 2^53 would lose precision in most tools).

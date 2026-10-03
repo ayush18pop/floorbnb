@@ -147,5 +147,9 @@ interface IFloorVault {
     function M() external view returns (uint256);
     function status() external view returns (Status);
     function lastRebalance() external view returns (uint40);
+    /// @notice True once V <= F was seen while Active: the vault then holds only USDT for the rest of the term.
+    function cashLocked() external view returns (bool);
+    /// @notice Permissionless: persists the cash lock if V <= F right now (all held assets priced).
+    function lockIfBelowFloor() external;
     function lastTradeAt(uint8 assetIdx) external view returns (uint40);
 }

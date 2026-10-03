@@ -21,6 +21,15 @@ contract MockToken is ERC20 {
         _mint(to, amount);
     }
 
+    /// @dev The real bStock reads a shared pause manager; the mock is its own manager (`isTokenPaused`).
+    function pauseManager() external view returns (address) {
+        return address(this);
+    }
+
+    function isTokenPaused(address token) external view returns (bool) {
+        return token == address(this) && paused;
+    }
+
     function setPaused(bool on) external {
         paused = on;
     }

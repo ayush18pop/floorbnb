@@ -47,6 +47,19 @@ export const floorVaultAbi = [
   },
   {
     "type": "function",
+    "name": "cashLocked",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "claimValue",
     "inputs": [],
     "outputs": [
@@ -204,6 +217,13 @@ export const floorVaultAbi = [
       }
     ],
     "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "lockIfBelowFloor",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",

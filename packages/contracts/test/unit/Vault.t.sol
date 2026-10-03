@@ -7,6 +7,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {FloorVault} from "../../src/FloorVault.sol";
 import {IFloorVault} from "../../src/interfaces/IFloorVault.sol";
+import {MarketHours} from "../../src/libs/MarketHours.sol";
 import {IFloorFactory} from "../../src/interfaces/IFloorFactory.sol";
 import {IPancakeV3SwapRouter} from "../../src/interfaces/IPancakeV3SwapRouter.sol";
 import {ISecuritiesToken} from "../../src/interfaces/ISecuritiesToken.sol";
@@ -108,6 +109,10 @@ contract VaultTestFactory {
         if (wd >= 5) return false;
         uint256 s = ts % 1 days;
         return s >= 15.5 hours && s < 19.5 hours;
+    }
+
+    function hasOpenSeconds(uint256 from, uint256 to, uint256 needed) external view returns (bool) {
+        return MarketHours.hasOpenSeconds(from, to, needed, nonTradingDay);
     }
 
     function create(

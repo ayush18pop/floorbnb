@@ -13,6 +13,7 @@ import {IPancakeV3Pool} from "./interfaces/IPancakeV3Pool.sol";
 import {ISecuritiesToken} from "./interfaces/ISecuritiesToken.sol";
 import {CPPIMath} from "./libs/CPPIMath.sol";
 import {MarketHours} from "./libs/MarketHours.sol";
+import {DefaultsCheck} from "./libs/DefaultsCheck.sol";
 
 /// @title FloorFactory
 /// @notice Roles, config, allowlists and EIP-1167 clone creation for Floor positions. Holds no funds.
@@ -42,6 +43,9 @@ contract FloorFactory is IFloorFactory {
     /// @dev EXECUTION_PLAN P5 launch caps (USDT, 18 decimals).
     uint256 internal constant LAUNCH_MAX_DEPOSIT = 1000e18;
     uint256 internal constant LAUNCH_MAX_TOTAL_TVL = 5000e18;
+    /// @dev A position must mature this long before the holiday table ends: the post-maturity unwind trades too
+    ///      (Pashov 03 lead).
+    uint256 internal constant UNWIND_BUFFER = 14 days;
 
     /// @dev Local errors (not in the frozen interface).
     error BadAmount();
@@ -50,6 +54,8 @@ contract FloorFactory is IFloorFactory {
     error BadLimits();
     error NotPendingOwner();
     error NotOwnerOrGuardian();
+    /// @dev Deposit too small for the basket: no token target would ever reach `minTrade` (Pashov 03 lead).
+    error PositionTooSmall();
     error BeaconAlreadySet();
     event HolidayHorizonSet(uint32 day);
 
@@ -84,6 +90,11 @@ contract FloorFactory is IFloorFactory {
     mapping(address => address[]) internal _byOwner;
     /// @dev Last unix day the holiday table is known to cover (0 = unchecked). A position cannot mature after it.
     uint32 public holidayHorizonDay;
+    /// @dev Every listed token, so `setDefaults` can check the new tolerance against the listed pool fees.
+    address[] internal _assetList;
+    /// @notice Last time trading was switched back on (unpause or un-halt). The vault's public delay never counts time
+    ///         before it, so a halt or pause cannot be waited out (Pashov 03 #5).
+    uint40 public tradingResumedAt;
 
     // ------------------------------------------------------------- modifiers
 
@@ -170,11 +181,14 @@ contract FloorFactory is IFloorFactory {
         if (floorBps < MIN_FLOOR_BPS || floorBps > MAX_FLOOR_BPS) revert BadFloor();
         if (termSeconds < MIN_TERM || termSeconds > MAX_TERM) revert BadTerm();
         // The holiday table must cover the whole term (Pashov 02 lead): no vault may trade on an unlisted holiday.
-        if (holidayHorizonDay != 0 && (block.timestamp + termSeconds) / 1 days > holidayHorizonDay) revert BadTerm();
+        if (holidayHorizonDay != 0 && (block.timestamp + termSeconds + UNWIND_BUFFER) / 1 days > holidayHorizonDay) {
+            revert BadTerm();
+        }
         _checkBasket(assets_, weightsBps);
 
-        totalTvl += amount;
         uint256 floor_ = CPPIMath.floorFor(amount, floorBps);
+        _checkNotTooSmall(amount, floor_, weightsBps);
+        totalTvl += amount;
         uint40 maturity = uint40(block.timestamp + termSeconds);
 
         vault = Clones.clone(vaultImplementation);
@@ -189,6 +203,17 @@ contract FloorFactory is IFloorFactory {
 
         IFloorVault(vault).initialize(msg.sender, amount, floor_, maturity, assets_, weightsBps, abi.encode(defaults));
         emit PositionCreated(vault, msg.sender, amount, floor_, uint32(maturity), assets_, weightsBps);
+    }
+
+    /// @dev At the start E* = min(M * (D - F), D). If no token's target reaches `minTrade` the vault could never buy and the
+    ///      deposit would sit in USDT for the whole term: reject it with a clear error instead (Pashov 03 lead).
+    function _checkNotTooSmall(uint256 amount, uint256 floor_, uint16[] calldata w) internal view {
+        uint256 estar = CPPIMath.exposureTarget(CPPIMath.cushion(amount, floor_), amount);
+        uint256 minTrade = defaults.minTrade;
+        for (uint256 i; i < w.length; ++i) {
+            if (CPPIMath.assetTarget(estar, w[i]) >= minTrade) return;
+        }
+        revert PositionTooSmall();
     }
 
     /// @dev The pool must hold enough observation slots for the CURRENT `twapWindow` (Pashov 02 #13 and lead).
@@ -260,6 +285,12 @@ contract FloorFactory is IFloorFactory {
     }
 
     /// @inheritdoc IFloorFactory
+    function hasOpenSeconds(uint256 from, uint256 to, uint256 needed) external view override returns (bool) {
+        if (from < tradingResumedAt) from = tradingResumedAt;
+        return MarketHours.hasOpenSeconds(from, to, needed, nonTradingDay);
+    }
+
+    /// @inheritdoc IFloorFactory
     function routerOk(address router) external view override returns (bool ok, address approveTarget) {
         Router memory r = routers[router];
         ok = r.target != address(0) && !r.removed && block.timestamp >= r.activeAt;
@@ -287,11 +318,13 @@ contract FloorFactory is IFloorFactory {
 
     function unpause() external override onlyGuardianOrOwner {
         paused = false;
+        tradingResumedAt = uint40(block.timestamp);
         emit Unpaused(msg.sender);
     }
 
     function setHalted(bool on) external override onlyGuardianOrOwner {
         halted = on;
+        if (!on) tradingResumedAt = uint40(block.timestamp);
         emit Halted(on);
     }
 
@@ -348,17 +381,41 @@ contract FloorFactory is IFloorFactory {
     {
         if (token != address(0) && assets[token].pool != address(0)) revert AssetExists(token);
         bool usdtIsToken0 = _checkPool(token, pool, fee);
-        // A trade cap below `minTrade` would make buys impossible; a pool fee at or above the public tolerance would make
-        // every `rebalancePublic` swap revert (Pashov 02 leads).
-        if (maxTradeValue < defaults.minTrade || uint256(fee) / 100 >= defaults.tolDirectBps) revert BadPool();
+        _checkListing(fee, maxTradeValue);
 
         assets[token] = Asset(pool, fee, true, minLiquidity, maxTradeValue, usdtIsToken0);
-        // Every multiplier function the vault calls must be readable now, and the baseline must be non-zero: a zero
-        // `lastMultiplier` or a reverting getter would block the token forever.
+        _assetList.push(token);
+        // The baseline must be non-zero: a zero `lastMultiplier` would block the token forever.
+        lastMultiplier[token] = _checkMultiplierGetters(token);
+        emit AssetAdded(token, pool, fee);
+    }
+
+    /// @notice Switch a previously disabled asset back on with its ORIGINAL pool and limits, re-running the pool checks.
+    ///         The multiplier is not touched (an unpoked change is still blocked and armed by `pokeMultiplier`).
+    function reenableAsset(address token) external onlyOwner {
+        Asset memory a = assets[token];
+        if (a.pool == address(0) || a.active) revert AssetNotActive(token);
+        _checkPool(token, a.pool, a.fee);
+        _checkListing(a.fee, a.maxTradeValue);
+        _checkMultiplierGetters(token);
+        assets[token].active = true;
+        emit AssetAdded(token, a.pool, a.fee);
+    }
+
+    /// @dev Listing checks shared by `addAsset` and `reenableAsset`, against the CURRENT defaults: a trade cap below
+    ///      `minTrade` would make buys impossible, and a pool fee that the public tolerance cannot absorb would make
+    ///      `rebalancePublic` swaps revert (Pashov 02 and 03 leads). NOTE: that the token is a beacon proxy of
+    ///      `tokenBeacon` cannot be read on chain; the deploy preflight checks the EIP-1967 beacon slot of each token.
+    function _checkListing(uint24 fee, uint256 maxTradeValue) internal view {
+        if (maxTradeValue < defaults.minTrade || !DefaultsCheck.feeFits(fee, defaults.tolDirectBps)) revert BadPool();
+    }
+
+    /// @dev Every multiplier function the vault calls must be readable, and the multiplier non-zero.
+    function _checkMultiplierGetters(address token) internal view returns (uint256 m) {
         ISecuritiesToken t = ISecuritiesToken(token);
-        try t.uiMultiplier() returns (uint256 m) {
-            if (m == 0) revert BadPool();
-            lastMultiplier[token] = m;
+        try t.uiMultiplier() returns (uint256 r) {
+            if (r == 0) revert BadPool();
+            m = r;
         } catch {
             revert BadPool();
         }
@@ -370,17 +427,6 @@ contract FloorFactory is IFloorFactory {
         catch {
             revert BadPool();
         }
-        emit AssetAdded(token, pool, fee);
-    }
-
-    /// @notice Switch a previously disabled asset back on with its ORIGINAL pool and limits, re-running the pool checks.
-    ///         The multiplier is not touched (an unpoked change is still blocked and armed by `pokeMultiplier`).
-    function reenableAsset(address token) external onlyOwner {
-        Asset memory a = assets[token];
-        if (a.pool == address(0) || a.active) revert AssetNotActive(token);
-        _checkPool(token, a.pool, a.fee);
-        assets[token].active = true;
-        emit AssetAdded(token, a.pool, a.fee);
     }
 
     function _checkPool(address token, address pool, uint24 fee) internal view returns (bool usdtIsToken0) {
@@ -462,14 +508,14 @@ contract FloorFactory is IFloorFactory {
     // internals
     // =====================================================================
 
-    /// @dev Bounds on every economic default. `minTrade` allows 1e18 and up (P6 demo needs 6e18).
-    function _checkDefaults(Defaults memory d) internal pure {
-        if (
-            d.sellBandBps == 0 || d.sellBandBps > 1000 || d.buyBandBps == 0 || d.buyBandBps > 1000 || d.minInterval < 60
-                || d.minInterval > 1 days || d.publicDelay < 1 hours || d.publicDelay > 7 days || d.twapWindow < 60
-                || d.twapWindow > 1 hours || d.maxTickDev < 10 || d.maxTickDev > 1000 || d.tolAggBps == 0
-                || d.tolAggBps > 500 || d.tolDirectBps == 0 || d.tolDirectBps > 500 || d.minTrade < 1e18
-                || d.minTrade > 1000e18 || d.dust == 0 || d.dust > 100e18
-        ) revert BadDefaults();
+    /// @dev Bounds on every economic default (`DefaultsCheck`, shared with the deploy preflight), plus: the new tolerance
+    ///      must absorb every LISTED pool fee and the new `minTrade` must not exceed any listed trade cap.
+    function _checkDefaults(Defaults memory d) internal view {
+        if (bytes(DefaultsCheck.reason(d)).length != 0) revert BadDefaults();
+        uint256 n = _assetList.length;
+        for (uint256 i; i < n; ++i) {
+            Asset storage a = assets[_assetList[i]];
+            if (!DefaultsCheck.feeFits(a.fee, d.tolDirectBps) || a.maxTradeValue < d.minTrade) revert BadDefaults();
+        }
     }
 }

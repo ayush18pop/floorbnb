@@ -1823,9 +1823,9 @@
    "anyFailed": false,
    "w": "2491",
    "noPrice": false,
-   "buy": false,
-   "value": "0",
-   "amountIn": "0"
+   "buy": true,
+   "value": "152624519279473920692",
+   "amountIn": "152624519279473920692"
   },
   {
    "Ei": "1149282407901475635255",

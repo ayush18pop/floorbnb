@@ -309,9 +309,16 @@ Definitions (per position):
 Trade rule for asset i (one swap per call):
 - **Sell** if `E_i > T_i` and `(E_i - T_i) * BPS >= band_i * V`, or if `E* == 0` and `E_i > dust` (the final unwind may be smaller than `minTrade`, so `closeToUSDT` can always finish; Pashov F-01).
   `amountValue = E_i - T_i` (all of E_i when `E* == 0`). Bands default: `sellBandBps = 100` (1% of V).
-  `band_i = max(1, sellBandBps * bandMul * w_i / BPS)` (Pashov 02 #9, FIX3): the sell band is scaled by the asset's weight, so the
+  `sellband_i = max(1, sellBandBps * bandMul * w_i / BPS)` (Pashov 02 #9, FIX3): the sell band is scaled by the asset's weight, so the
   sum of the per-asset drifts of a basket stays inside ONE band instead of one band per asset. A single asset (w = 100%) is unchanged.
-- **Buy** if `T_i > E_i` and `(T_i - E_i) * BPS >= buyBandBps * V`. `amountValue = min(T_i - E_i, usdtBal)`.
+- **Buy** if `T_i > E_i` and `(T_i - E_i) * BPS >= buyband_i * V`, with `buyband_i = max(1, buyBandBps * bandMul * w_i / BPS)`
+  (Pashov 03 #3, FIX4: the buy band is scaled by the weight EXACTLY like the sell band, so the two sides are consistent).
+  `amountValue = min(T_i - E_i, usdtBal)`.
+  **The band rule, in one place:** bands are a share of V, split across the basket by weight. Sell an asset when it is over its
+  target by at least `sellBandBps * w_i` of V, buy it when it is under by at least `buyBandBps * w_i` of V (defaults 1% and 2%
+  of V for the whole basket, so 0.2% and 0.4% of V for a 20% token). A small overshoot of a low-weight token is not sold, and
+  a large shortfall of a low-weight token is not left unbought. The sell band stays below the buy band for every weight
+  (hysteresis). `minTrade` still limits buys (and a sell above `dust`, see below). Tests: `PashovFix4.t.sol` `test_F3_*`.
   Default `buyBandBps = 200` (2% of V). Buying is the lazier side: it only adds risk, so we wait for a bigger gap
   and save trading cost. Selling protects the floor, so it triggers sooner.
 - Buys ignore `amountValue < minTrade` (default 20 USDT). SELLS ignore `minTrade` and only need `amountValue > dust` (Pashov 02 #4,
@@ -320,7 +327,13 @@ Trade rule for asset i (one swap per call):
 - A HELD asset with no TWAP at all (`observe` reverts) counts as 0, so V is understated and E* may even be 0. Since FIX3 (Pashov 02 #8)
   CPPI sells of OTHER assets are suspended while that is the case (`State.noPrice`), instead of selling them against a wrong V. Not
   suspended: a disabled asset, and the lifecycle unwind (Closing or matured), which do not depend on V. Exits are never affected.
-- A failed price of a DISABLED asset (target 0) does not suppress buys of the others (Pashov 02 #7).
+- A failed price of a DISABLED asset (target 0): if it is worth more than `dust` at the TWAP, or has no TWAP at all, it is left OUT of V
+  (understated V: the vault only sells more, an attacker cannot raise a thin disabled pool's TWAP to inflate V) and buys of the
+  others are suppressed while it stays that way (Pashov 03 #2, FIX4). A dust amount (1 wei) with a failed price changes nothing
+  (Pashov 02 #7). `valuation()` shows such a token at 0.
+- A HELD bStock that the issuer has paused or blocklisted (`pauseManager().isTokenPaused(token)`) keeps its last pool price in V, which
+  may be wrong when it reopens: buys of the others are suppressed while it is held (Pashov 03 lead). `previewRebalance` skips a
+  paused token and shows the next one (Pashov 03 #4). Sells of the others and all exits go on.
 - Fail-soft pricing (A12 F-03, Pashov F-02): an asset whose price fails a guard (history, deviation, liquidity) is valued
   at 0 instead of reverting the whole call. V is then understated, so the vault only sells more; BUYS are suppressed
   while any asset is unpriceable. The asset being traded must itself pass every guard (no price, no trade).
@@ -362,7 +375,13 @@ Why 25%: the loss on a gap g is `E * g`. With `E = m * C`, that equals `C` when 
 - Every trade costs a few bps and the vault buys and sells repeatedly. Costs eat the cushion. The backtest in
   RESEARCH_RESULTS.md used calm-market costs.
 - The floor is in on-chain USDT value (TWAP-priced), not in NYSE price.
-- The cash lock: once `C = 0` then `E* = 0`. The position stays in USDT to maturity. It cannot re-risk.
+- The cash lock: once `C = 0` then `E* = 0`. The position stays in USDT to maturity. It cannot re-risk. Since FIX4 (Pashov 03
+  lead) this is PERSISTENT: the vault stores `cashLocked = true` when `rebalance`, `rebalancePublic` or the permissionless
+  `lockIfBelowFloor()` sees `V <= F` (TWAP valuation, Active, before maturity, and V NOT understated by an unpriced asset).
+  From then on `E* = 0` for the rest of the term: a price recovery or a USDT donation never makes the vault buy stock again.
+  Consequence the product copy must keep: after the floor was hit the position stays in cash and earns no upside.
+  A keeper should call `lockIfBelowFloor()` when it sees `V <= F` with nothing to sell (a flash dip that never
+  reached a trade does not lock; the TWAP is 10 minutes, so one block cannot trigger it).
 - Weekend gaps are fully exposed (no trades on weekends, section 6).
 
 ---
@@ -450,9 +469,10 @@ prices (**estimate**). Keeper gas is paid by the keeper wallet. No gas refund fr
 `rebalancePublic(assetIdx)`: anyone, no calldata. The vault itself computes the trade and swaps through the
 **direct Pancake v3 pool** (`exactInputSingle` on the registered pool and fee). Allowed only when:
 - market open, not paused, same checks as keeper path;
-- `publicDelay` seconds of OPEN-MARKET time have passed since `lastRebalance` (default 4 h; Pashov 02 #11, FIX3). Closed hours and
-  weekends do not count, so the keeper always gets a full session before the public path opens. Holidays and halts are not
-  subtracted (the count is O(1) and over-counts there). NOTE: with the 4 h window and a 4 h delay the public path opens from
+- `publicDelay` seconds of REAL OPEN-MARKET time have passed since THIS ASSET'S last trade, or the position start (default 4 h;
+  Pashov 02 #11, Pashov 03 #5). Closed hours, weekends, guardian-listed holidays (`nonTradingDay`) and everything before the last
+  unpause or un-halt (`factory.tradingResumedAt`) do not count (`factory.hasOpenSeconds`, a backward walk that stops as soon as the
+  delay is reached). A trade of another asset does not reset it. `publicDelay` is bounded to 1 h .. 24 h of open time. NOTE: with the 4 h window and a 4 h delay the public path opens from
   the second trading day after the last rebalance; a position created at 08:00 cannot use it the same day. Use a lower
   `publicDelay` (minimum 1 h) if a same-day public trade is needed (the fork tests use 3600), and
 - drift >= **2x** the normal band (so it only fires when something is clearly wrong), and
@@ -689,7 +709,7 @@ interface IFloorFactory {
 }
 ```
 `addAsset` checks: `IERC20Metadata(token).decimals() == 18`, `v3Factory.getPool(token, usdt, fee) == pool`, pool
-`observationCardinality >= max(200, ceil(twapWindow * 4 / 3))` (one observation per 0.75 s BSC block, so a pool swapped in every block still covers the window; 800 slots for 600 s; `createPosition` re-checks every basket pool against the current window; Pashov 02 #13), a successful `observe`, and a readable `uiMultiplier()`, `hasPendingMultiplier()` and `effectiveAt()`. FIX3 also rejects a zero multiplier, `maxTradeValue < defaults.minTrade`, and a pool fee at or above `tolDirectBps` (every public swap would revert). `createPosition` rejects `paused` or `halted`, and a term maturing after `holidayHorizonDay` (guardian `setHolidayHorizon`, set by the deploy script from `coversThroughDay` in the holiday JSON; 0 = unchecked). `setDefaults` now also requires `minInterval >= 60` and `dust > 0`. A token can be listed ONCE: `addAsset`
+`observationCardinality >= max(200, ceil(twapWindow * 4 / 3))` (one observation per 0.75 s BSC block, so a pool swapped in every block still covers the window; 800 slots for 600 s; `createPosition` re-checks every basket pool against the current window; Pashov 02 #13), a successful `observe`, and a readable `uiMultiplier()`, `hasPendingMultiplier()` and `effectiveAt()`. FIX3 also rejects a zero multiplier and `maxTradeValue < defaults.minTrade`. FIX4 requires the pool fee in bps times two to be at most `tolDirectBps` (the public swap pays the fee plus an equal price impact; fee 25 bps needs `tolDirectBps >= 50`). `reenableAsset` repeats the pool, listing and multiplier-getter checks. `setDefaults`, the factory constructor and the deploy preflight use ONE bounds library (`DefaultsCheck`: bands 1..1000 with buy >= sell, `tolAgg <= 200`, `tolDirect <= 300`, `twapWindow` 300..3600, `minInterval >= 60`, `publicDelay` 1 h..24 h and >= `minInterval`, `minTrade` 1..1000 USDT, `dust` 0.001 USDT .. `minTrade`), and in addition require every LISTED pool fee to fit the new `tolDirectBps` and every listed `maxTradeValue >= minTrade`. That the token is a beacon proxy of `tokenBeacon` cannot be read on chain: the deploy preflight reads the EIP-1967 beacon slot of each token (the three live bStocks all point to `0x156d...93a3`). `createPosition` also rejects a deposit whose largest initial token target `min(M * (D - F), D) * w_i` is below `minTrade` (`PositionTooSmall`: the vault could never buy and would sit in USDT; with `minTrade` 20 USDT, floor 90%, one token needs D >= 50 USDT). `createPosition` rejects `paused` or `halted`, and a term maturing less than 14 days (`UNWIND_BUFFER`) before `holidayHorizonDay` (the post-maturity unwind trades too; guardian `setHolidayHorizon`, set by the deploy script from `coversThroughDay` in the holiday JSON; 0 = unchecked). `setDefaults` now also requires `minInterval >= 60` and `dust > 0`. A token can be listed ONCE: `addAsset`
 reverts `AssetExists` for a listed token, so pool, fee, `minLiquidity` and `maxTradeValue` of a live asset can never be
 changed (A12 F-02, Pashov F-03). `reenableAsset` switches a disabled asset back on with its original parameters. Changing
 limits needs a new factory (no in-place edit in v1; a delayed `setAssetLimits` is a possible v2 addition).
@@ -820,7 +840,7 @@ Pure convenience for the keeper and UI. No state. `try/catch` around each vault 
 | I2 | No path moves vault assets to an address other than router (within one call, net zero other than `amountIn`) or the position owner. Check with a handler that tracks all token balances of non-vault addresses. | invariant |
 | I3 | After any `rebalance`, `exposure <= V` and `exposure <= M * cushion + band*V`. | invariant |
 | I4 | `sum of position claims <= sum of vault assets` is trivially one vault per position; assert `balanceOf(vault)` for every token is never decreased by anything but a rebalance or exit. | invariant |
-| I5 | Cash lock: if `V <= F` after TWAP valuation then `exposureTarget == 0` and no buy ever succeeds. | fuzz |
+| I5 | Cash lock: if `V <= F` after TWAP valuation then `exposureTarget == 0` and no buy ever succeeds; since FIX4 the lock persists (`cashLocked`) even if V recovers. | fuzz, `PashovFix4.t.sol` |
 | I6 | Rounding: `F` rounds up, `V` and `E*` round down: `floorFor(D, bps) >= D*bps/BPS` and `exposureTarget <= C*M/WAD`. | fuzz |
 | I7 | No trade when `!isTradingOpen(block.timestamp)`. | fuzz with `vm.warp` over weekday and hour |
 | I8 | Owner can always `exitInKind` regardless of: paused, halted, router removed, TWAP broken, token reverting. | invariant / unit |
@@ -954,7 +974,10 @@ Team lead runs these manually. No step spends more than the stated amounts.
    by the live `/swap` call, expected the same address).
 6. `setKeeper` for the Agentic Wallet and spare EOA.
 7. `setNonTradingDays(...)` from JSON. `setLimits(5_000e18, 50_000e18)`.
-8. Transfer ownership to the Safe (2-step) if a Safe is used.
+8. Transfer ownership to the Safe (2-step) if a Safe is used. **RUNBOOK:** until the Safe has called `acceptOwnership()`, the hot deployer key is
+   STILL the factory owner (and guardian until `setGuardian`, which the script performs). Do the handover in the same session, confirm
+   `owner()` on chain, then discard the deployer key (Pashov 03 lead). The preflight checks every narrowing cast (`uint16`/`uint32`
+   defaults) before it is cut, the pool fee against `tolDirectBps`, the multiplier getters and the beacon slot.
 
 **Verification on BscScan:** BscScan API v2 uses an Etherscan key:
 `forge verify-contract <addr> src/FloorFactory.sol:FloorFactory --chain 56 --watch --constructor-args $(cast abi-encode ...) --etherscan-api-key $KEY`
