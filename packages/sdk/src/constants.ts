@@ -69,4 +69,4 @@ export function tokenByAddress(addr: string): TokenInfo | undefined {
 
 /** The honest one-line disclosure (CONTEXT.md honesty rule). */
 export const FLOOR_DISCLOSURE =
-  'The floor holds unless prices gap more than 25% before the vault can rebalance. Rebalancing runs Monday to Friday, 15:30 to 19:30 UTC.';
+  'The floor holds unless prices gap more than about 24% before the vault can rebalance. Rebalancing runs Monday to Friday, 15:30 to 19:30 UTC.';

@@ -279,7 +279,7 @@ sequenceDiagram
 4. `POST /v1/tx/deposit {owner, asset, amount, floorBps, termDays}`. The API checks the asset allowlist, builds `approve(vault, amount)` (exact amount, not unlimited) if the allowance is short, builds `deposit(...)` with viem `encodeFunctionData`, and runs BW3 `POST /api/v1/dex/pre-transaction/simulate` with `evmTx {from: owner, to: vault, data}` for the deposit once allowance exists. For the first call, allowance is zero so the deposit simulate fails with an allowance revert, as seen in EXECUTION.md [S32]. So the API simulates the approve first and the deposit with an `eth_call` state override of the allowance. If that override is awkward, simulate the deposit only after the approve is mined and show "check after approve" in the UI.
 5. The browser sends the approve with `eth_sendTransaction`, waits for the receipt, then sends the deposit.
 6. The UI waits for the receipt (`useWaitForTransactionReceipt`), reads the `Deposited` event, then calls `GET /v1/positions?owner=` and shows floor value, term end and starting exposure.
-7. The app shows the BscScan link and the plain-language terms ("a floor that holds unless prices gap more than 25% before the vault can rebalance").
+7. The app shows the BscScan link and the plain-language terms ("a floor that holds unless prices gap more than about 24% before the vault can rebalance").
 
 ### 4b. Keeper rebalance loop
 
@@ -591,7 +591,7 @@ Shared types:
 
 Notes:
 - Tools 5 and 6 are free on purpose: nobody should have to pay to reach their own money. They set `destructiveHint: false`, `readOnlyHint: true` because they return data, and say in the description that signing is separate.
-- All outputs carry a `disclosure` string: "A floor that holds unless prices gap more than 25% before the vault can rebalance." Never "guaranteed".
+- All outputs carry a `disclosure` string: "A floor that holds unless prices gap more than about 24% before the vault can rebalance." Never "guaranteed".
 - Paid tools return `PaymentRequired` first (section 3.2 and 3.3). They run no computation and read no rate-limited resource until `verify` has passed.
 - Tool results are data. Inputs from the agent are validated with zod. Addresses are checksummed, amounts are strings of integers.
 - Cut order if time is short: `simulate_gap`, `get_rebalance_history`, then `backtest`. Keep `quote_protection` (it is the demo's paid call).
