@@ -108,7 +108,7 @@ export class Bw3Client {
     return this.parse(rwaPriceData, data, 'rwaPrice');
   }
 
-  /** Routes sorted best first by the API. `userWalletAddress` is required for RFQ routes. */
+  /** Routes sorted best first by the API. `amount` is in the token's SMALLEST unit (wei; verified live: "10" = 10 wei, "10.0" is rejected). `userWalletAddress` is required for RFQ routes. */
   async quote(p: { from: string; to: string; amount: string; userWalletAddress: string; vendor?: string }): Promise<QuoteRoute[]> {
     const data = await this.request('GET', '/api/v1/dex/aggregator/quote', {
       query: { binanceChainId: this.o.chainId, amount: p.amount, fromTokenAddress: p.from, toTokenAddress: p.to, userWalletAddress: p.userWalletAddress, vendor: p.vendor },

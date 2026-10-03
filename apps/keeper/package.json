@@ -10,7 +10,8 @@
     "test": "vitest run --passWithNoTests",
     "start": "tsx src/bin.ts",
     "once": "tsx src/bin.ts once",
-    "test:fork": "FLOOR_FORK=1 vitest run fork",
+    "test:fork": "FLOOR_FORK=1 vitest run fork.test",
+    "test:fork-agg": "FLOOR_FORK=1 FLOOR_LIVE=1 vitest run fork-agg",
     "fork": "bash scripts/fork.sh"
   },
   "dependencies": {

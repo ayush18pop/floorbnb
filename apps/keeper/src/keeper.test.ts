@@ -182,6 +182,67 @@ describe('aggregator validation', () => {
   });
 });
 
+describe('aggregator route hardening', () => {
+  const goodAgg = (): AggClient & { quote: ReturnType<typeof vi.fn>; swap: ReturnType<typeof vi.fn> } => ({
+    quote: vi.fn(async () => [{ quoteId: 'q', toTokenAmount: (410n * WAD).toString(), executionMode: 'SWAP' }]),
+    swap: vi.fn(async () => ({ to: ROUTER, data: '0xdeadbeef', minReceiveAmount: (400n * WAD).toString(), approveTarget: ROUTER, executionMode: 'SWAP' })),
+  }) as never;
+  const input = (over: Record<string, unknown> = {}) => ({
+    vault: VAULT, buy: true, tokenIn: USDT, tokenOut: NVDAB, amountIn: 400n * WAD, minOutAgg: 399n * WAD,
+    routerOk: async () => ({ ok: true, approveTarget: ROUTER }), ...over,
+  });
+  it('sends amount as the integer wei string', async () => {
+    const a = goodAgg();
+    await buildAggSwap(a, input());
+    expect(a.quote.mock.calls[0]![0].amount).toBe('400000000000000000000');
+  });
+  it('rejects orders under 5 USD (buy by amountIn, sell by quoted USDT)', async () => {
+    await expect(buildAggSwap(goodAgg(), input({ amountIn: 4n * WAD, minOutAgg: 1n }))).rejects.toThrow(/5 USD/);
+    const sell = { ...goodAgg(), quote: async () => [{ quoteId: 'q', toTokenAmount: (4n * WAD).toString() }] };
+    await expect(buildAggSwap(sell, input({ buy: false, tokenIn: NVDAB, tokenOut: USDT, amountIn: 1n * WAD, minOutAgg: 1n }))).rejects.toThrow(/5 USD/);
+  });
+  it('re-quotes once when the quoteId expired between quote and swap, not twice', async () => {
+    const a = goodAgg();
+    a.swap.mockRejectedValueOnce(new Error('quoteId=abc not found or expired'));
+    expect((await buildAggSwap(a, input())).router).toBe(ROUTER);
+    expect(a.quote).toHaveBeenCalledTimes(2);
+    const b = goodAgg();
+    b.swap.mockRejectedValue(new Error('quoteId=abc not found or expired'));
+    await expect(buildAggSwap(b, input())).rejects.toThrow(/expired/);
+    expect(b.quote).toHaveBeenCalledTimes(2);
+  });
+  it('vendor error or no route falls back to direct', async () => {
+    const boom: AggClient = { quote: async () => { throw new Error('No valid quote result from any vendor'); }, swap: goodAgg().swap };
+    const r = await runOnce(cfg, fakeChain({}), quiet(), { dryRun: true, route: 'agg', agg: boom });
+    expect(r.outcomes[0]).toMatchObject({ route: 'direct' });
+    expect(logs.join()).toContain('agg_fallback_to_direct');
+  });
+  it('a router missing from the factory allowlist is refused and the direct route runs', async () => {
+    const chain = fakeChain({});
+    const read = chain.read;
+    chain.read = (async (a: Address, abi: never, fn: string, args: readonly unknown[] = []) => (fn === 'routerOk' ? [false, ROUTER] : read(a, abi, fn, args))) as never;
+    const r = await runOnce(cfg, chain, quiet(), { dryRun: true, route: 'agg', agg: goodAgg() });
+    expect(r.outcomes[0]).toMatchObject({ route: 'direct' });
+    expect(logs.join()).toContain('not an allowed router');
+  });
+  it('an agg simulation revert falls back to the direct route and re-simulates', async () => {
+    const chain = fakeChain({});
+    chain.simulate = async (_v, sw) => { if (sw.data === '0xdeadbeef') throw new SimError('SwapFailed'); return 1n; };
+    const s = sender();
+    const r = await runOnce(cfg, chain, quiet(), { dryRun: false, route: 'agg', agg: goodAgg(), sender: s });
+    expect(r.outcomes[0]).toMatchObject({ status: 'sent', route: 'direct' });
+    expect(logs.join()).toContain('agg_sim_failed_fallback_to_direct');
+  });
+  it('re-quotes and re-simulates when the calldata is older than the TTL budget', async () => {
+    const a = goodAgg();
+    const s = sender();
+    const r = await runOnce(cfg, fakeChain({}), quiet(), { dryRun: false, route: 'agg', agg: a, sender: s, aggMaxAgeMs: -1 });
+    expect(r.outcomes[0]).toMatchObject({ status: 'sent', route: 'agg' });
+    expect(a.quote).toHaveBeenCalledTimes(2);
+    expect(logs.join()).toContain('agg_requoted');
+  });
+});
+
 describe('secrets', () => {
   it('parseKey validates the shape and never echoes the value', () => {
     const k = generatePrivateKey();
