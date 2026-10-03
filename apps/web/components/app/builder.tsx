@@ -151,7 +151,7 @@ export function Builder({ paths }: { paths: BuilderPaths }) {
         </div>
 
         <div className="tiles mx-4 border border-grid md:mx-6" style={{ ["--n" as string]: 3 }}>
-          <Tile label="Worst case" tone="neg" value={`−${100 - floor}%`} note={`unless prices gap more than ${BRAND.gapLimitPct}% before the vault can rebalance`} />
+          <Tile label="Worst case" tone="neg" value={`−${100 - floor}%`} note={`unless prices gap more than about ${BRAND.gapLimitPct}% before the vault can rebalance`} />
           <Tile label="Upside kept" value="~42%" note="of a basket's gain in a median up year (NVDA ~45%, QQQ ~32%). Backtest." />
           <Tile label="Cost per rebalance" value={`~${cost.toFixed(1)} bps`} note="per $10k round trip, live quotes Thu 2026-10-02. Weekend cost not measured." />
         </div>

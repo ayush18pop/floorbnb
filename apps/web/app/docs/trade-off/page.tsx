@@ -46,6 +46,7 @@ export default function Page() {
           </div>
         </ChartPanel>
       </div>
+      <p className="small">The 42% is a pooled average of gains in up years, not a typical year. Across 1,581 one-year periods from 1928 to 2026 the vault&apos;s median year was +1.6% against +13.7% for holding: in a normal year you give most of it up. See <L href="/docs/evidence#tradeoff">Evidence</L>.</p>
       <div className="block"><UpsidePanel upside={upside} /></div>
 
       <h2 id="best">Best window, same rule</h2>

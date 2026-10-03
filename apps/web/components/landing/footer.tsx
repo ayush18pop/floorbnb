@@ -4,7 +4,7 @@ import { BRAND } from "@/lib/brand";
 
 /* ---------- footer ---------- */
 const cols: { h: string; links: [string, string][] }[] = [
-  { h: "Product", links: [["How it works", "/docs/how-it-works"], ["Trade-off", "/docs/trade-off"], ["Backtest", "/docs/backtest"], ["Prototype", "/app"]] },
+  { h: "Product", links: [["How it works", "/docs/how-it-works"], ["Trade-off", "/docs/trade-off"], ["Backtest", "/docs/backtest"], ["Evidence", "/docs/evidence"], ["Prototype", "/app"]] },
   { h: "Docs", links: [["Overview", "/docs"], ["Agents", "/docs/agents"], ["Contracts", "/docs/contracts"], ["FAQ", "/docs/faq"]] },
   { h: "Code", links: [["Contracts on BscScan (soon)", "#"], ["GitHub (soon)", "#"], ["Backtest scripts (soon)", "#"]] },
   { h: "Legal", links: [["Risks", "/docs/risks"], ["Terms (soon)", "#"], ["Privacy (soon)", "#"]] },
