@@ -20,14 +20,14 @@ export function Moment({ hold, vault }: { hold: number; vault: number }) {
       <Reveal>
         <div className="cellgrid">
           <div className="col-span-4 md:col-span-4 lg:col-span-6 !p-6 md:!p-10">
-            <p className="stat-label">Holding NVDA, 2022</p>
+            <p className="stat-label">Holding NVDA, its worst year since 2018</p>
             <p className="num-xl neg mt-3 leading-none" style={big}><NumberTicker value={hold} decimalPlaces={0} prefix="−" />%</p>
             <div className="mt-6 h-6 w-full" style={{ background: "var(--surface-sunken)" }}>
               <div className="h-6" style={{ width: `${hold}%`, background: "var(--crosshair)" }} />
             </div>
           </div>
           <div className="col-span-4 md:col-span-4 lg:col-span-6 !p-6 md:!p-10">
-            <p className="stat-label">With Floor, same year</p>
+            <p className="stat-label">With {BRAND.name}, same year</p>
             <p className="num-xl acc mt-3 leading-none" style={big}><NumberTicker value={vault} decimalPlaces={0} prefix="−" />%</p>
             <div className="mt-6 h-6 w-full" style={{ background: "var(--surface-sunken)" }}>
               <div className="h-6" style={{ width: `${vault}%`, background: "var(--accent)" }} />
@@ -35,7 +35,7 @@ export function Moment({ hold, vault }: { hold: number; vault: number }) {
           </div>
           <div className="col-span-4 md:col-span-8 lg:col-span-12 bare">
             <p className="label" style={{ textTransform: "none", letterSpacing: "0.02em" }}>
-              {CAP} Source: docs/data/vault_path_nvda_worst.csv. Same scale on both bars.{" "}
+              {CAP} NVDA 2022 is its worst one-year window, not a typical year. Source: docs/data/vault_path_nvda_worst.csv. Same scale on both bars.{" "}
               <Link href="/docs/backtest#worst-year" className="prose-link">Details</Link>
             </p>
           </div>
@@ -117,7 +117,7 @@ export function ProofTiles() {
     <Section id="proof" index="02" label="Proof" title="Tested on real prices.">
       <div className="cellgrid">
         <Tile href="/docs/backtest#windows" label="One-year windows held" note="2018 to October 2026"><NumberTicker value={93} /> <span className="text-muted" style={{ fontSize: "0.4em" }}>/</span> 93</Tile>
-        <Tile href="/docs/backtest#worst-year" label="NVDA 2022, with Floor" note="Holding lost 51.0%"><span className="acc">−10.0%</span></Tile>
+        <Tile href="/docs/backtest#worst-year" label="NVDA worst year, with Floor" note="Holding lost 51.0%"><span className="acc">−10.0%</span></Tile>
         <Tile href="/docs/trade-off#upside" label="Upside kept, up years" note="Of a basket's gain, at m = 4"><span>~42%</span></Tile>
         <Tile href="/docs/spot-only" label="How it trades" note="No perps, options, leverage or borrowing" cap={false}><span style={{ fontSize: "0.7em" }}>Spot only</span></Tile>
       </div>
@@ -139,7 +139,7 @@ export function SpotOnly() {
           </div>
         ))}
         <div className="col-span-4 md:col-span-8 lg:col-span-12 bare">
-          <p className="body">Floor swaps stock tokens and USDT on {BRAND.chain}. Nothing else. <Link href="/docs/spot-only" className="prose-link">How swaps work</Link></p>
+          <p className="body">{BRAND.name} swaps stock tokens and USDT on {BRAND.chain}. Nothing else. <Link href="/docs/spot-only" className="prose-link">How swaps work</Link></p>
         </div>
       </div>
     </Section>
@@ -172,7 +172,7 @@ export function NotAGuarantee() {
       <div className="pad py-6 md:!py-8">
         <div className="border-l-2 pl-4" style={{ borderColor: "var(--warning)" }}>
           <p className="label warn">Not a guarantee</p>
-          <p className="body mt-1">The floor holds unless prices gap more than {BRAND.gapLimitPct}% before the vault can rebalance. You also give up part of the upside. <Link href="/docs/risks" className="prose-link">Read the risks</Link></p>
+          <p className="body mt-1">The floor holds unless prices gap more than {BRAND.gapLimitPct}% before the vault can rebalance. You also give up part of the upside, and the token issuer can pause a stock token. <Link href="/docs/risks" className="prose-link">Read the risks</Link></p>
         </div>
       </div>
     </section>

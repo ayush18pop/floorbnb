@@ -7,7 +7,7 @@ export const metadata = { title: "Spot only" };
 const nots = [
   { t: "No perps.", b: "No bets on future prices." },
   { t: "No options.", b: "No contracts that expire." },
-  { t: "No leverage.", b: "Your exposure never goes above your deposit." },
+  { t: "No leverage.", b: "Your stock exposure never goes above your vault's current value." },
   { t: "No borrowing.", b: `${BRAND.name} owes no one anything.` },
 ];
 
@@ -25,7 +25,7 @@ export default function Page() {
           </div>
         ))}
       </div>
-      <p>Exposure is capped at your whole value, so there is no leverage. The vault borrows nothing and owes nothing. The rule behind this is on <L href="/docs/how-it-works#rule">How it works</L>.</p>
+      <p>Stock exposure is capped at your vault&apos;s current value, so there is no leverage. The vault borrows nothing and owes nothing. The rule behind this is on <L href="/docs/how-it-works#rule">How it works</L>.</p>
 
       <h2 id="swaps">How swaps work</h2>
       <p className="mono mt-4 inline-flex items-center gap-3 border border-grid-strong bg-surface px-4 py-2 text-[13px]" aria-hidden="true" style={{ color: "var(--text)" }}>

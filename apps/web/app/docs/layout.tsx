@@ -3,8 +3,9 @@ import type { ReactNode } from "react";
 import { Nav } from "@/components/landing/nav";
 import { Footer } from "@/components/landing/footer";
 import { DocsSidebar } from "@/components/docs/sidebar";
+import { BRAND } from "@/lib/brand";
 
-export const metadata: Metadata = { title: { default: "Docs", template: "%s | Floor docs" } };
+export const metadata: Metadata = { title: { default: "Docs", template: `%s | ${BRAND.name} docs` } };
 
 export default function DocsLayout({ children }: { children: ReactNode }) {
   return (

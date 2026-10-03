@@ -41,7 +41,7 @@ export default function Page() {
       </Callout>
 
       <h2 id="mcp">MCP server <span className="badge b-warn align-middle">building</span></h2>
-      <p>{BRAND.name} exposes its actions as MCP tools: quote_protection, build_deposit_tx, build_withdraw_tx, get_status, backtest. Any MCP-capable agent can use them. Tools that change state return an unsigned transaction. {BRAND.name} never signs.</p>
+      <p>{BRAND.name} exposes its actions as MCP tools: quote_protection, build_create_position_tx, build_exit_tx, get_status, backtest. Any MCP-capable agent can use them. Tools that change state return an unsigned transaction. {BRAND.name} never signs.</p>
       <p>The full tool list, inputs, prices, connection examples and a sample keeper log are on the <L href="/agents">agent reference page</L>.</p>
       <div className="block border border-grid bg-surface">
         <div className="flex items-center justify-between border-b border-grid px-4 py-3 md:px-6">
@@ -55,7 +55,7 @@ export default function Page() {
       <p>The agent pays a small fee for each paid call in stablecoins, through Binance&apos;s x402 on BSC (called b402). No sign-up, no API key. Gas is sponsored. b402 does not pay for LLM inference. Production access is by merchant application and is not granted yet. More on the <L href="/agents#b402">reference page</L>.</p>
 
       <h2 id="skill">Agent skill <span className="badge b-warn align-middle">building</span></h2>
-      <p>A {BRAND.name} skill so a user&apos;s own agent can deposit and withdraw with the user&apos;s own wallet. It tells the agent to read the factory address from get_vault_info and check every unsigned transaction against it before signing.</p>
+      <p>A {BRAND.name} skill so a user&apos;s own agent can deposit and withdraw with the user&apos;s own wallet. It tells the agent to read the factory address from get_floor_info and check every unsigned transaction against it before signing.</p>
       <p>Next: <L href="/docs/contracts">Contracts</L>.</p>
     </DocPage>
   );

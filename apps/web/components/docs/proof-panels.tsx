@@ -28,7 +28,7 @@ export function WindowsStat() {
           <p className="mono mt-4 leading-none tracking-tight" style={{ fontSize: "clamp(2.75rem, 2rem + 3vw, 3.75rem)", letterSpacing: "-0.04em", whiteSpace: "nowrap" }}>
             <NumberTicker value={93} /> <span className="text-muted" style={{ fontSize: "0.4em" }}>of</span> 93
           </p>
-          <p className="stat-note mt-4">At m = 4 (also with one rebalance a day, matching the contract's trading window), on NVDA, QQQ, SPY, TSLA and baskets, 2018 to 2026-10. Backtest on past prices. It does not predict the future.</p>
+          <p className="stat-note mt-4">At m = 4 (also with one rebalance a day, matching the contract&apos;s trading window), on NVDA, QQQ, SPY, TSLA and baskets, 2018 to 2026-10. Backtest on past prices. It does not predict the future.</p>
         </div>
   );
 }

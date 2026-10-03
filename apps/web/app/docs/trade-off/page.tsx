@@ -3,13 +3,14 @@ import { NumberTicker } from "@/components/ui/number-ticker";
 import { Callout, DocPage, L } from "@/components/docs/doc-page";
 import { proofData } from "@/lib/docs-data";
 import { UpsidePanel } from "@/components/docs/proof-panels";
+import { BRAND } from "@/lib/brand";
 
 export const metadata = { title: "The trade-off" };
 
 const rows: [string, string][] = [
   ["About 58% of the gain in an up year. The vault kept about 42% of a three-stock basket's gain.", "Bad years cut to −8.6% where holding lost 17.2% (NVDA + TSLA + QQQ basket, typical bad year)."],
   ["NVDA: kept about 45% of the gain. QQQ: about 32%.", "NVDA: −9.9% where holding lost 36.5% (typical bad year). QQQ: −7.4% where holding lost 19.4%."],
-  ["Small trading costs on each rebalance: 0.7 to 6.6 basis points for QQQB, NVDAB, SPCXB and SPYB on a $10k round trip (measured Thursday, 2026-10-02).", "A floor you chose, written in a public contract you can read."],
+  ["Trading costs on each rebalance. Live aggregator quotes on a $10k round trip were 0.7 to 6.6 basis points for QQQB, NVDAB, SPCXB and SPYB (Thursday, 2026-10-02), if the vault uses the aggregator route.", "A floor you chose, written in a public contract you can read."],
 ];
 
 export default function Page() {
@@ -17,7 +18,7 @@ export default function Page() {
   return (
     <DocPage
       slug="trade-off"
-      lead={<p>Protection is not free. Floor charges for it in upside, not in fees we hide. We measured the trade.</p>}
+      lead={<p>Protection is not free. {BRAND.name} charges for it in upside, not in fees we hide. We measured the trade.</p>}
       toc={[["give-get", "You give, you get"], ["upside", "Upside kept"], ["best", "Best window"], ["whipsaw", "TSLA whipsaw"], ["costs", "Costs"]]}
     >
       <h2 id="give-get" style={{ marginTop: 0 }}>You give, you get</h2>
@@ -48,7 +49,7 @@ export default function Page() {
       <div className="block"><UpsidePanel upside={upside} /></div>
 
       <h2 id="best">Best window, same rule</h2>
-      <p>Strong trends keep more of the gain than the typical 42%. NVDA, 8 Mar 2023 to 7 Mar 2024: holding <span className="mono-i">+{b.holdingPct.toFixed(1)}%</span>, with Floor <span className="mono-i">+{b.vaultPct.toFixed(1)}%</span>. Past data, not a prediction.</p>
+      <p>Strong trends keep more of the gain than the typical 42%. NVDA, 8 Mar 2023 to 7 Mar 2024: holding <span className="mono-i">+{b.holdingPct.toFixed(1)}%</span>, with {BRAND.name} <span className="mono-i">+{b.vaultPct.toFixed(1)}%</span>. Past data, not a prediction.</p>
 
       <h2 id="whipsaw">Choppy stocks cost more</h2>
       <Callout label="Warning">
@@ -56,7 +57,7 @@ export default function Page() {
       </Callout>
 
       <h2 id="costs">Costs</h2>
-      <p>There is no protocol fee in v1. The cost is the upside you give up, plus small trading costs on each rebalance. 1 basis point (bp) = 0.01%. So 0.7 bps = 0.007%, and 100 bps = 1%. The full cost table is on the <L href="/docs/backtest#costs">backtest page</L>. Weekend and crash-time costs are not yet measured.</p>
+      <p>There is no protocol fee in v1. The cost is the upside you give up, plus small trading costs on each rebalance. 1 basis point (bp) = 0.01%. So 0.7 bps = 0.007%, and 100 bps = 1%. The full cost table is on the <L href="/docs/backtest#costs">backtest page</L>. The vault may route directly through PancakeSwap, where we measured about 49 bps for NVDAB and SPCXB at 100 USDT. Weekend and crash-time costs are not yet measured.</p>
       <p>Next: how we tested it, on <L href="/docs/backtest">Backtest</L>.</p>
     </DocPage>
   );
