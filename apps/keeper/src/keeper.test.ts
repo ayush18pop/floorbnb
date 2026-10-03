@@ -28,7 +28,7 @@ const cfg: Config = { assets: [], factory: FACTORY, lens: LENS, keeperAddress: K
 
 interface World {
   open?: boolean; paused?: boolean; halted?: boolean; holiday?: boolean; now?: number;
-  preview?: unknown[] | 'revert'; minTrade?: bigint; last?: number; tokenPaused?: boolean; simulate?: () => Promise<bigint>;
+  preview?: unknown[] | 'revert'; minTrade?: bigint; dust?: bigint; tolDirect?: number; last?: number; tokenPaused?: boolean; simulate?: () => Promise<bigint>;
   liveMult?: bigint; storedMult?: bigint;
 }
 
@@ -43,7 +43,7 @@ function fakeChain(w: World): Chain {
       const r: Record<string, unknown> = {
         isTradingOpen: w.open ?? true, paused: w.paused ?? false, halted: w.halted ?? false, nonTradingDay: w.holiday ?? false,
         positionsCount: 1n, v3SwapRouter: ROUTER, assets: ['0x1', 2500, true, 0n, 0n, true], routerOk: [true, ROUTER],
-        previewRebalance: preview, minTrade: w.minTrade ?? 20n * WAD, minInterval: 900, lastTradeAt: w.last ?? 0,
+        previewRebalance: preview, minTrade: w.minTrade ?? 20n * WAD, dust: w.dust ?? 5n * WAD, tolDirectBps: w.tolDirect ?? 100, minInterval: 900, lastTradeAt: w.last ?? 0,
         uiMultiplier: w.liveMult ?? WAD, lastMultiplier: w.storedMult ?? WAD,
         pauseManager: '0x00000000000000000000000000000000000000c1', isTokenPaused: w.tokenPaused ?? false,
       };
@@ -114,6 +114,41 @@ describe('runOnce', () => {
     const r = await runOnce(cfg, fakeChain(w), quiet(), { dryRun: false, route: 'direct', sender: s });
     expect(r.outcomes[0]).toMatchObject({ status: 'skipped', reason });
     expect(s.send).not.toHaveBeenCalled();
+  });
+  describe('minTrade unit handling (sell amountIn is bStock wei, minTrade is USDT)', () => {
+    // sell of `usd` USDT value: amountIn in bStock wei at an arbitrary price, minOutDirect = usd * (1 - 1%)
+    const sell = (usd: bigint, wei: bigint) => [true, 0, false, NVDAB, USDT, wei, (usd * 98n) / 100n, (usd * 99n) / 100n];
+    const run = async (w: World) => {
+      const s = sender();
+      const r = await runOnce(cfg, fakeChain(w), quiet(), { dryRun: false, route: 'direct', sender: s });
+      return { r, s };
+    };
+    it('sends a sell worth 50 USDT whose wei amountIn is tiny (0.2e18 < minTrade 20e18)', async () => {
+      const { r, s } = await run({ preview: sell(50n * WAD, WAD / 5n) });
+      expect(r.outcomes[0]).toMatchObject({ status: 'sent' });
+      expect(s.send).toHaveBeenCalled();
+    });
+    it('sends a sell worth 50 USDT with a huge wei amountIn', async () => {
+      const { r } = await run({ preview: sell(50n * WAD, 5000n * WAD) });
+      expect(r.outcomes[0]).toMatchObject({ status: 'sent' });
+    });
+    it('skips a sell worth 3 USDT even though its wei amountIn is 1000e18', async () => {
+      const { r, s } = await run({ preview: sell(3n * WAD, 1000n * WAD) });
+      expect(r.outcomes[0]).toMatchObject({ status: 'skipped', reason: 'below_min_trade' });
+      expect(s.send).not.toHaveBeenCalled();
+    });
+    it('sends a residue sell between dust+1 and minTrade (8 USDT, dust 5, minTrade 20)', async () => {
+      const { r } = await run({ preview: sell(8n * WAD, WAD / 10n) });
+      expect(r.outcomes[0]).toMatchObject({ status: 'sent' });
+    });
+    it('skips a sell at or under dust (4 USDT, dust 5)', async () => {
+      const { r } = await run({ preview: sell(4n * WAD, 1000n * WAD) });
+      expect(r.outcomes[0]).toMatchObject({ status: 'skipped', reason: 'below_min_trade' });
+    });
+    it('buy: compares USDT amountIn with minTrade', async () => {
+      expect((await run({ preview: [true, 0, true, USDT, NVDAB, 30n * WAD, 1n, 1n] })).r.outcomes[0]).toMatchObject({ status: 'sent' });
+      expect((await run({ preview: [true, 0, true, USDT, NVDAB, 10n * WAD, 1n, 1n] })).r.outcomes[0]).toMatchObject({ status: 'skipped', reason: 'below_min_trade' });
+    });
   });
   it('dry-run simulates but never sends', async () => {
     const s = sender();

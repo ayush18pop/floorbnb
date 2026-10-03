@@ -159,8 +159,20 @@ export async function runOnce(cfg: Config, chain: Chain, log: Logger, o: RunOpts
 
       if (cfg.lens) await logStatus(chain, log, cfg.lens, vault);
 
+      // minTrade and dust are USDT values. amountIn is USDT for a buy but bStock wei for a sell, so a sell is compared by its USDT
+      // value, rebuilt from minOutDirect (= value * (1 - tolDirectBps)). The vault accepts a sell at >= minTrade, or at >= dust + 1
+      // when closing a residue (E* == 0, which the keeper cannot see), so the sell floor is min(minTrade, dust + 1): the keeper
+      // never skips a trade the vault would accept; the vault's own previewRebalance already applied the exact rule.
       const minTrade = await rd<bigint>(vault, vaultAbi as never, 'minTrade');
-      if (amountIn < minTrade) { skip(vault, 'below_min_trade', { amountIn, minTrade }); continue; }
+      let tradeUsd = amountIn;
+      let floorUsd = minTrade;
+      if (!buy) {
+        const tol = BigInt(await rd<number>(vault, vaultAbi as never, 'tolDirectBps'));
+        const dust = await rd<bigint>(vault, vaultAbi as never, 'dust');
+        tradeUsd = (minOutDirect * 10_000n + (10_000n - tol) - 1n) / (10_000n - tol); // ceil
+        if (dust + 1n < floorUsd) floorUsd = dust + 1n;
+      }
+      if (tradeUsd < floorUsd) { skip(vault, 'below_min_trade', { buy, tradeUsd, floorUsd, minTrade }); continue; }
 
       const token = buy ? tokenOut : tokenIn; // the bStock side
       await pokeIfStale(token);
