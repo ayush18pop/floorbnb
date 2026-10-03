@@ -11,7 +11,7 @@ import {
   type PublicClient,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { vaultAbi } from './abi.js';
+import { factoryAbi, vaultAbi } from './abi.js';
 import { readLensStatus, scanVaults, type LensStatus } from '@floor/sdk';
 import type { Swap } from './keeper.js';
 
@@ -46,6 +46,8 @@ export interface RebalancedEvent {
 
 export interface Sender {
   address: Address;
+  /** factory.pokeMultiplier(token): permissionless, arms the multiplier guard (A12 F-05 follow-up) */
+  poke?(factory: Address, token: Address): Promise<{ hash: Hex; success: boolean }>;
   send(vault: Address, swap: Swap, gas: bigint): Promise<{ hash: Hex; success: boolean; blockNumber: bigint; rebalanced?: RebalancedEvent }>;
 }
 
@@ -90,6 +92,19 @@ export function makeEoaSender(rpcUrl: string, client: PublicClient, key: Hex, ti
   let nonce: number | undefined;
   return {
     address: account.address,
+    async poke(factoryAddr, token) {
+      if (nonce === undefined) nonce = await client.getTransactionCount({ address: account.address, blockTag: 'pending' });
+      let hash: Hex;
+      try {
+        hash = await wallet.writeContract({ chain: null, address: factoryAddr, abi: factoryAbi, functionName: 'pokeMultiplier', args: [token], nonce });
+        nonce += 1;
+      } catch (e) {
+        nonce = undefined;
+        throw e;
+      }
+      const receipt = await client.waitForTransactionReceipt({ hash, timeout: timeoutMs });
+      return { hash, success: receipt.status === 'success' };
+    },
     async send(vault, swap, gas) {
       if (nonce === undefined) nonce = await client.getTransactionCount({ address: account.address, blockTag: 'pending' });
       let hash: Hex;

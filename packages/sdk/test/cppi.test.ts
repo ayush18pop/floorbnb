@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { cppi, WAD } from '../src';
 import vectors from './cppi-vectors.json';
+import planVectors from './plan-vectors.json';
 
 const P = 100n * WAD;
 const e = (n: number) => BigInt(Math.round(n * 1e6)) * 10n ** 12n; // n token units, 6 dp precision
@@ -117,5 +118,29 @@ describe('properties', () => {
   });
   it('mulDiv rejects zero divisor', () => {
     expect(() => cppi.mulDiv(1n, 1n, 0n)).toThrow();
+  });
+});
+
+describe('planSwap vs FloorVault._plan (real Solidity vectors)', () => {
+  const b = (s: string) => BigInt(s);
+  it('has vectors with real coverage', () => {
+    expect(planVectors.vectors.length).toBe(120);
+    expect(planVectors.vectors.some((v) => v.buy)).toBe(true);
+    expect(planVectors.vectors.some((v) => !v.buy && v.value !== '0')).toBe(true);
+    // the new rule: a full-unwind sale below minTrade
+    expect(planVectors.vectors.some((v) => v.estar === '0' && v.value !== '0' && b(v.value) < b(v.mt))).toBe(true);
+  });
+  it.each(planVectors.vectors.map((v, i) => [i, v] as const))('vector %i matches bit for bit', (_i, v) => {
+    const r = cppi.planSwap({
+      Ei: b(v.Ei), Ti: b(v.Ti), V: b(v.V), estarI: v.active ? b(v.estar) : 0n, usdtBal: b(v.usdtBal), price: b(v.price),
+      bal: b(v.bal), sellBandBps: b(v.sb), buyBandBps: b(v.bb), bandMul: b(v.mul), minTrade: b(v.mt), dust: b(v.dust),
+      maxTradeValue: b(v.mx), anyFailed: v.anyFailed,
+    });
+    expect(r).toEqual({ buy: v.buy, value: b(v.value), amountIn: b(v.amountIn) });
+  });
+  it('E_i == dust is kept, E_i == dust + 1 wei is sold, in a full unwind', () => {
+    const base = { Ti: 0n, V: 1000n * WAD, estarI: 0n, usdtBal: 0n, price: WAD, bal: 0n, sellBandBps: 100n, buyBandBps: 200n, bandMul: 1n, minTrade: 20n * WAD, dust: WAD, maxTradeValue: 1000n * WAD };
+    expect(cppi.planSwap({ ...base, Ei: WAD }).value).toBe(0n);
+    expect(cppi.planSwap({ ...base, Ei: WAD + 1n, bal: WAD + 1n }).value).toBe(WAD + 1n);
   });
 });

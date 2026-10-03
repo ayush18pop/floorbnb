@@ -11,6 +11,8 @@ export interface Config {
   /** public address used as `from` for dry-run simulations (no key needed) */
   keeperAddress?: Address;
   route: Route;
+  /** bStock tokens whose multiplier the keeper pokes every cycle (FLOOR_ASSETS, comma separated); tokens seen in vault previews are added */
+  assets: Address[];
   bw3?: { apiKey: string; apiSecret: string };
   alertWebhook?: string;
   intervalSec: number;
@@ -54,6 +56,10 @@ export function loadConfig(env: Env, overrides: { rpc?: string; route?: Route; d
     lens,
     keeperAddress: addr(env, 'KEEPER_ADDRESS'),
     route,
+    assets: (env.FLOOR_ASSETS ?? '').split(',').map((x) => x.trim()).filter(Boolean).map((x) => {
+      if (!isAddress(x)) throw new Error('FLOOR_ASSETS contains a non-address');
+      return x as Address;
+    }),
     bw3: key && secret ? { apiKey: key, apiSecret: secret } : undefined,
     alertWebhook: env.ALERT_WEBHOOK_URL?.trim() || undefined,
     intervalSec: Number(env.KEEPER_INTERVAL_SEC ?? 300),

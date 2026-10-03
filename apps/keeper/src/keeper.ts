@@ -24,7 +24,8 @@ export type SkipReason =
   | 'price_check_failed'
   | 'too_soon'
   | 'simulation_failed'
-  | 'already_pending';
+  | 'already_pending'
+  | 'poke_noop';
 
 export interface RunOpts {
   dryRun: boolean;
@@ -79,6 +80,26 @@ export async function runOnce(cfg: Config, chain: Chain, log: Logger, o: RunOpts
   const factory = cfg.factory;
   const now = await chain.now();
   const rd = <T>(a: Address, abi: never, fn: string, args: readonly unknown[] = []) => chain.read<T>(a, abi, fn, args);
+
+  // 0. multiplier poke (A12 F-05): permissionless, independent of the trading window, so it runs first on every cycle.
+  const poked = new Set<string>();
+  const pokeIfStale = async (token: Address) => {
+    if (poked.has(token.toLowerCase())) return;
+    poked.add(token.toLowerCase());
+    try {
+      const [live, stored] = await Promise.all([
+        rd<bigint>(token, tokenAbi as never, 'uiMultiplier'),
+        rd<bigint>(factory, factoryAbi as never, 'lastMultiplier', [token]),
+      ]);
+      if (live === stored) return;
+      if (o.dryRun || !o.sender?.poke) { log.log('info', 'poke_needed', { token, live, stored, dryRun: o.dryRun }); return; }
+      const r = await o.sender.poke(factory, token);
+      log.log(r.success ? 'info' : 'error', 'poked_multiplier', { token, hash: r.hash, success: r.success });
+    } catch (e) {
+      log.log('warn', 'poke_failed', { token, error: e instanceof Error ? e.message.split('\n')[0] : String(e) });
+    }
+  };
+  for (const t of cfg.assets ?? []) await pokeIfStale(t);
 
   // 1. window (CONTRACTS.md section 6). The chain answers; the mirror only names the reason.
   const open = await rd<boolean>(factory, factoryAbi as never, 'isTradingOpen', [BigInt(now)]);
@@ -142,6 +163,7 @@ export async function runOnce(cfg: Config, chain: Chain, log: Logger, o: RunOpts
       if (amountIn < minTrade) { skip(vault, 'below_min_trade', { amountIn, minTrade }); continue; }
 
       const token = buy ? tokenOut : tokenIn; // the bStock side
+      await pokeIfStale(token);
       const last = await rd<number>(vault, vaultAbi as never, 'lastTradeAt', [assetIdx]);
       const minInterval = await rd<number>(vault, vaultAbi as never, 'minInterval');
       if (Number(last) + Number(minInterval) > now) { skip(vault, 'too_soon', { last: Number(last), minInterval: Number(minInterval) }); continue; }
@@ -229,6 +251,9 @@ export async function runOnce(cfg: Config, chain: Chain, log: Logger, o: RunOpts
           allOk = false;
           out({ vault, status: 'failed', reason: 'tx reverted', hash: r.hash, route }, 'error');
           await alert(cfg, log, `rebalance tx reverted for ${vault} (${r.hash})`, o.fetchImpl);
+        } else if (!r.rebalanced) {
+          // The vault pokes a stale multiplier and returns success without trading (A12 F-05). Not a failure, not a trade.
+          skip(vault, 'poke_noop', { hash: r.hash, route });
         } else {
           out({ vault, status: 'sent', hash: r.hash, route });
           log.log('info', 'rebalanced', {

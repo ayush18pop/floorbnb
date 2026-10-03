@@ -196,6 +196,7 @@ Guards (all fail closed: revert and do nothing):
 - Per-trade value cap `maxTradeValue[asset]` (launch: NVDAB 25k, SPCXB 10k, QQQB 5k USDT; **proposed**, tune
   from quotes at deploy).
 - Global launch cap on TVL per position (`maxDeposit`, launch: 5,000 USDT) and total (`maxTotalTvl`, 50,000). `totalTvl` counts deposits of OPEN positions: a vault reports its close once to `factory.onPositionClosed()` (from `closeToUSDT` / `exitInKind`, best effort, gas capped, result ignored) and the deposit is released. Minimum deposit is 1 USDT (A12 F-07 / F-01).
+- Pricing when a pool guard fails (A12 F-03, A12r M-01): the asset cannot be traded and buys are suppressed, but it is still VALUED at its 10-minute TWAP (history is required, the spot-deviation and liquidity guards are not), so pushing one pool's spot for a block cannot understate V and force a sale of another asset. Only an asset with no TWAP at all (history too short) counts as 0, which can only make the vault sell more, never buy more. Preview (`previewRebalance`) skips an asset that cannot be traded and treats a reverting token beacon as "buys blocked" (A12r L-02).
 - Multiplier guard (section 4).
 
 Failure modes of the TWAP design and what happens:
@@ -555,7 +556,7 @@ detects an upgrade; it cannot detect a malicious token that was upgraded and rep
 
 - `requestClose()`: sets `closing = true`. Target exposure becomes 0. Keeper or public path sells everything.
   Why not sell inside this call: swaps need a route; keep owner calls simple and non-failing.
-- `closeToUSDT()`: requires all stock balances <= dust (`dustValue` default 1 USDT) and transfers all USDT to
+- `closeToUSDT()`: requires each asset's stock value <= dust (`dustValue` default 1 USDT; per asset, not the sum, so it matches the unwind rule `E_i > dust`; A12r L-01) and transfers all USDT to
   the owner. Marks the position `Closed`. After this, if dust bStocks remain, `rescue(token)` moves them.
 - `exitInKind(address to)`: **always callable by owner**. Marks `Closed`, sends ALL USDT to `to` FIRST, then for each
   asset reads `balanceOf` (staticcall, 100k gas, exactly 32 bytes of return data or the token is skipped) and calls
@@ -986,7 +987,7 @@ pages returning 403 to scripts; browsing by hand is fine. **Unverified: the key 
 | T15 | Owner or guardian key compromise | Can pause, halt, list a malicious router (24 h delay), disable assets (a guardian can also approve a token implementation, which silences the beacon guard, and unmark holidays). Cannot take funds, re-point a listed asset's pool or limits, or edit positions. | Safe for owner, delay on routers, guardian cannot add routers. |
 | T16 | Router delay means the router allowlist is stale when API changes router address | Keeper txs revert | Allowlist several aggregator routers; poll `routerOk`; public fallback. |
 | T17 | RFQ routes fail for contract wallets | Aggregator path unusable for some venues | Smoke test day 3; filter to AMM vendors; fallback to direct path. |
-| T-lag | Fast fall: spot falls more than the swap tolerance (30 bps aggregator, 100 bps Pancake) under the 10-minute TWAP | Honest sells revert `MinOutNotMet` (and `PriceDeviation` above 3%) until the TWAP catches up, so de-risking can be late in a sustained fall (A12 F-04) | OPEN, needs team-lead decision: accept with disclosure, or add a wider SELL tolerance (loosens I1/T1). Pinned by `test_audit_F04_KNOWN_...`. The Pancake route's bound is 100 bps, not 30 (A12 F-08). |
+| T-lag | Fast fall: spot falls more than the swap tolerance (30 bps aggregator, 100 bps Pancake) under the 10-minute TWAP | Honest sells revert `MinOutNotMet` (and `PriceDeviation` above 3%) until the TWAP catches up, so de-risking can be late in a sustained fall (A12 F-04) | ACCEPTED by the team lead (reviews/acceptances.md, 2026-10-03), tolerance not widened. Disclosure on the risks page and FAQ: in a fast crash a sell can be delayed until spot and the 10-minute average agree, which can let the value fall below the floor. Pinned by `test_audit_F04_KNOWN_...`. The Pancake route's bound is 100 bps, not 30 (A12 F-08). |
 | T18 | USDT depeg (BSC-USD) | Floor in USDT value falls with USDT | Disclose. v1 accepts USDT risk. |
 | T19 | Position owner loses key | Funds stuck until maturity then still need owner | No admin recovery by design. State in UI. |
 | T20 | Legal / jurisdiction gating on bStocks (EXECUTION.md: Binance account-level) | Users in restricted regions | Out of scope for contracts, flag to team lead. |
