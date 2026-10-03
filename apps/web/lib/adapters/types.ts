@@ -1,24 +1,12 @@
 /**
- * Data layer types. They mirror docs/CONTRACTS.md section 11: FloorLens.Status, FloorVault views
- * and events, FloorFactory.createPosition. Money is in WAD (18 decimals, bigint), as on chain.
- * When @floor/sdk is stable, these are replaced by (or mapped from) the SDK types.
+ * Data layer types. Chain-shaped views come from @floor/sdk (LensStatus, VaultStatusCode); the rest
+ * mirror docs/CONTRACTS.md section 11 events. Money is in WAD (18 decimals, bigint), as on chain.
  */
-export type Address = `0x${string}`;
-export type Hex = `0x${string}`;
+import type { Address, Hex } from "viem";
+import type { LensStatus, VaultStatusCode } from "@floor/sdk";
 
-export type VaultStatus = "Active" | "Closing" | "Closed";
-
-/** FloorLens.Status */
-export type LensStatus = {
-  vault: Address;
-  V: bigint;
-  floor: bigint;
-  cushion: bigint;
-  exposure: bigint;
-  target: bigint;
-  needsRebalance: boolean;
-  tradingOpen: boolean;
-};
+export type { Address, Hex, LensStatus };
+export type VaultStatus = VaultStatusCode;
 
 export type AssetSymbol = "NVDAB" | "SPCXB" | "QQQB" | "SPYB";
 
@@ -40,7 +28,7 @@ export type PositionView = {
   owner: Address;
   vaultStatus: VaultStatus;
   deposit: bigint;
-  /** Unix seconds. */
+  /** Unix seconds. 0 if unknown (chain source without the creation event). */
   start: number;
   maturity: number;
   /** Seconds: the "now" these numbers were read at (block time on chain). */
@@ -53,15 +41,15 @@ export type PositionView = {
 /** Derived UI phase. Cash lock = Active, no stock target, value at the floor. */
 export type Phase = "active" | "cashLock" | "closing" | "closed";
 
+export type SignerKind = "keeper" | "agentic" | "public";
+
 export type VaultEvent =
   | { type: "PositionCreated"; time: number; tx: Hex; deposit: bigint; floor: bigint; maturity: number; assets: AssetSymbol[] }
-  | { type: "Rebalanced"; time: number; tx: Hex; id: number; assetIdx: number; symbol: AssetSymbol; buy: boolean; amountIn: bigint; amountOut: bigint; V: bigint; exposureTarget: bigint; router: Address; caller: Address; signer: SignerKind; minOut?: bigint; costBps?: number; stockPctBefore?: number; stockPctAfter?: number; trigger?: string }
+  | { type: "Rebalanced"; time: number; tx: Hex; id: number; symbol: AssetSymbol; buy: boolean; amountIn: bigint; amountOut: bigint; V: bigint; exposureTarget: bigint; caller: Address; signer: SignerKind; minOut?: bigint; costBps?: number; stockPctBefore?: number; stockPctAfter?: number; trigger?: string }
   | { type: "CashLock"; time: number; tx: Hex; usdtOut: bigint }
   | { type: "CloseRequested"; time: number; tx: Hex }
   | { type: "Closed"; time: number; tx: Hex; usdtOut: bigint }
   | { type: "ExitInKind"; time: number; tx: Hex; usdtOut: bigint; skipped: Address[] };
-
-export type SignerKind = "keeper" | "agentic" | "public";
 
 export type ValuePoint = { t: number; v: number };
 
@@ -90,6 +78,7 @@ export type KeeperStatus = {
 };
 
 export type CreateParams = {
+  owner: Address;
   /** USDT WAD */
   amount: bigint;
   floorBps: number;
@@ -108,14 +97,14 @@ export type AssetInfo = {
   symbol: AssetSymbol;
   name: string;
   token: Address;
-  /** Round-trip cost per $10k in bps from live quotes (CONTEXT.md). */
+  /** Round-trip cost per $10k in bps from live quotes (CONTEXT.md, Thu 2026-10-02 12:06 UTC). */
   roundTripBps: number;
   optional?: boolean;
 };
 
 /**
- * The one interface the screens use. `mock` implements it with labelled example data.
- * `chain` (A21) implements it with FloorLens, events and the factory. `sdk` swaps in later.
+ * The one interface the screens use. `mock` implements it with labelled example data. `chain` implements
+ * it with @floor/sdk reads and transactions. Screens never import either directly (see ./index.ts).
  */
 export interface PositionSource {
   /** "mock" means every screen shows an EXAMPLE label. */
@@ -128,5 +117,6 @@ export interface PositionSource {
   keeperStatus(): Promise<KeeperStatus>;
   keeperRuns(limit?: number): Promise<KeeperRun[]>;
   createPosition(p: CreateParams, onProgress: (e: CreateProgress) => void): Promise<CreateResult>;
-  exit(vault: Address, kind: ExitKind): Promise<Hex>;
+  /** `to` is only used by exitInKind (defaults to the owner). */
+  exit(vault: Address, kind: ExitKind, owner: Address): Promise<Hex>;
 }

@@ -3,7 +3,8 @@ import { mockSource } from "./mock";
 import type { PositionSource } from "./types";
 
 /**
- * Single switch. Default is the labelled mock until the SDK and deploy exist (A08, A21).
+ * Single switch. The mock (labelled EXAMPLE on every screen) is the default until a deployment exists.
+ * Set NEXT_PUBLIC_DATA_SOURCE=chain with the factory and lens addresses to use @floor/sdk reads and txs.
  * Production builds must use "chain" (EXECUTION_PLAN A21 constraint).
  */
 let cached: PositionSource | null = null;
@@ -14,4 +15,4 @@ export function getSource(): PositionSource {
 
 export * from "./types";
 export * from "./format";
-export { ASSETS, assetBySymbol } from "./assets";
+export { ASSETS, assetBySymbol, symbolOf } from "./assets";

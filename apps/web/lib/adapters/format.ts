@@ -1,3 +1,4 @@
+import { nextWindowOpen } from "@floor/sdk";
 import type { Address, Phase, PositionView } from "./types";
 
 export const WAD = 10n ** 18n;
@@ -22,7 +23,8 @@ export const daysLeft = (maturity: number, asOf: number) => Math.max(0, Math.cei
 export function phaseOf(p: PositionView): Phase {
   if (p.vaultStatus === "Closed") return "closed";
   if (p.vaultStatus === "Closing") return "closing";
-  if (p.status.target === 0n && p.status.exposure < p.status.V / 100n) return "cashLock";
+  // Same test as @floor/sdk readPosition: no cushion left, so the vault holds USDT only.
+  if (p.status.cushion === 0n && p.status.V > 0n) return "cashLock";
   return "active";
 }
 
@@ -31,18 +33,7 @@ export function stockPct(p: PositionView): number {
   return V > 0 ? (num(p.status.exposure) / V) * 100 : 0;
 }
 
-/** Next trading window start after `t`: Mon to Fri 15:30 UTC (holidays are not modelled here). */
-export function nextWindow(t: number): number {
-  const d = new Date(t * 1000);
-  const open = (day: Date) => Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate(), 15, 30) / 1000;
-  const cur = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-  for (let i = 0; i < 8; i++) {
-    const day = new Date(cur.getTime() + i * D * 1000);
-    const wd = day.getUTCDay();
-    if (wd === 0 || wd === 6) continue;
-    if (open(day) > t) return open(day);
-  }
-  return t;
-}
+/** Next trading window start at or after `t` (SDK market helper, holidays from the SDK table). */
+export const nextWindow = (t: number) => nextWindowOpen(t);
 
 export const isAddress = (s: string | null): s is Address => !!s && /^0x[0-9a-fA-F]{40}$/.test(s);

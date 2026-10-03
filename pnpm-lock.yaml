@@ -26,6 +26,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@floor/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
       '@tanstack/react-query':
         specifier: ^5.104.1
         version: 5.104.1(react@19.2.8)

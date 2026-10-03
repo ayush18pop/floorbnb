@@ -1,168 +1,147 @@
 "use client";
-
+import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ValueChart } from "@/components/charts/value-chart";
-import { ChartPanel } from "@/components/charts/panel";
-import { Button } from "@/components/ui/button";
-import type { PathPoint } from "@/lib/data";
-import type { RebalanceEvent, ReplayRow } from "@/lib/replay";
+import { useSearchParams } from "next/navigation";
+import { useAccount } from "wagmi";
+import { getSource, isAddress, fmt, fmtW, num, pct, phaseOf, stockPct, daysLeft, isoDate, stamp, dow, nextWindow, shortAddr, type VaultEvent, type PositionView } from "@/lib/adapters";
+import { useAsync } from "@/lib/adapters/use";
+import { BRAND } from "@/lib/brand";
+import { Xh } from "@/components/ui/xh";
+import { ErrorBox, ExampleBadge, Notice, Skeleton, Tile } from "./ui";
+import { PhaseBadges } from "./phase";
+import { PositionChart, type Band } from "./position-chart";
+import { CloseModal } from "./close-modal";
+import { RebalanceDetail } from "./rebalance-detail";
 
-const usd = (n: number, d = 0) => `$${n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d })}`;
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const fd = (d: string) => { const [y, m, day] = d.split("-"); return `${Number(day)} ${MONTHS[Number(m) - 1]} ${y}`; };
+type Rb = Extract<VaultEvent, { type: "Rebalanced" }>;
 
-type Exit = "requestClose" | "closeToUSDT" | "exitInKind";
+function describe(e: VaultEvent): { title: string; sub: string } {
+  switch (e.type) {
+    case "PositionCreated": return { title: "Deposit", sub: `${fmtW(e.deposit)} USDT` };
+    case "Rebalanced": return e.buy ? { title: `Buy ${e.symbol}`, sub: `${fmtW(e.amountIn)} USDT` } : { title: `Sell ${fmtW(e.amountIn)} ${e.symbol}`, sub: `→ ${fmtW(e.amountOut)} USDT` };
+    case "CashLock": return { title: "Sold all stock · cash lock", sub: `${fmtW(e.usdtOut)} USDT` };
+    case "CloseRequested": return { title: "Close requested", sub: "" };
+    case "Closed": return { title: "Closed to USDT", sub: `${fmtW(e.usdtOut)} USDT` };
+    case "ExitInKind": return { title: "Exited in kind", sub: `${fmtW(e.usdtOut)} USDT + tokens` };
+  }
+}
 
-export function PositionView({ path, rows, events }: { path: PathPoint[]; rows: ReplayRow[]; events: RebalanceEvent[] }) {
-  const last = rows.length - 1;
-  const [day, setDay] = useState(Math.min(last, 60));
-  const [showHold, setShowHold] = useState(false);
-  const [to, setTo] = useState("");
-  const [msg, setMsg] = useState<string | null>(null);
+export function PositionScreen() {
+  const sp = useSearchParams();
+  const { address } = useAccount();
+  const source = getSource();
+  const v = sp.get("v");
+  const [rev, setRev] = useState(0);
+  const [modal, setModal] = useState<null | "usdt" | "kind">(null);
+  const [sel, setSel] = useState<Rb | null>(null);
+  // Without ?v= the mock opens its first position; chain needs an explicit vault or the first of the connected owner.
+  const pos = useAsync<{ p: PositionView | null; ev: VaultEvent[]; hist: { t: number; v: number }[] }>(async () => {
+    let vault = isAddress(v) ? v : null;
+    if (!vault) { const l = await source.listPositions(address); vault = l[0]?.status.vault ?? null; }
+    if (!vault) return { p: null, ev: [], hist: [] };
+    const [p, ev, hist] = await Promise.all([source.getPosition(vault), source.getEvents(vault).catch(() => []), source.getHistory(vault).catch(() => [])]);
+    return { p, ev, hist };
+  }, `${v}${address}${rev}`);
 
-  const r = rows[day];
-  const lockFirst = useMemo(() => rows.findIndex((x) => x.cashLock), [rows]);
-  const lowHold = useMemo(() => path.reduce((m, p, i) => (p.stock < path[m].stock ? i : m), 0), [path]);
-  const shown = events.filter((e) => e.i <= day).slice(-12).reverse();
-  const termEnd = path[last].date;
-  const holdValue = (path[day].stock / 100) * rows[0].V;
+  const p = pos.data?.p ?? null;
+  const ev = useMemo(() => pos.data?.ev ?? [], [pos.data]);
+  const hist = useMemo(() => pos.data?.hist ?? [], [pos.data]);
+  const marks = useMemo(() => ev.filter((e) => e.type === "Rebalanced").map((e) => e.time), [ev]);
 
-  const exits: { fn: Exit; text: string; arg?: boolean }[] = [
-    { fn: "requestClose", text: "Sets the target stock to 0. The keeper, or anyone after 4 hours idle, sells the stock for USDT." },
-    { fn: "closeToUSDT", text: "Once the stock is sold, sends all USDT to you and closes the position." },
-    { fn: "exitInKind", text: "Always allowed. Sends your USDT and any tokens that can move to an address you choose. A paused token is skipped and can be rescued later.", arg: true },
-  ];
+  if (pos.loading) return <Skeleton lines={6} />;
+  if (pos.error) return <ErrorBox message={pos.error} />;
+  if (!p) return <div className="p-4 md:p-6"><Notice kind="info" title="No position found.">Check the address, or <Link href="/app/positions" className="prose-link">see your positions</Link>.</Notice></div>;
+
+  const ph = phaseOf(p);
+  const V = num(p.status.V), F = num(p.status.floor), D = num(p.deposit);
+  const chg = D > 0 ? ((V - D) / D) * 100 : 0;
+  const sPct = stockPct(p);
+  const basket = p.holdings.map((h) => h.symbol).join(" · ");
+  const lockEv = ev.find((e) => e.type === "CashLock");
+  const closedEv = ev.find((e) => e.type === "Closed");
+  const dayOfWeek = dow(p.asOf);
+  const weekend = dayOfWeek === "Sat" || dayOfWeek === "Sun";
+  const nw = nextWindow(p.asOf);
+  const bands: Band[] = [];
+  const t0 = hist[0]?.t ?? p.start, tEnd = hist[hist.length - 1]?.t ?? p.asOf;
+  let domainEnd: number | undefined;
+  if (ph === "cashLock" && lockEv) { domainEnd = tEnd + (tEnd - t0) * 0.5; bands.push({ from: lockEv.time, to: domainEnd, kind: "lock", label: "CASH LOCK · USDT TO TERM END" }); }
+  else if (!p.status.tradingOpen && weekend && ph === "active") { const sat = Math.floor(p.asOf / 86_400) * 86_400 - (dayOfWeek === "Sun" ? 86_400 : 0); bands.push({ from: sat, to: tEnd, kind: "weekend", label: "NO TRADES" }); }
 
   return (
-    <div className="cellgrid" style={{ borderTop: 0 }}>
-      {/* mock banner */}
-      <div className="col-span-4 md:col-span-8 lg:col-span-12 sunken">
-        <p className="small"><strong className="text-ink font-medium">Mock position.</strong> 10,000 USDT in NVDAB, floor 90%, one-year term. The day slider replays the real NVDA path from 4 Jan 2022 to 4 Jan 2023 (docs/data/vault_path_nvda_worst.csv) through the vault rule. Values are what the screen would read from <span className="mono">FloorLens.status(vault)</span>. Not on-chain.</p>
-      </div>
+    <>
+      {ph === "cashLock" && <div className="p-4 pb-0 md:px-6 md:pt-6"><Notice kind="neg" title="Cash lock">Your value reached the floor{lockEv ? ` on ${isoDate(lockEv.time)}` : ""}. The vault sold all stock and holds USDT until the term ends on {isoDate(p.maturity)}. You keep {fmtW(p.status.V)} USDT. You will not gain from a recovery during this term.</Notice></div>}
+      {ph === "closing" && <div className="p-4 pb-0 md:px-6 md:pt-6"><Notice kind="warn" title="Close requested">The vault sells its stock in the next trading window. When the stock is sold, choose Close to USDT to receive your USDT.</Notice></div>}
+      {ph === "closed" && <div className="p-4 pb-0 md:px-6 md:pt-6"><Notice kind="info" title="This position is closed.">{closedEv && closedEv.type === "Closed" ? `${fmtW(closedEv.usdtOut)} USDT was sent to your wallet on ${isoDate(closedEv.time)}.` : "It has been closed."} The floor no longer applies.</Notice></div>}
+      {ph === "active" && !p.status.tradingOpen && <div className="p-4 pb-0 md:px-6 md:pt-6"><Notice kind="warn" title="Market closed">{weekend ? "The vault does not trade on weekends." : "The vault trades only inside its window, and not on exchange holidays."} Next trading window: {dow(nw)} {stamp(nw).replace(" ", ", ")} UTC. The floor maths already assumes the full weekend gap.</Notice></div>}
 
-      {/* status tiles */}
-      <div className="col-span-4 md:col-span-8 lg:col-span-12 !p-0">
-        <div className="grid grid-cols-2 gap-px bg-grid md:grid-cols-4">
-          <div className="bg-surface p-4"><p className="stat-label">Value (V)</p><p className="mono mt-2 text-[28px] leading-none">{usd(r.V)}</p><p className="stat-note mt-2">{r.V >= r.floor ? "above the floor" : "below the floor"} · holding alone: {usd(holdValue)}</p></div>
-          <div className="bg-surface p-4"><p className="stat-label">Floor</p><p className="mono acc mt-2 text-[28px] leading-none">{usd(r.floor)}</p><p className="stat-note mt-2">90% of 10,000 USDT, fixed</p></div>
-          <div className="bg-surface p-4"><p className="stat-label">Cushion</p><p className="mono mt-2 text-[28px] leading-none">{usd(r.cushion)}</p><p className="stat-note mt-2">V − floor</p></div>
-          <div className="bg-surface p-4"><p className="stat-label">Term ends</p><p className="mono mt-2 text-[28px] leading-none">{fd(termEnd).replace(/ 20/, " ’")}</p><p className="stat-note mt-2">termSeconds = 31,536,000</p></div>
+      <div className="flex flex-wrap items-end justify-between gap-4 p-4 md:p-6">
+        <div className="min-w-0">
+          <p className="label">{basket} · <span className="mono">{shortAddr(p.status.vault)}</span> <ExampleBadge className="ml-1" /></p>
+          <p className="mt-3 flex flex-wrap items-baseline gap-x-4 gap-y-1"><span className="num-xl !text-[clamp(2rem,1.2rem+3vw,3.5rem)]">{fmt(V)} <span className="text-[0.5em] text-muted">USDT</span></span><span className={`mono text-[clamp(1.1rem,0.9rem+1vw,1.75rem)] ${chg >= 0 ? "pos" : "neg"}`}>{pct(chg)}</span></p>
+          <div className="mt-3"><PhaseBadges p={p} /></div>
         </div>
-      </div>
-
-      {/* chart + replay */}
-      <div className="col-span-4 md:col-span-8 lg:col-span-8 !p-0">
-        <ChartPanel className="h-full border-0" corners={false} fig="FIG. A3 / VALUE VS FLOOR" title={fd(r.date)} source="docs/data/vault_path_nvda_worst.csv, floor 90%, m = 4" caption="Backtest replay, past data, not a prediction.">
-          <ValueChart
-            data={path}
-            height={340}
-            showHolding={showHold}
-            yMin={showHold ? 30 : 86}
-            yMax={showHold ? 110 : 102}
-            yTicks={showHold ? [40, 60, 80, 100] : [88, 92, 96, 100]}
-            lockBand
-            tooltip={false}
-            endLabels={false}
-            activeIndex={day}
-            onActiveChange={(i) => i != null && setDay(i)}
-            label="Mock position replay: vault value versus the 90% floor"
-          />
-          <div className="mt-4 grid gap-3">
-            <label className="label" htmlFor="day">Replay day: {day} of {last} ({fd(r.date)})</label>
-            <input id="day" className="range" type="range" min={0} max={last} step={1} value={day} onChange={(e) => setDay(Number(e.target.value))} aria-valuetext={fd(r.date)} />
-            <div className="flex flex-wrap gap-2">
-              <button className="chip" type="button" onClick={() => setDay(0)}>Start</button>
-              <button className="chip" type="button" onClick={() => setDay(lowHold)}>Stock at its low</button>
-              {lockFirst > 0 && <button className="chip" type="button" onClick={() => setDay(lockFirst)}>Cash lock begins</button>}
-              <button className="chip" type="button" onClick={() => setDay(last)}>End of term</button>
-              <button className="chip" type="button" aria-pressed={showHold} onClick={() => setShowHold(!showHold)}>Compare with holding</button>
-            </div>
+        {ph !== "closed" && (
+          <div className="flex flex-wrap items-center gap-4">
+            <button type="button" className="btn btn-secondary" onClick={() => setModal("usdt")}>{ph === "cashLock" ? `Close to USDT` : ph === "closing" ? "Finish: Close to USDT" : "Close to USDT"}</button>
+            <button type="button" className="btn btn-ghost acc" onClick={() => setModal("kind")}>Exit in kind →</button>
           </div>
-        </ChartPanel>
+        )}
       </div>
 
-      {/* weights + state */}
-      <div className="col-span-4 md:col-span-8 lg:col-span-4">
-        <p className="label mb-3">Stock and USDT weights</p>
-        <div className="flex h-8 w-full border border-grid-strong" role="img" aria-label={`${r.stockPct.toFixed(0)} percent stock, ${r.usdtPct.toFixed(0)} percent USDT`}>
-          <div className="flex items-center justify-center overflow-hidden mono text-[12px]" style={{ width: `${r.stockPct}%`, background: "var(--text)", color: "var(--bg)" }}>{r.stockPct >= 14 ? `${r.stockPct.toFixed(0)}%` : ""}</div>
-          <div className="flex flex-1 items-center justify-center mono text-[12px] text-ink-2">{`USDT ${r.usdtPct.toFixed(r.usdtPct > 99 ? 1 : 0)}%`}</div>
-        </div>
-        <dl className="mono mt-5 grid grid-cols-[1fr_auto] gap-x-4 gap-y-2 text-[13px]">
-          <dt className="text-muted">stock (exposure)</dt><dd className="text-right">{usd(r.exposure)}</dd>
-          <dt className="text-muted">target (E*)</dt><dd className="text-right">{usd(r.target)}</dd>
-          <dt className="text-muted">needsRebalance</dt><dd className="text-right">false</dd>
-          <dt className="text-muted">tradingOpen</dt><dd className="text-right">mock</dd>
-        </dl>
-        <p className="small mt-3">Trading window: Mon to Fri, 15:30 to 19:30 UTC. Replay days are daily, not intraday.</p>
+      <div className="tiles t6 border-t border-grid">
+        <Tile label="Value" value={fmt(V)} note="at the 10-minute average price" />
+        <Tile label="Floor" value={fmt(F)} />
+        <Tile label="Cushion" value={ph === "closed" ? "n/a" : fmtW(p.status.cushion)} />
+        <Tile label="In stocks" value={`${sPct.toFixed(0)}%`} note={`${fmtW(p.status.exposure)} USDT`} />
+        <Tile label="In USDT" value={`${(100 - sPct).toFixed(0)}%`} note={`${fmtW(p.usdtBalance)} USDT`} />
+        <Tile label="Term" value={ph === "closed" ? "n/a" : daysLeft(p.maturity, p.asOf)} note={ph === "closed" ? "closed" : `days left · ends ${isoDate(p.maturity)}`} />
+      </div>
 
-        <div className="mt-6 border-t border-grid pt-5">
-          <p className="label mb-2">Cash lock</p>
-          {r.cashLock ? (
-            <div role="status">
-              <span className="badge b-neg">Cash lock</span>
-              <p className="body mt-3" style={{ fontSize: 14.5 }}>Value is at the floor. The vault holds almost only USDT and stays there until {fd(termEnd)}. The floor is protected. A recovery in this term would be missed.</p>
-            </div>
-          ) : (
-            <div role="status">
-              <span className="badge b-pos">Not locked</span>
-              <p className="body mt-3" style={{ fontSize: 14.5 }}>The vault still holds stock. If the cushion reaches zero it sells everything and holds USDT until the term ends.</p>
-            </div>
+      <div className="grid border-t border-grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">
+        <section className="relative min-w-0 border-b border-grid p-4 md:p-6 lg:border-b-0 lg:border-r" aria-labelledby="chart-h">
+          <Xh style={{ left: 0, top: 0 }} /><Xh style={{ left: "100%", top: 0 }} />
+          <h2 id="chart-h" className="label mb-3">Value since deposit{source.kind === "mock" && " · example"}</h2>
+          <PositionChart points={hist} floor={F} bands={bands} marks={marks} domainEnd={domainEnd} label={`Value since deposit: ${fmt(hist[0]?.v ?? D)} to ${fmt(V)} USDT, floor ${fmt(F)} USDT.${ph === "cashLock" ? " The vault is in cash lock." : ""}`} />
+          {source.kind === "chain" && <p className="small mt-2">On chain, value is logged at each rebalance, so the line is sparse.</p>}
+        </section>
+        <section className="min-w-0" aria-labelledby="act-h">
+          <h2 id="act-h" className="label border-b border-grid p-4 md:px-6">Activity</h2>
+          {ev.length === 0 ? <p className="small p-4 md:p-6">No activity yet. The first rebalance runs in the next trading window.</p> : (
+            <ul>
+              {ev.map((e, i) => {
+                const d = describe(e);
+                const rb = e.type === "Rebalanced";
+                const inner = (
+                  <>
+                    <span className="mono small !text-muted">{stamp(e.time).slice(5)}</span>
+                    <span className="min-w-0"><span className="block text-[14px] text-ink">{d.title}</span><span className="block mono small">{d.sub}</span></span>
+                  </>
+                );
+                return <li key={i} className="border-b border-grid">{rb ? <button type="button" className="grid w-full grid-cols-[88px_1fr] gap-3 p-4 text-left hover:bg-sunken md:px-6" onClick={() => setSel(e)}>{inner}</button> : <div className="grid grid-cols-[88px_1fr] gap-3 p-4 md:px-6">{inner}</div>}</li>;
+              })}
+            </ul>
           )}
-        </div>
+          <p className="label p-4 md:px-6">Sell when stock is more than 1% of value over target. Buy when it is more than 2% under. {BRAND.tradingWindow}.</p>
+        </section>
       </div>
 
-      {/* rebalance history */}
-      <div className="col-span-4 md:col-span-8 lg:col-span-12 !p-0">
-        <div className="border-b border-grid p-4 md:p-6">
-          <p className="label">Rebalance history</p>
-          <p className="small mt-1">Replayed with the contract&apos;s bands (sell at 1% of V, buy at 2% of V). Fields follow the <span className="mono">Rebalanced</span> event. Not on-chain, so no transaction hashes.</p>
-        </div>
-        <p className="label px-4 pb-2 md:hidden">Scroll sideways to see all columns</p>
-        <div className="tbl-wrap px-4 pb-2 md:px-6">
+      <section className="border-t border-grid" aria-labelledby="hold-h">
+        <h2 id="hold-h" className="label p-4 md:px-6">Holdings</h2>
+        <div className="tbl-wrap px-2 pb-4 md:px-4">
           <table className="tbl">
-            <caption className="sr-only">Replayed rebalances up to the selected day, newest first</caption>
-            <thead><tr><th scope="col">Date</th><th scope="col">assetIdx</th><th scope="col">Side</th><th scope="col" className="r">Trade value</th><th scope="col" className="r">V</th><th scope="col" className="r">exposureTarget</th><th scope="col">Caller</th><th scope="col">Tx</th></tr></thead>
+            <caption className="sr-only">What the vault holds</caption>
+            <thead><tr><th scope="col">Asset</th><th scope="col" className="r">Weight</th><th scope="col" className="r">Amount</th><th scope="col" className="r">Value (USDT)</th><th scope="col" className="r">Share of value</th></tr></thead>
             <tbody>
-              {shown.map((e) => (
-                <tr key={e.i}>
-                  <td className="mono whitespace-nowrap">{fd(e.date)}</td><td className="mono whitespace-nowrap">0 · NVDAB</td>
-                  <td className={e.side === "buy" ? "pos" : "neg"}>{e.side === "buy" ? "Buy" : "Sell"}</td>
-                  <td className="r">{usd(e.value)}</td><td className="r">{usd(e.V)}</td><td className="r">{usd(e.exposureTarget)}</td>
-                  <td className="mono">keeper (mock)</td><td className="mono text-muted">n/a</td>
-                </tr>
-              ))}
+              {p.holdings.map((h) => <tr key={h.symbol}><th scope="row" className="mono">{h.symbol}{h.paused && <span className="badge b-neg ml-2">Paused</span>}</th><td className="r">{(h.weightBps / 100).toFixed(0)}%</td><td className="r">{fmtW(h.amount, 4)}</td><td className="r">{fmtW(h.value)}</td><td className="r">{V > 0 ? ((num(h.value) / V) * 100).toFixed(1) : "0.0"}%</td></tr>)}
+              <tr><th scope="row" className="mono">USDT</th><td className="r">n/a</td><td className="r">{fmtW(p.usdtBalance)}</td><td className="r">{fmtW(p.usdtBalance)}</td><td className="r">{V > 0 ? ((num(p.usdtBalance) / V) * 100).toFixed(1) : "0.0"}%</td></tr>
             </tbody>
           </table>
-          {shown.length === 0 && <p className="small py-4">No rebalances yet.</p>}
         </div>
-      </div>
+      </section>
 
-      {/* exits */}
-      <div className="col-span-4 md:col-span-8 lg:col-span-12 !p-0">
-        <div className="border-b border-grid p-4 md:p-6">
-          <p className="label">Exit (owner only)</p>
-          <p className="small mt-1">These buttons only show what would be called. Nothing is sent.</p>
-        </div>
-        <div className="grid gap-px bg-grid md:grid-cols-3">
-          {exits.map((x) => (
-            <div key={x.fn} className="flex flex-col gap-4 bg-surface p-4 md:p-6">
-              <div>
-                <p className="mono text-[14px] font-medium">{x.fn}({x.arg ? "to" : ""})</p>
-                <p className="body mt-2" style={{ fontSize: 14.5 }}>{x.text}</p>
-              </div>
-              {x.arg && (
-                <div className="field">
-                  <label className="label" htmlFor="to">to (address)</label>
-                  <input id="to" className="input" placeholder="0x…" value={to} onChange={(e) => setTo(e.target.value)} spellCheck={false} />
-                </div>
-              )}
-              <Button className="mt-auto" onClick={() => setMsg(`Prototype: would call ${x.fn}(${x.arg ? to || "to" : ""}) on your vault. Not connected to BSC, nothing was sent.`)}>{x.fn}</Button>
-            </div>
-          ))}
-        </div>
-        <div className="p-4 md:px-6" aria-live="polite">{msg ? <p className="small" style={{ color: "var(--text)" }}>{msg}</p> : <p className="small">Exiting before the term ends gives you the vault&apos;s current value, which can be below your floor only if prices gapped past the limit.</p>}</div>
-      </div>
-    </div>
+      {modal && <CloseModal key={modal} p={p} open initial={modal} onClose={() => setModal(null)} onDone={() => setRev((r) => r + 1)} />}
+      <RebalanceDetail e={sel} onClose={() => setSel(null)} />
+    </>
   );
 }

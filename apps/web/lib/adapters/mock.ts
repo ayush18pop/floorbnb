@@ -1,3 +1,4 @@
+import { isMarketOpen } from "@floor/sdk";
 import { ASSETS, assetBySymbol } from "./assets";
 import { wad } from "./format";
 import type {
@@ -58,7 +59,7 @@ const IDS = {
 const SPECS: Spec[] = [
   { id: IDS.active, assets: [["NVDAB", 4000], ["SPCXB", 3000], ["QQQB", 3000]], deposit: 10_000, floorPct: 90, V: 10_412.3, exposure: 5_649.2, vaultStatus: "Active", start: "2026-10-05T14:58", asOf: "2026-10-07T16:05", tradingOpen: true, lastRebalance: "2026-10-07T16:02" },
   { id: IDS.weekend, assets: [["NVDAB", 10_000]], deposit: 10_000, floorPct: 90, V: 10_388.04, exposure: 5_713.42, vaultStatus: "Active", start: "2026-10-05T14:40", asOf: "2026-10-10T12:00", tradingOpen: false, lastRebalance: "2026-10-09T17:12" },
-  { id: IDS.lock, assets: [["QQQB", 5000], ["SPCXB", 5000]], deposit: 10_000, floorPct: 90, V: 9_004.12, exposure: 0, vaultStatus: "Active", start: "2026-10-05T14:52", asOf: "2026-11-23T16:00", tradingOpen: true, lastRebalance: "2026-11-19T15:44" },
+  { id: IDS.lock, assets: [["QQQB", 5000], ["SPCXB", 5000]], deposit: 10_000, floorPct: 90, V: 9_000, exposure: 0, vaultStatus: "Active", start: "2026-10-05T14:52", asOf: "2026-11-23T16:00", tradingOpen: true, lastRebalance: "2026-11-19T15:44" },
   { id: IDS.closed, assets: [["NVDAB", 5000], ["QQQB", 5000]], deposit: 5_000, floorPct: 90, V: 5_610.8, exposure: 0, vaultStatus: "Closed", start: "2026-10-05T15:01", asOf: "2026-12-01T16:30", tradingOpen: true, lastRebalance: "2026-11-30T16:10" },
 ];
 
@@ -83,7 +84,7 @@ function series(from: string, to: string, keys: [number, number][], steps: numbe
 const HISTORY: Record<string, ValuePoint[]> = {
   [IDS.active]: series("2026-10-05T15:00", "2026-10-07T16:05", [[0, 10_000], [1, 10_412.3]], 48, 25, 3),
   [IDS.weekend]: series("2026-10-05T14:40", "2026-10-10T12:00", [[0, 10_000], [0.2, 10_180], [0.45, 10_520], [0.7, 10_960], [0.78, 10_900], [1, 10_388.04]], 90, 40, 5),
-  [IDS.lock]: series("2026-10-05T15:00", "2026-11-23T16:00", [[0, 10_000], [0.1, 10_450], [0.25, 10_200], [0.45, 9_900], [0.6, 9_450], [0.85, 9_010], [1, 9_004.12]], 80, 45, 9, 9_000),
+  [IDS.lock]: series("2026-10-05T15:00", "2026-11-23T16:00", [[0, 10_000], [0.1, 10_450], [0.25, 10_200], [0.45, 9_900], [0.6, 9_450], [0.85, 9_010], [1, 9_000]], 80, 45, 9, 9_000),
   [IDS.closed]: series("2026-10-05T15:01", "2026-12-01T16:30", [[0, 5_000], [0.4, 5_300], [0.7, 5_700], [1, 5_610.8]], 80, 30, 11),
 };
 
@@ -117,9 +118,9 @@ const RUNS: KeeperRun[] = [];
     const costBps = Math.round(assetBySymbol(r.sym).roundTripBps * 5) / 10;
     const T = tx(`${r.vault}${r.at}`);
     EVENTS[r.vault].push({
-      type: "Rebalanced", time, tx: T, id, assetIdx: 0, symbol: r.sym, buy: r.buy,
+      type: "Rebalanced", time, tx: T, id, symbol: r.sym, buy: r.buy,
       amountIn: wad(r.buy ? r.usdt : stockUnits), amountOut: wad(r.buy ? stockUnits : r.usdt),
-      V: wad(0), exposureTarget: wad(0), router: addr("aa", "router"), caller: signer === "agentic" ? addr("e1", "aw") : addr("91c", "keeper"), signer,
+      V: wad(0), exposureTarget: wad(0), caller: signer === "agentic" ? addr("e1", "aw") : addr("91c", "keeper"), signer,
       minOut: wad((r.buy ? stockUnits : r.usdt) * 0.997), costBps, stockPctBefore: r.stockPctBefore, stockPctAfter: r.stockPctAfter, trigger: r.trigger,
     });
     RUNS.push({
@@ -137,7 +138,6 @@ const RUNS: KeeperRun[] = [];
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
-const inWindow = (t: number) => { const d = new Date(t * 1000); const wd = d.getUTCDay(); const m = d.getUTCHours() * 60 + d.getUTCMinutes(); return wd >= 1 && wd <= 5 && m >= 15 * 60 + 30 && m < 19 * 60 + 30; };
 
 export function mockSource(): PositionSource {
   const positions = SPECS.map(build);
@@ -150,7 +150,7 @@ export function mockSource(): PositionSource {
     getHistory: async (v) => HISTORY[positions.find((p) => p.status.vault.toLowerCase() === v.toLowerCase())?.status.vault ?? ""] ?? [],
     keeperStatus: async (): Promise<KeeperStatus> => {
       const now = Math.floor(Date.now() / 1000);
-      return { online: true, lastRunTime: RUNS[0].time, tradingOpen: inWindow(now), rebalancesToday: 14 };
+      return { online: true, lastRunTime: RUNS[0].time, tradingOpen: isMarketOpen(now), rebalancesToday: 14 };
     },
     keeperRuns: async (limit = 20) => RUNS.slice(0, limit),
     createPosition: async (p: CreateParams, onProgress: (e: CreateProgress) => void): Promise<CreateResult> => {
