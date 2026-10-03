@@ -4,6 +4,7 @@ import { Bw3Client } from '@floor/bw3';
 import { setDeployment } from '@floor/sdk';
 import { createApp } from './app';
 import { loadConfig } from './config';
+import { paidGateFromEnv } from './paid';
 
 const repoRoot = new URL('../../../', import.meta.url).pathname.replace(/\/$/, '');
 let cfg;
@@ -16,6 +17,13 @@ try {
 setDeployment(cfg.deployment);
 const client = createPublicClient({ transport: http(cfg.rpcUrl) });
 const bw3 = cfg.bw3 ? new Bw3Client({ ...cfg.bw3, chainId: String(56) }) : undefined;
-// paidGate: wired once @floor/x402 (A17) exports gate(); until then /v1/paid/* answer 501.
-const app = createApp({ chainId: cfg.chainId, deployment: cfg.deployment, client, bw3, corsOrigins: cfg.corsOrigins, trustProxy: cfg.trustProxy });
-serve({ fetch: app.fetch, port: cfg.port }, (i) => console.log(`[api] listening on :${i.port} chain ${cfg.chainId} factory ${cfg.deployment.factory} market=${bw3 ? 'bw3' : 'off'}`));
+// paidGate: @floor/x402 gate() when X402_PAYTO is set (facilitator: X402_FACILITATOR=self|b402); otherwise /v1/paid/* answer 501.
+let paidGate;
+try {
+  paidGate = paidGateFromEnv(process.env);
+} catch (e) {
+  console.error(`[api] paid gate error: ${e instanceof Error ? e.message : String(e)}`);
+  process.exit(1);
+}
+const app = createApp({ chainId: cfg.chainId, deployment: cfg.deployment, client, bw3, paidGate, corsOrigins: cfg.corsOrigins, trustProxy: cfg.trustProxy });
+serve({ fetch: app.fetch, port: cfg.port }, (i) => console.log(`[api] listening on :${i.port} chain ${cfg.chainId} factory ${cfg.deployment.factory} market=${bw3 ? 'bw3' : 'off'} paid=${paidGate ? 'on' : 'off (501)'}`));

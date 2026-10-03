@@ -13,7 +13,9 @@
   },
   "dependencies": {
     "@floor/bw3": "workspace:*",
+    "@floor/db": "workspace:*",
     "@floor/sdk": "workspace:*",
+    "@floor/x402": "workspace:*",
     "@hono/node-server": "^1.13.0",
     "hono": "^4.6.0",
     "viem": "^2.57.2",
