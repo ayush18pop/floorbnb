@@ -11,7 +11,9 @@ export const LOGS = resolve(LOCAL, "logs");
 export const WORK = resolve(LOCAL, ".work");
 export const DEPLOYMENT_FILE = resolve(LOCAL, "deployment.json");
 
-export const PORTS = { anvil: 8545, api: 8787, mcp: 8788, web: 3000 } as const;
+/** LOCAL_PORT_OFFSET (e.g. 10000) lets a second stack run beside the team one: all four ports shift together. */
+const OFF = Number(process.env.LOCAL_PORT_OFFSET ?? 0) || 0;
+export const PORTS = { anvil: 8545 + OFF, api: 8787 + OFF, mcp: 8788 + OFF, web: 3000 + OFF } as const;
 export const RPC = `http://127.0.0.1:${PORTS.anvil}`;
 export const CHAIN_ID = 31337;
 

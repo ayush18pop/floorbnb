@@ -43,6 +43,7 @@ export class InMemoryKeeperRunStore implements KeeperRunStore {
   }
 }
 
+import { readFileSync } from 'node:fs';
 import { parseEventLogs, type Address, type PublicClient } from 'viem';
 import { floorFactoryAbi, floorVaultAbi } from '@floor/sdk';
 
@@ -91,6 +92,16 @@ export class ChainKeeperRunStore implements KeeperRunStore {
     return (await this.all()).find((r) => r.id === id) ?? null;
   }
   async lastHeartbeat(): Promise<number | null> {
+    return null;
+  }
+}
+
+/** Last scan time (unix seconds) from the keeper's heartbeat file, or null when missing or unreadable. Nothing is invented. */
+export function readHeartbeat(file: string): number | null {
+  try {
+    const t = (JSON.parse(readFileSync(file, 'utf8')) as { lastScan?: unknown }).lastScan;
+    return typeof t === 'number' && Number.isFinite(t) && t > 0 ? Math.floor(t) : null;
+  } catch {
     return null;
   }
 }

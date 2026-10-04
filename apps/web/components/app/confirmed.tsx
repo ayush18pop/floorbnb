@@ -2,10 +2,10 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Xh } from "@/components/ui/xh";
-import { useNow } from "@/lib/adapters/use";
+import { useChainNow } from "@/lib/adapters/use-chain";
 import { fmt, isAddress, isoDate, nextWindow, stamp, dow } from "@/lib/adapters";
 import { BRAND } from "@/lib/brand";
-import { Addr, ExampleBadge } from "./ui";
+import { Addr, ChainDate, ExampleBadge } from "./ui";
 import { termLabel, parseTermDays, termEndText } from "@/lib/floor-config";
 import { FlowRail } from "./review";
 import { InfoPopover } from "@/components/ui/info-popover";
@@ -19,7 +19,7 @@ export function Confirmed() {
   const days = parseTermDays(sp.get("term"));
   const endTs = Number(sp.get("end")) || 0;
   const end = endTs > 0 ? isoDate(endTs) : null;
-  const now = useNow();
+  const now = useChainNow();
   const win = now ? nextWindow(now) : null;
   return (
     <div className="fill grid lg:grid-cols-[132px_minmax(0,1fr)]">
@@ -41,8 +41,8 @@ export function Confirmed() {
             <div><dt>Vault</dt><dd className="flex flex-wrap items-center gap-2">{isAddress(vault) ? <Addr value={vault} /> : "n/a"}<ExampleBadge /></dd></div>
             <div><dt>Transaction</dt><dd>{tx ? <Addr value={tx} kind="tx" /> : "n/a"}</dd></div>
             <div><dt>Floor</dt><dd>{fmt(floor)} USDT</dd></div>
-            <div><dt>Term</dt><dd>{termLabel(days)}{end ? `, ends ${end}` : ""}</dd></div>
-            <div><dt>First rebalance</dt><dd>{win ? `${dow(win)} ${stamp(win).replace(" ", ", from ")} UTC` : "…"}</dd></div>
+            <div><dt>Term</dt><dd>{termLabel(days)}{end ? <>, ends <ChainDate>{end}</ChainDate></> : ""}</dd></div>
+            <div><dt>First rebalance</dt><dd>{win ? <ChainDate>{`${dow(win)} ${stamp(win).replace(" ", ", from ")} UTC`}</ChainDate> : "…"}</dd></div>
           </dl>
           <div className="btn-stack flex flex-col gap-4 border-t border-grid p-4 sm:flex-row sm:items-center md:px-6">
             <Link href={isAddress(vault) ? `/app/position?v=${vault}` : "/app/positions"} className="btn btn-primary">Open position</Link>

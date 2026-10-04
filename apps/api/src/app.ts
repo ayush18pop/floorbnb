@@ -50,6 +50,8 @@ export interface AppDeps {
   /** Absent when BW3 keys are not configured: /v1/market then answers 503, never made-up prices. */
   bw3?: { rwaPrice(addresses: string[]): Promise<Record<string, unknown>[]> };
   runs?: KeeperRunStore;
+  /** Unix seconds of the keeper's last scan (read-only). Absent: only the run log is used. Newest of the two wins. */
+  keeperHeartbeat?: () => Promise<number | null>;
   /**
    * The @floor/x402 gate, adapted by the server. Resolve null once payment is verified (the handler then runs),
    * or a Response (402 etc.) to return as is. Absent until A17 lands: /v1/paid/* answer 501.
@@ -187,14 +189,15 @@ export function createApp(deps: AppDeps): Hono {
   }
 
   app.get('/healthz', async (c) => {
-    const last = await runs.lastHeartbeat();
+    const [a, b] = await Promise.all([runs.lastHeartbeat(), deps.keeperHeartbeat?.().catch(() => null) ?? null]);
+    const last = a === null ? b : b === null ? a : Math.max(a, b);
     const t = Math.floor(now() / 1000);
     return c.json({
       ok: true,
       product: PRODUCT_NAME,
       chainId,
       factory: deployment.factory,
-      keeper: { lastHeartbeat: last, heartbeatAgeSeconds: last === null ? null : Math.max(0, t - last), source: 'run log; null means none recorded' },
+      keeper: { lastHeartbeat: last, heartbeatAgeSeconds: last === null ? null : Math.max(0, t - last), source: 'keeper heartbeat file or run log; null means none recorded' },
     });
   });
 

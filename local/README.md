@@ -19,6 +19,12 @@ Needs: `anvil`/`forge` (Foundry), Node 20+, pnpm, internet to fork BSC.
 4. Sets the chain clock to the next **Tuesday 16:00 UTC** (the contract trades Mon-Fri 15:30-19:30 UTC only), takes a snapshot, writes `local/deployment.json`.
 5. Starts API :8787 (`/healthz`), keeper in loop mode (60 s), MCP :8788 (`/mcp`), web :3000 with `NEXT_PUBLIC_APP_LOCKED=0` (the app is locked by default, see docs/BRANCHING.md), `NEXT_PUBLIC_DATA_SOURCE=chain`, `NEXT_PUBLIC_LOCAL_DEV=1`, the local RPC, API and addresses.
 
+## A second stack beside the team one
+`LOCAL_PORT_OFFSET=10000 pnpm local:up` shifts all four ports together (anvil 18545, API 18787, MCP 18788, web 13000); state (`.run`, `logs`, `deployment.json`, `.work`) lives in the checkout you run it from, so a worktree gets its own stack. Use the same variable for every other command (`local:status`, `local:time`, `local:e2e:wiring`). `pnpm --filter @floor/local cli restart api|keeper` restarts one service with the current code.
+
+## Keeper heartbeat
+The keeper loop writes `{"lastScan": <unix s>}` to `KEEPER_HEARTBEAT_FILE` every tick; the API serves it on `/healthz` (`keeper.heartbeatAgeSeconds`, from `FLOOR_KEEPER_HEARTBEAT_FILE`, same host only) and the Keeper page shows Online and "last scan N s ago" (Online means a scan in the last 10 minutes). `local:up` wires both to `local/.run/keeper-heartbeat.json`.
+
 ## Wallet
 The web app shows a **Dev wallet** option in "Connect wallet" and a red **LOCAL DEV WALLET** badge. It is wagmi's mock connector acting as the unlocked anvil account #4 (the node signs; no key in the browser). It exists only when `NEXT_PUBLIC_LOCAL_DEV=1`, which only `local:up` sets, so production builds contain neither the option nor the badge.
 
@@ -40,8 +46,10 @@ The loop keeper acts within 60 s of a scenario. bStocks are not freely available
 ## End-to-end test
 `pnpm local:e2e` (stack must be up) resets the chain, then clicks through the real UX in headless Chromium (Playwright, `~/.cache/ms-playwright`): connect, set floor, review, approve, create, positions, detail, keeper buy, crash and sell, weekend banner, exit in kind, close to USDT, deep crash and cash lock. Screenshots go to `local/screens/`, the issue report to `local/logs/e2e-report.json`. Findings: `ops/progress/LOCAL.md`.
 
+`pnpm local:e2e:wiring` is the single A22 script: dev wallet, builder (floor 85, 30 days, two assets), review, sign, confirmed, "Waiting for the first rebalance", keeper rebalance with the open page updating by itself, keeper Online, close to USDT, exit in kind. Screenshots (6) go to `apps/web/screenshots/wiring/`, transcript to `local/logs/e2e-wiring.json`. It pauses the loop keeper (SIGSTOP) to see the waiting state, warps 16 minutes (the vault's minInterval is 15 minutes per asset) and runs `keeper once` for determinism.
+
 ## Known local-only differences
 - Chain id 31337, not 56. The web app picks the chain from `NEXT_PUBLIC_LOCAL_DEV`; production still uses `bsc`.
-- The page's "next window" and term dates use the browser clock in a few places (confirmation page), which is the real weekend, not the fork's Tuesday.
+- Term end, "days left", activity times and the next window use the chain's block time (hover shows "Chain time" on local only). The fork's clock is not your computer's.
 - Explorer links are hidden (the fork is not on BscScan).
 - The aggregator route is disabled (needs live Binance quotes and a real clock).

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { quoteProtection, MAX_FLOOR_BPS } from "@floor/sdk";
-import { DEFAULT_LIMITS, checkCreate, maxTermDaysByHorizon, minDepositClosedForm, maxFloorFor, minDepositFor, tradeProblem } from "./create-validation";
+import { DEFAULT_LIMITS, checkCreate, minAcceptedDeposit, maxTermDaysByHorizon, minDepositClosedForm, maxFloorFor, minDepositFor, tradeProblem } from "./create-validation";
 import { equalWeights } from "@/lib/builder-params";
 
 const E = 10n ** 18n;
@@ -100,5 +100,27 @@ describe("holiday table horizon (2028-12-31, 14 day buffer)", () => {
     const max = maxTermDaysByHorizon(now);
     expect(checkCreate({ ...base, amount: 500n * E, termSeconds: (max + 1) * 86400, nowSec: now }).ok).toBe(false);
     expect(checkCreate({ ...base, amount: 500n * E, termSeconds: max * 86400, nowSec: now }).ok).toBe(true);
+  });
+});
+
+describe("one source for the minimum deposit", () => {
+  const E18 = 10n ** 18n;
+  it("hint and message agree for the chain minTrade (6 USDT) and the default (20)", () => {
+    for (const minTrade of [6n * E18, 20n * E18]) {
+      const l = { ...DEFAULT_LIMITS, minTrade };
+      const min = minAcceptedDeposit(9000, [10_000], l)!;
+      const below = min - 10n ** 16n;
+      expect(checkCreate({ amount: min, floorBps: 9000, termSeconds: 30 * 86400, weightsBps: [10_000], limits: l, nowSec: 1_790_000_000 }).ok).toBe(true);
+      const r = checkCreate({ amount: below, floorBps: 9000, termSeconds: 30 * 86400, weightsBps: [10_000], limits: l, nowSec: 1_790_000_000 });
+      expect(r.ok).toBe(false);
+      expect(r.issues[0].message).toContain(`${minTrade / E18} USDT minimum trade`);
+    }
+    expect(minAcceptedDeposit(9000, [10_000], { ...DEFAULT_LIMITS, minTrade: 6n * E18 })).toBeLessThan(minAcceptedDeposit(9000, [10_000], DEFAULT_LIMITS)!);
+  });
+  it("uses the chain's holiday horizon when given, else the constant", () => {
+    const now = 1_790_000_000, day = Math.floor(now / 86400);
+    const base = { amount: 100n * E18, floorBps: 9000, termSeconds: 60 * 86400, weightsBps: [10_000], nowSec: now };
+    expect(checkCreate({ ...base, limits: { ...DEFAULT_LIMITS, holidayHorizonDay: day + 30 } }).issues.some((i) => i.code === "term-horizon")).toBe(true);
+    expect(checkCreate({ ...base, limits: { ...DEFAULT_LIMITS, holidayHorizonDay: day + 400 } }).issues.some((i) => i.code === "term-horizon")).toBe(false);
   });
 });

@@ -24,5 +24,13 @@ export function toKeeperStatus(runs: KeeperRun[], now: number, tradingOpen: bool
     lastRunTime: last,
     tradingOpen,
     rebalancesToday: runs.filter((r) => now - r.time < 86_400).length,
+    heartbeatAgeSeconds,
   };
 }
+
+/** "last scan 12 s ago" from the heartbeat the keeper writes each tick; "no heartbeat" when none is known (never guessed). */
+export function scanNote(age: number | null | undefined): string {
+  if (age === null || age === undefined) return "no heartbeat seen";
+  return age < 90 ? `last scan ${age} s ago` : `last scan ${Math.round(age / 60)} min ago`;
+}
+

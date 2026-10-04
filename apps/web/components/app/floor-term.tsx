@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { FLOOR_CONFIG, TERM_CONFIG, DAY, floorIsTested, termEndText, termIsTested, termLabel } from "@/lib/floor-config";
 import { isoDate, fmt } from "@/lib/adapters";
 import { InfoPopover } from "@/components/ui/info-popover";
+import { ChainDate } from "./ui";
 
 const span = FLOOR_CONFIG.max - FLOOR_CONFIG.min;
 const at = (v: number) => `${((v - FLOOR_CONFIG.min) / span) * 100}%`;
@@ -61,7 +62,7 @@ export function TermControl({ days, onChange, now }: { days: number; onChange: (
           <p>{termEndText(end)}</p>
           <p>Backtested: terms from 1 month to 1 year.</p>
         </InfoPopover></h2>
-        <p className="label">ends <span className="mono text-ink">{end}</span></p>
+        <p className="label">ends <span className="mono text-ink"><ChainDate>{end}</ChainDate></span></p>
       </div>
       <div className="terms terms-s" role="group" aria-labelledby="l-term">
         {TERM_CONFIG.presets.map((p) => (

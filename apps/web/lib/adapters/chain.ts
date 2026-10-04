@@ -1,4 +1,4 @@
-import { erc20Abi, parseEventLogs, type PublicClient } from "viem";
+import { erc20Abi, parseAbi, parseEventLogs, type PublicClient } from "viem";
 import { getPublicClient, sendTransaction, waitForTransactionReceipt } from "wagmi/actions";
 import {
   buildCloseToUSDT, buildExitInKind, buildCreatePosition, buildRequestClose, floorFactoryAbi, floorVaultAbi,
@@ -10,7 +10,7 @@ import { ASSETS, assetBySymbol, symbolOf } from "./assets";
 import { toKeeperRun, toKeeperStatus, type RebalanceLog } from "./keeper-runs";
 import type {
   Address, AssetSymbol, CreateLimits, CreateParams, CreateProgress, CreateResult, ExitKind, Hex, Holding, KeeperRun, KeeperStatus,
-  PositionSource, PositionView, SignerKind, ValuePoint, VaultEvent,
+  ExitSummary, PositionSource, PositionView, SignerKind, ValuePoint, VaultEvent,
 } from "./types";
 
 /**
@@ -19,6 +19,10 @@ import type {
  * Untested against a deployment (none exists yet). Events need NEXT_PUBLIC_DEPLOY_BLOCK. Keeper runs need
  * NEXT_PUBLIC_API_URL (/v1/keeper/runs).
  */
+const horizonAbi = parseAbi(["function holidayHorizonDay() view returns (uint32)"]);
+/** The factory reports 0 when no horizon is set (any term is accepted): a day far past any term. */
+const NO_HORIZON_DAY = 10_000_000;
+
 function client(): PublicClient {
   const c = getPublicClient(wagmiConfig, { chainId: APP_CHAIN_ID as 56 });
   if (!c) throw new Error("No BSC client");
@@ -36,6 +40,29 @@ function deployment() {
 async function send(tx: UnsignedTx): Promise<Hex> {
   const hash = await sendTransaction(wagmiConfig, { chainId: APP_CHAIN_ID as 56, to: tx.to, data: tx.data, value: 0n });
   return hash;
+}
+
+/**
+ * What a closed vault paid out. Close to USDT: the Closed event's usdtOut. Exit in kind: the USDT plus each token sent (ERC-20 Transfers
+ * out of the vault in the same transaction), each valued at the vault's 10-minute average price one block before the exit.
+ */
+async function readExit(c: PublicClient, vault: Address, tokens: readonly Address[]): Promise<ExitSummary | null> {
+  const from = process.env.NEXT_PUBLIC_DEPLOY_BLOCK ? BigInt(process.env.NEXT_PUBLIC_DEPLOY_BLOCK) : 0n;
+  const logs = parseEventLogs({ abi: floorVaultAbi, logs: await c.getLogs({ address: vault, fromBlock: from, toBlock: "latest" }).catch(() => []) });
+  const e = logs.find((l) => l.eventName === "Closed" || l.eventName === "ExitInKind");
+  if (!e) return null;
+  const usdtOut = (e.args as { usdtOut: bigint }).usdtOut;
+  const time = Number((await c.getBlock({ blockNumber: e.blockNumber })).timestamp);
+  if (e.eventName === "Closed") return { kind: "closeToUSDT", time, tx: e.transactionHash, usdtOut, tokens: [], total: usdtOut };
+  const rc = await c.getTransactionReceipt({ hash: e.transactionHash });
+  const sent = parseEventLogs({ abi: erc20Abi, eventName: "Transfer", logs: rc.logs }).filter((t) => t.args.from.toLowerCase() === vault.toLowerCase());
+  const val = await c.readContract({ address: vault, abi: floorVaultAbi, functionName: "valuation", blockNumber: e.blockNumber - 1n } as never).catch(() => null) as readonly [bigint, bigint, readonly bigint[]] | null;
+  const out: ExitSummary["tokens"] = [];
+  tokens.forEach((t, i) => {
+    const amount = sent.filter((x) => x.address.toLowerCase() === t.toLowerCase()).reduce((a, x) => a + x.args.value, 0n);
+    if (amount > 0n) out.push({ symbol: (symbolOf(t) ?? "NVDAB") as AssetSymbol, amount, value: val ? val[2][i] : 0n });
+  });
+  return { kind: "exitInKind", time, tx: e.transactionHash, usdtOut, tokens: out, total: usdtOut + out.reduce((a, x) => a + x.value, 0n) };
 }
 
 async function load(vault: Address): Promise<PositionView | null> {
@@ -57,15 +84,15 @@ async function load(vault: Address): Promise<PositionView | null> {
   );
   // A closed vault holds nothing, so the lens reports V = 0. Show what was paid out instead of "0.00 USDT, -100%".
   let V = p.V;
+  let exit: ExitSummary | undefined;
   if (p.status === "Closed") {
-    const from = process.env.NEXT_PUBLIC_DEPLOY_BLOCK ? BigInt(process.env.NEXT_PUBLIC_DEPLOY_BLOCK) : 0n;
-    const closed = parseEventLogs({ abi: floorVaultAbi, eventName: "Closed", logs: await c.getLogs({ address: vault, fromBlock: from, toBlock: "latest" }).catch(() => []) });
-    if (closed[0]) V = closed[0].args.usdtOut;
+    exit = (await readExit(c, vault, p.assets.map((a) => a.token))) ?? undefined;
+    if (exit) V = exit.total;
   }
   return {
     status: { vault: p.vault, V, floor: p.floor, cushion: p.cushion, exposure: p.exposure, target: p.target, needsRebalance: p.needsRebalance, tradingOpen: p.tradingOpen },
     owner: p.owner, vaultStatus: p.status, deposit: p.deposit, start: Number(start), maturity: p.maturity, asOf: Number(block.timestamp),
-    usdtBalance: val ? val[1] : 0n, holdings, lastRebalance: Number(lastRebalance),
+    usdtBalance: val ? val[1] : 0n, holdings, lastRebalance: Number(lastRebalance), exit,
   };
 }
 
@@ -79,6 +106,7 @@ async function events(vault: Address): Promise<VaultEvent[]> {
   const keepers = await keeperSet(parsed.filter((l) => l.eventName === "Rebalanced").map((l) => (l.args as { caller: Address }).caller));
   const out: VaultEvent[] = [];
   let n = 0;
+  const pos = parsed.some((l) => l.eventName === "Rebalanced" || l.eventName === "ExitInKind") ? await load(vault) : null; // once, not per event (this runs on every refresh)
   for (const l of parsed) {
     let t = blocks.get(l.blockNumber);
     if (t === undefined) { t = Number((await c.getBlock({ blockNumber: l.blockNumber })).timestamp); blocks.set(l.blockNumber, t); }
@@ -87,14 +115,13 @@ async function events(vault: Address): Promise<VaultEvent[]> {
     switch (l.eventName) {
       case "Rebalanced": {
         const idx = Number(a.assetIdx);
-        const pos = await load(vault);
         const symbol = (pos?.holdings[idx]?.symbol ?? "NVDAB") as AssetSymbol;
         out.push({ type: "Rebalanced", time: t, tx, id: ++n, symbol, buy: Boolean(a.buy), amountIn: a.amountIn as bigint, amountOut: a.amountOut as bigint, V: a.V as bigint, exposureTarget: a.exposureTarget as bigint, caller: a.caller as Address, signer: (keepers.has((a.caller as Address).toLowerCase()) ? "keeper" : "public") as SignerKind });
         break;
       }
       case "CloseRequested": out.push({ type: "CloseRequested", time: t, tx }); break;
       case "Closed": out.push({ type: "Closed", time: t, tx, usdtOut: a.usdtOut as bigint }); break;
-      case "ExitInKind": out.push({ type: "ExitInKind", time: t, tx, usdtOut: a.usdtOut as bigint, skipped: [...(a.skipped as Address[])] }); break;
+      case "ExitInKind": out.push({ type: "ExitInKind", time: t, tx, usdtOut: a.usdtOut as bigint, skipped: [...(a.skipped as Address[])], tokens: pos?.exit?.tx === tx ? pos.exit.tokens : undefined }); break;
       case "Initialized": out.push({ type: "PositionCreated", time: t, tx, deposit: a.deposit as bigint, floor: a.floor as bigint, maturity: Number(a.maturity), assets: [] }); break;
     }
   }
@@ -172,14 +199,17 @@ export function chainSource(): PositionSource {
       return toKeeperStatus(runs, Number(block.timestamp), open, hb);
     },
     keeperRuns: async (limit = 20): Promise<KeeperRun[]> => (await chainKeeperRuns()).slice(0, limit),
+    chainTime: async () => Number((await client().getBlock()).timestamp),
     createLimits: async (): Promise<CreateLimits> => {
       const c = client(); const d = deployment();
       const rd = <T>(functionName: string) => c.readContract({ address: d.factory, abi: floorFactoryAbi, functionName } as never) as Promise<T>;
-      const [df, maxDeposit, tvl, maxTvl, paused, halted] = await Promise.all([
+      const [df, maxDeposit, tvl, maxTvl, paused, halted, horizon] = await Promise.all([
         rd<readonly unknown[]>("defaults"), rd<bigint>("maxDeposit"), rd<bigint>("totalTvl"), rd<bigint>("maxTotalTvl"), rd<boolean>("paused"), rd<boolean>("halted"),
+        // The factory's public getter (FloorFactory.holidayHorizonDay; not in the SDK ABI, so a one-line ABI here). Unreadable: keep the constant.
+        c.readContract({ address: d.factory, abi: horizonAbi, functionName: "holidayHorizonDay" }).then(Number).catch(() => null),
       ]);
       // defaults() returns [sellBand, buyBand, minInterval, publicDelay, twapWindow, maxTickDev, tolAgg, tolDirect, minTrade, dust]
-      return { minTrade: df[8] as bigint, buyBandBps: Number(df[1]), minDeposit: 10n ** 18n, maxDeposit, tvlRoom: maxTvl > tvl ? maxTvl - tvl : 0n, paused: paused || halted, from: "chain" };
+      return { minTrade: df[8] as bigint, buyBandBps: Number(df[1]), minDeposit: 10n ** 18n, maxDeposit, tvlRoom: maxTvl > tvl ? maxTvl - tvl : 0n, paused: paused || halted, holidayHorizonDay: horizon === null ? null : horizon === 0 ? NO_HORIZON_DAY : horizon, from: "chain" };
     },
     createPosition: async (p: CreateParams, onProgress: (e: CreateProgress) => void): Promise<CreateResult> => {
       const d = deployment();

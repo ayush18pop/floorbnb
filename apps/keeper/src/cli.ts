@@ -6,6 +6,7 @@ import { Bw3Client } from '@floor/bw3';
 import { makeChain, makeEoaSender, type Sender } from './chain.js';
 import { loadConfig, type Config, type Env, type Route } from './config.js';
 import { alert, runOnce } from './keeper.js';
+import { writeHeartbeat } from './heartbeat.js';
 import { jsonLogger } from './log.js';
 import { findKeyLeaks, parseKey } from './secret.js';
 
@@ -86,7 +87,8 @@ export async function main(argv: string[], env: Env = process.env, out: (l: stri
   process.on('SIGINT', () => { stop = true; });
   process.on('SIGTERM', () => { stop = true; });
   while (!stop) {
-    try { await runOnce(cfg, chain, log, base); }
+    writeHeartbeat(env.KEEPER_HEARTBEAT_FILE);
+    try { await runOnce(cfg, chain, log, base); writeHeartbeat(env.KEEPER_HEARTBEAT_FILE); }
     catch (e) {
       const msg = e instanceof Error ? e.message.split('\n')[0] : String(e);
       log.log('error', 'tick_failed', { error: msg });

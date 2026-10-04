@@ -5,9 +5,10 @@ import { useSearchParams } from "next/navigation";
 import { useAccount } from "wagmi";
 import { getSource, isAddress, fmt, fmtW, num, pct, phaseOf, stockPct, daysLeft, isoDate, stamp, dow, nextWindow, shortAddr, type VaultEvent, type PositionView } from "@/lib/adapters";
 import { useAsync } from "@/lib/adapters/use";
+import { useAgeSeconds } from "@/lib/adapters/use-chain";
 import { BRAND } from "@/lib/brand";
 import { Xh } from "@/components/ui/xh";
-import { Banner, ErrorBox, ExampleBadge, Notice, Skeleton, Tile } from "./ui";
+import { Banner, ChainDate, ErrorBox, ExampleBadge, Notice, Skeleton, Tile } from "./ui";
 import { Tabs } from "@/components/ui/tabs";
 import { InfoPopover } from "@/components/ui/info-popover";
 import { useViewportHeight, useViewportWidth } from "@/components/ui/use-viewport";
@@ -15,6 +16,9 @@ import { PhaseBadges } from "./phase";
 import { PositionChart, type Band } from "./position-chart";
 import { CloseModal } from "./close-modal";
 import { RebalanceDetail } from "./rebalance-detail";
+
+/** Position data is re-read about this often while the tab is visible (a keeper rebalance changes it with no click). */
+const REFRESH_MS = 10_000;
 
 type Rb = Extract<VaultEvent, { type: "Rebalanced" }>;
 
@@ -25,7 +29,7 @@ function describe(e: VaultEvent): { title: string; sub: string } {
     case "CashLock": return { title: "Sold all stock · cash lock", sub: `${fmtW(e.usdtOut)} USDT` };
     case "CloseRequested": return { title: "Close requested", sub: "" };
     case "Closed": return { title: "Closed to USDT", sub: `${fmtW(e.usdtOut)} USDT` };
-    case "ExitInKind": return { title: "Exited in kind", sub: `${fmtW(e.usdtOut)} USDT + tokens` };
+    case "ExitInKind": return { title: "Exited in kind", sub: [...(e.tokens ?? []).map((t) => `${fmtW(t.amount, 4)} ${t.symbol}`), `${fmtW(e.usdtOut)} USDT`].join(" + ") };
   }
 }
 
@@ -44,8 +48,9 @@ export function PositionScreen() {
     if (!vault) return { p: null, ev: [], hist: [] };
     const [p, ev, hist] = await Promise.all([source.getPosition(vault), source.getEvents(vault).catch(() => []), source.getHistory(vault).catch(() => [])]);
     return { p, ev, hist };
-  }, `${v}${address}${rev}`, `${v}${address}`); // same group on refresh: keep the position (and the open close dialog) on screen
+  }, `${v}${address}${rev}`, `${v}${address}`, REFRESH_MS); // same group on refresh: keep the position (and the open close dialog) on screen
 
+  const age = useAgeSeconds(pos.updatedAt);
   const p = pos.data?.p ?? null;
   const ev = useMemo(() => pos.data?.ev ?? [], [pos.data]);
   const hist = useMemo(() => pos.data?.hist ?? [], [pos.data]);
@@ -65,6 +70,8 @@ export function PositionScreen() {
   const basket = p.holdings.map((h) => h.symbol).join(" · ");
   const lockEv = ev.find((e) => e.type === "CashLock");
   const closedEv = ev.find((e) => e.type === "Closed");
+  // Fresh position: 100% USDT is normal until the first trading window (nothing is bought at deposit). Not a failure, not "0%" with no explanation.
+  const waiting = ph === "active" && p.status.V > 0n && p.status.exposure === 0n && p.holdings.every((h) => h.amount === 0n) && ev.length > 0 && !ev.some((e) => e.type === "Rebalanced");
   const dayOfWeek = dow(p.asOf);
   const weekend = dayOfWeek === "Sat" || dayOfWeek === "Sun";
   const nw = nextWindow(p.asOf);
@@ -74,15 +81,22 @@ export function PositionScreen() {
   if (ph === "cashLock" && lockEv) { domainEnd = tEnd + (tEnd - t0) * 0.5; bands.push({ from: lockEv.time, to: domainEnd, kind: "lock", label: "CASH LOCK · USDT TO TERM END" }); }
   else if (!p.status.tradingOpen && weekend && ph === "active") { const sat = Math.floor(p.asOf / 86_400) * 86_400 - (dayOfWeek === "Sun" ? 86_400 : 0); bands.push({ from: sat, to: tEnd, kind: "weekend", label: "NO TRADES" }); }
 
+  const x = p.exit;
+  const closedText = x
+    ? x.kind === "exitInKind"
+      ? `You received ${[...x.tokens.map((t) => `${fmtW(t.amount, 4)} ${t.symbol} (≈ ${fmtW(t.value)} USDT at the 10-minute average)`), `${fmtW(x.usdtOut)} USDT`].join(" and ")} on ${isoDate(x.time)}. Total ≈ ${fmtW(x.total)} USDT.`
+      : `${fmtW(x.usdtOut)} USDT was sent to your wallet on ${isoDate(x.time)}.`
+    : closedEv && closedEv.type === "Closed" ? `${fmtW(closedEv.usdtOut)} USDT was sent to your wallet on ${isoDate(closedEv.time)}.` : "It has been closed.";
   const alerts = (
     <>
       {ph === "cashLock" && <Banner kind="neg" title="Cash lock." more={<>Your value reached the floor{lockEv ? ` on ${isoDate(lockEv.time)}` : ""}. The vault sold all stock and holds USDT until the term ends on {isoDate(p.maturity)}. You keep {fmtW(p.status.V)} USDT. You will not gain from a recovery during this term.</>}>Value reached the floor; the vault holds USDT until {isoDate(p.maturity)}.</Banner>}
       {ph === "closing" && <Banner kind="warn" title="Close requested." more="When the stock is sold, choose Close to USDT to receive your USDT.">The vault sells its stock in the next trading window.</Banner>}
-      {ph === "closed" && <Banner kind="info" title="This position is closed." more="The floor no longer applies.">{closedEv && closedEv.type === "Closed" ? `${fmtW(closedEv.usdtOut)} USDT was sent to your wallet on ${isoDate(closedEv.time)}.` : "It has been closed."}</Banner>}
-      {ph === "active" && !p.status.tradingOpen && <Banner kind="warn" title="Market closed." more={<>{weekend ? "The vault does not trade on weekends." : "The vault trades only inside its window, and not on exchange holidays."} The floor maths already assumes the full weekend gap.</>}>Next trading window: {dow(nw)} {stamp(nw).replace(" ", ", ")} UTC.</Banner>}
+      {ph === "closed" && <Banner kind="info" title="This position is closed." more="The floor no longer applies.">{closedText}</Banner>}
+      {waiting && <Banner kind="info" title="Waiting for the first rebalance." more={<>Nothing is bought at deposit. The vault buys your basket in the first trading window ({BRAND.tradingWindow}); until then it holds {fmtW(p.usdtBalance)} USDT, which is normal. Your floor already applies.</>}>{p.status.tradingOpen ? "The window is open: the keeper runs about once a minute." : <>Next trading window: <ChainDate>{dow(nw)} {stamp(nw).replace(" ", ", ")} UTC</ChainDate>.</>}</Banner>}
+      {ph === "active" && !p.status.tradingOpen && !waiting && <Banner kind="warn" title="Market closed." more={<>{weekend ? "The vault does not trade on weekends." : "The vault trades only inside its window, and not on exchange holidays."} The floor maths already assumes the full weekend gap.</>}>Next trading window: <ChainDate>{dow(nw)} {stamp(nw).replace(" ", ", ")} UTC</ChainDate>.</Banner>}
     </>
   );
-  const alertsOn = ph !== "active" || !p.status.tradingOpen;
+  const alertsOn = ph !== "active" || !p.status.tradingOpen || waiting;
 
   const activity = ev.length === 0 ? <p className="small p-4">No activity yet. The first rebalance runs in the next trading window.</p> : (
     <ul>
@@ -118,7 +132,7 @@ export function PositionScreen() {
 
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-6">
         <div className="min-w-0">
-          <p className="label">{basket} · <span className="mono">{shortAddr(p.status.vault)}</span> <ExampleBadge className="ml-1" /></p>
+          <p className="label">{basket} · <span className="mono">{shortAddr(p.status.vault)}</span> <ExampleBadge className="ml-1" />{age !== null && <span className="ml-2 !text-muted" data-testid="updated-ago" aria-live="off">· updated {age < 5 ? "just now" : `${age}s ago`}</span>}</p>
           <p className="mt-1 flex flex-wrap items-baseline gap-x-4 gap-y-1"><span className="num-xl !text-[clamp(1.75rem,1.2rem+2vw,2.5rem)]">{fmt(V)} <span className="text-[0.5em] text-muted">USDT</span></span><span className={`mono text-[clamp(1rem,0.9rem+0.6vw,1.375rem)] ${chg >= 0 ? "pos" : "neg"}`}>{pct(chg)}</span><PhaseBadges p={p} /></p>
         </div>
         {ph !== "closed" && (
@@ -133,9 +147,9 @@ export function PositionScreen() {
         <Tile label="Value" value={fmt(V)} info="At the 10-minute average price." />
         <Tile label="Floor" value={fmt(F)} />
         <Tile label="Cushion" value={ph === "closed" ? "n/a" : fmtW(p.status.cushion)} />
-        <Tile label="In stocks" value={`${sPct.toFixed(0)}%`} note={`${fmtW(p.status.exposure)} USDT`} />
-        <Tile label="In USDT" value={`${(100 - sPct).toFixed(0)}%`} note={`${fmtW(p.usdtBalance)} USDT`} />
-        <Tile label="Term" value={ph === "closed" ? "n/a" : daysLeft(p.maturity, p.asOf)} note={ph === "closed" ? "closed" : `days left · ends ${isoDate(p.maturity)}`} />
+        <Tile label="In stocks" value={ph === "closed" ? "n/a" : `${sPct.toFixed(0)}%`} note={waiting ? "waiting for first rebalance" : ph === "closed" ? "closed" : `${fmtW(p.status.exposure)} USDT`} />
+        <Tile label="In USDT" value={ph === "closed" ? "n/a" : `${(100 - sPct).toFixed(0)}%`} note={ph === "closed" ? "closed" : `${fmtW(p.usdtBalance)} USDT`} />
+        <Tile label="Term" value={ph === "closed" ? "n/a" : daysLeft(p.maturity, p.asOf)} note={ph === "closed" ? "closed" : <>days left · ends <ChainDate>{isoDate(p.maturity)}</ChainDate></>} />
       </div>
 
       <div className="grid min-h-0 flex-1 border-t border-grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)]">

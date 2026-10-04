@@ -8,11 +8,11 @@ import { parseUnits } from "viem";
 import { Check } from "lucide-react";
 import { quoteProtection } from "@floor/sdk";
 import { Xh } from "@/components/ui/xh";
-import { useNow } from "@/lib/adapters/use";
+import { useChainNow } from "@/lib/adapters/use-chain";
 import { getSource, fmt, isoDate, num, type CreateProgress, type CreateStep } from "@/lib/adapters";
 import { BRAND } from "@/lib/brand";
 import { APP_CHAIN_ID } from "@/lib/app-config";
-import { Addr, Notice } from "./ui";
+import { Addr, ChainDate, Notice } from "./ui";
 import { useConnectModal, NetworkGuard } from "./wallet";
 import { equalWeights, parseBuilderParams } from "@/lib/builder-params";
 import { acksFor, acksShort } from "@/lib/acks";
@@ -69,10 +69,10 @@ export function Review() {
 
   const weights = equalWeights(assets.length);
   const termSeconds = termDays * DAY;
-  const now = useNow();
-  const { limits } = useCreateLimits();
+  const now = useChainNow();
+  const { limits, ready } = useCreateLimits();
   const q = quoteProtection({ deposit: parseUnits(String(amount), 18), floorBps: floor * 100, termSeconds, weightsBps: weights });
-  const check = checkCreate({ amount: parseUnits(String(amount), 18), floorBps: floor * 100, termSeconds, weightsBps: weights, limits, nowSec: now });
+  const check = !ready ? { ok: false, issues: [] } : checkCreate({ amount: parseUnits(String(amount), 18), floorBps: floor * 100, termSeconds, weightsBps: weights, limits, nowSec: now });
   const ev = evidenceFor(floor, termDays);
   const stockPct = q.startingExposureBps / 100;
   const allAck = acks.every(Boolean);
@@ -103,7 +103,7 @@ export function Review() {
     ["Basket", `${assets.join(" · ")}${assets.length > 1 ? " (equal weight)" : ""}`],
     ["Deposit", `${fmt(amount)} USDT`],
     ["Floor", `${fmt(num(q.floorValue))} USDT (${floor}%)`],
-    ["Term", `${termLabel(termDays)}, ends ${termEnd}`],
+    ["Term", <>{termLabel(termDays)}, ends <ChainDate>{termEnd}</ChainDate></>],
   ];
   const more: [string, React.ReactNode][] = [
     ["Multiplier", `${BRAND.multiplier}× cushion`],
@@ -155,7 +155,7 @@ export function Review() {
               <p className="small !text-[13px]">{mock ? "" : `You sign two transactions: approve exactly ${fmt(amount)} USDT to the factory, then createPosition.`}</p>
               <div className="btn-stack flex w-full flex-col-reverse gap-3 sm:w-auto sm:flex-row">
                 <Link href={back} className="btn btn-secondary" aria-disabled={busy}>Back</Link>
-                <button type="button" className="btn btn-primary !h-11 !px-6" disabled={!allAck || !check.ok || busy || (needsWallet && isConnected)} onClick={create}>
+                <button type="button" className="btn btn-primary !h-11 !px-6" disabled={!allAck || !ready || now === null || !check.ok || busy || (needsWallet && isConnected)} onClick={create}>
                   {busy ? (steps.approve !== "done" ? "Approving USDT…" : "Creating position…") : !mock && !isConnected ? "Connect wallet" : mock ? "Run example flow" : steps.approve === "done" ? "Create position" : "Approve and create"}
                 </button>
               </div>

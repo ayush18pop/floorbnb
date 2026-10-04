@@ -151,10 +151,11 @@ export function mockSource(): PositionSource {
     getHistory: async (v) => HISTORY[positions.find((p) => p.status.vault.toLowerCase() === v.toLowerCase())?.status.vault ?? ""] ?? [],
     keeperStatus: async (): Promise<KeeperStatus> => {
       const now = Math.floor(Date.now() / 1000);
-      return { online: true, lastRunTime: RUNS[0].time, tradingOpen: isMarketOpen(now), rebalancesToday: 14 };
+      return { online: true, lastRunTime: RUNS[0].time, tradingOpen: isMarketOpen(now), rebalancesToday: 14, heartbeatAgeSeconds: 20 };
     },
     keeperRuns: async (limit = 20) => RUNS.slice(0, limit),
     createLimits: async () => DEFAULT_LIMITS,
+    chainTime: async () => Math.floor(Date.now() / 1000),
     createPosition: async (p: CreateParams, onProgress: (e: CreateProgress) => void): Promise<CreateResult> => {
       const approveTx = tx(`ap${p.amount}${p.floorBps}`), createTx = tx(`cp${p.amount}${p.floorBps}${p.assets.join()}`);
       onProgress({ step: "approve", state: "wallet" }); await sleep(700);
