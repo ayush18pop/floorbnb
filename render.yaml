@@ -1,0 +1,75 @@
+# Render Blueprint for Floor's off-chain services (the web app stays on Vercel).
+# New > Blueprint > pick this repo, branch `main` (or `dev` while testing). Values marked `sync: false` are
+# asked for in the dashboard; they are never stored in git. Deploy these AFTER the contracts are deployed and you
+# have FLOOR_FACTORY / FLOOR_LENS (printed by the deploy script, also in packages/contracts/deployments/56.json).
+services:
+  # ---------- API (market data via Binance Web3 API, keeper-run log, healthz) ----------
+  - type: web
+    name: floor-api
+    runtime: node
+    plan: starter
+    region: singapore            # pick the region closest to your BSC RPC provider
+    buildCommand: corepack enable && pnpm install --frozen-lockfile
+    startCommand: pnpm --filter @floor/api start
+    healthCheckPath: /healthz
+    envVars:
+      - { key: NODE_VERSION, value: "20.20.2" }
+      - { key: FLOOR_CHAIN_ID, value: "56" }
+      - { key: FLOOR_FACTORY, sync: false }
+      - { key: FLOOR_LENS, sync: false }
+      - { key: FLOOR_RPC_URL, sync: false }          # BSC mainnet RPC (a paid/keyed one; not the public dataseed)
+      - { key: WEB_ORIGIN, value: "https://floorbnb.vercel.app" }   # CORS; add your final domain, comma separated
+      - { key: TRUST_PROXY, value: "1" }             # Render sits behind a proxy
+      - { key: BW3_API_KEY, sync: false }
+      - { key: BW3_API_SECRET, sync: false }
+      - { key: FLOOR_RUNS_FROM_BLOCK, sync: false }  # block of the factory deploy; serves the keeper log from on-chain events
+
+  # ---------- MCP server (agents, x402-paid tools) ----------
+  - type: web
+    name: floor-mcp
+    runtime: node
+    plan: starter
+    region: singapore
+    buildCommand: corepack enable && pnpm install --frozen-lockfile
+    startCommand: pnpm --filter @floor/mcp start
+    healthCheckPath: /healthz
+    envVars:
+      - { key: NODE_VERSION, value: "20.20.2" }
+      - { key: MCP_HOST, value: "0.0.0.0" }          # default is 127.0.0.1, which Render cannot reach
+      - { key: TRUST_PROXY, value: "1" }
+      - { key: API_BASE_URL, sync: false }           # the floor-api URL, e.g. https://floor-api.onrender.com
+      - { key: MCP_PUBLIC_URL, sync: false }         # https://<this service>.onrender.com/mcp
+      - { key: MCP_ALLOWED_ORIGINS, value: "https://floorbnb.vercel.app" }
+      - { key: X402_NETWORK, value: "eip155:56" }
+      - { key: X402_FACILITATOR, value: "self" }     # "b402" only once Binance grants credentials
+      - { key: X402_PAYTO, sync: false }             # receive-only payout wallet (0xF5f3...816B)
+      - { key: X402_RPC_URL, sync: false }
+      - { key: X402_ASSET, sync: false }             # payment token address (USD1 or U on BSC; EIP-3009)
+      - { key: X402_ASSET_SYMBOL, sync: false }
+      - { key: X402_ASSET_DECIMALS, value: "18" }
+      - { key: X402_ASSET_NAME, sync: false }        # EIP-712 domain name of that token (read it on-chain with name())
+      - { key: X402_ASSET_VERSION, sync: false }     # EIP-712 domain version (read eip712Domain() / version())
+      - { key: SELF_FACILITATOR_KEY, sync: false }   # small gas EOA (about 0.005 BNB), NOT the keeper key, NOT the payout wallet
+      - { key: PRICE_QUOTE_PROTECTION_USD, value: "0.01" }
+      - { key: PRICE_BACKTEST_USD, value: "0.01" }
+      - { key: PRICE_SIMULATE_GAP_USD, value: "0.01" }
+
+  # ---------- Keeper (private worker: signs rebalances; no public URL) ----------
+  - type: worker
+    name: floor-keeper
+    runtime: node
+    plan: starter
+    region: singapore
+    buildCommand: corepack enable && pnpm install --frozen-lockfile
+    startCommand: pnpm --filter @floor/keeper start run --route direct
+    envVars:
+      - { key: NODE_VERSION, value: "20.20.2" }
+      - { key: BSC_RPC_URL, sync: false }
+      - { key: FLOOR_FACTORY, sync: false }
+      - { key: FLOOR_LENS, sync: false }
+      - { key: KEEPER_ADDRESS, value: "0x46FD797AeBD0250A2E768022AD992DF21F12e58a" }
+      - { key: KEEPER_PRIVATE_KEY, sync: false }     # secret; env only; ~0.03 BNB on this address
+      - { key: KEEPER_ROUTE, value: "direct" }       # Pancake only (decided); "agg" needs addRouter + 24 h first
+      - { key: KEEPER_INTERVAL_SEC, value: "60" }
+      - { key: FLOOR_ASSETS, sync: false }           # comma-separated bStock token addresses
+      - { key: ALERT_WEBHOOK_URL, sync: false }      # optional Discord/Slack webhook for failures
