@@ -1,6 +1,7 @@
 import { isMarketOpen } from "@floor/sdk";
 import { ASSETS, assetBySymbol } from "./assets";
 import { wad } from "./format";
+import { DEFAULT_LIMITS } from "../create-validation";
 import type {
   Address, AssetSymbol, CreateParams, CreateProgress, CreateResult, ExitKind, Hex, Holding, KeeperRun,
   KeeperStatus, PositionSource, PositionView, SignerKind, ValuePoint, VaultEvent, VaultStatus,
@@ -153,6 +154,7 @@ export function mockSource(): PositionSource {
       return { online: true, lastRunTime: RUNS[0].time, tradingOpen: isMarketOpen(now), rebalancesToday: 14 };
     },
     keeperRuns: async (limit = 20) => RUNS.slice(0, limit),
+    createLimits: async () => DEFAULT_LIMITS,
     createPosition: async (p: CreateParams, onProgress: (e: CreateProgress) => void): Promise<CreateResult> => {
       const approveTx = tx(`ap${p.amount}${p.floorBps}`), createTx = tx(`cp${p.amount}${p.floorBps}${p.assets.join()}`);
       onProgress({ step: "approve", state: "wallet" }); await sleep(700);

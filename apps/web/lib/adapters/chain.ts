@@ -9,7 +9,7 @@ import { wagmiConfig } from "../wagmi";
 import { ASSETS, assetBySymbol, symbolOf } from "./assets";
 import { toKeeperRun, toKeeperStatus, type RebalanceLog } from "./keeper-runs";
 import type {
-  Address, AssetSymbol, CreateParams, CreateProgress, CreateResult, ExitKind, Hex, Holding, KeeperRun, KeeperStatus,
+  Address, AssetSymbol, CreateLimits, CreateParams, CreateProgress, CreateResult, ExitKind, Hex, Holding, KeeperRun, KeeperStatus,
   PositionSource, PositionView, SignerKind, ValuePoint, VaultEvent,
 } from "./types";
 
@@ -172,6 +172,15 @@ export function chainSource(): PositionSource {
       return toKeeperStatus(runs, Number(block.timestamp), open, hb);
     },
     keeperRuns: async (limit = 20): Promise<KeeperRun[]> => (await chainKeeperRuns()).slice(0, limit),
+    createLimits: async (): Promise<CreateLimits> => {
+      const c = client(); const d = deployment();
+      const rd = <T>(functionName: string) => c.readContract({ address: d.factory, abi: floorFactoryAbi, functionName } as never) as Promise<T>;
+      const [df, maxDeposit, tvl, maxTvl, paused, halted] = await Promise.all([
+        rd<readonly unknown[]>("defaults"), rd<bigint>("maxDeposit"), rd<bigint>("totalTvl"), rd<bigint>("maxTotalTvl"), rd<boolean>("paused"), rd<boolean>("halted"),
+      ]);
+      // defaults() returns [sellBand, buyBand, minInterval, publicDelay, twapWindow, maxTickDev, tolAgg, tolDirect, minTrade, dust]
+      return { minTrade: df[8] as bigint, buyBandBps: Number(df[1]), minDeposit: 10n ** 18n, maxDeposit, tvlRoom: maxTvl > tvl ? maxTvl - tvl : 0n, paused: paused || halted, from: "chain" };
+    },
     createPosition: async (p: CreateParams, onProgress: (e: CreateProgress) => void): Promise<CreateResult> => {
       const d = deployment();
       const [approve, create] = buildCreatePosition({

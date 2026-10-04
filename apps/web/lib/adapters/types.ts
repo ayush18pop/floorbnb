@@ -87,6 +87,9 @@ export type CreateParams = {
   weightsBps: number[];
 };
 
+export type { CreateLimits } from "../create-validation";
+import type { CreateLimits } from "../create-validation";
+
 export type CreateStep = "approve" | "create";
 export type CreateProgress = { step: CreateStep; state: "wallet" | "pending" | "done"; tx?: Hex };
 export type CreateResult = { vault: Address; approveTx: Hex; createTx: Hex };
@@ -116,6 +119,8 @@ export interface PositionSource {
   getHistory(vault: Address): Promise<ValuePoint[]>;
   keeperStatus(): Promise<KeeperStatus>;
   keeperRuns(limit?: number): Promise<KeeperRun[]>;
+  /** What createPosition enforces right now (minTrade, buy band, caps). Mock returns the documented defaults. */
+  createLimits(): Promise<CreateLimits>;
   createPosition(p: CreateParams, onProgress: (e: CreateProgress) => void): Promise<CreateResult>;
   /** `to` is only used by exitInKind (defaults to the owner). */
   exit(vault: Address, kind: ExitKind, owner: Address): Promise<Hex>;
