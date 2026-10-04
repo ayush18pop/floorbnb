@@ -1,0 +1,13 @@
+# Raw DX notes: b402 (manager session). Append-only facts for the humans writing the DX report. Not the report.
+
+Each item says what we saw, when, and where to check it. Nothing here is an opinion about intent; judge the wording yourself.
+
+- **2026-10-04, application form not reachable.** The docs say production access is "granted on request" through a Google Form (link on https://developers.binance.com/docs/onchainpay-x402/introduction). Opening it from a personal Gmail account showed Google's "Can't access item: the organisation that owns this item won't allow you to access it" (screenshot kept by the team lead). So an external team could not submit the request through the documented path.
+- **2026-10-04, API key page has a "B402 Payments" permission and no explanation.** The Binance Web3 API key editor lists Trade, Transaction, Wallet, Market, B402 Payments, DeFi as ticked options. Ticking B402 Payments produced no credentials and no email. We found no page that says what that permission enables or whether it replaces the `clientId` and RSA-signed auth the b402 docs describe.
+- **Credentials are described in two different ways.** Binance Web3 API: API key plus secret, HMAC (works, tested live). b402 docs: `clientId`, a "sign access token" and an RSA-signed request (`X-Tesla-*` headers). Nothing we found links the two.
+- **Not stated in the docs we read:** how long approval takes, whether business verification is needed, what the "sign access token" is and where it is issued, what the sandbox base URL is (docs say "contact us for access"), rate limits for sandbox. (docs/ARCHITECTURE.md, b402 section, items marked not stated/unverified.)
+- **Header-name inconsistency.** The b402 quick start tells sellers to return payment terms in `X-PAYMENT-REQUIREMENTS`, while x402 v2 and the Binance agent wallet docs use `PAYMENT-REQUIRED`, `PAYMENT-SIGNATURE`, `PAYMENT-RESPONSE`. We built for the v2 names and could not confirm against a live service.
+- **No SDK.** The quick start says there is no Binance SDK or npm package. We wrote our own client (packages/x402/src/b402.ts, about 120 lines: RSA signing, `{code,message,data}` envelope unwrap, settle polling) and tested it only against mocks and recorded fixtures.
+- **Token support differs by token.** U and USD1 support EIP-3009 and Permit2; USDT and USDC support Permit2 only. Project docs had listed all four as equal.
+- **Settle behaviour changed** (non-blocking since 2026-07-14, polling needed). Easy to miss if you wrote against older examples.
+- **Net effect on us:** b402 is built and unit-tested but untested live. Live paid calls use our own x402 facilitator (tested end to end on a local fork with a test token; ops/progress/AGENTPATH.md). The submission says so plainly.
