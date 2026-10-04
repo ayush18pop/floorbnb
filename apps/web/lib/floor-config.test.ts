@@ -31,7 +31,7 @@ describe("floor config (MSTUDY2 recommendation)", () => {
     expect(reportStats(95, 180)).toEqual({ breach: 0.19, cashLock: 1.63 });
     expect(reportStats(87, 365)).toBeNull(); expect(reportStats(90, 45)).toBeNull();
   });
-  it("holiday horizon is 2027-12-31", () => { expect(new Date(HOLIDAY_HORIZON_DAY * 86400000).toISOString().slice(0, 10)).toBe("2027-12-31"); });
+  it("holiday horizon is 2028-12-31", () => { expect(new Date(HOLIDAY_HORIZON_DAY * 86400000).toISOString().slice(0, 10)).toBe("2028-12-31"); });
   it("parses floor and term params with safe fallbacks", () => {
     expect(parseFloorPct("80")).toBe(80); expect(parseFloorPct("95")).toBe(95); expect(parseFloorPct("72")).toBe(90); expect(parseFloorPct("98")).toBe(90);
     expect([parseFloorPct("abc"), parseFloorPct(null), parseFloorPct("0")]).toEqual([90, 90, 90]);

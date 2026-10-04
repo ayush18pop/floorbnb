@@ -86,16 +86,16 @@ describe("report rule: deposit x min(1, 4(1-floor)) x smallest weight >= minTrad
   });
 });
 
-describe("holiday table horizon (2027-12-31, 14 day buffer)", () => {
+describe("holiday table horizon (2028-12-31, 14 day buffer)", () => {
   const at = (iso: string) => Math.floor(Date.parse(iso) / 1000);
-  it("a 365 day term is accepted until 2026-12-17 and refused after", () => {
-    expect(checkCreate({ ...base, amount: 500n * E, nowSec: at("2026-12-17T12:00:00Z") }).ok).toBe(true);
-    const r = checkCreate({ ...base, amount: 500n * E, nowSec: at("2026-12-18T12:00:00Z") });
+  it("a 365 day term is accepted until 2027-12-17 and refused after", () => {
+    expect(checkCreate({ ...base, amount: 500n * E, nowSec: at("2027-12-17T12:00:00Z") }).ok).toBe(true);
+    const r = checkCreate({ ...base, amount: 500n * E, nowSec: at("2027-12-18T12:00:00Z") });
     expect(r.ok).toBe(false); expect(r.issues[0].code).toBe("term-horizon");
     expect(r.issues[0].message).toMatch(/Term too long for the current holiday table; choose a shorter term/);
   });
   it("shorter terms still work then, and the message names the longest term", () => {
-    const now = at("2027-03-01T12:00:00Z");
+    const now = at("2028-03-01T12:00:00Z");
     expect(checkCreate({ ...base, amount: 500n * E, termSeconds: 90 * 86400, nowSec: now }).ok).toBe(true);
     const max = maxTermDaysByHorizon(now);
     expect(checkCreate({ ...base, amount: 500n * E, termSeconds: (max + 1) * 86400, nowSec: now }).ok).toBe(false);
