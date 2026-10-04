@@ -1,0 +1,4 @@
+# Render state (no secrets)
+- Service: `floor-server` (free, Singapore), id `srv-db18fdpsrm7s73aie5v0`, URL https://floor-server-wb4i.onrender.com, branch `main`, auto-deploy OFF (deploy with `render deploys create srv-db18fdpsrm7s73aie5v0`).
+- Created 2026-10-04 as a SMOKE DEPLOY: `FLOOR_FACTORY` and `FLOOR_LENS` are the placeholder `0x…dEaD`, the RPC is the public dataseed, the keeper runs dry-run (no key). `/healthz` and `/mcp initialize` verified live; chain reads fail until the real addresses are set.
+- To go live after the mainnet deploy: set in the dashboard FLOOR_FACTORY, FLOOR_LENS, FLOOR_RPC_URL (keyed), FLOOR_RUNS_FROM_BLOCK, BW3_API_KEY, BW3_API_SECRET, KEEPER_PRIVATE_KEY, FLOOR_ASSETS, MCP_PUBLIC_URL, X402_PAYTO, X402_ASSET*, SELF_FACILITATOR_KEY; then redeploy. Add an external pinger on /healthz (every 5 min).
