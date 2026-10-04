@@ -18,8 +18,9 @@ export function Hero({ data }: { data: PathPoint[] }) {
           <p className="body-l mt-5 bg-bg">{BRAND.name} sets a line under your tokenized stocks and trades to stay above it.</p>
           <p className="small mt-3 max-w-[44ch] bg-bg">{BRAND.disclosure}</p>
           <div className="btn-stack mt-6 flex flex-col gap-3 sm:flex-row">
-            <ButtonLink variant="primary" href="/app">Set your floor</ButtonLink>
-            <ButtonLink variant="secondary" href="/docs/how-it-works">How it works</ButtonLink>
+            <ButtonLink variant="primary" href="/try">Try it, no wallet</ButtonLink>
+            <ButtonLink variant="secondary" href="/app">Set your floor</ButtonLink>
+            <ButtonLink variant="ghost" href="/docs/how-it-works">How it works</ButtonLink>
           </div>
           <p className="small mt-6 max-w-[40ch] bg-bg">
             Built on CPPI, a portfolio insurance method from the 1980s.{" "}
