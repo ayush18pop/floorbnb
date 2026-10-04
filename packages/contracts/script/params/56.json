@@ -9,11 +9,9 @@
   "tokenBeacon": "0x156d6dce9a4f6139a3406f1f021f1a4880de93a3",
   "approvedTokenImpl": "0xCFEd6c4679297ea4889F8183bC057B4A86C64e46",
   "routerTargets": [
-    "0xB44446b0c8E56988c34f7Ff73Ae904982b5FdDA5",
     "0x1b81D678ffb9C0263b24A97847620C99d213eB14"
   ],
   "routerApproveTargets": [
-    "0xB44446b0c8E56988c34f7Ff73Ae904982b5FdDA5",
     "0x1b81D678ffb9C0263b24A97847620C99d213eB14"
   ],
   "assetTokens": [
