@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { ButtonLink } from "@/components/ui/button";
 
 const links = [
+  ["Try it", "/try"],
   ["How it works", "/docs/how-it-works"],
   ["Backtest", "/docs/backtest"],
   ["Agents", "/docs/agents"],
