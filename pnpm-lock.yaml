@@ -99,6 +99,37 @@ importers:
         specifier: ^4.23.15
         version: 4.23.15
 
+  apps/onebox:
+    dependencies:
+      '@floor/api':
+        specifier: workspace:*
+        version: link:../api
+      '@floor/bw3':
+        specifier: workspace:*
+        version: link:../../packages/bw3
+      '@floor/keeper':
+        specifier: workspace:*
+        version: link:../keeper
+      '@floor/mcp':
+        specifier: workspace:*
+        version: link:../mcp
+      '@floor/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@hono/node-server':
+        specifier: ^1.13.0
+        version: 1.19.17(hono@4.13.12)
+      hono:
+        specifier: ^4.6.0
+        version: 4.13.12
+      viem:
+        specifier: ^2.57.2
+        version: 2.57.2(typescript@5.9.3)(zod@4.6.5)
+    devDependencies:
+      tsx:
+        specifier: ^4.23.15
+        version: 4.23.15
+
   apps/web:
     dependencies:
       '@floor/sdk':

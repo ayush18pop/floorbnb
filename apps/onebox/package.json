@@ -1,0 +1,25 @@
+{
+  "name": "@floor/onebox",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests",
+    "start": "tsx src/server.ts"
+  },
+  "dependencies": {
+    "@floor/api": "workspace:*",
+    "@floor/bw3": "workspace:*",
+    "@floor/keeper": "workspace:*",
+    "@floor/mcp": "workspace:*",
+    "@floor/sdk": "workspace:*",
+    "@hono/node-server": "^1.13.0",
+    "hono": "^4.6.0",
+    "viem": "^2.57.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.15"
+  }
+}
