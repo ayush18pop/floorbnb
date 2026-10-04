@@ -1,6 +1,7 @@
 "use client";
 
 import { BRAND } from "@/lib/brand";
+import { backtestNote } from "./risks";
 import { FLOOR_CONFIG, reportStats, termLabel, upsideKeptPct } from "@/lib/floor-config";
 
 const pct2 = (n: number) => `${n.toFixed(2)}%`;
@@ -23,19 +24,19 @@ const x = (f: number) => PAD + ((f - FLOOR_CONFIG.min) / (FLOOR_CONFIG.testedMax
 const y = (v: number) => H - PAD - (v / 100) * (H - 2 * PAD);
 const floors = Array.from({ length: FLOOR_CONFIG.testedMax - FLOOR_CONFIG.min + 1 }, (_, i) => FLOOR_CONFIG.min + i);
 
-export function Tradeoff({ floor, termDays }: { floor: number; termDays: number }) {
+/** The full tradeoff, for the "See the tradeoff" drawer: meters with their explanations, the strip across floors, and the historical-test rates. */
+export function TradeoffDetail({ floor, termDays }: { floor: number; termDays: number }) {
   const n = tradeoffNumbers(floor, termDays);
   const line = (fn: (f: number) => number, to = FLOOR_CONFIG.testedMax) => floors.filter((f) => f <= to).map((f, i) => `${i ? "L" : "M"}${x(f).toFixed(1)} ${y(fn(f)).toFixed(1)}`).join(" ");
   const prot = (f: number) => f, up = (f: number) => upsideKeptPct(f);
   const term = termLabel(termDays);
   return (
-    <section className="border-b border-grid p-4 md:p-6" aria-labelledby="l-trade">
-      <h2 id="l-trade" className="label mb-4">What you gain and give up</h2>
+    <div data-testid="tradeoff-detail">
 
       <div className="grid gap-4 sm:grid-cols-2" role="group" aria-label="Protected and upside kept at the chosen floor">
         <div>
           <p className="label">Protected</p>
-          <p className="mono text-ink" style={{ fontSize: 24, lineHeight: 1.1 }} data-testid="t-protected">{n.keepAtLeast} <span className="small">of every 100</span></p>
+          <p className="mono text-ink" style={{ fontSize: 24, lineHeight: 1.1 }} data-testid="t-protected-detail">{n.keepAtLeast} <span className="small">of every 100</span></p>
           <div className="meter mt-2" role="img" aria-label={`Floor at ${floor} of every 100; ${n.atStake} of every 100 moves with the stocks`}>
             <span className="m-fill" style={{ width: `${floor}%` }} />
             <span className="m-line" style={{ left: `${floor}%` }} />
@@ -44,7 +45,7 @@ export function Tradeoff({ floor, termDays }: { floor: number; termDays: number 
         </div>
         <div>
           <p className="label">Upside kept</p>
-          <p className="mono text-ink" style={{ fontSize: 24, lineHeight: 1.1 }} data-testid="t-upside">~{n.upside}%</p>
+          <p className="mono text-ink" style={{ fontSize: 24, lineHeight: 1.1 }} data-testid="t-upside-detail">~{n.upside}%</p>
           <div className="meter mt-2" role="img" aria-label={`About ${n.upside} percent of a rise kept`}>
             <span className="m-fill m-hatch" style={{ width: `${n.upside}%` }} />
           </div>
@@ -78,8 +79,18 @@ export function Tradeoff({ floor, termDays }: { floor: number; termDays: number 
         ) : (
           <p className="small">No published rate for a {floor}% floor over {termDays} days. We publish rates for floors 80, 85, 90 and 95 and for 1, 3, 6 and 12 months.</p>
         )}
-        <p className="small mt-3">Backtest on daily closes of 38 indices, ETFs and large stocks, 1928 to 2026, non-overlapping windows, 6 bps per trade. It is not a forecast. These rates are not a maximum loss: single-stock gap days of -50% to -61% breached every floor, and the floor can break if prices gap more than about {BRAND.gapLimitPct}% before the vault can rebalance.</p>
+        <p className="small mt-3">{backtestNote}</p>
       </div>
-    </section>
+    </div>
+  );
+}
+
+/** One small meter for a stat tile: floor line (protected) or hatched fill (upside kept). */
+export function MiniMeter({ pct, kind, label }: { pct: number; kind: "floor" | "upside"; label: string }) {
+  return (
+    <div className="meter mt-2 !h-2" role="img" aria-label={label}>
+      <span className={`m-fill ${kind === "upside" ? "m-hatch" : ""}`} style={{ width: `${pct}%` }} />
+      {kind === "floor" && <span className="m-line" style={{ left: `${pct}%` }} />}
+    </div>
   );
 }

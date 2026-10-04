@@ -1,8 +1,13 @@
 /* App screens only. Tokens come from tokens.css; no new colours. Squares, hairlines, mono numbers. */
 .app-frame { position: relative; width: min(calc(100% - 2 * var(--gutter-x)), 1104px); margin-inline: auto; border-inline: var(--hair) solid var(--grid); background: var(--bg); min-height: 70vh; }
+/* One-viewport page: header (56px) + title + body + footer fill the screen on desktop; the body takes the slack. */
+.app-page { display: flex; flex-direction: column; }
+.app-page > .app-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.app-foot { border-top: var(--hair) solid var(--grid); padding: 10px var(--s-3); }
+@media (min-width: 768px) { .app-foot { padding: 12px var(--s-4); } .app-page { min-height: calc(100dvh - 57px); } }
 .app-head { border-bottom: var(--hair) solid var(--grid); }
-.app-title { padding: var(--s-4) var(--s-3) var(--s-4); position: relative; border-bottom: var(--hair) solid var(--grid); }
-@media (min-width: 768px) { .app-title { padding: var(--s-5) var(--s-4); } }
+.app-title { padding: var(--s-3); position: relative; border-bottom: var(--hair) solid var(--grid); }
+@media (min-width: 768px) { .app-title { padding: 14px var(--s-4); } }
 
 .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--hair); background: var(--grid); border-bottom: var(--hair) solid var(--grid); }
 @media (min-width: 768px) { .tiles { grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr)); } }
@@ -133,3 +138,33 @@ dialog.dlg::backdrop { background: color-mix(in srgb, var(--bg) 78%, transparent
 .trade-svg .t-cur { stroke: var(--accent); stroke-width: 1; }
 .trade-svg .t-dot-p { fill: var(--floor-line); } .trade-svg .t-dot-u { fill: var(--text); }
 .trade-svg .t-txt { font-size: 9px; fill: var(--text-muted); }
+.fill { flex: 1 1 auto; min-height: 0; }
+
+/* Compact variants for the one-viewport builder */
+.seg.seg-s button, .terms.terms-s button { height: 36px; font-size: 13px; }
+.fs { height: 64px; }
+.fs-input, .fs-input::-webkit-slider-runnable-track { height: 36px; }
+.fs-input::-webkit-slider-thumb { height: 36px; }
+.fs-input::-moz-range-track { height: 36px; } .fs-input::-moz-range-thumb { height: 34px; }
+.fs-track { top: 12px; }
+.fs-scale { top: 40px; }
+.basket.basket-s button { min-height: 48px; padding: 6px 10px; }
+.tile.tile-s { padding: 10px 14px; }
+.tile.tile-s .v { font-size: 1.375rem; margin-top: 4px; }
+
+/* Cell list: label above value, 2 up on phones, 4 up on desktop */
+.kvc { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: var(--hair) solid var(--grid); }
+@media (min-width: 900px) { .kvc { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.kvc > div { padding: 10px 16px; border-right: var(--hair) solid var(--grid); border-bottom: var(--hair) solid var(--grid); min-width: 0; }
+.kvc > div:last-child { border-bottom: 0; }
+.kvc dt { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+.kvc dd { margin: 4px 0 0; font-family: var(--font-mono); font-variant-numeric: tabular-nums slashed-zero; font-size: 14px; color: var(--text); overflow-wrap: break-word; }
+.check .xr-btn { margin-left: 0; }
+
+.notice.banner { padding: 8px 12px; font-size: 14px; line-height: 1.45; align-items: flex-start; }
+.notice.banner .xr-body { margin-left: 0; }
+.notice.banner svg { margin-top: 3px; }
+@media (min-width: 900px) { .kvc.kvc-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.tbl.tbl-tight td, .tbl.tbl-tight th { padding: 8px 8px; }
+.tbl.tbl-nowrap td, .tbl.tbl-nowrap th { white-space: nowrap; }
+@media (max-width: 767px) { .tiles.tiles-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } .tiles.tiles-3 .tile.tile-s { padding: 10px; } .tiles.tiles-3 .tile .v { font-size: 1.05rem; } }

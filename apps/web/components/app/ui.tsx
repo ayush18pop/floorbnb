@@ -4,6 +4,8 @@ import { AlertTriangle, Check, Copy, Info, OctagonAlert, X } from "lucide-react"
 import { getSource } from "@/lib/adapters";
 import { BSCSCAN } from "@/lib/app-config";
 import { shortAddr } from "@/lib/adapters/format";
+import { InfoPopover } from "@/components/ui/info-popover";
+import { ExpandRow } from "@/components/ui/expand-row";
 
 /** True when the screens render the labelled mock. */
 export const isExample = () => getSource().kind === "mock";
@@ -14,10 +16,11 @@ export function ExampleBadge({ className = "" }: { className?: string }) {
   return <span className={`badge ${className}`} title="Invented data for layout. Not a real position.">Example</span>;
 }
 
-export function Tile({ label, value, unit, note, tone }: { label: string; value: ReactNode; unit?: string; note?: ReactNode; tone?: "pos" | "neg" | "warn" }) {
+/** Stat tile. `note` is data shown under the value; `info` is an explanation, kept behind an (i) button by the label. */
+export function Tile({ label, value, unit, note, tone, info }: { label: string; value: ReactNode; unit?: string; note?: ReactNode; tone?: "pos" | "neg" | "warn"; info?: ReactNode }) {
   return (
-    <div className="tile">
-      <p className="stat-label">{label}</p>
+    <div className="tile tile-s">
+      <p className="stat-label">{label}{info && <InfoPopover label={label} title={label}>{info}</InfoPopover>}</p>
       <p className={`v ${tone ?? ""}`}>{value}{unit && <small>{unit}</small>}</p>
       {note && <p className="n">{note}</p>}
     </div>
@@ -93,4 +96,17 @@ export function Skeleton({ lines = 3 }: { lines?: number }) {
 
 export function ErrorBox({ message }: { message: string }) {
   return <div className="p-4 md:p-6"><Notice kind="neg" title="Could not load this">{message}</Notice></div>;
+}
+
+/** One-line status banner. The long text sits behind a More control; the headline line carries the state. */
+export function Banner({ kind = "info", title, children, more }: { kind?: "info" | "warn" | "neg"; title: string; children: ReactNode; more?: ReactNode }) {
+  const Icon = kind === "neg" ? OctagonAlert : kind === "warn" ? AlertTriangle : Info;
+  return (
+    <div className={`notice banner ${kind}`} role={kind === "info" ? "note" : "alert"}>
+      <Icon size={16} strokeWidth={1.5} aria-hidden="true" />
+      <div className="min-w-0 flex-1">
+        {more ? <ExpandRow lead={<p><b>{title}</b> {children}</p>} label={title}>{more}</ExpandRow> : <p><b>{title}</b> {children}</p>}
+      </div>
+    </div>
+  );
 }

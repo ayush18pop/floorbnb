@@ -1,0 +1,73 @@
+/* Progressive-disclosure primitives: InfoPopover, DetailsDrawer, ExpandRow. Tokens only; hairlines, squares. */
+
+/* (i) button: 20px mark, 44px hit area on touch via the pseudo-element. */
+.ip-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; margin-left: 6px; padding: 0; vertical-align: middle; background: var(--surface); border: var(--hair) solid var(--grid-strong); border-radius: 50%; color: var(--text-muted); font-family: var(--font-mono); font-size: 11px; font-weight: 500; line-height: 1; cursor: pointer; flex: none; text-transform: none; letter-spacing: 0; }
+.ip-btn::after { content: ""; position: absolute; inset: -12px; }
+.ip-btn:hover, .ip-btn[aria-expanded="true"] { color: var(--accent); border-color: var(--accent); }
+.ip-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* Panel: native popover (top layer, so it never clips). Placed by JS on desktop, a bottom sheet on phones. */
+.ip-pop { position: fixed; inset: auto; margin: 0; padding: 0; width: min(340px, calc(100vw - 24px)); max-height: min(70dvh, 420px); overflow: auto; background: var(--surface); color: var(--text); border: var(--hair) solid var(--grid-strong); box-shadow: 0 8px 24px color-mix(in srgb, var(--text) 14%, transparent); font-size: 14px; line-height: 1.5; text-transform: none; letter-spacing: 0; font-family: var(--font-sans); }
+.ip-pop:focus { outline: none; }
+.ip-pop .ip-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px 0 14px; }
+.ip-pop .ip-t { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+.ip-pop .ip-x { width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; background: transparent; border: 0; color: var(--text-muted); cursor: pointer; }
+.ip-pop .ip-x:hover { color: var(--text); }
+.ip-pop .ip-x:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.ip-pop .ip-b { padding: 4px 14px 14px; color: var(--text-2); }
+.ip-pop .ip-b > * + * { margin-top: 10px; }
+.ip-pop .ip-b .small, .ip-pop .ip-b .label { max-width: none; }
+.ip-pop::backdrop { background: transparent; }
+@media (max-width: 639px) {
+  .ip-pop { inset: auto 0 0 0 !important; width: 100%; max-height: 80dvh; border-inline: 0; border-bottom: 0; }
+  .ip-pop::backdrop { background: color-mix(in srgb, var(--bg) 70%, transparent); }
+}
+@media (prefers-reduced-motion: no-preference) { .ip-pop:popover-open { animation: ip-in 120ms var(--ease, ease-out); } }
+@keyframes ip-in { from { opacity: 0; transform: translateY(4px); } }
+
+/* Drawer: native <dialog>. Side sheet from 768px, bottom sheet below. */
+dialog.dd { padding: 0; border: 0; background: var(--surface); color: var(--text); width: 100%; max-width: none; max-height: none; height: auto; margin: 0; position: fixed; inset: auto 0 0 0; max-height: 88dvh; border-top: var(--hair) solid var(--grid-strong); display: none; flex-direction: column; }
+dialog.dd[open] { display: flex; }
+dialog.dd::backdrop { background: color-mix(in srgb, var(--bg) 72%, transparent); }
+@media (min-width: 768px) {
+  dialog.dd { inset: 0 0 0 auto; width: min(520px, 100vw); height: 100dvh; max-height: 100dvh; border-top: 0; border-left: var(--hair) solid var(--grid-strong); }
+}
+.dd .dd-h { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border-bottom: var(--hair) solid var(--grid); flex: none; }
+.dd .dd-b { padding: 16px 20px 24px; overflow: auto; flex: 1; font-size: 14px; line-height: 1.55; color: var(--text-2); overscroll-behavior: contain; }
+.dd .dd-b > * + * { margin-top: 14px; }
+.dd .dd-b h3 { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); font-weight: 500; margin-top: 22px; }
+.dd .dd-b .small { max-width: none; }
+.dd .dd-x { width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center; border: var(--hair) solid var(--grid-strong); background: var(--surface); cursor: pointer; flex: none; }
+.dd .dd-x:hover { border-color: var(--text); }
+.dd .dd-x:focus-visible, .dd-link:focus-visible, .xr-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+@media (prefers-reduced-motion: no-preference) {
+  dialog.dd[open] { animation: dd-in var(--dur-base, 200ms) var(--ease, ease-out); }
+  @media (min-width: 768px) { dialog.dd[open] { animation-name: dd-in-side; } }
+}
+@keyframes dd-in { from { transform: translateY(24px); opacity: 0; } }
+@keyframes dd-in-side { from { transform: translateX(24px); opacity: 0; } }
+
+/* Text-style button that opens a drawer ("Risks", "Details") */
+.dd-link, .xr-btn { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; cursor: pointer; position: relative; }
+.dd-link::after, .xr-btn::after { content: ""; position: absolute; inset: -8px -6px; }
+.dd-link:hover, .xr-btn:hover { text-decoration-thickness: 2px; }
+
+/* Expand row: one-line lead plus a More control that reveals the long text in place */
+.xr { display: block; }
+.xr-row { display: flex; align-items: flex-start; gap: 12px; }
+.xr-row > :first-child { flex: 1; min-width: 0; }
+.xr-btn { font-size: 13px; line-height: 1.5; flex: none; margin-top: 1px; }
+.xr-body { margin: 8px 0 0 34px; font-size: 14px; line-height: 1.55; color: var(--text-2); }
+.xr-body[hidden] { display: none; }
+.xr-body.xr-flush { margin-left: 0; }
+
+/* Tabs */
+.tabs { display: flex; flex-direction: column; min-height: 0; }
+.tabs-list { display: flex; gap: 4px; border-bottom: var(--hair) solid var(--grid); padding: 0 var(--s-3); overflow-x: auto; scrollbar-width: none; }
+.tab { height: 40px; padding: 0 12px; background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); cursor: pointer; white-space: nowrap; }
+.tab:hover { color: var(--text); }
+.tab[aria-selected="true"] { color: var(--text); border-bottom-color: var(--floor-line); }
+.tab:focus-visible, .tabs-panel:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.tabs-panel[hidden] { display: none; }
+.tabs-panel { min-height: 0; }
+.tabs-panel { overflow: auto; max-height: var(--panel-h, none); }
