@@ -109,4 +109,24 @@ describe('B402FacilitatorClient (mocked, UNTESTED-LIVE)', () => {
     expect(r).toMatchObject({ success: false, pending: true, transaction: '0xtx' });
     expect(calls.length).toBe(6);
   });
+
+  it('matches docs/ARCHITECTURE.md 3.2: paths, five headers, Base64(SHA256withRSA(body + ms timestamp)) over the exact bytes sent', async () => {
+    const { c, calls } = client([env({ kinds: [] }), env({ isValid: true }), env({ success: true, transaction: '0xtx', network: 'eip155:56' })]);
+    await c.getSupported();
+    await c.verify(payload, req);
+    await c.settle(payload, req);
+    expect(calls.map((x) => x.url)).toEqual(['https://b402.example/papi/v2/b402/supported', 'https://b402.example/papi/v2/b402/verify', 'https://b402.example/papi/v2/b402/settle']);
+    for (const call of calls) {
+      expect(call.headers['Content-Type']).toBe('application/json');
+      expect(call.headers['X-Tesla-ClientId']).toBe('cid');
+      expect(call.headers['X-Tesla-SignAccessToken']).toBe('tok');
+      expect(call.headers['X-Tesla-Timestamp']).toMatch(/^\d{13}$/); // milliseconds
+      const sig = call.headers['X-Tesla-Signature']!;
+      expect(Buffer.from(sig, 'base64').length).toBeGreaterThan(0);
+      expect(createVerify('RSA-SHA256').update(Buffer.from(call.body + call.headers['X-Tesla-Timestamp'], 'utf8')).verify(publicKey, sig, 'base64')).toBe(true);
+    }
+    // verify and settle carry the same v2 body: the payload the buyer sent and OUR requirements entry
+    expect(calls[1]!.body).toBe(calls[2]!.body);
+    expect(JSON.parse(calls[2]!.body)).toEqual({ x402Version: 2, paymentPayload: payload, paymentRequirements: req });
+  });
 });

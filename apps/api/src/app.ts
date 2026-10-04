@@ -55,6 +55,8 @@ export interface AppDeps {
    * or a Response (402 etc.) to return as is. Absent until A17 lands: /v1/paid/* answer 501.
    */
   paidGate?: (req: Request, priceUsd: string) => Promise<Response | null>;
+  /** Price of /v1/paid/quote in USD (decimal string). Default 0.01. */
+  paidQuotePriceUsd?: string;
   corsOrigins?: string[];
   trustProxy?: boolean;
   now?: () => number;
@@ -340,7 +342,7 @@ export function createApp(deps: AppDeps): Hono {
 
   app.post('/v1/paid/quote', async (c) => {
     if (!deps.paidGate) throw new ApiError(501, 'not_implemented', 'paid endpoints are not enabled yet (x402 gate not installed)');
-    const early = await deps.paidGate(c.req.raw.clone(), '0.01');
+    const early = await deps.paidGate(c.req.raw.clone(), deps.paidQuotePriceUsd ?? '0.01');
     if (early) return early;
     const b = await body(c, paidQuoteSchema);
     const deposit = BigInt(b.deposit);

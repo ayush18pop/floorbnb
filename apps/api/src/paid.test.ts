@@ -5,7 +5,7 @@ import { FLOOR_DISCLOSURE } from '@floor/sdk';
 import { SelfFacilitatorClient, b64decode, type PaymentRequired } from '@floor/x402';
 import { header, signPayment } from '@floor/x402/src/testutil';
 import { createApp } from './app';
-import { createPaidGate, paidGateFromEnv } from './paid';
+import { createPaidGate, paidGateFromEnv, paidPriceFromEnv, paidTokensFromEnv } from './paid';
 
 const PAYEE = '0x00000000000000000000000000000000000000c3';
 const TOKEN = { address: '0x8d0D000Ee44948FC98c9B98A4FA4921476f08B0d' as const, name: 'World Liberty Financial USD', version: '1' };
@@ -68,5 +68,17 @@ describe('/v1/paid/quote behind the x402 gate', () => {
     expect(paidGateFromEnv({})).toBeUndefined();
     const app = createApp({ chainId: 56, deployment: { chainId: 56, factory: PAYEE, lens: PAYEE }, client: {} as PublicClient });
     expect((await post(app, body)).status).toBe(501);
+  });
+});
+
+describe('paid route configuration', () => {
+  it('price and asset come from env; bad values are rejected', () => {
+    expect(paidPriceFromEnv({})).toBe('0.01');
+    expect(paidPriceFromEnv({ PRICE_QUOTE_USD: '0.5' })).toBe('0.5');
+    expect(() => paidPriceFromEnv({ PRICE_QUOTE_USD: '-1' })).toThrow(/PRICE_QUOTE_USD/);
+    const t = paidTokensFromEnv({ X402_ASSET: '0x00000000000000000000000000000000000000aa', X402_ASSET_NAME: 'Test USD', X402_ASSET_DECIMALS: '6', X402_ASSET_SYMBOL: 'TUSD' });
+    expect(t.assets).toEqual([{ address: '0x00000000000000000000000000000000000000aa', symbol: 'TUSD', decimals: 6, method: 'eip3009', name: 'Test USD' }]);
+    expect(() => paidTokensFromEnv({ X402_ASSET: '0x00000000000000000000000000000000000000aa' })).toThrow(/NAME/);
+    expect(() => paidGateFromEnv({ X402_PAYTO: 'nope' })).toThrow(/X402_PAYTO/);
   });
 });

@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
 import { signPayment } from '@floor/x402/src/testutil';
-import { b64decode, b64encode, type PaymentRequired } from '@floor/x402';
-import { AUDIT_STATEMENT, DISCLOSURE } from './config';
+import { SelfFacilitatorClient, b64decode, b64encode, type PaymentRequired } from '@floor/x402';
+import { AUDIT_STATEMENT, DISCLOSURE, loadConfig } from './config';
 import { EIP3009_TOKENS } from './payments';
 import { FREE_TOOLS, PAID_TOOLS } from './tools';
-import { FACTORY, PAYEE, USDT_ADDR, VAULT, buildApp, connect, fakeApi, mockedSelfFacilitator } from './testkit';
+import { FACTORY, PAYEE, REPO_ROOT, USDT_ADDR, VAULT, buildApp, connect, fakeApi, mockedSelfFacilitator } from './testkit';
 
 const text = (r: unknown) => JSON.parse(((r as { content: { text: string }[] }).content[0]!).text);
 const structured = (r: unknown) => (r as { structuredContent: Record<string, any> }).structuredContent;
@@ -215,6 +215,49 @@ describe('paid tools: x402 over MCP (real signature verification, mocked chain)'
     const { second } = await pay(client, 'backtest', { basket: 'QQQ' });
     expect(isErr(second)).toBe(true);
     expect(JSON.stringify(second)).not.toMatch(/breach_pct/);
+  });
+
+  it('a settlement failure never returns the paid data (402-style error, no quote)', async () => {
+    const { f, publicClient } = mockedSelfFacilitator();
+    publicClient.simulateContract.mockRejectedValueOnce(new Error('execution reverted: out of gas'));
+    const client = await connect(buildApp({ facilitator: f }).app);
+    const { second } = await pay(client, 'quote_protection', quoteArgs);
+    expect(isErr(second)).toBe(true);
+    expect(structured(second).error).toMatch(/^settle_failed/);
+    expect(structured(second).accepts).toBeDefined();
+    expect(JSON.stringify(second)).not.toMatch(/floorValue|startingExposure|gapToleranceBps/);
+    // and over HTTP with the 402 switch on: status 402, no quote in the body
+    const { f: f2, publicClient: pc2 } = mockedSelfFacilitator();
+    pc2.simulateContract.mockRejectedValue(new Error('boom'));
+    const a = buildApp({ facilitator: f2, cfg: { http402: true } });
+    const call = (headers: Record<string, string> = {}) => a.app.fetch(new Request('http://mcp.test/mcp', { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream', ...headers }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'quote_protection', arguments: quoteArgs } }) }));
+    const pr = b64decode<PaymentRequired>((await call()).headers.get('PAYMENT-REQUIRED')!);
+    const tok = EIP3009_TOKENS.find((t) => t.address.toLowerCase() === pr.accepts[0]!.asset.toLowerCase())!;
+    const res = await call({ 'payment-signature': b64encode(await signPayment(acct(), pr.accepts[0]!, tok)) });
+    expect(res.status).toBe(402);
+    expect(await res.text()).not.toMatch(/floorValue|startingExposure/);
+  });
+
+  it('the payment-required result states price, network, payTo and token symbol in plain form', async () => {
+    const client = await connect(buildApp().app);
+    const first = await client.callTool({ name: 'simulate_gap', arguments: { ...quoteArgs, gapBps: 1000 } });
+    expect(structured(first).payment).toMatchObject({ tool: 'simulate_gap', priceUsd: '0.01', network: 'eip155:56', payTo: PAYEE });
+    expect(structured(first).payment.options[0]).toMatchObject({ symbol: expect.stringMatching(/USD1|U/), amountAtomic: '10000000000000000', method: 'eip3009' });
+  });
+
+  it('price, asset, decimals, network and payTo come from configuration (custom 6-decimal token)', async () => {
+    const asset = '0x00000000000000000000000000000000000000aa';
+    const cfg = loadConfig({ X402_PAYTO: PAYEE, X402_NETWORK: 'eip155:31337', X402_ASSET: asset, X402_ASSET_NAME: 'Test USD', X402_ASSET_SYMBOL: 'TUSD', X402_ASSET_DECIMALS: '6', PRICE_SIMULATE_GAP_USD: '0.25' }, REPO_ROOT);
+    const { f } = mockedSelfFacilitator();
+    const custom = new SelfFacilitatorClient({ network: 'eip155:31337', tokens: [{ address: asset, name: 'Test USD', version: '1' }], publicClient: (f as any).o.publicClient, walletClient: (f as any).o.walletClient });
+    const client = await connect(buildApp({ cfg, facilitator: custom }).app);
+    const first = await client.callTool({ name: 'simulate_gap', arguments: { ...quoteArgs, gapBps: 1000 } });
+    const s = structured(first);
+    expect(s.accepts).toHaveLength(1);
+    expect(s.accepts[0]).toMatchObject({ network: 'eip155:31337', asset, payTo: PAYEE, amount: '250000' });
+    expect(s.payment).toMatchObject({ priceUsd: '0.25', network: 'eip155:31337', options: [{ symbol: 'TUSD', amountAtomic: '250000' }] });
+    expect(() => loadConfig({ X402_ASSET: asset }, REPO_ROOT)).toThrow(/X402_ASSET_NAME/);
+    expect(() => loadConfig({ X402_PAYTO: 'nope' }, REPO_ROOT)).toThrow(/X402_PAYTO/);
   });
 
   it('without a payee configured paid tools refuse to run and free tools still work', async () => {
