@@ -35,7 +35,7 @@
     "sellBandBps": 100,
     "buyBandBps": 200,
     "minInterval": 900,
-    "publicDelay": 14400,
+    "publicDelay": 3600,
     "twapWindow": 600,
     "maxTickDev": 300,
     "tolAggBps": 30,

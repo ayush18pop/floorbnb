@@ -11,7 +11,7 @@ Any change under `packages/contracts/src` or `packages/contracts/script` after t
 
 | # | Step | Why |
 |---|---|---|
-| H1 | Decide the router allowlist: `variants/params-56-with-aggregator.json` or `variants/params-56-direct-only.json` (section 1). | Constructor-only; changing later costs `addRouter` + 24 h. Not yet decided. |
+| H1 | Decide the router allowlist: `variants/params-56-with-aggregator.json` or `variants/params-56-direct-only.json` (section 1). | **Decided (manager, on the team lead's delegation, 2026-10-04): direct-only.** `script/params/56.json` is the direct-only variant. Add the aggregator later with `addRouter` (24 h) after the proxy check in step 7. |
 | H2 | Choose and write down the addresses: `<OWNER>` (hardware wallet or Safe), `<GUARDIAN>` (a different EOA), `<KEEPER>` (keeper EOA), `<KEEPER2>` (Agentic Wallet address), `<DEPLOYER>` (fresh ledger account). | P4. |
 | H3 | Fund: `<DEPLOYER>`, `<OWNER>`, `<GUARDIAN>`, `<KEEPER>`, `<KEEPER2>` with BNB; a demo wallet with USDT + BNB (section 8). | Gas. |
 | H4 | Sign every `--ledger` transaction on the device and read each screen. A wrong address is not recoverable. | Hardware wallet. |

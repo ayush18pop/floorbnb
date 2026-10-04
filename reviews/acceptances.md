@@ -9,3 +9,13 @@ Only the team lead can accept a finding. An acceptance names the finding, why it
 - Guards that limit loss: launch caps (1,000 USDT per position, 5,000 USDT total), the 25% gap limit already stated on every product surface, `exitInKind` always allowed.
 - Required disclosure: the risks page and FAQ must say that in a fast crash a sell can be delayed until spot and the 10-minute average agree, and that this can let the value fall below the floor.
 - Accepted by: team lead, in the Claude Code session on 2026-10-03 ("yes accept option 1"). Name to be added by the team lead.
+
+## Batch acceptance, 2026-10-04 (six findings recommended in `reviews/audit-pashov-02-triage.md`, `-03-triage.md`, `-04-real.md`)
+Decided by the manager on the team lead's instruction "do it yourself" in the Claude Code session on 2026-10-04. **The team lead should confirm or reverse this in writing before mainnet** (G3). Each is accepted with the guard and disclosure shown; none changes contract code.
+1. **TVL squatting (#1):** accepted. Guard: launch caps 1,000 / 5,000 USDT, per-position vaults, `exitInKind` always allowed. Disclose: caps and that a pool's TVL can be manipulated.
+2. **`rebalancePublic` sandwich (#5/#12):** accepted. Guard: TWAP price bounds, SwapGuard balance deltas, `minTrade`, keeper acts first; public path opens only after `publicDelay` of open-market time (demo value 3600 s). Disclose: public rebalances can be sandwiched within the slippage bound.
+3. **Permanent cash lock:** accepted. Guard: lock needs all guards, market open and value below floor by `tolDirectBps`; the owner can always `exitInKind`/withdraw USDT. Disclose: once locked, a position stays in USDT until the term ends and cannot re-enter stocks.
+4. **Public delay counts from the last trade and counts pause time:** accepted as is. Disclose in docs only.
+5. **Disabled token's weight stays in USDT:** accepted. Guard: `exitInKind`. Disclose in docs only.
+6. **Trusted roles keeper / guardian / owner:** accepted. Guard: separate guardian and owner wallets (owner hardware wallet), 24 h `ROUTER_DELAY`, guardian can only halt. **Required disclosure:** the risks page and README must name these roles and what each can do.
+Also recorded: **#8** keep the no-de-risking-sell rule when a held stock has no TWAP (fails closed; owner `exitInKind`). **#11** demo `publicDelay` = 3600 s (`script/params/56.json`). **H1** router allowlist = Pancake only (direct-only variant).
