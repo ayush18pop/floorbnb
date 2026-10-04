@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest';
 import type { PublicClient } from 'viem';
 import { FLOOR_DISCLOSURE, TOKENS, USDT } from '@floor/sdk';
 import { createApp, type AppDeps } from './app';
-import { InMemoryKeeperRunStore } from './keeperRuns';
+import { InMemoryKeeperRunStore, readHeartbeat } from './keeperRuns';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { loadConfig } from './config';
 
 const FACTORY = '0x4d90a1F73C96d0bAcfB6BC901A98420F279e4189' as const;
@@ -65,6 +68,19 @@ describe('reads', () => {
     expect((await (await app.request('/healthz')).json()).keeper.heartbeatAgeSeconds).toBeNull();
     runs.add({ id: 'r1', vault: VAULT, startedAt: 1_790_999_940, finishedAt: null, outcome: 'hold', txHash: null, detail: null });
     expect((await (await app.request('/healthz')).json()).keeper.heartbeatAgeSeconds).toBe(60);
+  });
+
+  it('healthz serves the keeper heartbeat file (newest of file and run log), null when missing or garbage', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'hb-'));
+    const f = join(dir, 'hb.json');
+    expect(readHeartbeat(f)).toBeNull();
+    writeFileSync(f, 'not json');
+    expect(readHeartbeat(f)).toBeNull();
+    writeFileSync(f, JSON.stringify({ lastScan: 1_790_999_970 }));
+    const { app } = mk({ keeperHeartbeat: async () => readHeartbeat(f) });
+    const k = (await (await app.request('/healthz')).json()).keeper;
+    expect(k.lastHeartbeat).toBe(1_790_999_970);
+    expect(k.heartbeatAgeSeconds).toBe(30);
   });
 
   it('/v1/floor returns factory, lens, caps, disclosure; bigints are strings', async () => {

@@ -36,6 +36,19 @@ export type PositionView = {
   usdtBalance: bigint;
   holdings: Holding[];
   lastRebalance: number;
+  /** Closed positions only: what was paid out (chain source). */
+  exit?: ExitSummary;
+};
+
+/** What a closed position paid out: USDT plus, for an exit in kind, the tokens (valued at the 10-minute average just before the exit). */
+export type ExitSummary = {
+  kind: "closeToUSDT" | "exitInKind";
+  time: number;
+  tx: Hex;
+  usdtOut: bigint;
+  tokens: { symbol: AssetSymbol; amount: bigint; value: bigint }[];
+  /** usdtOut plus the value of the tokens. */
+  total: bigint;
 };
 
 /** Derived UI phase. Cash lock = Active, no stock target, value at the floor. */
@@ -49,7 +62,7 @@ export type VaultEvent =
   | { type: "CashLock"; time: number; tx: Hex; usdtOut: bigint }
   | { type: "CloseRequested"; time: number; tx: Hex }
   | { type: "Closed"; time: number; tx: Hex; usdtOut: bigint }
-  | { type: "ExitInKind"; time: number; tx: Hex; usdtOut: bigint; skipped: Address[] };
+  | { type: "ExitInKind"; time: number; tx: Hex; usdtOut: bigint; skipped: Address[]; tokens?: { symbol: AssetSymbol; amount: bigint; value: bigint }[] };
 
 export type ValuePoint = { t: number; v: number };
 
@@ -75,6 +88,8 @@ export type KeeperStatus = {
   lastRunTime: number;
   tradingOpen: boolean;
   rebalancesToday: number;
+  /** Seconds since the keeper's last scan (wall clock, from the API heartbeat). null: none known. */
+  heartbeatAgeSeconds?: number | null;
 };
 
 export type CreateParams = {
@@ -121,6 +136,8 @@ export interface PositionSource {
   keeperRuns(limit?: number): Promise<KeeperRun[]>;
   /** What createPosition enforces right now (minTrade, buy band, caps). Mock returns the documented defaults. */
   createLimits(): Promise<CreateLimits>;
+  /** Unix seconds: the chain's latest block time (chain source) or the browser clock (mock). */
+  chainTime(): Promise<number>;
   createPosition(p: CreateParams, onProgress: (e: CreateProgress) => void): Promise<CreateResult>;
   /** `to` is only used by exitInKind (defaults to the owner). */
   exit(vault: Address, kind: ExitKind, owner: Address): Promise<Hex>;

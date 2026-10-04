@@ -64,8 +64,8 @@ function serviceEnv(d: Deployment) {
   const assets = ASSETS.map((a) => a.token).join(",");
   const common = { FLOOR_CHAIN_ID: String(CHAIN_ID), FLOOR_FACTORY: d.factory, FLOOR_LENS: d.lens };
   return {
-    api: { ...common, FLOOR_RPC_URL: RPC, FLOOR_RUNS_FROM_BLOCK: String(d.deployBlock), PORT: String(PORTS.api), WEB_ORIGIN: `http://localhost:${PORTS.web},http://127.0.0.1:${PORTS.web}` },
-    keeper: { BSC_RPC_URL: RPC, FLOOR_FACTORY: d.factory, FLOOR_LENS: d.lens, KEEPER_ADDRESS: d.roles.keeper, FLOOR_ASSETS: assets, KEEPER_INTERVAL_SEC: "60", KEEPER_ROUTE: "direct" },
+    api: { ...common, FLOOR_RPC_URL: RPC, FLOOR_RUNS_FROM_BLOCK: String(d.deployBlock), FLOOR_KEEPER_HEARTBEAT_FILE: resolve(RUN, "keeper-heartbeat.json"), PORT: String(PORTS.api), WEB_ORIGIN: `http://localhost:${PORTS.web},http://127.0.0.1:${PORTS.web}` },
+    keeper: { BSC_RPC_URL: RPC, FLOOR_FACTORY: d.factory, FLOOR_LENS: d.lens, KEEPER_ADDRESS: d.roles.keeper, FLOOR_ASSETS: assets, KEEPER_INTERVAL_SEC: "60", KEEPER_ROUTE: "direct", KEEPER_HEARTBEAT_FILE: resolve(RUN, "keeper-heartbeat.json") },
     mcp: { API_BASE_URL: `http://127.0.0.1:${PORTS.api}`, MCP_PORT: String(PORTS.mcp) },
     web: {
       NEXT_PUBLIC_APP_LOCKED: "0", APP_LOCKED: "0", NEXT_PUBLIC_LOCAL_DEV: "1", NEXT_PUBLIC_DATA_SOURCE: "chain", NEXT_PUBLIC_RPC_URL: RPC, NEXT_PUBLIC_API_URL: `http://127.0.0.1:${PORTS.api}`,
@@ -156,8 +156,15 @@ const run = async () => {
     case "keeper": return keeperCmd(rest[0]);
     case "reset": return reset();
     case "web": { const d = loadDeployment(); stopService("web"); startService("web", "pnpm", ["exec", "next", "dev", "-p", String(PORTS.web)], { cwd: resolve(ROOT, "apps/web"), env: serviceEnv(d).web }); await waitFor("web", httpOk(`http://127.0.0.1:${PORTS.web}/app`), 120); say("web restarted"); return; }
+    case "restart": { // restart one service with the current code: api | keeper | web
+      const d = loadDeployment(); const env = serviceEnv(d);
+      if (rest[0] === "api") { stopService("api"); startService("api", "pnpm", ["exec", "tsx", "src/server.ts"], { cwd: resolve(ROOT, "apps/api"), env: env.api }); await waitFor("api", httpOk(`http://127.0.0.1:${PORTS.api}/healthz`), 40); }
+      else if (rest[0] === "keeper") await restartKeeper(d);
+      else throw new Error("usage: local restart api|keeper");
+      say(`${rest[0]} restarted`); return;
+    }
     case "summary": return summary(loadDeployment());
-    default: say("usage: local:up | local:down | local:status | local:logs [svc] | local:time [window|closed|weekend|+1h] | local:scenario crash|rally <SYM> [pct] | gap [pct] | local:keeper once|dry | local:reset");
+    default: say("usage: local:up | local:down | local:status | local:logs [svc] | local:time [window|closed|weekend|+1h] | local:scenario crash|rally <SYM> [pct] | gap [pct] | local:keeper once|dry | local:reset | cli restart api|keeper");
   }
 };
 run().catch((e) => { console.error("ERROR:", e instanceof Error ? e.message : e); if (process.env.DEBUG) console.error(e); process.exitCode = 1; });

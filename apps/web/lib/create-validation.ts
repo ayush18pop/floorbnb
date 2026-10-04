@@ -18,7 +18,7 @@ export type CreateLimits = {
   /** Room left under the total cap, USDT WAD. null if unknown. */
   tvlRoom: bigint | null;
   paused: boolean;
-  /** Last day (unix day number) of the holiday table. Not in the SDK ABI yet, so null means the config constant. */
+  /** Last day (unix day number) the factory's holiday table covers (factory.holidayHorizonDay). null or absent: use the config constant. */
   holidayHorizonDay?: number | null;
   /** Where the numbers came from. */
   from: "chain" | "default";
@@ -57,6 +57,18 @@ export function maxTermDaysByHorizon(nowSec: number, horizonDay: number = HOLIDA
   const secs = (horizonDay + 1) * 86_400 - 1 - nowSec - UNWIND_BUFFER_SECONDS;
   return Math.max(0, Math.floor(secs / 86_400));
 }
+
+/**
+ * The smallest deposit the factory accepts for this floor and basket (USDT WAD): the larger of the factory minimum and the trade rule.
+ * The one number behind both the on-screen hint and the validation message, so they cannot disagree. null if nothing up to the cap passes.
+ */
+export function minAcceptedDeposit(floorBps: number, weights: readonly number[], l: Pick<CreateLimits, "minTrade" | "buyBandBps" | "minDeposit" | "maxDeposit">): bigint | null {
+  const d = minDepositFor(floorBps, weights, l, l.maxDeposit);
+  return d === null ? null : d > l.minDeposit ? d : l.minDeposit;
+}
+
+/** Same rounding as the messages ("20", "6", "12.5"): for the hint next to the deposit field. */
+export const usdtText = (w: bigint): string => usdt(w);
 
 /** First failing reason for one deposit/floor, mirroring _checkNotTooSmall. null if accepted. */
 export function tradeProblem(amount: bigint, floorBps: number, weights: readonly number[], l: Pick<CreateLimits, "minTrade" | "buyBandBps">): "small" | "floor" | null {

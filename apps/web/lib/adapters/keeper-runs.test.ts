@@ -19,9 +19,25 @@ describe("keeper log from chain events", () => {
   });
   it("status: offline without a heartbeat, counts the last 24 h, never invents a run time", () => {
     const run = toKeeperRun({ ...base, buy: true, amountIn: 1n, amountOut: 1n, caller: KEEPER }, new Set());
-    expect(toKeeperStatus([], 5000, true, null)).toEqual({ online: false, lastRunTime: 0, tradingOpen: true, rebalancesToday: 0 });
+    expect(toKeeperStatus([], 5000, true, null)).toEqual({ online: false, lastRunTime: 0, tradingOpen: true, rebalancesToday: 0, heartbeatAgeSeconds: null });
     expect(toKeeperStatus([run], 1000 + 86_399, false, 30)).toMatchObject({ online: true, lastRunTime: 1000, rebalancesToday: 1, tradingOpen: false });
     expect(toKeeperStatus([run], 1000 + 86_400, false, 601).rebalancesToday).toBe(0);
     expect(toKeeperStatus([run], 2000, false, 601).online).toBe(false);
+    expect(toKeeperStatus([run], 2000, false, 42).heartbeatAgeSeconds).toBe(42);
+  });
+});
+
+import { scanNote } from "./keeper-runs";
+import { receivedText } from "./format";
+describe("wiring text", () => {
+  it("scanNote: age from the heartbeat, never guessed", () => {
+    expect(scanNote(null)).toBe("no heartbeat seen");
+    expect(scanNote(12)).toBe("last scan 12 s ago");
+    expect(scanNote(300)).toBe("last scan 5 min ago");
+  });
+  it("receivedText: exit in kind lists tokens with value and a total; close to USDT shows the USDT", () => {
+    const w = (n: number) => BigInt(n) * 10n ** 18n;
+    expect(receivedText({ usdt: w(5), tokens: [{ symbol: "NVDAB", amount: 12_345_600_000_000_000_000n, value: w(50) }] }, "exitInKind")).toBe("You received 12.3456 NVDAB (≈ 50.00 USDT at the 10-minute average) + 5.00 USDT. Total ≈ 55.00 USDT.");
+    expect(receivedText({ usdt: w(52), tokens: [] }, "closeToUSDT")).toBe("You received 52.00 USDT.");
   });
 });

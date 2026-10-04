@@ -1,20 +1,20 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { getSource, fmt, shortAddr, isoTime, isoDate } from "@/lib/adapters";
+import { getSource, scanNote, fmt, shortAddr, isoTime, isoDate } from "@/lib/adapters";
 import { useAsync } from "@/lib/adapters/use";
 import { PUBLIC_DELAY_HOURS } from "@/lib/app-config";
 import { BRAND } from "@/lib/brand";
 import { Xh } from "@/components/ui/xh";
-import { Addr, ErrorBox, ExampleBadge, Skeleton, Tile } from "./ui";
+import { Addr, ChainDate, ErrorBox, ExampleBadge, Skeleton, Tile } from "./ui";
 import { InfoPopover } from "@/components/ui/info-popover";
 
 const SIGNER = { keeper: ["Keeper wallet", "b-pos"], agentic: ["Agentic wallet", "b-warn"], public: ["Public caller", ""] } as const;
 
 export function KeeperLog() {
   const s = getSource();
-  const st = useAsync(() => s.keeperStatus(), "st");
-  const runs = useAsync(() => s.keeperRuns(30), "runs");
+  const st = useAsync(() => s.keeperStatus(), "st", undefined, 15_000);
+  const runs = useAsync(() => s.keeperRuns(30), "runs", undefined, 15_000);
   const [all, setAll] = useState(false);
   const SHOWN = 6;
   const rows = runs.data ? (all ? runs.data : runs.data.slice(0, SHOWN)) : [];
@@ -24,8 +24,8 @@ export function KeeperLog() {
         <Xh style={{ left: 0, top: "100%" }} /><Xh style={{ left: "100%", top: "100%" }} />
         {st.error ? <ErrorBox message={st.error} /> : !st.data ? <Skeleton lines={1} /> : (
           <div className="tiles" style={{ ["--n" as string]: 5 }}>
-            <Tile label="Keeper" value={<span className={`badge ${st.data.online ? "b-pos" : "b-neg"}`}>{st.data.online ? "Online" : "Offline"}</span>} />
-            <Tile label="Last run" value={`${isoTime(st.data.lastRunTime)} UTC`} note={isoDate(st.data.lastRunTime)} />
+            <Tile label="Keeper" value={<span className={`badge ${st.data.online ? "b-pos" : "b-neg"}`}>{st.data.online ? "Online" : "Offline"}</span>} note={<span data-testid="keeper-scan">{scanNote(st.data.heartbeatAgeSeconds)}</span>} />
+            <Tile label="Last rebalance" value={st.data.lastRunTime ? `${isoTime(st.data.lastRunTime)} UTC` : "none yet"} note={st.data.lastRunTime ? <ChainDate>{isoDate(st.data.lastRunTime)}</ChainDate> : undefined} />
             <Tile label="Trading window" tone={st.data.tradingOpen ? "pos" : "warn"} value={st.data.tradingOpen ? "Open" : "Closed"} info="Mon–Fri 15:30–19:30 UTC" />
             <Tile label="Rebalances today" value={st.data.rebalancesToday} note={s.kind === "mock" ? "example" : undefined} />
             <Tile label="Fallback" value={`After ${PUBLIC_DELAY_HOURS} h idle`} info={`Anyone can rebalance after ${PUBLIC_DELAY_HOURS} h idle.`} />

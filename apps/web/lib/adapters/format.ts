@@ -37,3 +37,13 @@ export function stockPct(p: PositionView): number {
 export const nextWindow = (t: number) => nextWindowOpen(t);
 
 export const isAddress = (s: string | null): s is Address => !!s && /^0x[0-9a-fA-F]{40}$/.test(s);
+
+export type Received = { usdt: bigint; tokens: { symbol: string; amount: bigint; value: bigint }[] };
+
+/** "You received 12.3456 NVDAB (≈ 50.00 USDT at the 10-minute average) + 5.00 USDT. Total ≈ 55.00 USDT." or the USDT alone. */
+export function receivedText(r: Received, kind: "requestClose" | "closeToUSDT" | "exitInKind"): string {
+  const parts = [...r.tokens.map((t) => `${fmtW(t.amount, 4)} ${t.symbol} (≈ ${fmtW(t.value)} USDT at the 10-minute average)`), `${fmtW(r.usdt)} USDT`];
+  if (kind === "closeToUSDT") return `You received ${fmtW(r.usdt)} USDT.`;
+  return `You received ${parts.join(" + ")}. Total ≈ ${fmtW(r.usdt + r.tokens.reduce((a, t) => a + t.value, 0n))} USDT.`;
+}
+

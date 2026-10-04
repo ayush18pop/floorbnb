@@ -9,8 +9,9 @@ import { chromium } from "playwright-core";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, "../..");
 const SCREENS = resolve(HERE, "../screens");
-const BASE = "http://localhost:3000";
-const RPC = "http://127.0.0.1:8545";
+const OFF = Number(process.env.LOCAL_PORT_OFFSET ?? 0) || 0;
+const BASE = `http://localhost:${3000 + OFF}`;
+const RPC = `http://127.0.0.1:${8545 + OFF}`;
 const dep = JSON.parse(readFileSync(resolve(HERE, "../deployment.json"), "utf8"));
 const cli = (args) => {
   try { return execSync(`pnpm --silent --filter @floor/local cli ${args}`, { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }); }

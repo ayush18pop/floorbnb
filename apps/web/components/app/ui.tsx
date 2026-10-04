@@ -7,6 +7,11 @@ import { shortAddr } from "@/lib/adapters/format";
 import { InfoPopover } from "@/components/ui/info-popover";
 import { ExpandRow } from "@/components/ui/expand-row";
 
+/** A date or time that comes from the chain clock. On the local fork that clock differs from the browser's, so say so (tooltip, local only). */
+export function ChainDate({ children }: { children: ReactNode }) {
+  return <span title={process.env.NEXT_PUBLIC_LOCAL_DEV === "1" ? "Chain time (the local fork's clock, not your computer's)" : undefined}>{children}</span>;
+}
+
 /** True when the screens render the labelled mock. */
 export const isExample = () => getSource().kind === "mock";
 

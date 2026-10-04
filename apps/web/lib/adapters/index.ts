@@ -16,3 +16,4 @@ export function getSource(): PositionSource {
 export * from "./types";
 export * from "./format";
 export { ASSETS, assetBySymbol, symbolOf } from "./assets";
+export { scanNote } from "./keeper-runs";

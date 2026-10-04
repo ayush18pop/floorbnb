@@ -8,7 +8,7 @@ import { ArrowRight, AlertTriangle } from "lucide-react";
 import { USDT, quoteProtection } from "@floor/sdk";
 import { ValueChart } from "@/components/charts/value-chart";
 import { buildChart, termWord, type Mode } from "@/lib/backtest";
-import { useNow } from "@/lib/adapters/use";
+import { useChainNow } from "@/lib/adapters/use-chain";
 import { parseBuilderParams, equalWeights } from "@/lib/builder-params";
 import { ASSETS, type AssetSymbol, fmt, isoDate, num } from "@/lib/adapters";
 import { BRAND } from "@/lib/brand";
@@ -21,7 +21,7 @@ import { InfoPopover } from "@/components/ui/info-popover";
 import { DetailsDrawer } from "@/components/ui/details-drawer";
 import { useViewportHeight, useViewportWidth } from "@/components/ui/use-viewport";
 import { DAY, upsideKeptPct } from "@/lib/floor-config";
-import { checkCreate } from "@/lib/create-validation";
+import { checkCreate, minAcceptedDeposit, usdtText } from "@/lib/create-validation";
 import { useCreateLimits } from "@/lib/use-create-limits";
 
 const cap = (x: string) => x.charAt(0).toUpperCase() + x.slice(1);
@@ -38,9 +38,9 @@ export function Builder() {
   const [termDays, setTermDays] = useState<number>(init.termDays);
   const [amountStr, setAmountStr] = useState(String(init.amount));
   const [mode, setMode] = useState<Mode>("worst");
-  const now = useNow();
+  const now = useChainNow();
   const termSeconds = termDays * DAY;
-  const { limits } = useCreateLimits();
+  const { limits, ready } = useCreateLimits();
 
   const { address, isConnected } = useAccount();
   const modal = useConnectModal();
@@ -57,7 +57,8 @@ export function Builder() {
     if (amount <= 0) return null;
     try { return quoteProtection({ deposit: parseUnits(String(amount), 18), floorBps: floor * 100, termSeconds, weightsBps: weights }); } catch { return null; }
   }, [amount, floor, termSeconds, weights]);
-  const check = useMemo(() => (amount > 0 ? checkCreate({ amount: parseUnits(String(amount), 18), floorBps: floor * 100, termSeconds, weightsBps: weights, limits, nowSec: now }) : { ok: false, issues: [] }), [amount, floor, termSeconds, weights, limits, now]);
+  const check = useMemo(() => (!ready ? { ok: false, issues: [] } : amount > 0 ? checkCreate({ amount: parseUnits(String(amount), 18), floorBps: floor * 100, termSeconds, weightsBps: weights, limits, nowSec: now }) : { ok: false, issues: [] }), [amount, floor, termSeconds, weights, limits, now, ready]);
+  const minDep = useMemo(() => (ready ? minAcceptedDeposit(floor * 100, weights, limits) : null), [ready, floor, weights, limits]);
 
   const toggle = (s: AssetSymbol) => setAssets((p) => {
     if (p.includes(s)) return p.length === 1 ? p : p.filter((x) => x !== s);
@@ -119,7 +120,7 @@ export function Builder() {
           <div className="flex items-center justify-between gap-3">
             <label htmlFor="amount" className="label">Deposit</label>
             <p id="amount-msg" className={`small truncate ${err ? "neg" : ""}`}>
-              {err ?? (balance !== null ? `Balance: ${fmt(balance)} USDT` : isConnected ? "Reading your USDT balance…" : <button type="button" className="prose-link" onClick={modal.open}>Connect wallet for balance</button>)}
+              {err ?? (balance !== null ? `Balance: ${fmt(balance)} USDT${minDep ? ` · Min ${usdtText(minDep)}` : ""}` : isConnected ? "Reading your USDT balance…" : <button type="button" className="prose-link" onClick={modal.open}>Connect wallet for balance</button>)}
             </p>
           </div>
           <div className="input-wrap mt-2">
@@ -138,7 +139,7 @@ export function Builder() {
           </div>
           <button type="submit" className="btn btn-primary mt-2 w-full !h-11" disabled={!!err || !check.ok} aria-describedby="create-issues">Review <ArrowRight size={16} strokeWidth={1.5} /></button>
           <p className="small mt-2 !text-[13px]">Backtest on past prices; not a forecast; floor can break on a gap of about {BRAND.gapLimitPct}%. <RisksLink term={{ end: isoDate(((now ?? 0) + termSeconds)), days: termDays }} />
-            {limits.from === "default" && <InfoPopover label="the limits check" title="Limits"><p>Checked against the default limits (minimum trade {fmt(Number(limits.minTrade / 10n ** 16n) / 100, 0)} USDT). The final check happens on the contract.</p></InfoPopover>}
+            {ready && limits.from === "default" && <InfoPopover label="the limits check" title="Limits"><p>Checked against the default limits (minimum trade {fmt(Number(limits.minTrade / 10n ** 16n) / 100, 0)} USDT). The final check happens on the contract.</p></InfoPopover>}
           </p>
         </section>
       </form>
