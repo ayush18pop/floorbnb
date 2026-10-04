@@ -182,12 +182,12 @@ Answers research item 2.
 
 **Seller-side integration, step by step** (endpoints are relative to the base URL Binance gives us; auth on each call is below):
 
-1. **Auth on every facilitator call.** Five headers: `Content-Type: application/json`, `X-Tesla-ClientId`, `X-Tesla-SignAccessToken`, `X-Tesla-Signature`, `X-Tesla-Timestamp`. Signature = Base64( SHA256withRSA( body + timestamp ) ), key is RSA 1024-bit, timestamp in ms must match and be within 5 minutes of server time. Sign the exact UTF-8 bytes of the body. [S15, S16]
-2. **Startup:** `POST /papi/v2/b402/supported`. Cache it. Take `kinds[].extra` (it holds `signerAddress` / `spenderAddress` and the token domain info) and copy it whole into the `extra` of every `accepts` entry we return. Buyers cannot call `/supported` themselves. [S13, S20]
+1. **Auth on every facilitator call.** **CORRECTED 2026-10-05 (live-verified):** b402 is part of the Binance Web3 API at `https://web3.binance.com/build`. Auth is the normal Web3 API key with the "B402 Payments" permission: `X-OC-APIKEY`, `X-OC-TIMESTAMP` (ISO ms), `X-OC-SIGN` = Base64(HMAC-SHA256(secret, timestamp+METHOD+path+body)), request bodies wrapped as `{"body": ...}`, responses `{status,type,code,errorData,data}`. The RSA / `X-Tesla-*` flow from earlier notes belongs to a different product. Settle is irreversible: call once, reconcile any returned tx hash instead of retrying.
+2. **Startup:** `POST /build/api/v2/b402/supported`. Cache it. Take `kinds[].extra` (it holds `signerAddress` / `spenderAddress` and the token domain info) and copy it whole into the `extra` of every `accepts` entry we return. Buyers cannot call `/supported` themselves. [S13, S20]
 3. **On a paid request without a payment header:** respond `402` with `PAYMENT-REQUIRED: base64(JSON)`. JSON is `{x402Version: 2, error, resource: {url, description, mimeType}, accepts: [{scheme: "exact", network: "eip155:56", asset, amount, payTo, maxTimeoutSeconds, extra}]}` [S23]. Offer U and USD1 (`eip3009`) first, then USDC and USDT (`permit2`).
-4. **On a retry with `PAYMENT-SIGNATURE`:** base64-decode to `paymentPayload`. Check `accepted` matches one entry we offered (same `amount`, `asset`, `payTo`). Then `POST /papi/v2/b402/verify` with `{x402Version: 2, paymentPayload, paymentRequirements}`. HTTP is 200 even for invalid payments. Read `data.isValid`, `data.payer`, `data.invalidReason`. [S17]
+4. **On a retry with `PAYMENT-SIGNATURE`:** base64-decode to `paymentPayload`. Check `accepted` matches one entry we offered (same `amount`, `asset`, `payTo`). Then `POST /build/api/v2/b402/verify` with `{x402Version: 2, paymentPayload, paymentRequirements}`. HTTP is 200 even for invalid payments. Read `data.isValid`, `data.payer`, `data.invalidReason`. [S17]
 5. **Run the tool.** Only after `isValid` is true.
-6. **Settle:** `POST /papi/v2/b402/settle` with the same body. Response is always HTTP 200. `data.success=true` is done. `success=false` with empty `transaction` is a terminal failure. `success=false` with a non-empty `transaction` means pending: call `/settle` again (it is idempotent) every 3 to 5 seconds, for at least `maxTimeoutSeconds`. Since 2026-07-14 settle no longer blocks until final confirmation. Typical settlement is 10 to 45 seconds. [S18, S20, S21]
+6. **Settle:** `POST /build/api/v2/b402/settle` with the same body. Response is always HTTP 200. `data.success=true` is done. `success=false` with empty `transaction` is a terminal failure. `success=false` with a non-empty `transaction` means pending: call `/settle` again (it is idempotent) every 3 to 5 seconds, for at least `maxTimeoutSeconds`. Since 2026-07-14 settle no longer blocks until final confirmation. Typical settlement is 10 to 45 seconds. [S18, S20, S21]
 7. **Return** the result with `PAYMENT-RESPONSE: base64({success, transaction, network, payer})`. If settlement is still pending after our deadline (we pick 20 s), return the result with `PAYMENT-RESPONSE` marked pending and keep polling in the background. Record the receipt. Do not charge twice: store `(nonce, network, payer)`, which is also what the facilitator enforces [S20].
 8. **Limits:** 100 verify per second and 20 settle per second per merchant; 429 means back off [S18, S20].
 
@@ -406,10 +406,10 @@ sequenceDiagram
   AG->>AWU: baw x402-payment sign
   AWU-->>AG: PAYMENT-SIGNATURE value
   AG->>M: tools/call quote_protection with PAYMENT-SIGNATURE
-  M->>F: POST /papi/v2/b402/verify
+  M->>F: POST /build/api/v2/b402/verify
   F-->>M: isValid true
   M->>M: run quote
-  M->>F: POST /papi/v2/b402/settle, poll
+  M->>F: POST /build/api/v2/b402/settle, poll
   F-->>M: success, tx hash
   M-->>AG: 200 result and PAYMENT-RESPONSE
   H->>AG: Deposit 500 of QQQB with floor 90 percent
@@ -430,7 +430,7 @@ sequenceDiagram
 2. **Free context.** `get_vault_info` returns the vault address, assets and terms. The skill tells the agent to remember this address and compare it with every unsigned tx.
 3. **Paid call, no payment.** `tools/call quote_protection` with no payment header. The server returns HTTP 402 with `PAYMENT-REQUIRED` (base64 JSON; `accepts` offers U and USD1 via `eip3009` first, USDC and USDT via `permit2`; `payTo` is the revenue wallet; `maxTimeoutSeconds` 60). The body repeats the MCP-spec shape (`isError`, `structuredContent`) [S23, S24, S7].
 4. **Pay.** `baw x402-payment preview --paymentRequirements '<JSON>' --json`, choose a `READY_TO_SIGN` option (prefer U or USD1, no allowance needed [S7]). The human approves the spend (the AW skill requires this confirmation [S5]). `baw x402-payment sign --paymentId <id> --selectedIndex <n> --json`. Replay at once with `PAYMENT-SIGNATURE: <value>`.
-5. **Verify, run, settle.** Server runs `/papi/v2/b402/verify`, then the tool, then `/papi/v2/b402/settle` with polling (flow 3.2 steps 4 to 7). Returns the result and `PAYMENT-RESPONSE` with the tx hash. A repeat of the same `PAYMENT-SIGNATURE` returns the stored result, with no second charge (receipt table).
+5. **Verify, run, settle.** Server runs `/build/api/v2/b402/verify`, then the tool, then `/build/api/v2/b402/settle` with polling (flow 3.2 steps 4 to 7). Returns the result and `PAYMENT-RESPONSE` with the tx hash. A repeat of the same `PAYMENT-SIGNATURE` returns the stored result, with no second charge (receipt table).
 6. **Deposit on the user's behalf.** `build_deposit_tx` (free) returns two unsigned transactions, each `{chainId: 56, to, data, value: "0", description, decoded}`. **Floor never signs.** The agent signs with the user's own AW:
    1. `baw wallet settings --json`: confirm `devMode.enabled=true` and `devMode.expiresAt` not near [S1, S4]. If not, tell the user to enable Developer Mode in the Binance App.
    2. `baw contract-call preview --binanceChainId 56 --from <user's AW address> --to <token> --inputData <approve calldata> --json` then, after the human confirms, `execute --requestId`.

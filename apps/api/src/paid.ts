@@ -3,7 +3,6 @@ import { bsc } from 'viem/chains';
 import { MemoryReceiptStore } from '@floor/db/src/x402Receipts';
 import { FLOOR_DISCLOSURE, MAX_ASSETS, MAX_FLOOR_BPS, MAX_TERM_SECONDS, MIN_FLOOR_BPS, MIN_TERM_SECONDS, quoteProtection } from '@floor/sdk';
 import { chainIdOf, createGate, selfFacilitatorFromEnv, B402FacilitatorClient, type FacilitatorClient, type PaidAsset, type ReceiptStore } from '@floor/x402';
-import { readFileSync } from 'node:fs';
 import { z } from 'zod';
 import { ser } from './util';
 
@@ -113,8 +112,8 @@ export function paidGateFromEnv(env: Env): ReturnType<typeof createPaidGate> | u
       if (!v) throw new Error(`${k} is required when X402_FACILITATOR=b402`);
       return v;
     };
-    // UNTESTED-LIVE (ops/progress/A17.md)
-    facilitator = new B402FacilitatorClient({ baseUrl: need('B402_BASE_URL'), clientId: need('B402_CLIENT_ID'), signAccessToken: need('B402_SIGN_ACCESS_TOKEN'), privateKey: readFileSync(need('B402_RSA_KEY_PATH'), 'utf8') });
+    // Binance Web3 API key with the "B402 Payments" permission (same BW3_* credentials as the market client).
+    facilitator = new B402FacilitatorClient({ apiKey: need('BW3_API_KEY'), apiSecret: need('BW3_API_SECRET'), ...(env.B402_BASE_URL ? { baseUrl: env.B402_BASE_URL } : {}) });
   } else {
     const rpc = env.X402_RPC_URL ?? env.BSC_RPC_URL;
     facilitator = selfFacilitatorFromEnv({ ...env, ...(rpc ? { BSC_RPC_URL: rpc } : {}) }, chainFor(network, rpc), tokens);

@@ -33,7 +33,7 @@ export function startService(name: string, cmd: string, args: string[], opts: { 
   const log = openSync(resolve(LOGS, `${name}.log`), "w");
   const env: Record<string, string | undefined> = { ...process.env, ...opts.env };
   // Local stack: never inherit real payment/facilitator settings from the shell (the paid gate would need a facilitator key).
-  for (const k of ['X402_PAYTO', 'X402_FACILITATOR', 'B402_CLIENT_ID', 'B402_RSA_KEY_PATH', 'SELF_FACILITATOR_KEY']) if (!(opts.env && k in opts.env)) delete env[k];
+  for (const k of ['X402_PAYTO', 'X402_FACILITATOR', 'B402_BASE_URL', 'SELF_FACILITATOR_KEY']) if (!(opts.env && k in opts.env)) delete env[k];
   if (name !== "anvil") { delete env.BSC_FORK_RPC_URL; delete env.LOCAL_FORK_RPC; delete env.ETH_RPC_URL; } // the fork URL may hold a key: only anvil gets it
   const child = spawn(cmd, args, { cwd: opts.cwd, env, detached: true, stdio: ["ignore", log, log] });
   child.unref();

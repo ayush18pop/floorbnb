@@ -1,8 +1,7 @@
-// B402FacilitatorClient. UNTESTED-LIVE: no merchant credentials exist. Written against
-// the public docs (https://developers.binance.com/en/docs/products/onchainpay-x402/quick-start,
-// .../integration-guideline, legacy-docs/onchainpay-x402/open-apis-v2/{2.verify-payment,3.settle-payment})
-// and exercised only with recorded/mocked fixtures. See ops/progress/A17.md for UNVERIFIED items.
-import { createSign } from 'node:crypto';
+// B402FacilitatorClient: Binance Web3 API "B402 Payments" (https://web3.binance.com/build/api/v2/b402/*).
+// Auth is the ordinary Web3 API key (needs the "B402 Payments" permission) with the X-OC-* HMAC headers.
+// The merchant is resolved from the key's Developer Portal project: never send a merchantId.
+import { createHmac } from 'node:crypto';
 import type {
   FacilitatorClient,
   PaymentPayload,
@@ -12,17 +11,15 @@ import type {
   VerifyResult,
 } from './types';
 
+export const B402_BASE_URL = 'https://web3.binance.com/build';
+
 export interface B402Options {
-  baseUrl: string; // from Binance onboarding (sandbox chain 97 / production chain 56)
-  clientId: string;
-  signAccessToken: string;
-  /** RSA private key: PEM (PKCS#8 or PKCS#1) or bare base64 PKCS#8 DER. Never log it. */
-  privateKey: string;
+  apiKey: string;
+  apiSecret: string;
+  baseUrl?: string; // default B402_BASE_URL
   fetch?: typeof fetch;
   now?: () => number;
   sleep?: (ms: number) => Promise<void>;
-  /** settle poll interval, doc says 3 to 5 s. Default 4000. */
-  pollIntervalMs?: number;
   /** max retries on HTTP 429 (exponential backoff from 500 ms). Default 3. */
   maxRetries429?: number;
 }
@@ -34,83 +31,86 @@ export class B402Error extends Error {
   }
 }
 
-// Success code in the envelope. The docs show code "0" in examples; "000000" is a common Binance
-// value. Both accepted. UNVERIFIED.
-const OK_CODES = new Set(['0', '000000', '200']);
-
-export function toPem(key: string): string {
-  const k = key.trim();
-  if (k.includes('-----BEGIN')) return k;
-  const body = k.replace(/\s+/g, '').match(/.{1,64}/g)?.join('\n') ?? '';
-  return `-----BEGIN ${'PRIVATE'} KEY-----\n${body}\n-----END ${'PRIVATE'} KEY-----`;
+/** HMAC-SHA256(timestamp + METHOD + path + body), Base64. `path` includes the /build prefix. */
+export function signB402(secret: string, timestamp: string, method: string, path: string, body: string): string {
+  return createHmac('sha256', secret).update(timestamp + method.toUpperCase() + path + body).digest('base64');
 }
 
-export function signB402(body: string, timestamp: string, privateKey: string): string {
-  const s = createSign('RSA-SHA256');
-  s.update(Buffer.from(body + timestamp, 'utf8'));
-  return s.sign(toPem(privateKey), 'base64');
+interface Envelope<T> {
+  status?: string;
+  code?: string | number;
+  errorData?: unknown;
+  data?: T;
 }
 
 export class B402FacilitatorClient implements FacilitatorClient {
   private f: typeof fetch;
   private now: () => number;
   private sleep: (ms: number) => Promise<void>;
-  private pollMs: number;
   private retries: number;
+  private base: string;
 
   constructor(private o: B402Options) {
     this.f = o.fetch ?? fetch;
     this.now = o.now ?? Date.now;
     this.sleep = o.sleep ?? ((ms) => new Promise((r) => setTimeout(r, ms)));
-    this.pollMs = o.pollIntervalMs ?? 4000;
     this.retries = o.maxRetries429 ?? 3;
+    this.base = (o.baseUrl ?? B402_BASE_URL).replace(/\/$/, '');
   }
 
-  /** Build the five auth headers for an exact body string. Exposed for tests. */
-  headers(body: string): Record<string, string> {
-    const ts = String(this.now()); // ms, must be within 5 min of server time
+  private get prefix(): string {
+    return new URL(this.base).pathname.replace(/\/$/, ''); // '/build'
+  }
+
+  /** Headers for an exact body string. Exposed for tests. */
+  headers(path: string, body: string): Record<string, string> {
+    const ts = new Date(this.now()).toISOString();
     return {
       'Content-Type': 'application/json',
-      'X-Tesla-ClientId': this.o.clientId,
-      'X-Tesla-SignAccessToken': this.o.signAccessToken,
-      'X-Tesla-Signature': signB402(body, ts, this.o.privateKey),
-      'X-Tesla-Timestamp': ts,
+      'X-OC-APIKEY': this.o.apiKey,
+      'X-OC-TIMESTAMP': ts,
+      'X-OC-SIGN': signB402(this.o.apiSecret, ts, 'POST', this.prefix + path, body),
     };
   }
 
-  private async call<T>(path: string, payload: unknown): Promise<T> {
-    const body = JSON.stringify(payload); // sign and send the same exact string
+  private async call<T>(path: string, inner: unknown): Promise<T> {
+    const body = JSON.stringify({ body: inner }); // sign and send the same exact string
+    const url = new URL(this.base);
     let attempt = 0;
     for (;;) {
-      const res = await this.f(this.o.baseUrl.replace(/\/$/, '') + path, {
-        method: 'POST',
-        headers: this.headers(body),
-        body,
-      });
+      const res = await this.f(url.origin + this.prefix + path, { method: 'POST', headers: this.headers(path, body), body });
       if (res.status === 429 && attempt < this.retries) {
         await this.sleep(500 * 2 ** attempt++);
         continue;
       }
-      if (!res.ok) throw new B402Error(`b402 ${path} HTTP ${res.status}`, undefined, res.status);
-      const env = (await res.json()) as { code?: string | number; message?: string; data?: T };
-      if (!OK_CODES.has(String(env.code))) throw new B402Error(`b402 ${path}: ${env.message ?? 'error'}`, String(env.code), res.status);
-      if (env.data === undefined) throw new B402Error(`b402 ${path}: empty data`, String(env.code));
+      let env: Envelope<T> | undefined;
+      try { env = (await res.json()) as Envelope<T>; } catch { /* non-JSON */ }
+      if (!res.ok) throw new B402Error(`b402 ${path} HTTP ${res.status}${env?.code ? ` code ${env.code}` : ''}`, env?.code === undefined ? undefined : String(env.code), res.status);
+      if (!env || env.status === 'ERROR' || env.data === undefined) {
+        throw new B402Error(`b402 ${path}: ${env?.status ?? 'bad envelope'} ${JSON.stringify(env?.errorData ?? '')}`, env?.code === undefined ? undefined : String(env.code), res.status);
+      }
       return env.data;
     }
   }
 
   async getSupported(): Promise<Supported> {
-    const d = await this.call<{ kinds?: Supported['kinds'] }>('/papi/v2/b402/supported', {});
+    const d = await this.call<{ kinds?: Supported['kinds'] }>('/api/v2/b402/supported', {});
     return { kinds: d.kinds ?? [] };
   }
 
+  /** Invalid payments are HTTP 200 with data.isValid=false. */
   async verify(paymentPayload: PaymentPayload, paymentRequirements: PaymentRequirements): Promise<VerifyResult> {
-    const d = await this.call<VerifyResult>('/papi/v2/b402/verify', { x402Version: 2, paymentPayload, paymentRequirements });
+    const d = await this.call<VerifyResult>('/api/v2/b402/verify', { x402Version: 2, paymentPayload, paymentRequirements });
     return { isValid: !!d.isValid, payer: d.payer, invalidReason: d.invalidReason };
   }
 
-  private async settleOnce(paymentPayload: PaymentPayload, paymentRequirements: PaymentRequirements): Promise<SettleResult> {
-    const d = await this.call<SettleResult>('/papi/v2/b402/settle', { x402Version: 2, paymentPayload, paymentRequirements });
+  /**
+   * Moves real funds, irreversible: called exactly once, never auto-retried. Failure is HTTP 200 with
+   * data.success=false; a non-empty transaction on a failure means broadcast-but-unconfirmed, so we
+   * return pending=true and the caller must reconcile that tx hash instead of settling again.
+   */
+  async settle(paymentPayload: PaymentPayload, paymentRequirements: PaymentRequirements): Promise<SettleResult> {
+    const d = await this.call<SettleResult>('/api/v2/b402/settle', { x402Version: 2, paymentPayload, paymentRequirements });
     const transaction = d.transaction ?? '';
     return {
       success: !!d.success,
@@ -121,20 +121,5 @@ export class B402FacilitatorClient implements FacilitatorClient {
       errorReason: d.errorReason,
       pending: !d.success && transaction !== '',
     };
-  }
-
-  /**
-   * success=true: done. success=false and no tx: terminal failure. success=false with a tx: pending,
-   * call /settle again (idempotent) every pollIntervalMs until maxTimeoutSeconds elapse; then
-   * return pending=true so the caller can keep polling in the background.
-   */
-  async settle(paymentPayload: PaymentPayload, paymentRequirements: PaymentRequirements): Promise<SettleResult> {
-    const deadline = this.now() + Math.max(paymentRequirements.maxTimeoutSeconds, 1) * 1000;
-    let r = await this.settleOnce(paymentPayload, paymentRequirements);
-    while (r.pending && this.now() < deadline) {
-      await this.sleep(this.pollMs);
-      r = await this.settleOnce(paymentPayload, paymentRequirements);
-    }
-    return r;
   }
 }

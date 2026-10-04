@@ -10,7 +10,7 @@ import {
   type PaidAsset,
   type ReceiptStore,
 } from '@floor/x402';
-import { readKeyFile, type McpConfig } from './config';
+import type { McpConfig } from './config';
 
 type Env = Record<string, string | undefined>;
 
@@ -54,12 +54,10 @@ export function facilitatorFromEnv(cfg: Pick<McpConfig, 'facilitator' | 'network
       if (!v) throw new Error(`${k} is required when X402_FACILITATOR=b402`);
       return v;
     };
-    // b402 is UNTESTED-LIVE (ops/progress/A17.md).
     return new B402FacilitatorClient({
-      baseUrl: need('B402_BASE_URL'),
-      clientId: need('B402_CLIENT_ID'),
-      signAccessToken: need('B402_SIGN_ACCESS_TOKEN'),
-      privateKey: readKeyFile(need('B402_RSA_KEY_PATH')),
+      apiKey: need('BW3_API_KEY'),
+      apiSecret: need('BW3_API_SECRET'),
+      ...(env.B402_BASE_URL ? { baseUrl: env.B402_BASE_URL } : {}),
     });
   }
   // The gas key comes from the environment only when the human runs the server. It is never logged.
