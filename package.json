@@ -7,7 +7,15 @@
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
-    "lint": "pnpm -r lint"
+    "lint": "pnpm -r lint",
+    "local:up": "pnpm --filter @floor/local cli up",
+    "local:down": "pnpm --filter @floor/local cli down",
+    "local:status": "pnpm --filter @floor/local cli status",
+    "local:logs": "pnpm --filter @floor/local cli logs",
+    "local:time": "pnpm --filter @floor/local cli time",
+    "local:scenario": "pnpm --filter @floor/local cli scenario",
+    "local:keeper": "pnpm --filter @floor/local cli keeper",
+    "local:reset": "pnpm --filter @floor/local cli reset"
   },
   "devDependencies": {
     "@types/node": "^20",

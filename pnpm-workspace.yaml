@@ -1,6 +1,7 @@
 packages:
   - apps/*
   - packages/*
+  - local
 # packages/contracts is a Foundry project owned by A01; it has no package.json and is not part of the workspace.
 ignoredBuiltDependencies:
   - sharp

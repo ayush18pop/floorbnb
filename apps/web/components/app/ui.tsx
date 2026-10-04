@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AlertTriangle, Check, Copy, Info, OctagonAlert, X } from "lucide-react";
 import { getSource } from "@/lib/adapters";
-import { BSCSCAN } from "@/lib/app-config";
+import { BSCSCAN, LOCAL_DEV } from "@/lib/app-config";
 import { shortAddr } from "@/lib/adapters/format";
 
 /** True when the screens render the labelled mock. */
@@ -38,7 +38,7 @@ export function Notice({ kind = "info", children, action, title }: { kind?: "inf
   );
 }
 
-/** Address or hash with a copy button and optional BscScan link. */
+/** Address or hash with a copy button and optional BscScan link (no link in local-dev mode: the fork is not on BscScan). */
 export function Addr({ value, kind = "address", link = true }: { value: string; kind?: "address" | "tx"; link?: boolean }) {
   const [ok, setOk] = useState(false);
   const copy = async () => {
@@ -51,7 +51,7 @@ export function Addr({ value, kind = "address", link = true }: { value: string; 
       <button type="button" onClick={copy} className="inline-flex h-6 w-6 items-center justify-center text-muted hover:text-ink" aria-label={`Copy ${kind}`}>
         {ok ? <Check size={14} strokeWidth={1.5} /> : <Copy size={14} strokeWidth={1.5} />}
       </button>
-      {link && !isExample() && <a className="prose-link" href={href} target="_blank" rel="noreferrer">BscScan</a>}
+      {link && !isExample() && !LOCAL_DEV && <a className="prose-link" href={href} target="_blank" rel="noreferrer">BscScan</a>}
     </span>
   );
 }

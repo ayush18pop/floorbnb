@@ -1,0 +1,10 @@
+import { chromium } from "playwright-core";
+const exe = process.env.HOME + "/.cache/ms-playwright/chromium-1243/chrome-linux64/chrome";
+const b = await chromium.launch({ executablePath: exe, args: ["--no-sandbox"] });
+const p = await b.newPage({ viewport: { width: 1280, height: 900 } });
+p.on("console", (m) => { if (["error", "warning"].includes(m.type())) console.log("CONSOLE", m.type(), m.text().slice(0, 300)); });
+p.on("pageerror", (e) => console.log("PAGEERROR", e.message.slice(0, 300)));
+await p.goto(process.argv[2] ?? "http://localhost:3000/app", { waitUntil: "networkidle" });
+console.log((await p.innerText("body")).slice(0, 2500));
+await p.screenshot({ path: "/tmp/claude-1001/-home-hyprayush-Documents-Projects/02424c9d-833b-416a-9442-3d67076208de/scratchpad/probe.png" });
+await b.close();

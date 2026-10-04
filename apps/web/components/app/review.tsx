@@ -11,6 +11,7 @@ import { Xh } from "@/components/ui/xh";
 import { useNow } from "@/lib/adapters/use";
 import { getSource, fmt, isoDate, num, type CreateProgress, type CreateStep } from "@/lib/adapters";
 import { BRAND } from "@/lib/brand";
+import { APP_CHAIN_ID } from "@/lib/app-config";
 import { Addr, Notice } from "./ui";
 import { useConnectModal, NetworkGuard } from "./wallet";
 import { equalWeights, parseBuilderParams } from "./builder";
@@ -68,7 +69,7 @@ export function Review() {
   const stockPct = q.startingExposureBps / 100;
   const allAck = acks.every(Boolean);
   const mock = source.kind === "mock";
-  const needsWallet = !mock && (!isConnected || chain?.id !== 56);
+  const needsWallet = !mock && (!isConnected || chain?.id !== APP_CHAIN_ID);
   const now = useNow();
   const termEnd = now ? isoDate(now + LAUNCH_TERM_SECONDS) : "…";
 

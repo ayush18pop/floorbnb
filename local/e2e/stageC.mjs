@@ -1,0 +1,13 @@
+import { open, text, SCRATCH } from "./lib.mjs";
+const { ctx, p } = await open();
+await p.goto("http://localhost:3000/app/positions", { waitUntil: "networkidle" });
+await p.waitForTimeout(2500);
+await p.locator('a[href*="/app/position?v="]').first().click();
+await p.waitForTimeout(4000);
+console.log((await text(p, 3000)).slice(150));
+await p.screenshot({ path: `${SCRATCH}/c-detail.png`, fullPage: true });
+await p.goto("http://localhost:3000/app/keeper", { waitUntil: "networkidle" });
+await p.waitForTimeout(3000);
+console.log("=== KEEPER PAGE\n" + (await text(p, 3000)));
+await p.screenshot({ path: `${SCRATCH}/c-keeper.png` });
+await ctx.close();
