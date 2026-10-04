@@ -1,7 +1,8 @@
+import { defineChain, type Chain } from 'viem';
 import { bsc } from 'viem/chains';
 import { MemoryReceiptStore } from '@floor/db/src/x402Receipts';
 import { FLOOR_DISCLOSURE, MAX_ASSETS, MAX_FLOOR_BPS, MAX_TERM_SECONDS, MIN_FLOOR_BPS, MIN_TERM_SECONDS, quoteProtection } from '@floor/sdk';
-import { createGate, selfFacilitatorFromEnv, B402FacilitatorClient, type FacilitatorClient, type PaidAsset, type ReceiptStore } from '@floor/x402';
+import { chainIdOf, createGate, selfFacilitatorFromEnv, B402FacilitatorClient, type FacilitatorClient, type PaidAsset, type ReceiptStore } from '@floor/x402';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
 import { ser } from './util';
@@ -16,6 +17,33 @@ const ASSETS: PaidAsset[] = [
   { address: USD1.address, symbol: 'USD1', decimals: 18, method: 'eip3009', name: USD1.name },
   { address: U.address, symbol: 'U', decimals: 18, method: 'eip3009', name: U.name },
 ];
+const ADDR = /^0x[0-9a-fA-F]{40}$/;
+
+/** X402_ASSET (+ _NAME, _VERSION, _SYMBOL, _DECIMALS) replaces the BSC default tokens. For local and test runs. */
+export function paidTokensFromEnv(env: Env): { tokens: { address: `0x${string}`; name: string; version: string }[]; assets: PaidAsset[] } {
+  const a = env.X402_ASSET?.trim();
+  if (!a) return { tokens: TOKENS, assets: ASSETS };
+  if (!ADDR.test(a)) throw new Error('X402_ASSET must be a 0x address');
+  const name = env.X402_ASSET_NAME?.trim();
+  if (!name) throw new Error('X402_ASSET_NAME is required with X402_ASSET');
+  const decimals = Number(env.X402_ASSET_DECIMALS ?? 18);
+  if (!Number.isInteger(decimals) || decimals < 0 || decimals > 36) throw new Error('X402_ASSET_DECIMALS must be an integer 0 to 36');
+  const version = env.X402_ASSET_VERSION?.trim() || '1';
+  return { tokens: [{ address: a as `0x${string}`, name, version }], assets: [{ address: a, symbol: env.X402_ASSET_SYMBOL?.trim() || 'TOKEN', decimals, method: 'eip3009', name }] };
+}
+
+/** Price per paid quote, USD decimal string (PRICE_QUOTE_USD, default 0.01). */
+export function paidPriceFromEnv(env: Env): string {
+  const v = (env.PRICE_QUOTE_USD ?? '0.01').trim();
+  if (!/^\d+(\.\d{1,6})?$/.test(v) || Number(v) <= 0) throw new Error(`bad PRICE_QUOTE_USD "${v}": use a positive decimal like 0.01`);
+  return v;
+}
+
+function chainFor(network: string, rpc?: string): Chain {
+  const id = chainIdOf(network);
+  if (id === bsc.id) return bsc;
+  return defineChain({ id, name: `eip155:${id}`, nativeCurrency: { name: 'Native', symbol: 'NATIVE', decimals: 18 }, rpcUrls: { default: { http: [rpc ?? 'http://127.0.0.1:8545'] } } });
+}
 
 const quoteBody = z.object({
   deposit: z.string().regex(/^\d+$/),
@@ -31,6 +59,8 @@ export interface PaidOptions {
   facilitator: FacilitatorClient;
   receipts?: ReceiptStore;
   network?: string;
+  /** Default: USD1 and U. */
+  assets?: PaidAsset[];
   now?: () => number;
 }
 
@@ -46,7 +76,7 @@ export function createPaidGate(o: PaidOptions): (req: Request, priceUsd: string)
     receipts: o.receipts ?? new MemoryReceiptStore(),
     payTo: o.payTo,
     network: o.network ?? 'eip155:56',
-    assets: ASSETS,
+    assets: o.assets ?? ASSETS,
   });
   const now = o.now ?? Date.now;
   return (req, priceUsd) =>
@@ -73,6 +103,9 @@ export function createPaidGate(o: PaidOptions): (req: Request, priceUsd: string)
 /** undefined when X402_PAYTO is unset (the route then answers 501, never serves unpaid). */
 export function paidGateFromEnv(env: Env): ReturnType<typeof createPaidGate> | undefined {
   if (!env.X402_PAYTO) return undefined;
+  if (!ADDR.test(env.X402_PAYTO.trim())) throw new Error('X402_PAYTO must be a 0x address');
+  const network = env.X402_NETWORK ?? 'eip155:56';
+  const { tokens, assets } = paidTokensFromEnv(env);
   let facilitator: FacilitatorClient;
   if ((env.X402_FACILITATOR ?? 'self') === 'b402') {
     const need = (k: string) => {
@@ -83,7 +116,8 @@ export function paidGateFromEnv(env: Env): ReturnType<typeof createPaidGate> | u
     // UNTESTED-LIVE (ops/progress/A17.md)
     facilitator = new B402FacilitatorClient({ baseUrl: need('B402_BASE_URL'), clientId: need('B402_CLIENT_ID'), signAccessToken: need('B402_SIGN_ACCESS_TOKEN'), privateKey: readFileSync(need('B402_RSA_KEY_PATH'), 'utf8') });
   } else {
-    facilitator = selfFacilitatorFromEnv(env, bsc, TOKENS);
+    const rpc = env.X402_RPC_URL ?? env.BSC_RPC_URL;
+    facilitator = selfFacilitatorFromEnv({ ...env, ...(rpc ? { BSC_RPC_URL: rpc } : {}) }, chainFor(network, rpc), tokens);
   }
-  return createPaidGate({ payTo: env.X402_PAYTO, facilitator, network: env.X402_NETWORK });
+  return createPaidGate({ payTo: env.X402_PAYTO.trim(), facilitator, network, assets });
 }

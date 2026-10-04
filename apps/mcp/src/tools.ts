@@ -16,7 +16,7 @@ import { b64decode, type PaymentPayload, type PaymentRequired } from '@floor/x40
 import { ApiError, type FloorApi } from './api';
 import { AUDIT_STATEMENT, DISCLOSURE, type McpConfig } from './config';
 import { BASKETS, DataError, MODES, readBacktest, readLongHistory } from './data';
-import type { Gate } from './payments';
+import { paidAssetsFor, type Gate } from './payments';
 
 export const FREE_TOOLS = ['get_floor_info', 'list_assets', 'get_status', 'get_rebalance_history', 'build_create_position_tx', 'build_exit_tx'] as const;
 export const PAID_TOOLS = ['quote_protection', 'backtest', 'simulate_gap'] as const;
@@ -240,7 +240,18 @@ export function createFloorMcpServer(deps: ToolDeps): McpServer {
       if (res.status === 402) {
         const body = (await res.json()) as PaymentRequired;
         ctx.paymentRequired = res.headers.get('PAYMENT-REQUIRED') ?? undefined;
-        return { isError: true, content: [{ type: 'text', text: JSON.stringify(body) }], structuredContent: body as unknown as Record<string, unknown> };
+        // Plain summary beside the x402 body so a person (or a log) can read price, token and payee at once.
+        const assets = paidAssetsFor(cfg);
+        const summary = {
+          tool: name,
+          priceUsd: cfg.prices[name],
+          network: cfg.network,
+          payTo: cfg.payTo,
+          options: (body.accepts ?? []).map((a) => ({ asset: a.asset, symbol: assets.find((x) => x.address.toLowerCase() === a.asset.toLowerCase())?.symbol, amountAtomic: a.amount, method: a.extra?.assetTransferMethod })),
+          retry: 'Sign an EIP-3009 authorization for one option, then repeat this call with the PAYMENT-SIGNATURE header (or params._meta["x402/payment"]).',
+        };
+        const out = { ...body, payment: summary } as unknown as Record<string, unknown>;
+        return { isError: true, content: [{ type: 'text', text: JSON.stringify(out) }], structuredContent: out };
       }
       if (res.status >= 400) {
         const b = (await res.json().catch(() => ({}))) as { error?: string };
