@@ -19,7 +19,7 @@ export type RouteDecision = "allow" | "lock" | "block";
 const under = (p: string, base: string) => p === base || p.startsWith(base + "/");
 
 /** Public pages that stay open while locked. Everything not listed here is locked (allowlist, safe by default). */
-const ALLOW_EXACT = new Set(["/", "/locked", "/robots.txt", "/sitemap.xml", "/favicon.ico", "/icon.svg", "/opengraph-image", "/twitter-image", "/manifest.webmanifest"]);
+const ALLOW_EXACT = new Set(["/", "/locked", "/robots.txt", "/sitemap.xml", "/favicon.ico", "/icon.svg", "/opengraph-image", "/twitter-image", "/manifest.webmanifest", "/.well-known/agent-registration.json"]);
 const ALLOW_PREFIX = ["/docs", "/try", "/legal", "/_next"];
 const STATIC_FILE = /\.(svg|png|jpe?g|webp|avif|gif|ico|txt|xml|woff2?|css|js|map)$/i;
 
