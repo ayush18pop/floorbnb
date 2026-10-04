@@ -195,7 +195,7 @@ Guards (all fail closed: revert and do nothing):
 - Pool `liquidity()` >= `minLiquidity[asset]` (guards a drained pool).
 - Per-trade value cap `maxTradeValue[asset]` (launch: NVDAB 25k, SPCXB 10k, QQQB 5k USDT; **proposed**, tune
   from quotes at deploy).
-- Global launch cap on TVL per position (`maxDeposit`, launch: 5,000 USDT) and total (`maxTotalTvl`, 50,000). `totalTvl` counts deposits of OPEN positions: a vault reports its close once to `factory.onPositionClosed()` (from `closeToUSDT` / `exitInKind`, best effort, gas capped, result ignored) and the deposit is released. Minimum deposit is 1 USDT (A12 F-07 / F-01).
+- Global launch cap on TVL per position (`maxDeposit`, launch: 1,000 USDT) and total (`maxTotalTvl`, launch: 5,000 USDT). `totalTvl` counts deposits of OPEN positions: a vault reports its close once to `factory.onPositionClosed()` (from `closeToUSDT` / `exitInKind`, best effort, gas capped, result ignored) and the deposit is released. Minimum deposit is 1 USDT (A12 F-07 / F-01).
 - Pricing when a pool guard fails (A12 F-03, A12r M-01): the asset cannot be traded and buys are suppressed, but it is still VALUED at its 10-minute TWAP (history is required, the spot-deviation and liquidity guards are not), so pushing one pool's spot for a block cannot understate V and force a sale of another asset. Only an asset with no TWAP at all (history too short) counts as 0, which can only make the vault sell more, never buy more. Preview (`previewRebalance`) skips an asset that cannot be traded (failed price, or a multiplier in its transition window; Pashov 02 #10) and treats a reverting token beacon as "buys blocked" (A12r L-02).
 - Multiplier guard (section 4).
 

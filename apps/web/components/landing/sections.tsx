@@ -118,7 +118,7 @@ export function ProofTiles() {
       <div className="cellgrid">
         <Tile href="/docs/evidence" label="1,581 years tested, 1928 to 2026" note="ended clearly below a 90% floor (7 periods). A one-day drop bigger than about 24% breaks it, and single stocks have had them."><span>0.44%</span></Tile>
         <Tile href="/docs/backtest#worst-year" label="NVDA worst year, with Floor" note="Holding lost 51.0%"><span className="acc">−10.0%</span></Tile>
-        <Tile href="/docs/trade-off#upside" label="Upside kept, up years" note="Average of up-year gains, at m = 4. A typical year keeps less."><span>~42%</span></Tile>
+        <Tile href="/docs/trade-off#upside" label="Upside kept, up years" note="At a 90% floor and m = 4: about 4 × (100 − floor)% of an up-window gain. A typical year keeps less."><span>~42%</span></Tile>
         <Tile href="/docs/spot-only" label="How it trades" note="No perps, options, leverage or borrowing" cap={false}><span style={{ fontSize: "0.7em" }}>Spot only</span></Tile>
       </div>
     </Section>
