@@ -68,7 +68,7 @@ function serviceEnv(d: Deployment) {
     keeper: { BSC_RPC_URL: RPC, FLOOR_FACTORY: d.factory, FLOOR_LENS: d.lens, KEEPER_ADDRESS: d.roles.keeper, FLOOR_ASSETS: assets, KEEPER_INTERVAL_SEC: "60", KEEPER_ROUTE: "direct" },
     mcp: { API_BASE_URL: `http://127.0.0.1:${PORTS.api}`, MCP_PORT: String(PORTS.mcp) },
     web: {
-      NEXT_PUBLIC_LOCAL_DEV: "1", NEXT_PUBLIC_DATA_SOURCE: "chain", NEXT_PUBLIC_RPC_URL: RPC, NEXT_PUBLIC_API_URL: `http://127.0.0.1:${PORTS.api}`,
+      NEXT_PUBLIC_APP_LOCKED: "0", APP_LOCKED: "0", NEXT_PUBLIC_LOCAL_DEV: "1", NEXT_PUBLIC_DATA_SOURCE: "chain", NEXT_PUBLIC_RPC_URL: RPC, NEXT_PUBLIC_API_URL: `http://127.0.0.1:${PORTS.api}`,
       NEXT_PUBLIC_MCP_URL: `http://127.0.0.1:${PORTS.mcp}/mcp`, NEXT_PUBLIC_FACTORY_ADDRESS: d.factory, NEXT_PUBLIC_LENS_ADDRESS: d.lens,
       NEXT_PUBLIC_DEPLOY_BLOCK: String(d.deployBlock), NEXT_PUBLIC_LOCAL_USER: d.roles.user, NEXT_TELEMETRY_DISABLED: "1",
     },

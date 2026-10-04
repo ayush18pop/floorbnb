@@ -17,7 +17,7 @@ Needs: `anvil`/`forge` (Foundry), Node 20+, pnpm, internet to fork BSC.
 2. Deploys with the **audited** `Deploy.s.sol` and `SetHolidays.s.sol`, from a scratch Foundry project in `local/.work` whose `src`, `lib`, `holidays` and scripts are symlinks to `packages/contracts` (only the params file differs: **direct PancakeSwap router only, aggregator disabled**). `packages/contracts` is not touched. Then `acceptOwnership`, `setDefaults` with the demo `minTrade` of 6 USDT, a second keeper for manual runs.
 3. Funds the demo user (anvil account #4) with **200 USDT** (impersonating a USDT whale on the fork) and 10 BNB; the other roles get BNB.
 4. Sets the chain clock to the next **Tuesday 16:00 UTC** (the contract trades Mon-Fri 15:30-19:30 UTC only), takes a snapshot, writes `local/deployment.json`.
-5. Starts API :8787 (`/healthz`), keeper in loop mode (60 s), MCP :8788 (`/mcp`), web :3000 with `NEXT_PUBLIC_DATA_SOURCE=chain`, `NEXT_PUBLIC_LOCAL_DEV=1`, the local RPC, API and addresses.
+5. Starts API :8787 (`/healthz`), keeper in loop mode (60 s), MCP :8788 (`/mcp`), web :3000 with `NEXT_PUBLIC_APP_LOCKED=0` (the app is locked by default, see docs/BRANCHING.md), `NEXT_PUBLIC_DATA_SOURCE=chain`, `NEXT_PUBLIC_LOCAL_DEV=1`, the local RPC, API and addresses.
 
 ## Wallet
 The web app shows a **Dev wallet** option in "Connect wallet" and a red **LOCAL DEV WALLET** badge. It is wagmi's mock connector acting as the unlocked anvil account #4 (the node signs; no key in the browser). It exists only when `NEXT_PUBLIC_LOCAL_DEV=1`, which only `local:up` sets, so production builds contain neither the option nor the badge.

@@ -1,0 +1,21 @@
+.lk-header { display: flex; align-items: center; justify-content: space-between; height: 56px; padding: 0 var(--gutter-x); border-bottom: var(--hair) solid var(--grid); background: var(--bg); position: relative; z-index: 3; }
+.lk-stage { position: relative; min-height: calc(100vh - 56px); min-height: calc(100dvh - 56px); overflow: hidden; display: grid; place-items: center; padding: 24px var(--gutter-x); }
+.lk-mock { position: absolute; inset: 0; margin: 0 auto; width: min(100%, 1104px); padding: 28px 16px; filter: blur(7px); opacity: .85; pointer-events: none; user-select: none; }
+.lk-mock-head { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 14px; border-bottom: var(--hair) solid var(--grid); margin-bottom: 18px; }
+.lk-mock-h { font-size: 24px; font-weight: 600; }
+.lk-mock-grid { display: grid; gap: 24px; grid-template-columns: 1fr; }
+@media (min-width: 768px) { .lk-mock-grid { grid-template-columns: 5fr 7fr; } }
+.lk-mock-col { display: flex; flex-direction: column; gap: 10px; }
+.lk-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.lk-chip { padding: 8px 14px; border: var(--hair) solid var(--grid-strong); background: var(--surface); font-family: var(--font-mono); font-size: 13px; }
+.lk-chip.on { border-color: var(--floor-line); }
+.lk-input { padding: 12px 14px; border: var(--hair) solid var(--grid-strong); background: var(--surface); font-family: var(--font-mono); }
+.lk-cta { padding: 12px 14px; background: var(--accent); color: var(--accent-ink); text-align: center; font-weight: 500; }
+.lk-chartcol { border: var(--hair) solid var(--grid); background: var(--surface); padding: 16px; }
+.lk-chart { width: 100%; height: 220px; }
+.lk-stat { flex: 1; padding: 12px; border: var(--hair) solid var(--grid); font-size: 13px; color: var(--text-muted); }
+.lk-veil { position: absolute; inset: 0; background: color-mix(in srgb, var(--bg) 55%, transparent); z-index: 1; }
+.lk-card { position: relative; z-index: 2; width: min(100%, 460px); display: flex; flex-direction: column; gap: 12px; padding: 28px 24px; background: var(--surface); border: var(--hair) solid var(--grid-strong); }
+.lk-icon { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border: var(--hair) solid var(--floor-line); color: var(--floor-line); }
+.lk-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+@media (max-width: 480px) { .lk-actions .btn { flex: 1 1 100%; } .lk-card { padding: 22px 18px; } }
