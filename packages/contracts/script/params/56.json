@@ -1,8 +1,8 @@
 {
   "_comment": "BSC mainnet (chainId 56). Fill the zero addresses before running (G4: the human verifies every address). Addresses below that are not zero come from docs/CONTRACTS.md section 2 and EXECUTION_PLAN Appendix B. Re-read pools, TVL, cardinality and uiMultiplier with cast before deploy. NO private keys belong in this file.",
-  "owner": "0x0000000000000000000000000000000000000000",
-  "guardian": "0x0000000000000000000000000000000000000000",
-  "keepers": [],
+  "owner": "0x762c9626711BCc882050cBf06Edd610fE8b91F1A",
+  "guardian": "0x762c9626711BCc882050cBf06Edd610fE8b91F1A",
+  "keepers": ["0x46FD797AeBD0250A2E768022AD992DF21F12e58a"],
   "usdt": "0x55d398326f99059fF775485246999027B3197955",
   "v3Factory": "0x0BFbCF9fa4f9C56B0F40a671Ad40E0805A091865",
   "v3SwapRouter": "0x1b81D678ffb9C0263b24A97847620C99d213eB14",
