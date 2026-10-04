@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { quoteProtection, MAX_FLOOR_BPS } from "@floor/sdk";
-import { DEFAULT_LIMITS, checkCreate, maxFloorFor, minDepositFor, tradeProblem } from "./create-validation";
+import { DEFAULT_LIMITS, checkCreate, maxTermDaysByHorizon, minDepositClosedForm, maxFloorFor, minDepositFor, tradeProblem } from "./create-validation";
 import { equalWeights } from "@/lib/builder-params";
 
 const E = 10n ** 18n;
@@ -72,5 +72,33 @@ describe("quote with several terms", () => {
   });
   it("rejects terms outside the contract bounds", () => {
     expect(() => quoteProtection({ deposit: 500n * E, floorBps: 9000, termSeconds: 3 * 86400 })).toThrow();
+  });
+});
+
+describe("report rule: deposit x min(1, 4(1-floor)) x smallest weight >= minTrade", () => {
+  it("closed form equals the contract mirror", () => {
+    for (const f of [8000, 8500, 9000, 9500, 9800]) for (const w of [[10_000], equalWeights(2), equalWeights(3), [5000, 3000, 2000]]) {
+      const d = minDepositClosedForm(f, w, L.minTrade);
+      expect(tradeProblem(d, f, w, L)).toBeNull();
+      expect(tradeProblem(d - 10n ** 16n * 2n, f, w, L)).not.toBeNull();
+    }
+    expect(minDepositClosedForm(9000, [10_000], L.minTrade)).toBe(usd(50));
+  });
+});
+
+describe("holiday table horizon (2027-12-31, 14 day buffer)", () => {
+  const at = (iso: string) => Math.floor(Date.parse(iso) / 1000);
+  it("a 365 day term is accepted until 2026-12-17 and refused after", () => {
+    expect(checkCreate({ ...base, amount: 500n * E, nowSec: at("2026-12-17T12:00:00Z") }).ok).toBe(true);
+    const r = checkCreate({ ...base, amount: 500n * E, nowSec: at("2026-12-18T12:00:00Z") });
+    expect(r.ok).toBe(false); expect(r.issues[0].code).toBe("term-horizon");
+    expect(r.issues[0].message).toMatch(/Term too long for the current holiday table; choose a shorter term/);
+  });
+  it("shorter terms still work then, and the message names the longest term", () => {
+    const now = at("2027-03-01T12:00:00Z");
+    expect(checkCreate({ ...base, amount: 500n * E, termSeconds: 90 * 86400, nowSec: now }).ok).toBe(true);
+    const max = maxTermDaysByHorizon(now);
+    expect(checkCreate({ ...base, amount: 500n * E, termSeconds: (max + 1) * 86400, nowSec: now }).ok).toBe(false);
+    expect(checkCreate({ ...base, amount: 500n * E, termSeconds: max * 86400, nowSec: now }).ok).toBe(true);
   });
 });

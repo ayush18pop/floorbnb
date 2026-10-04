@@ -3,6 +3,7 @@
  * (createPosition and _checkNotTooSmall) using the SDK's CPPI maths and the chain's defaults, so the user sees
  * the exact fix before a revert at signing. The contract stays the authority; this is advice.
  */
+import { HOLIDAY_HORIZON_DAY, UNWIND_BUFFER_SECONDS } from "./floor-config";
 import { BPS, cppi, MAX_ASSETS, MAX_FLOOR_BPS, MAX_TERM_SECONDS, MIN_FLOOR_BPS, MIN_TERM_SECONDS } from "@floor/sdk";
 
 /** What the factory enforces, in USDT WAD. From the chain when readable, else the documented defaults. */
@@ -17,6 +18,8 @@ export type CreateLimits = {
   /** Room left under the total cap, USDT WAD. null if unknown. */
   tvlRoom: bigint | null;
   paused: boolean;
+  /** Last day (unix day number) of the holiday table. Not in the SDK ABI yet, so null means the config constant. */
+  holidayHorizonDay?: number | null;
   /** Where the numbers came from. */
   from: "chain" | "default";
 };
@@ -25,7 +28,7 @@ const E18 = 10n ** 18n;
 /** CONTRACTS.md defaults: minTrade 20 USDT, buy band 2%, deposit 1 to 1000 USDT. Used by the mock source. */
 export const DEFAULT_LIMITS: CreateLimits = { minTrade: 20n * E18, buyBandBps: 200, minDeposit: E18, maxDeposit: 1000n * E18, tvlRoom: null, paused: false, from: "default" };
 
-export type Issue = { code: "amount" | "min-deposit" | "max-deposit" | "tvl" | "floor" | "floor-high" | "term" | "assets" | "paused"; message: string };
+export type Issue = { code: "amount" | "min-deposit" | "max-deposit" | "tvl" | "floor" | "floor-high" | "term" | "term-horizon" | "assets" | "paused"; message: string };
 
 export type CreateCheck = { ok: boolean; issues: Issue[] };
 
@@ -35,6 +38,25 @@ const usdt = (w: bigint) => {
   const i = s.slice(0, -2), f = s.slice(-2);
   return `${i.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}${f === "00" ? "" : "." + f}`;
 };
+
+/**
+ * The acceptance rule from the MSTUDY2 report (section 6): the smallest basket token's first buy,
+ * deposit x min(1, 4 x (1 - floor)) x smallest weight, must be at least minTrade. Closed form, USDT WAD (rounded up to a cent).
+ */
+export function minDepositClosedForm(floorBps: number, weights: readonly number[], minTrade: bigint): bigint {
+  const wmin = BigInt(Math.min(...weights));
+  const frac = BigInt(Math.min(10_000, 4 * (10_000 - floorBps))); // bps of the deposit that is bought first
+  const den = frac * wmin; // out of 1e8
+  const d = (minTrade * 10n ** 8n + den - 1n) / den;
+  const cent = 10n ** 16n;
+  return ((d + cent - 1n) / cent) * cent;
+}
+
+/** Longest term (days) the holiday table allows from `nowSec`, or 0 if none. */
+export function maxTermDaysByHorizon(nowSec: number, horizonDay: number = HOLIDAY_HORIZON_DAY): number {
+  const secs = (horizonDay + 1) * 86_400 - 1 - nowSec - UNWIND_BUFFER_SECONDS;
+  return Math.max(0, Math.floor(secs / 86_400));
+}
 
 /** First failing reason for one deposit/floor, mirroring _checkNotTooSmall. null if accepted. */
 export function tradeProblem(amount: bigint, floorBps: number, weights: readonly number[], l: Pick<CreateLimits, "minTrade" | "buyBandBps">): "small" | "floor" | null {
@@ -71,8 +93,8 @@ export function maxFloorFor(amount: bigint, fromPct: number, weights: readonly n
   return null;
 }
 
-export function checkCreate(i: { amount: bigint; floorBps: number; termSeconds: number; weightsBps: readonly number[]; limits: CreateLimits }): CreateCheck {
-  const { amount, floorBps, termSeconds, weightsBps, limits: l } = i;
+export function checkCreate(i: { amount: bigint; floorBps: number; termSeconds: number; weightsBps: readonly number[]; limits: CreateLimits; nowSec?: number | null }): CreateCheck {
+  const { amount, floorBps, termSeconds, weightsBps, limits: l, nowSec } = i;
   const issues: Issue[] = [];
   if (l.paused) issues.push({ code: "paused", message: "New positions are paused right now. Try again later." });
   if (weightsBps.length < 1 || weightsBps.length > MAX_ASSETS) issues.push({ code: "assets", message: `Pick one to ${MAX_ASSETS} stocks.` });
@@ -80,6 +102,13 @@ export function checkCreate(i: { amount: bigint; floorBps: number; termSeconds: 
     issues.push({ code: "term", message: `Term must be between ${MIN_TERM_SECONDS / 86400} and ${MAX_TERM_SECONDS / 86400} days.` });
   if (!Number.isInteger(floorBps) || floorBps < MIN_FLOOR_BPS || floorBps > MAX_FLOOR_BPS)
     issues.push({ code: "floor", message: `Floor must be between ${MIN_FLOOR_BPS / 100}% and ${MAX_FLOOR_BPS / 100}%.` });
+  if (nowSec && !issues.some((x) => x.code === "term")) {
+    const horizon = l.holidayHorizonDay ?? HOLIDAY_HORIZON_DAY;
+    if (Math.floor((nowSec + termSeconds + UNWIND_BUFFER_SECONDS) / 86_400) > horizon) {
+      const max = maxTermDaysByHorizon(nowSec, horizon);
+      issues.push({ code: "term-horizon", message: `Term too long for the current holiday table; choose a shorter term.${max >= 7 ? ` The longest term available today is ${max} days.` : " No term is available until the table is extended."}` });
+    }
+  }
   if (amount <= 0n) { issues.push({ code: "amount", message: "Enter an amount in USDT." }); return { ok: false, issues }; }
   if (amount < l.minDeposit) issues.push({ code: "min-deposit", message: `Raise the deposit to at least ${usdt(l.minDeposit)} USDT.` });
   if (amount > l.maxDeposit) issues.push({ code: "max-deposit", message: `Launch limit: ${usdt(l.maxDeposit)} USDT per position. Lower the deposit.` });

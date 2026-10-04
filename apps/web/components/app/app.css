@@ -118,4 +118,18 @@ dialog.dlg::backdrop { background: color-mix(in srgb, var(--bg) 78%, transparent
 .terms button:hover { background: var(--surface-sunken); }
 .terms button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
 .terms button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-@media (min-width: 640px) { .terms { grid-template-columns: repeat(6, 1fr); } .terms button { border-bottom: 0; } .terms button:last-child { border-right: 0; } }
+@media (min-width: 640px) { .terms { grid-template-columns: repeat(5, 1fr); } .terms button { border-bottom: 0; } .terms button:last-child { border-right: 0; } }
+
+/* Tradeoff visual */
+.meter { position: relative; height: 16px; border: var(--hair) solid var(--grid-strong); background: var(--surface-sunken); }
+.meter .m-fill { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+.meter .m-hatch { background: repeating-linear-gradient(135deg, var(--accent-soft) 0 4px, transparent 4px 8px); }
+.meter .m-line { position: absolute; top: -4px; bottom: -4px; width: 3px; margin-left: -1.5px; background: var(--floor-line); }
+.trade-svg { width: 100%; height: auto; max-width: 520px; display: block; font-family: var(--font-mono); }
+.trade-svg .t-grid { stroke: var(--grid); stroke-width: 1; }
+.trade-svg .t-grey { fill: var(--surface-sunken); stroke: var(--grid-strong); stroke-dasharray: 2 3; }
+.trade-svg .t-prot { stroke: var(--floor-line); stroke-width: 2; }
+.trade-svg .t-up { stroke: var(--text); stroke-width: 2; stroke-dasharray: 5 3; }
+.trade-svg .t-cur { stroke: var(--accent); stroke-width: 1; }
+.trade-svg .t-dot-p { fill: var(--floor-line); } .trade-svg .t-dot-u { fill: var(--text); }
+.trade-svg .t-txt { font-size: 9px; fill: var(--text-muted); }

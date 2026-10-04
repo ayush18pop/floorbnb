@@ -66,15 +66,15 @@ export function Review() {
 
   const weights = equalWeights(assets.length);
   const termSeconds = termDays * DAY;
+  const now = useNow();
   const { limits } = useCreateLimits();
   const q = quoteProtection({ deposit: parseUnits(String(amount), 18), floorBps: floor * 100, termSeconds, weightsBps: weights });
-  const check = checkCreate({ amount: parseUnits(String(amount), 18), floorBps: floor * 100, termSeconds, weightsBps: weights, limits });
+  const check = checkCreate({ amount: parseUnits(String(amount), 18), floorBps: floor * 100, termSeconds, weightsBps: weights, limits, nowSec: now });
   const ev = evidenceFor(floor, termDays);
   const stockPct = q.startingExposureBps / 100;
   const allAck = acks.every(Boolean);
   const mock = source.kind === "mock";
   const needsWallet = !mock && (!isConnected || chain?.id !== APP_CHAIN_ID);
-  const now = useNow();
   const termEnd = now ? isoDate(now + termSeconds) : "…";
 
   const onProgress = (e: CreateProgress) => {

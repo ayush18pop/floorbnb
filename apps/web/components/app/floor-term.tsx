@@ -18,27 +18,23 @@ export function FloorControl({ floor, onChange, floorValue }: { floor: number; o
       </div>
       <div className="fs mt-4">
         <div className="fs-track" aria-hidden="true">
-          <span className="fs-zone" style={{ left: at(FLOOR_CONFIG.testedMin), width: `calc(${at(FLOOR_CONFIG.testedMax)} - ${at(FLOOR_CONFIG.testedMin)})` }} />
           <span className="fs-line" style={{ left: at(floor) }} />
         </div>
         <input
           type="range" className="fs-input" min={FLOOR_CONFIG.min} max={FLOOR_CONFIG.max} step={FLOOR_CONFIG.step} value={floor}
           onChange={(e) => onChange(Number(e.target.value))}
-          aria-labelledby="l-floor" aria-valuetext={`${floor} percent floor${tested ? ", backtested range" : ", not backtested yet"}`} aria-describedby="floor-note"
+          aria-labelledby="l-floor" aria-valuetext={`${floor} percent floor${tested ? ", backtested" : ""}`} aria-describedby="floor-note"
         />
         <div className="fs-scale mono" aria-hidden="true">
-          <span style={{ left: at(FLOOR_CONFIG.min) }}>{FLOOR_CONFIG.min}</span>
-          <span style={{ left: at(FLOOR_CONFIG.testedMin) }}>{FLOOR_CONFIG.testedMin}</span>
-          <span style={{ left: at(FLOOR_CONFIG.testedMax) }}>{FLOOR_CONFIG.testedMax}</span>
+          {FLOOR_CONFIG.presets.map((v) => <span key={v} style={{ left: at(v) }}>{v}</span>)}
         </div>
       </div>
       <div className="seg mt-4" role="group" aria-label="Floor presets">
         {FLOOR_CONFIG.presets.map((f) => <button key={f} type="button" aria-pressed={floor === f} onClick={() => onChange(f)}>{f}%</button>)}
       </div>
-      <p id="floor-note" className={`small mt-3 ${tested ? "" : "warn"}`}>
-        {tested
-          ? `${FLOOR_CONFIG.testedMin}% to ${FLOOR_CONFIG.testedMax}% is the backtested range (one-year terms).`
-          : `Not backtested yet. The contract allows ${FLOOR_CONFIG.min}% to ${FLOOR_CONFIG.max}%, but we only have backtests for ${FLOOR_CONFIG.testedMin}% to ${FLOOR_CONFIG.testedMax}%.`}
+      <p id="floor-note" className="small mt-3">
+        {tested ? `${FLOOR_CONFIG.testedMin}% to ${FLOOR_CONFIG.testedMax}% is backtested. ` : "Not backtested yet. "}
+        The slider stops at {FLOOR_CONFIG.max}%: above that the position is mostly cash (at {FLOOR_CONFIG.testedMax}%, {Math.min(100, 4 * (100 - FLOOR_CONFIG.testedMax))}% in stock).
       </p>
       <p className="label mt-3">Lowest value: <span className="mono text-ink">{fmt(floorValue)} USDT</span></p>
     </section>
@@ -77,7 +73,7 @@ export function TermControl({ days, onChange, now }: { days: number; onChange: (
       <p className="label mt-3">{termLabel(days)} · ends <span className="mono text-ink">{end}</span></p>
       <p className="small mt-2">{termEndText(end)}</p>
       <p className={`small mt-2 ${termIsTested(days) ? "" : "warn"}`}>
-        {termIsTested(days) ? "One year is the term our backtests cover." : "Not backtested yet: we only have one-year backtests, so we show no history for this term."}
+        {termIsTested(days) ? "Backtested: terms from 1 month to 1 year." : "Not backtested yet."}
       </p>
     </section>
   );
