@@ -8,7 +8,7 @@ import { BRAND } from "@/lib/brand";
 export const metadata = { title: "The trade-off" };
 
 const rows: [string, string][] = [
-  ["About 58% of the gain in an up year. The vault kept about 42% of a three-stock basket's gain.", "Bad years cut to −8.6% where holding lost 17.2% (NVDA + TSLA + QQQ basket, typical bad year)."],
+  ["About 58% of the gain in an up year. At a 90% floor the vault kept about 42% of a three-stock basket's gain (roughly 4 × (100 − floor)%).", "Bad years cut to −8.6% where holding lost 17.2% (NVDA + TSLA + QQQ basket, typical bad year)."],
   ["NVDA: kept about 45% of the gain. QQQ: about 32%.", "NVDA: −9.9% where holding lost 36.5% (typical bad year). QQQ: −7.4% where holding lost 19.4%."],
   ["Trading costs on each rebalance. Live aggregator quotes on a $10k round trip were 0.7 to 6.6 basis points for QQQB, NVDAB, SPCXB and SPYB (Thursday, 2026-10-02), if the vault uses the aggregator route.", "A floor you chose, written in a public contract you can read."],
 ];
@@ -35,22 +35,22 @@ export default function Page() {
 
       <h2 id="upside">Upside kept</h2>
       <div className="block">
-        <ChartPanel fig="FIG. 04 / UPSIDE KEPT IN UP YEARS" title="Basket, m = 4" caption="Backtest, past data, not a prediction." source="docs/data/gap_backtest.csv (NVDA+TSLA+QQQ, open_close, m = 4, capture_up)">
+        <ChartPanel fig="FIG. 04 / UPSIDE KEPT IN UP YEARS" title="Basket, m = 4, 90% floor" caption="Backtest, past data, not a prediction." source="docs/data/gap_backtest.csv (NVDA+TSLA+QQQ, open_close, m = 4, capture_up)">
           <p className="stat-label">Share of the gain you keep</p>
           <p className="num-xl mt-2"><NumberTicker value={42} suffix="%" /></p>
           <div className="mt-4 flex h-4 w-full" style={{ background: "var(--surface-sunken)" }} role="img" aria-label="You keep about 42 percent of the gain and give up about 58 percent.">
             <div className="h-4" style={{ width: "42%", background: "var(--accent)" }} />
           </div>
           <div className="mt-2 flex justify-between mono text-[12px]" style={{ color: "var(--text-muted)" }}>
-            <span>KEPT ~42%</span><span>GIVEN UP ~58%</span>
+            <span>KEPT ~42% (90% FLOOR)</span><span>GIVEN UP ~58%</span>
           </div>
         </ChartPanel>
       </div>
-      <p className="small">The 42% is a pooled average of gains in up years, not a typical year. Across 1,581 one-year periods from 1928 to 2026 the vault&apos;s median year was +1.6% against +13.7% for holding: in a normal year you give most of it up. See <L href="/docs/evidence#tradeoff">Evidence</L>.</p>
+      <p className="small">The 42% holds at a 90% floor only (about 20% at 95%) and is a pooled average of gains in up years, not a typical year. Across 1,581 one-year periods from 1928 to 2026 the vault&apos;s median year was +1.6% against +13.7% for holding: in a normal year you give most of it up. See <L href="/docs/evidence#tradeoff">Evidence</L>.</p>
       <div className="block"><UpsidePanel upside={upside} /></div>
 
       <h2 id="best">Best window, same rule</h2>
-      <p>Strong trends keep more of the gain than the typical 42%. NVDA, 8 Mar 2023 to 7 Mar 2024: holding <span className="mono-i">+{b.holdingPct.toFixed(1)}%</span>, with {BRAND.name} <span className="mono-i">+{b.vaultPct.toFixed(1)}%</span>. Past data, not a prediction.</p>
+      <p>Strong trends keep more of the gain than the typical 42% (90% floor). NVDA, 8 Mar 2023 to 7 Mar 2024: holding <span className="mono-i">+{b.holdingPct.toFixed(1)}%</span>, with {BRAND.name} <span className="mono-i">+{b.vaultPct.toFixed(1)}%</span>. Past data, not a prediction.</p>
 
       <h2 id="whipsaw">Choppy stocks cost more</h2>
       <Callout label="Warning">

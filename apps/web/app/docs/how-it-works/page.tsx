@@ -21,7 +21,7 @@ export default function Page() {
       <h2 id="steps" style={{ marginTop: 0 }}>The four steps</h2>
       <ul className="list">
         <li><strong>1. Deposit.</strong> Deposit USDT only and pick a basket: NVDAB, SPCXB, QQQB. Launch caps: 1,000 USDT per position, 5,000 USDT in total.</li>
-        <li><strong>2. Pick your floor.</strong> Choose the lowest value you accept, for example 90% of your deposit, for a one-year term. At 90%, your loss is about 10% or less, unless prices gap more than about 24% before the vault can rebalance.</li>
+        <li><strong>2. Pick your floor.</strong> Choose the lowest value you accept, for example 90% of your deposit, for a one-year term. At 90%, the vault aims to keep your value near 90% of your deposit, and it holds unless prices gap more than about 24% before the vault can rebalance. It is not a cap: the worst one-week window we simulated lost 24%.</li>
         <li><strong>3. The vault keeps you above the line.</strong> The gap between your value and your floor is a cushion. The vault holds more stock when the cushion is big, and less when it is small. When prices fall, it sells some stock for USDT. When prices rise, it buys some back. Each move is a normal <L href="/docs/spot-only">swap on BNB Chain</L>.</li>
         <li><strong>4. Withdraw when you like.</strong> Your money stays in your own vault contract, one per position. You can exit at any time with <code>exitInKind</code>, or take it all out as USDT at the end of the term. See <L href="/docs/contracts#exits">exits</L>.</li>
       </ul>

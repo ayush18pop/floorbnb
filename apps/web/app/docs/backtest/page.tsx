@@ -16,7 +16,7 @@ export default function Page() {
       toc={[["method", "Method"], ["windows", "2018 to 2026 sample"], ["worst-year", "Worst window"], ["bad-years", "Bad years"], ["upside", "Upside kept"], ["gaps", "Worst gaps"], ["multiplier", "Why 4×"], ["trading-window", "Trading-window check"], ["costs", "Costs"]]}
     >
       <h2 id="method" style={{ marginTop: 0 }}>Method and assumptions</h2>
-      <p>We ran the {BRAND.name} rule over every one-year window from 2018 to October 2026 on real daily prices of NVDA, QQQ, SPY, TSLA and baskets of them. In that short sample the floor held in 93 of 93 windows. A longer test, back to 1928, found rare failures: see <L href="/docs/evidence">Evidence</L>.</p>
+      <p>We ran the {BRAND.name} rule over every one-year window from 2018 to October 2026 on real daily prices of NVDA, QQQ, SPY, TSLA and baskets of them. In that short sample (93 overlapping windows, all in one market regime) no window ended below the floor. That is a small sample, not a safety claim. A longer test, back to 1928, found failures: 0.44% of one-year windows at a 90% floor ended more than 1 point below it (95% range 0.07% to 0.93%). See <L href="/docs/evidence">Evidence</L>.</p>
       <p>We made the test harder on purpose: weekend price gaps hit in full ({BRAND.name} does not trade on weekends), stablecoins earn 0%, and trading costs are as measured in calm markets. The rule is explained on <L href="/docs/how-it-works">How it works</L>.</p>
 
       <h2 id="windows">The 2018 to 2026 sample</h2>
@@ -46,7 +46,7 @@ export default function Page() {
       <div className="block"><BreachTable breach={breach} ms={ms} /></div>
 
       <h2 id="trading-window">Trading-window check</h2>
-      <p>The contract trades only Monday to Friday, 15:30 to 19:30 UTC, not at the open and close (<L href="/docs/contracts#window">details</L>). We re-ran the backtest with one rebalance a day to match. At m = 4 the floor still held in 93 of 93 windows on every asset and basket. At m = 5 it broke in 3.2% of TSLA windows. So the public claim is &ldquo;at m = 4&rdquo;, not &ldquo;at m = 5 or below&rdquo;. The worst-window path charts above use open and close rebalancing, not the contract&apos;s window. An hourly re-run (about two years of 1-hour bars exist) would be more exact.</p>
+      <p>The contract trades only Monday to Friday, 15:30 to 19:30 UTC, not at the open and close (<L href="/docs/contracts#window">details</L>). We re-ran the backtest with one rebalance a day to match. At m = 4 no window of that short sample ended below the floor. At m = 5 it broke in 3.2% of TSLA windows. So the public claim is &ldquo;at m = 4&rdquo;, not &ldquo;at m = 5 or below&rdquo;. The worst-window path charts above use open and close rebalancing, not the contract&apos;s window. An hourly re-run (about two years of 1-hour bars exist) would be more exact.</p>
 
       <h2 id="costs">What each rebalance costs</h2>
       <div className="block"><CostsPanel /></div>

@@ -25,7 +25,7 @@ Scripts: `slippage_probe.py` (live quotes, appends `slippage_runs.jsonl`), `gap_
 Assumes: full weekend gaps hit (no weekend trading), 0% stablecoin yield, calm-market trading costs.
 "Breach" = value ever below the floor. Breach rate per multiplier m, rebalancing at open and close:
 
-| Basket | m=3 | m=4 | m=5 | m=6 | m=8 | Up-year capture at m=4 | Bad-year vault vs hold |
+| Basket | m=3 | m=4 | m=5 | m=6 | m=8 | Up-year capture at m=4 (90% floor only) | Bad-year vault vs hold |
 |---|---|---|---|---|---|---|---|
 | NVDA | 0% | 0% | 0% | 12% | 20% | 45% | −9.9% vs −36% |
 | QQQ | 0% | 0% | 0% | 0% | 0% | 32% | −7.4% vs −19% |
@@ -33,7 +33,7 @@ Assumes: full weekend gaps hit (no weekend trading), 0% stablecoin yield, calm-m
 | NVDA+TSLA+QQQ | 0% | 0% | 0% | 0% | 0% | 42% | −8.6% vs −17% |
 
 - Worst downward gaps since 2018: NVDA −19.3% (2018-11-16), TSLA −14.9%, AAPL −13.0%, QQQ −9.5%,
-  SPCX −10.3% (only 76 days of history). m=4 survives a single 25% gap.
+  SPCX −10.3% (only 76 days of history). m=4 survives a single gap smaller than about 24% (not a guarantee; see research/m_study2/REPORT.md: 0.44% of one-year windows at a 90% floor ended more than 1 point below it, 95% CI 0.07% to 0.93%).
 - Worst breach at m=8 was −13.4% against a −10% floor.
 - Choppy assets (TSLA) cost the most: the vault buys high and sells low. Its median one-year
   return at m=4 was −6.8%, versus +22% for holding.

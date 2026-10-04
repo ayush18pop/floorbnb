@@ -40,10 +40,10 @@ const DROPS = [
 ];
 
 const DIAL: [string, string, string, string, string][] = [
-  ["Lose at most 5% (floor 95%)", "~11%, 0.0%", "~18%, 0.1%", "~23%, 0.3%", "~27%, 0.6%"],
-  ["Lose at most 10% (floor 90%)", "~22%, 0.0%", "~34%, 0.1%", "~42%, 0.4%", "~47%, 1.1%"],
-  ["Lose at most 15% (floor 85%)", "~33%, 0.0%", "~48%, 0.1%", "~59%, 0.5%", "~64%, 1.4%"],
-  ["Lose at most 20% (floor 80%)", "~43%, 0.0%", "~62%, 0.1%", "~72%, 0.5%", "~76%, 1.1%"],
+  ["Floor 95%", "~11%, 0.0%", "~18%, 0.1%", "~23%, 0.3%", "~27%, 0.6%"],
+  ["Floor 90%", "~22%, 0.0%", "~34%, 0.1%", "~42%, 0.4%", "~47%, 1.1%"],
+  ["Floor 85%", "~33%, 0.0%", "~48%, 0.1%", "~59%, 0.5%", "~64%, 1.4%"],
+  ["Floor 80%", "~43%, 0.0%", "~62%, 0.1%", "~72%, 0.5%", "~76%, 1.1%"],
 ];
 
 export default function Page() {
@@ -57,7 +57,7 @@ export default function Page() {
       <div className="block grid gap-px border border-grid bg-grid md:grid-cols-3">
         {[
           ["1,581", "one-year periods tested", "38 stock, ETF and index histories, 1928 to 2026"],
-          ["0.44%", "ended clearly below the floor", "7 periods, 95% range 0.11% to 0.91%"],
+          ["0.44%", "ended clearly below the floor", "7 of 1,581 one-year windows at a 90% floor, 95% range 0.07% to 0.93%"],
           ["0 of 98", "S&P 500 years below the floor", "Worst final value −9.6% on a 90% floor"],
         ].map(([n, l, s]) => (
           <div key={l} className="bg-surface p-4 md:p-6">
@@ -69,7 +69,7 @@ export default function Page() {
       </div>
       <p>At m = 4 the vault ended more than 1 point below its 90% floor in 7 of 1,581 periods. All 7 came from the 29 periods that contained a one-day drop bigger than 25%. In the 1,552 periods without such a drop, none broke the floor. So the floor holds against a single-day drop smaller than about 24%. It does not hold against a bigger one, and single stocks have had bigger ones.</p>
       <Callout label="What this does not say">
-        <p>The floor is not always held. The longer test replaces the earlier &ldquo;93 of 93 windows&rdquo; headline, which is true only for 2018 to 2026 (<L href="/docs/backtest">Backtest</L>). Backtests use past prices and do not predict the future.</p>
+        <p>The floor is not always held. The longer test replaces the earlier &ldquo;93 of 93 windows&rdquo; headline, which covers only 2018 to 2026 and is not used as a claim (<L href="/docs/backtest">Backtest</L>). The one-week worst case in the long test lost 24% (AIG, 15 Sep 2008, 90% floor). Daily closes only, with survivorship bias. Backtests use past prices and do not predict the future.</p>
       </Callout>
 
       <h2 id="method">Method</h2>
@@ -118,7 +118,7 @@ export default function Page() {
             </tbody>
           </table>
         </div>
-        <p className="small mt-3">Bad-year result: the median vault result in the 288 periods where holding lost more than 10% (holding: −24.0%). Ended in cash: share of periods where the floor was reached and the vault held only stablecoin to the end. At m = 4 the 95% range for clear breach is 0.11% to 0.91%, and for any shortfall 1.75% to 4.30%.</p>
+        <p className="small mt-3">The share-kept column is at a 90% floor. Bad-year result: the median vault result in the 288 periods where holding lost more than 10% (holding: −24.0%). Ended in cash: share of periods where the floor was reached and the vault held only stablecoin to the end. At m = 4 the 95% range for clear breach is 0.07% to 0.93%, and for any shortfall 1.75% to 4.30%.</p>
       </div>
 
       <h2 id="one-over-m">The one-over-m rule</h2>
@@ -156,8 +156,8 @@ export default function Page() {
       <p>Index and ETF baskets are where the rule is strongest. At launch, {BRAND.name} offers NVDAB, SPCXB and QQQB: one index fund and two single names. That is why the risk page says what it says.</p>
 
       <h2 id="tradeoff">What you give up</h2>
-      <p>The figure we quote, about 42% of the gain kept, is a pooled average over the 1,105 periods where holding gained. A typical year is less kind: across all 1,581 periods the vault&apos;s median year was +1.6% against +13.7% for holding. In a normal year the vault gives away most of the return. That is the price of the floor, and the reason the 2022 NVDA chart is a worst case, not a typical case.</p>
-      <p>Trading costs: at 6 bps one-way the vault gave up 0.22% a year at m = 4 (it trades about 3.7 times the deposit a year). At 50 bps one-way the cost is 1.75% a year and the share of gain kept falls from 42% to 34%.</p>
+      <p>The figure we quote, about 42% of the gain kept at a 90% floor (it is about 4 × (100 − floor)%, so 20% at 95%), is a pooled average over the 1,105 periods where holding gained. A typical year is less kind: across all 1,581 periods the vault&apos;s median year was +1.6% against +13.7% for holding. In a normal year the vault gives away most of the return. That is the price of the floor, and the reason the 2022 NVDA chart is a worst case, not a typical case.</p>
+      <p>Trading costs: at 6 bps one-way the vault gave up 0.22% a year at m = 4 (it trades about 3.7 times the deposit a year). At 50 bps one-way the cost is 1.75% a year and the share of gain kept at a 90% floor falls from 42% to 34%.</p>
       <p>The floor you choose moves the upside much more than m does:</p>
       <div className="block">
         <div className="tbl-wrap">
