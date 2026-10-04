@@ -19,3 +19,7 @@ Decided by the manager on the team lead's instruction "do it yourself" in the Cl
 5. **Disabled token's weight stays in USDT:** accepted. Guard: `exitInKind`. Disclose in docs only.
 6. **Trusted roles keeper / guardian / owner:** accepted. Guard: separate guardian and owner wallets (owner hardware wallet), 24 h `ROUTER_DELAY`, guardian can only halt. **Required disclosure:** the risks page and README must name these roles and what each can do.
 Also recorded: **#8** keep the no-de-risking-sell rule when a held stock has no TWAP (fails closed; owner `exitInKind`). **#11** demo `publicDelay` = 3600 s (`script/params/56.json`). **H1** router allowlist = Pancake only (direct-only variant).
+
+## Pashov run 05 (2026-10-04, contracts ec6e6d6): one new acceptance
+7. **Public path uses 2x the keeper buy band (run 05 #2):** accepted by the manager on the team lead's "do it yourself" delegation; **confirm in writing before mainnet.** Guard: sells are unaffected; the keeper buys; no contract change. Disclose in `/docs/open-items` and the risks page: in a keeper outage, small positions may not be bought by the public path. Findings #1, #3 and #4 of run 05 are the already-accepted batch items 1, 3 and 2.
+Also record: owner and guardian are the same address (`0x762c…1F1A`) by choice, so the guardian gives no separation; the trusted-roles disclosure must say so.
