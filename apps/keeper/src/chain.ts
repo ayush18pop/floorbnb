@@ -90,6 +90,16 @@ export function makeEoaSender(rpcUrl: string, client: PublicClient, key: Hex, ti
   const account = privateKeyToAccount(key);
   const wallet = createWalletClient({ account, transport: http(rpcUrl) });
   let nonce: number | undefined;
+  // A receipt that never comes (dropped or replaced tx, a chain reverted underneath us) leaves the local counter ahead of the
+  // chain: every later tx would sit behind a gap forever. Resync from the node on the next send.
+  const waitMined = async (hash: Hex) => {
+    try {
+      return await client.waitForTransactionReceipt({ hash, timeout: timeoutMs });
+    } catch (e) {
+      nonce = undefined;
+      throw e;
+    }
+  };
   return {
     address: account.address,
     async poke(factoryAddr, token) {
@@ -102,7 +112,7 @@ export function makeEoaSender(rpcUrl: string, client: PublicClient, key: Hex, ti
         nonce = undefined;
         throw e;
       }
-      const receipt = await client.waitForTransactionReceipt({ hash, timeout: timeoutMs });
+      const receipt = await waitMined(hash);
       return { hash, success: receipt.status === 'success' };
     },
     async send(vault, swap, gas) {
@@ -123,7 +133,7 @@ export function makeEoaSender(rpcUrl: string, client: PublicClient, key: Hex, ti
         nonce = undefined; // resync from the node next time
         throw e;
       }
-      const receipt = await client.waitForTransactionReceipt({ hash, timeout: timeoutMs });
+      const receipt = await waitMined(hash);
       let rebalanced: RebalancedEvent | undefined;
       for (const l of receipt.logs) {
         if (l.address.toLowerCase() !== vault.toLowerCase()) continue;

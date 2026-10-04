@@ -41,7 +41,7 @@ export async function setTokenBalance(token: Address, holder: Address, amount: b
   const got = await client.readContract({ address: token, abi: erc20, functionName: "balanceOf", args: [holder] });
   if (got !== amount) throw new Error(`could not set the token balance (got ${got}); the storage layout differs`);
 }
-const trader = () => createWalletClient({ account: acct(ROLE.trader), transport: http(RPC), chain: undefined });
+const trader = () => createWalletClient({ account: acct(ROLE.trader), transport: http(RPC, { timeout: 180_000 }), chain: undefined });
 async function wait(hash: `0x${string}`) { const r = await client.waitForTransactionReceipt({ hash }); if (r.status !== "success") throw new Error(`tx reverted ${hash}`); return r; }
 
 /** Move one pool's price by pctChange (negative = crash) with a price-limited swap. Returns before/after USDT prices. */

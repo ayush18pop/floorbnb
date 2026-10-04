@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { createPublicClient, http, type PublicClient } from "viem";
 import { DEPLOYMENT_FILE, LOGS, RPC, RUN, type Deployment } from "./env";
 
-export const client: PublicClient = createPublicClient({ transport: http(RPC) });
+export const client: PublicClient = createPublicClient({ transport: http(RPC, { timeout: 180_000 }) });
 
 export async function rpc<T = unknown>(method: string, params: unknown[] = []): Promise<T> {
   const r = await fetch(RPC, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }) });
@@ -31,7 +31,9 @@ export function pidOf(n: string): number | null {
 export function startService(name: string, cmd: string, args: string[], opts: { cwd: string; env?: Record<string, string> }) {
   mkdirSync(RUN, { recursive: true }); mkdirSync(LOGS, { recursive: true });
   const log = openSync(resolve(LOGS, `${name}.log`), "w");
-  const child = spawn(cmd, args, { cwd: opts.cwd, env: { ...process.env, ...opts.env }, detached: true, stdio: ["ignore", log, log] });
+  const env: Record<string, string | undefined> = { ...process.env, ...opts.env };
+  if (name !== "anvil") { delete env.BSC_FORK_RPC_URL; delete env.LOCAL_FORK_RPC; delete env.ETH_RPC_URL; } // the fork URL may hold a key: only anvil gets it
+  const child = spawn(cmd, args, { cwd: opts.cwd, env, detached: true, stdio: ["ignore", log, log] });
   child.unref();
   writeFileSync(pidFile(name), String(child.pid));
   return child.pid!;

@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AlertTriangle, Check, Copy, Info, OctagonAlert, X } from "lucide-react";
 import { getSource } from "@/lib/adapters";
-import { BSCSCAN, LOCAL_DEV } from "@/lib/app-config";
+import { BSCSCAN } from "@/lib/app-config";
 import { shortAddr } from "@/lib/adapters/format";
 
 /** True when the screens render the labelled mock. */
@@ -38,6 +38,7 @@ export function Notice({ kind = "info", children, action, title }: { kind?: "inf
   );
 }
 
+const LOCAL_DEV = process.env.NEXT_PUBLIC_LOCAL_DEV === "1"; // inlined at build time so production bundles drop every local-dev branch
 /** Address or hash with a copy button and optional BscScan link (no link in local-dev mode: the fork is not on BscScan). */
 export function Addr({ value, kind = "address", link = true }: { value: string; kind?: "address" | "tx"; link?: boolean }) {
   const [ok, setOk] = useState(false);

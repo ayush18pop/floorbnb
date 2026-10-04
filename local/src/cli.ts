@@ -18,14 +18,19 @@ async function up(opts: { noWeb: boolean }) {
   mkdirSync(RUN, { recursive: true });
 
   // 1. anvil forking BSC mainnet, chain id 31337, a block every 2 s so chain time keeps moving after a warp
-  const forks = process.env.LOCAL_FORK_RPC ? [process.env.LOCAL_FORK_RPC] : FORK_RPCS;
+  // BSC_FORK_RPC_URL (env only, e.g. a private Alchemy URL) wins; LOCAL_FORK_RPC is the older name; else the public archive endpoints.
+  // The URL may contain a key: it is passed to anvil as --fork-url (anvil has no env var for it, so it is visible in `ps` to your own user), and never printed or saved.
+  const fromEnv = process.env.BSC_FORK_RPC_URL || process.env.LOCAL_FORK_RPC;
+  const forks = fromEnv ? [fromEnv] : FORK_RPCS;
   let forkRpc = "";
+  let forkLabel = "";
   for (const f of forks) {
-    say(`anvil: forking BSC from ${f.replace(/\/\/([^/]{0,25}).*/, "//$1...")}`);
+    forkLabel = fromEnv ? "BSC_FORK_RPC_URL (from env, not shown)" : new URL(f).host;
+    say(`anvil: forking BSC from ${forkLabel}`);
     startService("anvil", "anvil", ["--fork-url", f, "--port", String(PORTS.anvil), "--chain-id", String(CHAIN_ID), "--block-time", "2", "--retries", "8", "--timeout", "120000", "--no-rate-limit", "--silent"], { cwd: ROOT });
-    try { await waitFor("anvil", async () => (await rpc<string>("eth_chainId")) === "0x7a69", 45); forkRpc = f; break; } catch { stopService("anvil"); }
+    try { await waitFor("anvil", async () => (await rpc<string>("eth_chainId")) === "0x7a69", 90); forkRpc = forkLabel; break; } catch { stopService("anvil"); }
   }
-  if (!forkRpc) throw new Error("anvil could not fork any BSC RPC. Set LOCAL_FORK_RPC to an archive-capable endpoint.");
+  if (!forkRpc) throw new Error("anvil could not fork any BSC RPC. Set BSC_FORK_RPC_URL to an archive-capable endpoint.");
   const forkBlock = Number(await rpc<string>("eth_blockNumber").then(BigInt));
   say(`anvil up on ${RPC} (chain ${CHAIN_ID}), fork block ${forkBlock}, chain time ${utc(await chainNow())}`);
 
@@ -59,7 +64,7 @@ function serviceEnv(d: Deployment) {
   const assets = ASSETS.map((a) => a.token).join(",");
   const common = { FLOOR_CHAIN_ID: String(CHAIN_ID), FLOOR_FACTORY: d.factory, FLOOR_LENS: d.lens };
   return {
-    api: { ...common, FLOOR_RPC_URL: RPC, PORT: String(PORTS.api), WEB_ORIGIN: `http://localhost:${PORTS.web},http://127.0.0.1:${PORTS.web}` },
+    api: { ...common, FLOOR_RPC_URL: RPC, FLOOR_RUNS_FROM_BLOCK: String(d.deployBlock), PORT: String(PORTS.api), WEB_ORIGIN: `http://localhost:${PORTS.web},http://127.0.0.1:${PORTS.web}` },
     keeper: { BSC_RPC_URL: RPC, FLOOR_FACTORY: d.factory, FLOOR_LENS: d.lens, KEEPER_ADDRESS: d.roles.keeper, FLOOR_ASSETS: assets, KEEPER_INTERVAL_SEC: "60", KEEPER_ROUTE: "direct" },
     mcp: { API_BASE_URL: `http://127.0.0.1:${PORTS.api}`, MCP_PORT: String(PORTS.mcp) },
     web: {
@@ -123,12 +128,19 @@ async function keeperCmd(sub: string | undefined) {
   process.exitCode = r.status ?? 1;
 }
 
+async function restartKeeper(d: Deployment) {
+  stopService("keeper");
+  startService("keeper", "pnpm", ["exec", "tsx", "src/bin.ts", "run", "--route", "direct"], { cwd: resolve(ROOT, "apps/keeper"), env: { ...serviceEnv(d).keeper, KEEPER_PRIVATE_KEY: await keyHex(ROLE.keeper) } });
+}
+
 async function reset() {
   const d = loadDeployment();
   const ok = await rpc<boolean>("evm_revert", [d.snapshot]);
   if (!ok) throw new Error("evm_revert failed: snapshot is gone (anvil restarted?). Run `pnpm local:down && pnpm local:up`.");
   d.snapshot = await rpc<string>("evm_snapshot");
   saveDeployment(d);
+  // The keeper keeps a local nonce counter; after a revert it is ahead of the chain and its txs would never mine. Restart it.
+  if (pidOf("keeper")) await restartKeeper(d);
   say(`reverted to the post-deploy snapshot; chain time ${utc(await chainNow())}`);
 }
 

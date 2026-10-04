@@ -43,7 +43,7 @@ const factoryAbi = parseAbi([
 ]);
 const erc20 = parseAbi(["function transfer(address,uint256) returns (bool)", "function balanceOf(address) view returns (uint256)"]);
 
-export const wallet = (i: number) => createWalletClient({ account: acct(i), transport: http(RPC), chain: undefined });
+export const wallet = (i: number) => createWalletClient({ account: acct(i), transport: http(RPC, { timeout: 180_000 }), chain: undefined });
 async function send(i: number, params: { address: Address; abi: readonly unknown[]; functionName: string; args?: readonly unknown[] }) {
   const hash = await wallet(i).writeContract({ ...params, chain: null } as never);
   const rc = await client.waitForTransactionReceipt({ hash });
@@ -54,7 +54,7 @@ async function send(i: number, params: { address: Address; abi: readonly unknown
 export async function fund(user: Address, usdt: string, bnb: string) {
   await rpc("anvil_impersonateAccount", [USDT_WHALE]);
   await rpc("anvil_setBalance", [USDT_WHALE, hex(parseEther("100"))]);
-  const hash = await createWalletClient({ account: USDT_WHALE, transport: http(RPC), chain: undefined }).writeContract({
+  const hash = await createWalletClient({ account: USDT_WHALE, transport: http(RPC, { timeout: 180_000 }), chain: undefined }).writeContract({
     address: USDT, abi: erc20, functionName: "transfer", args: [user, parseUnits(usdt, 18)], chain: null,
   });
   await client.waitForTransactionReceipt({ hash });

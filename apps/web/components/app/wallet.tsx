@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useAccount, useConnect, useConnectors, useDisconnect, useSwitchChain } from "wagmi";
 import { Bot, Link2, Wallet, Fingerprint } from "lucide-react";
 import { Dialog, Notice } from "./ui";
-import { LOCAL_DEV, REOWN_PROJECT_ID } from "@/lib/app-config";
+import { REOWN_PROJECT_ID } from "@/lib/app-config";
 import { appChain } from "@/lib/wagmi";
 import { shortAddr } from "@/lib/adapters/format";
 import { BRAND } from "@/lib/brand";
 
+const LOCAL_DEV = process.env.NEXT_PUBLIC_LOCAL_DEV === "1"; // inlined at build time so production bundles drop every local-dev branch
 const Ctx = createContext<{ open: () => void }>({ open: () => {} });
 export const useConnectModal = () => useContext(Ctx);
 

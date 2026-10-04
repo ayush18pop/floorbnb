@@ -42,3 +42,55 @@ export class InMemoryKeeperRunStore implements KeeperRunStore {
     }, null);
   }
 }
+
+import { parseEventLogs, type Address, type PublicClient } from 'viem';
+import { floorFactoryAbi, floorVaultAbi } from '@floor/sdk';
+
+/**
+ * Keeper runs read from the chain: one run per vault `Rebalanced` event. The keeper does not write to an API run store yet,
+ * so without this `/v1/keeper/runs` (and the MCP `get_rebalance_history` tool) are always empty. Enabled with
+ * FLOOR_RUNS_FROM_BLOCK=<deploy block> (a bounded `getLogs` range; public RPCs reject open-ended ranges).
+ * `lastHeartbeat` stays null: an old rebalance does not prove the keeper is down, and a heartbeat needs the keeper to report it.
+ */
+export class ChainKeeperRunStore implements KeeperRunStore {
+  constructor(private client: PublicClient, private factory: Address, private fromBlock: bigint) {}
+
+  private async vaults(): Promise<Address[]> {
+    const n = await this.client.readContract({ address: this.factory, abi: floorFactoryAbi, functionName: 'positionsCount' });
+    return Promise.all(
+      Array.from({ length: Number(n) }, (_, i) => this.client.readContract({ address: this.factory, abi: floorFactoryAbi, functionName: 'positions', args: [BigInt(i)] }) as Promise<Address>),
+    );
+  }
+
+  private async all(vault?: string): Promise<KeeperRun[]> {
+    const vaults = vault ? [vault as Address] : await this.vaults();
+    if (!vaults.length) return [];
+    const logs = parseEventLogs({ abi: floorVaultAbi, eventName: 'Rebalanced', logs: await this.client.getLogs({ address: vaults, fromBlock: this.fromBlock, toBlock: 'latest' }) });
+    const times = new Map<bigint, number>();
+    const out: KeeperRun[] = [];
+    for (const l of logs) {
+      if (!times.has(l.blockNumber)) times.set(l.blockNumber, Number((await this.client.getBlock({ blockNumber: l.blockNumber })).timestamp));
+      const t = times.get(l.blockNumber)!;
+      out.push({
+        id: `${l.transactionHash}:${l.logIndex}`,
+        vault: l.address,
+        startedAt: t,
+        finishedAt: t,
+        outcome: 'rebalanced',
+        txHash: l.transactionHash,
+        detail: { assetIdx: l.args.assetIdx, buy: l.args.buy, amountIn: l.args.amountIn, amountOut: l.args.amountOut, V: l.args.V, exposureTarget: l.args.exposureTarget, caller: l.args.caller },
+      });
+    }
+    return out.sort((a, b) => b.startedAt - a.startedAt);
+  }
+
+  async list({ limit, vault }: { limit: number; vault?: string }): Promise<KeeperRun[]> {
+    return (await this.all(vault)).slice(0, limit);
+  }
+  async get(id: string): Promise<KeeperRun | null> {
+    return (await this.all()).find((r) => r.id === id) ?? null;
+  }
+  async lastHeartbeat(): Promise<number | null> {
+    return null;
+  }
+}
