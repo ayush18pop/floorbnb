@@ -38,7 +38,8 @@ export function Notice({ kind = "info", children, action, title }: { kind?: "inf
   );
 }
 
-/** Address or hash with a copy button and optional BscScan link. */
+const LOCAL_DEV = process.env.NEXT_PUBLIC_LOCAL_DEV === "1"; // inlined at build time so production bundles drop every local-dev branch
+/** Address or hash with a copy button and optional BscScan link (no link in local-dev mode: the fork is not on BscScan). */
 export function Addr({ value, kind = "address", link = true }: { value: string; kind?: "address" | "tx"; link?: boolean }) {
   const [ok, setOk] = useState(false);
   const copy = async () => {
@@ -51,7 +52,7 @@ export function Addr({ value, kind = "address", link = true }: { value: string; 
       <button type="button" onClick={copy} className="inline-flex h-6 w-6 items-center justify-center text-muted hover:text-ink" aria-label={`Copy ${kind}`}>
         {ok ? <Check size={14} strokeWidth={1.5} /> : <Copy size={14} strokeWidth={1.5} />}
       </button>
-      {link && !isExample() && <a className="prose-link" href={href} target="_blank" rel="noreferrer">BscScan</a>}
+      {link && !isExample() && !LOCAL_DEV && <a className="prose-link" href={href} target="_blank" rel="noreferrer">BscScan</a>}
     </span>
   );
 }

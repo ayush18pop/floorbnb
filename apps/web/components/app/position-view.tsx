@@ -41,7 +41,7 @@ export function PositionScreen() {
     if (!vault) return { p: null, ev: [], hist: [] };
     const [p, ev, hist] = await Promise.all([source.getPosition(vault), source.getEvents(vault).catch(() => []), source.getHistory(vault).catch(() => [])]);
     return { p, ev, hist };
-  }, `${v}${address}${rev}`);
+  }, `${v}${address}${rev}`, `${v}${address}`); // same group on refresh: keep the position (and the open close dialog) on screen
 
   const p = pos.data?.p ?? null;
   const ev = useMemo(() => pos.data?.ev ?? [], [pos.data]);

@@ -15,7 +15,7 @@ export function PositionChart({ points, floor, bands = [], marks = [], domainEnd
     const t0 = points[0].t, t1 = domainEnd ?? points[points.length - 1].t;
     const vs = points.map((p) => p.v).concat(floor);
     const lo = Math.min(...vs), hi = Math.max(...vs), pad = (hi - lo) * 0.12 || 1;
-    const step = [50, 100, 250, 500, 1000, 2500].find((s) => (hi - lo + 2 * pad) / s <= 6) ?? 5000;
+    const step = [1, 2, 5, 10, 20, 50, 100, 250, 500, 1000, 2500].find((s) => (hi - lo + 2 * pad) / s <= 6) ?? 5000;
     const yMin = Math.floor((lo - pad) / step) * step, yMax = Math.ceil((hi + pad) / step) * step;
     const ticks: number[] = []; for (let y = yMin; y <= yMax; y += step) ticks.push(y);
     return { t0, t1, yMin, yMax, ticks };

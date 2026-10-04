@@ -3,6 +3,7 @@ import { createPublicClient, http } from 'viem';
 import { Bw3Client } from '@floor/bw3';
 import { setDeployment } from '@floor/sdk';
 import { createApp } from './app';
+import { ChainKeeperRunStore } from './keeperRuns';
 import { loadConfig } from './config';
 import { paidGateFromEnv } from './paid';
 
@@ -25,5 +26,8 @@ try {
   console.error(`[api] paid gate error: ${e instanceof Error ? e.message : String(e)}`);
   process.exit(1);
 }
-const app = createApp({ chainId: cfg.chainId, deployment: cfg.deployment, client, bw3, paidGate, corsOrigins: cfg.corsOrigins, trustProxy: cfg.trustProxy });
+// FLOOR_RUNS_FROM_BLOCK: serve the keeper run log from on-chain Rebalanced events (the keeper does not write to an API store yet).
+const runsFrom = process.env.FLOOR_RUNS_FROM_BLOCK;
+const runs = runsFrom ? new ChainKeeperRunStore(client, cfg.deployment.factory, BigInt(runsFrom)) : undefined;
+const app = createApp({ chainId: cfg.chainId, deployment: cfg.deployment, client, bw3, paidGate, runs, corsOrigins: cfg.corsOrigins, trustProxy: cfg.trustProxy });
 serve({ fetch: app.fetch, port: cfg.port }, (i) => console.log(`[api] listening on :${i.port} chain ${cfg.chainId} factory ${cfg.deployment.factory} market=${bw3 ? 'bw3' : 'off'} paid=${paidGate ? 'on' : 'off (501)'}`));

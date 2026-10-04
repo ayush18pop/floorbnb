@@ -18,3 +18,9 @@ x-ray/
 dist/
 *.tsbuildinfo
 .vercel
+
+# local stack (pnpm local:up): logs, pids, generated work dir, deployment output
+local/logs/
+local/.run/
+local/.work/
+local/deployment.json

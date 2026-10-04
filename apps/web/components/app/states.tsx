@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useAccount, useSwitchChain } from "wagmi";
-import { bsc } from "wagmi/chains";
+import { appChain } from "@/lib/wagmi";
 import { BRAND } from "@/lib/brand";
 import { Notice } from "./ui";
 import { Xh } from "@/components/ui/xh";
@@ -20,7 +20,7 @@ export function EmptyPositions() {
 /** Reusable error and info states (E01). Each is also shown on /app/states. */
 export function WrongNetwork({ name = "Ethereum" }: { name?: string }) {
   const { switchChain } = useSwitchChain();
-  return <Notice kind="warn" title={`Your wallet is on ${name}.`} action={<button type="button" className="btn btn-secondary" onClick={() => switchChain({ chainId: bsc.id })}>Switch to {BRAND.chain}</button>}>{BRAND.name} runs on {BRAND.chain}.</Notice>;
+  return <Notice kind="warn" title={`Your wallet is on ${name}.`} action={<button type="button" className="btn btn-secondary" onClick={() => switchChain({ chainId: appChain.id })}>Switch to {BRAND.chain}</button>}>{BRAND.name} runs on {BRAND.chain}.</Notice>;
 }
 export function NotEnoughUsdt({ have }: { have: string }) {
   return (

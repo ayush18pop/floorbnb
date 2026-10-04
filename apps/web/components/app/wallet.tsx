@@ -2,13 +2,14 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useAccount, useConnect, useConnectors, useDisconnect, useSwitchChain } from "wagmi";
-import { bsc } from "wagmi/chains";
 import { Bot, Link2, Wallet, Fingerprint } from "lucide-react";
 import { Dialog, Notice } from "./ui";
 import { REOWN_PROJECT_ID } from "@/lib/app-config";
+import { appChain } from "@/lib/wagmi";
 import { shortAddr } from "@/lib/adapters/format";
 import { BRAND } from "@/lib/brand";
 
+const LOCAL_DEV = process.env.NEXT_PUBLIC_LOCAL_DEV === "1"; // inlined at build time so production bundles drop every local-dev branch
 const Ctx = createContext<{ open: () => void }>({ open: () => {} });
 export const useConnectModal = () => useContext(Ctx);
 
@@ -30,6 +31,7 @@ export function ConnectButton() {
   if (isConnected && address) {
     return (
       <span className="inline-flex items-center gap-2">
+        {LOCAL_DEV && <span className="badge b-neg" title="Local dev mode: an anvil fork, not BNB Chain">LOCAL DEV WALLET</span>}
         <span className="badge b-pos" title={address}><span aria-hidden="true" className="mr-2 inline-block h-2 w-2 bg-current" />{shortAddr(address)}</span>
         <button type="button" className="small underline underline-offset-4 hover:text-ink" onClick={() => disconnect()}>Disconnect</button>
       </span>
@@ -42,10 +44,10 @@ export function ConnectButton() {
 export function NetworkGuard() {
   const { chain, isConnected } = useAccount();
   const { switchChain, isPending } = useSwitchChain();
-  if (!isConnected || chain?.id === bsc.id) return null;
+  if (!isConnected || chain?.id === appChain.id) return null;
   return (
     <Notice kind="warn" title={`Your wallet is on ${chain?.name ?? "another network"}.`} action={
-      <button type="button" className="btn btn-secondary" disabled={isPending} onClick={() => switchChain({ chainId: bsc.id })}>Switch to {BRAND.chain}</button>
+      <button type="button" className="btn btn-secondary" disabled={isPending} onClick={() => switchChain({ chainId: appChain.id })}>Switch to {BRAND.chain}</button>
     }>
       {BRAND.name} runs on {BRAND.chain}.
     </Notice>
@@ -62,7 +64,7 @@ function ConnectModal({ open, onClose }: { open: boolean; onClose: () => void })
 
   const go = async (c: (typeof connectors)[number] | undefined) => {
     if (!c) return;
-    try { await connectAsync({ connector: c, chainId: bsc.id }); onClose(); } catch { /* error shown below */ }
+    try { await connectAsync({ connector: c, chainId: appChain.id }); onClose(); } catch { /* error shown below */ }
   };
   const bin = find(/binance/i), mm = find(/metamask/i), wc = connectors.find((c) => c.id === "walletConnect");
 
@@ -73,6 +75,8 @@ function ConnectModal({ open, onClose }: { open: boolean; onClose: () => void })
     { key: "baw", title: "Binance Agentic Wallet", sub: "For AI agents", icon: <Bot size={20} strokeWidth={1.5} />, on: () => setAgentInfo((v) => !v) },
   ];
   void REOWN_PROJECT_ID;
+  const dev = LOCAL_DEV ? connectors.find((c) => c.id === "mock") : undefined;
+  if (dev) rows.unshift({ key: "dev", title: "Dev wallet", sub: "LOCAL DEV WALLET (anvil fork)", icon: <Wallet size={20} strokeWidth={1.5} />, hint: "Local development only. Acts as the demo user on the local fork.", on: () => go(dev) });
 
   return (
     <Dialog open={open} onClose={onClose} title="Connect a wallet" labelledBy="connect-title">
