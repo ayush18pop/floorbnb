@@ -22,7 +22,7 @@ describe("parseAppLocked", () => {
 
 describe("classifyRoute", () => {
   const lock = ["/app", "/app/", "/app/review", "/app/confirmed", "/app/position", "/app/positions", "/app/keeper", "/app/states", "/agents", "/agents/run", "/dashboard", "/appx-nope"];
-  const allow = ["/", "/docs", "/docs/faq", "/docs/how-it-works", "/docs/risks", "/try", "/try/anything", "/locked", "/icon.svg", "/opengraph-image", "/twitter-image", "/robots.txt", "/globe.svg", "/_next/static/x.js"];
+  const allow = ["/", "/docs", "/docs/faq", "/docs/how-it-works", "/docs/risks", "/try", "/try/anything", "/locked", "/icon.svg", "/opengraph-image", "/twitter-image", "/robots.txt", "/.well-known/agent-registration.json", "/globe.svg", "/_next/static/x.js"];
   it.each(lock)("locks %s", (p) => expect(classifyRoute(p)).toBe("lock"));
   it.each(allow)("allows %s", (p) => expect(classifyRoute(p)).toBe("allow"));
   it("blocks api with 503", () => { expect(classifyRoute("/api")).toBe("block"); expect(classifyRoute("/api/x.json")).toBe("block"); });
