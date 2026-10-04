@@ -18,7 +18,7 @@ Any change under `packages/contracts/src` or `packages/contracts/script` after t
 | H5 | Create an Etherscan v2 API key (works for chain 56) and export `ETHERSCAN_API_KEY` in your shell. Keep it out of the repo. | Verification. |
 | H6 | Provide an RPC that serves recent state reliably for `BSC_RPC_URL` (paid or your own; public RPCs were slow or flaky in the dry-run). | Deploy and pre-flight. |
 | H7 | Re-read the pool TVL, cardinality and `uiMultiplier` live the day of the deploy and edit caps if needed (section 2). | G4. |
-| H8 | Cross-check `holidays/nyse_2026_2027.json` with nyse.com once more (FIX2 verified it on 2026-10-03). | Holidays. |
+| H8 | Cross-check `holidays/nyse_2026_2027.json` with nyse.com once more (table now runs through 2028-12-31; verified 2026-10-04; `python3 holidays/gen_holidays.py --check` validates it). | Holidays. |
 | H9 | DNS and web hosting for the app, pointing the frontend at the new factory/lens addresses (not part of this runbook; nothing in the repo does it for you). | Launch. |
 | H10 | Put the keeper key in the keeper host's environment (`KEEPER_PRIVATE_KEY`, env only) and the Binance keys for `--route agg`. Never in a file in the repo (the keeper refuses to start if it finds the key in the repo). | Keeper. |
 | H11 | Commit `packages/contracts/deployments/56.json` after the deploy (or hand it to the manager). | Wiring. |
@@ -112,7 +112,7 @@ cast call $FACTORY "nonTradingDay(uint32)(bool)" $(( $(date -u -d 2026-12-25 +%s
 cast call $FACTORY "lastMultiplier(address)(uint256)" 0x02fca66c1d1afb4e2a7884261eb00f63598a7436 --rpc-url $BSC_RPC_URL  # == step 2.4 value
 ```
 
-Optional, only to re-apply or extend holidays (guardian signs):
+Optional, only to re-apply or extend holidays (guardian signs). Extend before `horizon - 14 days - now` drops below the longest term offered (365 d): NYSE has published only through 2028, so add 2029 (edit EARLY/END in `holidays/gen_holidays.py`, regenerate) when NYSE announces it, then run this. One call sets all days and the horizon (`setHolidayHorizon`, guardian, no cap, no redeploy); about 30 days per year fits one tx:
 ```bash
 FLOOR_FACTORY=$FACTORY forge script script/SetHolidays.s.sol --rpc-url $BSC_RPC_URL --ledger --sender <GUARDIAN> --broadcast
 ```

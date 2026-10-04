@@ -23,11 +23,11 @@ contract SetHolidays is Script {
         for (uint256 i; i < raw.length; ++i) {
             days_[i] = uint32(raw[i]);
         }
-        // Table must be sorted and reach the end of 2027 (NYSE source in the JSON note); a stale file aborts here.
+        // Table must be sorted and reach the end of 2028 (NYSE source in the JSON note); a stale file aborts here.
         for (uint256 i = 1; i < raw.length; ++i) {
             require(raw[i] > raw[i - 1], "SetHolidays: not sorted");
         }
-        require(raw.length > 0 && raw[raw.length - 1] >= 21_176, "SetHolidays: table must reach 2027-12-24");
+        require(raw.length > 0 && raw[raw.length - 1] >= 21_543, "SetHolidays: table must reach 2028-12-25");
         require(raw[raw.length - 1] <= 30_000, "SetHolidays: values look like unix seconds, not days");
         // The horizon is a unix DAY: not before the last listed holiday and not a seconds value (Pashov 03 lead).
         uint256 horizon = h.readUint(".coversThroughDay");
