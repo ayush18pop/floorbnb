@@ -10,5 +10,6 @@ export const DOCS: DocLink[] = [
   { slug: "agents", href: "/docs/agents", title: "Agents", blurb: "Keeper, MCP tools, b402 and the agent skill." },
   { slug: "contracts", href: "/docs/contracts", title: "Contracts", blurb: "The on-chain design in plain words." },
   { slug: "risks", href: "/docs/risks", title: "Risks", blurb: "What we do not claim." },
+  { slug: "open-items", href: "/docs/open-items", title: "Known open items", blurb: "What is not done, not tested or accepted, with status." },
   { slug: "faq", href: "/docs/faq", title: "FAQ", blurb: "Questions you should ask." },
 ];

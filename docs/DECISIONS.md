@@ -24,10 +24,13 @@ Where documents disagree, this file wins, then CONTRACTS.md (on-chain), then ARC
 ## Open, needs follow-up
 1. **Trading window vs the backtest: checked, holds at m = 4.** The contract trades only 15:30–19:30 UTC, not at
    the open and close. The backtest's `close_only` mode (one rebalance a day; overnight plus the next day's move
-   hit unhedged) is a fair stand-in. In it, **m = 4 held 93/93 windows on every asset and basket**, but m = 5
+   hit unhedged) is a fair stand-in. In it, **m = 4 had no breach in the short 93-window 2018 to 2026 sample on any asset or basket** (not a safety claim; the long study found 0.44% of one-year windows ended more than 1 point below a 90% floor, 95% CI 0.07% to 0.93%), but m = 5
    broke in 3.2% of TSLA windows. So the public claim is "at m = 4", not "at m ≤ 5". An hourly re-run
    (yfinance has ~2 years of 1h bars) would be more exact.
 2. **CONTRACTS.md found bStocks have an issuer pause, a per-token blocklist and a sanctions list.** That
    contradicts EXECUTION.md §4. Treat CONTRACTS.md as correct. The landing page's risk section must mention it.
 3. **NVDAB pool TVL is ~$4.8M (measured 2026-10-02)**, not $3.35M (2026-09-30).
 4. **b402 production access is gated** (merchant application). The team lead must apply.
+
+## Honesty pass (2026-10-04, agent DISCLOSE)
+Headline numbers come from `research/m_study2/REPORT.md`: 0.44% of one-year windows ended more than 1 point below a 90% floor (95% CI 0.07% to 0.93%), 0.09% of one-month windows, cash lock 2.85% / 0.17%, upside kept about 4 x (100 - floor)%. "93 of 93" is never used alone and "42%" always carries "at a 90% floor". Never "max loss 10%": the worst one-week window lost 24%. Trusted roles and the batch acceptance disclosures are on the public risks page, README and `/docs/open-items`.

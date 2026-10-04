@@ -52,7 +52,7 @@ export default function Page() {
       </div>
 
       <h2 id="b402">Pay per call with b402 <span className="badge b-warn align-middle">building</span></h2>
-      <p>The agent pays a small fee for each paid call in stablecoins, through Binance&apos;s x402 on BSC (called b402). No sign-up, no API key. Gas is sponsored. b402 does not pay for LLM inference. Production access is by merchant application and is not granted yet. More on the <L href="/agents#b402">reference page</L>.</p>
+      <p>The agent pays a small fee for each paid call in stablecoins, through Binance&apos;s x402 on BSC (called b402). No sign-up, no API key. Gas is sponsored. b402 does not pay for LLM inference. Production access is by merchant application and is not granted yet. Our b402 client is built but has never been tested against the live service (only against recorded fixtures). Live settlement uses our own x402 facilitator: our server verifies the signed payment and sends the transfer itself. More on the <L href="/agents#b402">reference page</L>.</p>
 
       <h2 id="skill">Agent skill <span className="badge b-warn align-middle">building</span></h2>
       <p>A {BRAND.name} skill so a user&apos;s own agent can deposit and withdraw with the user&apos;s own wallet. It tells the agent to read the factory address from get_floor_info and check every unsigned transaction against it before signing.</p>

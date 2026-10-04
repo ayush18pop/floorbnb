@@ -24,10 +24,10 @@ export default function Page() {
 
       <h2 id="roles">Roles</h2>
       <ul className="list">
-        <li><strong>Keeper.</strong> Calls rebalance, one swap per call. The vault re-validates direction, size, router and minimum out. The keeper cannot withdraw or set prices. An EOA is the primary keeper; a Binance Agentic Wallet holds the same role as a supervised second keeper. See <L href="/docs/agents#keeper">Agents</L>.</li>
-        <li><strong>Anyone.</strong> After 4 hours idle, anyone can call a public rebalance through the direct Pancake pool.</li>
-        <li><strong>Guardian.</strong> Can pause, halt trading, set holidays and remove a router. A halt does not block exits.</li>
-        <li><strong>Owner (Safe or hardware wallet, to be confirmed).</strong> Adds assets and routers, sets the keeper. Cannot touch any position.</li>
+        <li><strong>Keeper.</strong> Calls rebalance, one swap per call, through allowlisted routers. The vault re-validates direction, size, router and minimum out. The keeper cannot withdraw or set prices. An EOA is the primary keeper; a Binance Agentic Wallet holds the same role as a supervised second keeper. See <L href="/docs/agents#keeper">Agents</L>.</li>
+        <li><strong>Anyone.</strong> After the public delay (3,600 seconds of open-market time at launch, counted from that stock&apos;s last trade), anyone can call a public rebalance through the direct Pancake pool. It can be sandwiched within the 1% slippage bound.</li>
+        <li><strong>Guardian.</strong> Can pause, halt trading, set holidays, remove a router, disable an asset and approve a new token implementation. It cannot move funds or add a router. A pause or halt stops rebalances and de-risking sells, never exits.</li>
+        <li><strong>Owner (hardware wallet; a multisig is not set up).</strong> Adds assets, adds routers (active after 24 hours), sets keepers and the guardian, sets defaults for new positions and the launch caps. Cannot touch any existing position or its funds. See <L href="/docs/risks#roles">Risks</L>.</li>
         <li><strong>You.</strong> Only you can exit your position.</li>
       </ul>
 
