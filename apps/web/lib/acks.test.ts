@@ -14,3 +14,13 @@ describe("review acknowledgements stay true for the term", () => {
     expect(a.join(" ")).not.toMatch(/guarantee/i);
   });
 });
+
+describe("short ack labels", () => {
+  it("has one short label per full acknowledgement and never says guaranteed", async () => {
+    const { acksShort } = await import("./acks");
+    const s = acksShort();
+    expect(s).toHaveLength(acksFor("2026-11-03", 30).length);
+    expect(s[0]).toMatch(/about 24%/);
+    s.forEach((t) => { expect(t.split(/\s+/).length).toBeLessThan(16); expect(t).not.toMatch(/guarantee/i); });
+  });
+});

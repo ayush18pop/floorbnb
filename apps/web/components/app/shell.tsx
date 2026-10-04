@@ -6,7 +6,9 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Xh } from "@/components/ui/xh";
 import { BRAND } from "@/lib/brand";
 import { ConnectButton, NetworkGuard } from "./wallet";
-import { ExampleBadge, isExample } from "./ui";
+import { InfoPopover } from "@/components/ui/info-popover";
+import { isExample } from "./ui";
+import { RisksLink } from "./risks";
 import "./app.css";
 
 export type NavKey = "app" | "positions" | "keeper" | "agents";
@@ -18,7 +20,7 @@ const tabs: [string, string, NavKey][] = [
 ];
 
 /** Header, tab nav, wallet button and a page frame with hairline rails. Used by every app screen. */
-export function AppShell({ active, eyebrow, title, action, children, example }: { active?: NavKey; eyebrow?: string; title: string; action?: ReactNode; children: ReactNode; example?: boolean }) {
+export function AppShell({ active, eyebrow, title, action, children, example, foot = true }: { active?: NavKey; eyebrow?: string; title: string; action?: ReactNode; children: ReactNode; example?: boolean; foot?: boolean }) {
   const ex = example ?? isExample();
   return (
     <>
@@ -37,26 +39,25 @@ export function AppShell({ active, eyebrow, title, action, children, example }: 
           </div>
         </div>
       </header>
-      <main id="main" className="app-frame">
+      <main id="main" className="app-frame app-page">
         <div className="app-title">
           <Xh style={{ left: 0, top: 0 }} /><Xh style={{ left: "100%", top: 0 }} />
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div className="min-w-0">
-              <p className="label mb-3">{eyebrow}{ex && <> · <span className="warn">Example data</span></>}</p>
-              <h1 className="h1">{title}</h1>
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+            <div className="min-w-0 md:flex md:items-baseline md:gap-4">
+              <h1 className="h2 !text-[clamp(1.25rem,1rem+0.9vw,1.625rem)]">{title}</h1>
+              <p className="label mt-1 md:mt-0">{eyebrow}{ex && <> · <span className="warn">Example data</span><InfoPopover label="example data">Positions, prices, hashes and activity on this screen are invented to show the layout. No contract is called and no funds move. {BRAND.contractsStatus}.</InfoPopover></>}</p>
             </div>
             {action}
           </div>
         </div>
         <div className="px-4 pt-4 empty:hidden md:px-6"><NetworkGuard /></div>
-        {children}
-        {ex && (
-          <div className="border-t border-grid p-4 md:p-6">
-            <p className="small"><ExampleBadge className="mr-2" />Positions, prices, hashes and activity on this screen are invented to show the layout. No contract is called and no funds move. {BRAND.contractsStatus}.</p>
-          </div>
+        <div className="app-body">{children}</div>
+        {foot && (
+          <footer className="app-foot">
+            <p className="small">{BRAND.disclosure} <RisksLink /></p>
+          </footer>
         )}
       </main>
-      <div className="app-frame !min-h-0 border-b border-grid"><p className="small p-4 md:p-6">{BRAND.disclosure}</p></div>
     </>
   );
 }

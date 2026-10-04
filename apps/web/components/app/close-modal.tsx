@@ -3,6 +3,7 @@ import { useState } from "react";
 import { getSource, fmt, fmtW, isoDate, phaseOf, num, ASSETS, type ExitKind, type PositionView } from "@/lib/adapters";
 import { BRAND } from "@/lib/brand";
 import { Addr, Dialog, Notice, ExampleBadge } from "./ui";
+import { ExpandRow } from "@/components/ui/expand-row";
 
 /** Close to USDT (requestClose, then closeToUSDT) or Exit in kind (always allowed). */
 export function CloseModal({ p, open, onClose, initial = "usdt", onDone }: { p: PositionView; open: boolean; onClose: () => void; initial?: "usdt" | "kind"; onDone: () => void }) {
@@ -38,29 +39,32 @@ export function CloseModal({ p, open, onClose, initial = "usdt", onDone }: { p: 
           <button type="button" className="btn btn-secondary" onClick={close}>Close</button>
         </div>
       ) : (
-        <div className="space-y-5">
+        <div className="space-y-3">
           {early ? <p className="small !text-ink-2">Leaving before {isoDate(p.maturity)} removes the floor for this position.</p> : <p className="small">The term has ended. The floor no longer applies.</p>}
           <div className="grid gap-px bg-grid sm:grid-cols-2">
-            <button type="button" className="opt" aria-pressed={pick === "usdt"} onClick={() => setPick("usdt")}>
-              <p className="label">Option 1</p>
-              <p className="h3 mt-1">Close to USDT</p>
-              <p className="body mt-2" style={{ fontSize: 14 }}>{phase === "cashLock" ? "The vault already holds only USDT. It sends it to you now." : "The vault sells all stock in the next trading window, then sends you USDT. Two steps: request close, then confirm once the stock is sold."}</p>
-              <div className="mt-4 border-t border-grid pt-3">
-                <p className="label">Estimated <ExampleBadge className="ml-2" /></p>
-                <p className="mono mt-1 text-[18px]">{fmt(estimate)} USDT</p>
-                <p className="small">{stock > 0 ? `after about ${bps.toFixed(1)} bps swap cost on the stock part` : "no swap needed"}</p>
-              </div>
+            <button type="button" className="opt !p-4" aria-pressed={pick === "usdt"} onClick={() => setPick("usdt")}>
+              <p className="h3">Close to USDT</p>
+              <p className="small mt-1">{phase === "cashLock" ? "The vault already holds only USDT." : "Sold in the next trading window, then sent to you."}</p>
+              <p className="label mt-3">Estimated <ExampleBadge className="ml-2" /></p>
+              <p className="mono mt-1 text-[18px]">{fmt(estimate)} USDT</p>
             </button>
-            <button type="button" className="opt" aria-pressed={pick === "kind"} onClick={() => setPick("kind")}>
-              <p className="label">Option 2</p>
-              <p className="h3 mt-1">Exit in kind</p>
-              <p className="body mt-2" style={{ fontSize: 14 }}>Get what the vault holds now, straight away. Works even if a token is paused. A paused token is skipped.</p>
-              <div className="mt-4 border-t border-grid pt-3">
-                <p className="label">You receive <ExampleBadge className="ml-2" /></p>
-                <p className="mono mt-1 text-[14px] leading-6">{p.holdings.filter((h) => h.amount > 0n).map((h) => `${fmtW(h.amount)} ${h.symbol}`).join(" · ")}{p.holdings.some((h) => h.amount > 0n) ? " + " : ""}{fmtW(p.usdtBalance)} USDT</p>
-              </div>
+            <button type="button" className="opt !p-4" aria-pressed={pick === "kind"} onClick={() => setPick("kind")}>
+              <p className="h3">Exit in kind</p>
+              <p className="small mt-1">What the vault holds, right away.</p>
+              <p className="label mt-3">You receive <ExampleBadge className="ml-2" /></p>
+              <p className="mono mt-1 text-[13px] leading-5">{p.holdings.filter((h) => h.amount > 0n).map((h) => `${fmtW(h.amount)} ${h.symbol}`).join(" · ")}{p.holdings.some((h) => h.amount > 0n) ? " + " : ""}{fmtW(p.usdtBalance)} USDT</p>
             </button>
           </div>
+          <ExpandRow label={pick === "usdt" ? "Close to USDT" : "Exit in kind"} more="How it works" less="Hide" flush lead={<p className="label">{pick === "usdt" ? "Close to USDT" : "Exit in kind"}</p>}>
+            {pick === "usdt" ? (
+              <div className="space-y-2">
+                <p className="body" style={{ fontSize: 14 }}>{phase === "cashLock" ? "The vault already holds only USDT. It sends it to you now." : "The vault sells all stock in the next trading window, then sends you USDT. Two steps: request close, then confirm once the stock is sold."}</p>
+                <p className="small">Estimate: {fmt(estimate)} USDT {stock > 0 ? `after about ${bps.toFixed(1)} bps swap cost on the stock part` : "no swap needed"}</p>
+              </div>
+            ) : (
+              <p className="body" style={{ fontSize: 14 }}>Get what the vault holds now, straight away. Works even if a token is paused. A paused token is skipped.</p>
+            )}
+          </ExpandRow>
           {err && <Notice kind="neg" title="Not sent">{err}</Notice>}
           <div className="btn-stack flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <button type="button" className="btn btn-secondary" onClick={close}>Cancel</button>
