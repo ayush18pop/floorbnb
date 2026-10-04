@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAccount } from "wagmi";
 import { parseUnits } from "viem";
 import { Check } from "lucide-react";
-import { LAUNCH_TERM_SECONDS, quoteProtection } from "@floor/sdk";
+import { quoteProtection } from "@floor/sdk";
 import { Xh } from "@/components/ui/xh";
 import { useNow } from "@/lib/adapters/use";
 import { getSource, fmt, isoDate, num, type CreateProgress, type CreateStep } from "@/lib/adapters";
@@ -14,7 +14,11 @@ import { BRAND } from "@/lib/brand";
 import { APP_CHAIN_ID } from "@/lib/app-config";
 import { Addr, Notice } from "./ui";
 import { useConnectModal, NetworkGuard } from "./wallet";
-import { equalWeights, parseBuilderParams } from "./builder";
+import { equalWeights, parseBuilderParams } from "@/lib/builder-params";
+import { acksFor } from "@/lib/acks";
+import { DAY, evidenceFor, termEndText, termLabel } from "@/lib/floor-config";
+import { checkCreate } from "@/lib/create-validation";
+import { useCreateLimits } from "@/lib/use-create-limits";
 
 type StepState = "todo" | "wallet" | "pending" | "done";
 
@@ -45,16 +49,12 @@ function Stepper({ steps }: { steps: Record<CreateStep, StepState> }) {
   );
 }
 
-const ACKS = [
-  `I understand the floor can break if prices gap more than about ${BRAND.gapLimitPct}% before the vault can rebalance. The vault does not trade on weekends or outside the trading window.`,
-  "I understand that if my value reaches the floor, the vault holds USDT until the term ends and I miss any recovery in that term.",
-  "I understand I keep only part of the upside. That is the price of the floor.",
-];
+export { acksFor };
 
 export function Review() {
   const router = useRouter();
   const sp = useSearchParams();
-  const { assets, floor, amount } = useMemo(() => parseBuilderParams(new URLSearchParams(sp.toString())), [sp]);
+  const { assets, floor, termDays, amount } = useMemo(() => parseBuilderParams(new URLSearchParams(sp.toString())), [sp]);
   const source = getSource();
   const { address, isConnected, chain } = useAccount();
   const modal = useConnectModal();
@@ -65,13 +65,17 @@ export function Review() {
   const [busy, setBusy] = useState(false);
 
   const weights = equalWeights(assets.length);
-  const q = quoteProtection({ deposit: parseUnits(String(amount), 18), floorBps: floor * 100, termSeconds: LAUNCH_TERM_SECONDS, weightsBps: weights });
+  const termSeconds = termDays * DAY;
+  const now = useNow();
+  const { limits } = useCreateLimits();
+  const q = quoteProtection({ deposit: parseUnits(String(amount), 18), floorBps: floor * 100, termSeconds, weightsBps: weights });
+  const check = checkCreate({ amount: parseUnits(String(amount), 18), floorBps: floor * 100, termSeconds, weightsBps: weights, limits, nowSec: now });
+  const ev = evidenceFor(floor, termDays);
   const stockPct = q.startingExposureBps / 100;
   const allAck = acks.every(Boolean);
   const mock = source.kind === "mock";
   const needsWallet = !mock && (!isConnected || chain?.id !== APP_CHAIN_ID);
-  const now = useNow();
-  const termEnd = now ? isoDate(now + LAUNCH_TERM_SECONDS) : "…";
+  const termEnd = now ? isoDate(now + termSeconds) : "…";
 
   const onProgress = (e: CreateProgress) => {
     setSteps((s) => ({ ...s, [e.step]: e.state }));
@@ -83,8 +87,8 @@ export function Review() {
     setBusy(true); setError(null);
     try {
       const owner = (address ?? "0x1111111111111111111111111111111111111111") as `0x${string}`;
-      const r = await source.createPosition({ owner, amount: parseUnits(String(amount), 18), floorBps: floor * 100, termSeconds: LAUNCH_TERM_SECONDS, assets, weightsBps: weights }, onProgress);
-      router.push(`/app/confirmed?vault=${r.vault}&tx=${r.createTx}&amount=${amount}&floor=${num(q.floorValue)}`);
+      const r = await source.createPosition({ owner, amount: parseUnits(String(amount), 18), floorBps: floor * 100, termSeconds, assets, weightsBps: weights }, onProgress);
+      router.push(`/app/confirmed?vault=${r.vault}&tx=${r.createTx}&amount=${amount}&floor=${num(q.floorValue)}&term=${termDays}&end=${(now ?? 0) + termSeconds}`);
     } catch (e) {
       const m = e instanceof Error ? e.message : String(e);
       setError(/reject|denied/i.test(m) ? "You rejected the request in your wallet. Nothing was sent. You can try again." : m);
@@ -96,7 +100,7 @@ export function Review() {
     ["Basket", `${assets.join(" · ")}${assets.length > 1 ? " (equal weight)" : ""}`],
     ["Deposit", `${fmt(amount)} USDT`],
     ["Floor", `${fmt(num(q.floorValue))} USDT (${floor}%)`],
-    ["Term", `1 year, ends ${termEnd}`],
+    ["Term", `${termLabel(termDays)}, ends ${termEnd}`],
     ["Multiplier", `${BRAND.multiplier}× cushion`],
     ["Starting split", `${stockPct.toFixed(0)}% stocks / ${(100 - stockPct).toFixed(0)}% USDT, after the first trading window`],
     ["Protocol fee", `0 USDT. Swap costs only.`],
@@ -119,7 +123,7 @@ export function Review() {
           </dl>
           <fieldset className="m-0 min-w-0 space-y-4 border-0 border-t border-grid p-4 md:p-6" disabled={busy}>
             <h3 className="label !mb-4">Before you sign</h3>
-            {ACKS.map((t, i) => (
+            {acksFor(termEnd, termDays).map((t, i) => (
               <label key={i} className="check">
                 <input type="checkbox" checked={acks[i]} onChange={(e) => setAcks((a) => a.map((x, j) => (j === i ? e.target.checked : x)))} />
                 <span>{t}</span>
@@ -130,17 +134,19 @@ export function Review() {
             {mock && <Notice kind="info" title="Example mode">No contract is deployed yet. This runs the two steps with invented hashes. Nothing is sent to BNB Chain.</Notice>}
             <NetworkGuard />
             {tx.approve && <p className="small">Approval <Addr value={tx.approve} kind="tx" />{tx.create && <> · Create <Addr value={tx.create} kind="tx" /></>}</p>}
+            {!check.ok && <Notice kind="warn" title="This would be rejected">{check.issues.map((i) => i.message).join(" ")} <Link href={`/app?assets=${assets.join(",")}&floor=${floor}&term=${termDays}&amount=${amount}`} className="prose-link">Change settings</Link></Notice>}
+            {!ev.backtested && <Notice kind="info" title="Not backtested yet">{ev.note}</Notice>}
             {error && <Notice kind="neg" title="Not created">{error}</Notice>}
             <div className="btn-stack flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <Link href={`/app?assets=${assets.join(",")}&floor=${floor}&amount=${amount}`} className="btn btn-secondary" aria-disabled={busy}>Back</Link>
-              <button type="button" className="btn btn-primary" disabled={!allAck || busy || (needsWallet && isConnected)} onClick={create}>
+              <Link href={`/app?assets=${assets.join(",")}&floor=${floor}&term=${termDays}&amount=${amount}`} className="btn btn-secondary" aria-disabled={busy}>Back</Link>
+              <button type="button" className="btn btn-primary" disabled={!allAck || !check.ok || busy || (needsWallet && isConnected)} onClick={create}>
                 {busy ? (steps.approve !== "done" ? "Approving USDT…" : "Creating position…") : !mock && !isConnected ? "Connect wallet" : mock ? "Run example flow" : steps.approve === "done" ? "Create position" : "Approve and create"}
               </button>
             </div>
             <p className="small sm:text-right">{mock ? "" : `You sign two transactions: approve exactly ${fmt(amount)} USDT to the factory, then createPosition.`}</p>
           </div>
         </div>
-        <p className="small px-4 pb-6 md:px-6">Leaving before the term ends removes the floor. Exit in kind is always allowed. {BRAND.name} cannot move your funds: the vault only trades by its own rules.</p>
+        <p className="small px-4 pb-6 md:px-6">{termEndText(termEnd)} Exit in kind is always allowed. {BRAND.name} cannot move your funds: the vault only trades by its own rules.</p>
       </div>
     </div>
   );
