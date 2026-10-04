@@ -88,9 +88,9 @@ describe("report rule: deposit x min(1, 4(1-floor)) x smallest weight >= minTrad
 
 describe("holiday table horizon (2028-12-31, 14 day buffer)", () => {
   const at = (iso: string) => Math.floor(Date.parse(iso) / 1000);
-  it("a 365 day term is accepted until 2027-12-17 and refused after", () => {
-    expect(checkCreate({ ...base, amount: 500n * E, nowSec: at("2027-12-17T12:00:00Z") }).ok).toBe(true);
-    const r = checkCreate({ ...base, amount: 500n * E, nowSec: at("2027-12-18T12:00:00Z") });
+  it("a 365 day term is accepted until 2027-12-18 (2028 is a leap year) and refused after", () => {
+    expect(checkCreate({ ...base, amount: 500n * E, nowSec: at("2027-12-18T12:00:00Z") }).ok).toBe(true);
+    const r = checkCreate({ ...base, amount: 500n * E, nowSec: at("2027-12-19T12:00:00Z") });
     expect(r.ok).toBe(false); expect(r.issues[0].code).toBe("term-horizon");
     expect(r.issues[0].message).toMatch(/Term too long for the current holiday table; choose a shorter term/);
   });
