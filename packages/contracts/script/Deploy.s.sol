@@ -199,7 +199,7 @@ contract Deploy is Script {
         for (uint256 i = 1; i < raw.length; ++i) {
             require(raw[i] > raw[i - 1], "Deploy: holidays not sorted");
         }
-        require(raw[raw.length - 1] >= 21_176, "Deploy: holiday table must reach 2027-12-24");
+        require(raw[raw.length - 1] >= 21_543, "Deploy: holiday table must reach 2028-12-25");
         require(raw[raw.length - 1] <= 30_000, "Deploy: holidays look like unix seconds, not days");
         uint256 horizon =
             vm.readFile(string.concat(vm.projectRoot(), "/", p.holidaysFile)).readUint(".coversThroughDay");

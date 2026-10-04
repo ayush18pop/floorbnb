@@ -42,11 +42,11 @@ export const TERM_CONFIG = {
 } as const;
 
 /**
- * Last day (unix day number) the factory's holiday table covers: 31 Dec 2027 (packages/contracts/holidays/nyse_2026_2027.json).
+ * Last day (unix day number) the factory's holiday table covers: 31 Dec 2028 (packages/contracts/holidays/nyse_2026_2027.json).
  * The factory's `holidayHorizonDay` is not in the SDK ABI, so this is a constant: update it when ops call setHolidayHorizon.
  * The factory rejects a term if (now + term + UNWIND_BUFFER) / 1 day is later than this day.
  */
-export const HOLIDAY_HORIZON_DAY = Math.floor(Date.UTC(2027, 11, 31) / 86_400_000);
+export const HOLIDAY_HORIZON_DAY = Math.floor(Date.UTC(2028, 11, 31) / 86_400_000);
 export const UNWIND_BUFFER_SECONDS = 14 * DAY;
 
 export const termSecondsOf = (days: number) => days * DAY;
