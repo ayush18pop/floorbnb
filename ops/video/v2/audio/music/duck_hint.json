@@ -1,0 +1,567 @@
+{
+ "fps": 30,
+ "beat_frames": 20,
+ "hints": [
+  {
+   "frames": [
+    0,
+    40
+   ],
+   "seconds": [
+    0.0,
+    1.333
+   ],
+   "beats": [
+    0.0,
+    2.0
+   ],
+   "sfx": "floor line draw, paper",
+   "density": "low",
+   "music_in_arrangement": "texture + heartbeat only"
+  },
+  {
+   "frames": [
+    16,
+    50
+   ],
+   "seconds": [
+    0.533,
+    1.667
+   ],
+   "beats": [
+    0.8,
+    2.5
+   ],
+   "sfx": "lockup stamp",
+   "density": "high",
+   "music_in_arrangement": "kalimba motif (F#4-B4, <500 Hz fundamentals), no pad attack"
+  },
+  {
+   "frames": [
+    60,
+    160
+   ],
+   "seconds": [
+    2.0,
+    5.333
+   ],
+   "beats": [
+    3.0,
+    8.0
+   ],
+   "sfx": "headline word reveals on beats",
+   "density": "medium",
+   "music_in_arrangement": "heartbeat + faint pad, no melody after the motif"
+  },
+  {
+   "frames": [
+    150,
+    200
+   ],
+   "seconds": [
+    5.0,
+    6.667
+   ],
+   "beats": [
+    7.5,
+    10.0
+   ],
+   "sfx": "camera move + C1 card arrival + word reveals",
+   "density": "high",
+   "music_in_arrangement": "melody rests on the first 2 beats of every card; pad only changes chord on the downbeat"
+  },
+  {
+   "frames": [
+    390,
+    440
+   ],
+   "seconds": [
+    13.0,
+    14.667
+   ],
+   "beats": [
+    19.5,
+    22.0
+   ],
+   "sfx": "camera move + C2 card arrival + word reveals",
+   "density": "high",
+   "music_in_arrangement": "melody rests on the first 2 beats of every card; pad only changes chord on the downbeat"
+  },
+  {
+   "frames": [
+    730,
+    780
+   ],
+   "seconds": [
+    24.333,
+    26.0
+   ],
+   "beats": [
+    36.5,
+    39.0
+   ],
+   "sfx": "camera move + C3 card arrival + word reveals",
+   "density": "high",
+   "music_in_arrangement": "melody rests on the first 2 beats of every card; pad only changes chord on the downbeat"
+  },
+  {
+   "frames": [
+    1110,
+    1160
+   ],
+   "seconds": [
+    37.0,
+    38.667
+   ],
+   "beats": [
+    55.5,
+    58.0
+   ],
+   "sfx": "camera move + C4 card arrival + word reveals",
+   "density": "high",
+   "music_in_arrangement": "melody rests on the first 2 beats of every card; pad only changes chord on the downbeat"
+  },
+  {
+   "frames": [
+    1350,
+    1400
+   ],
+   "seconds": [
+    45.0,
+    46.667
+   ],
+   "beats": [
+    67.5,
+    70.0
+   ],
+   "sfx": "camera move + C5 card arrival + word reveals",
+   "density": "high",
+   "music_in_arrangement": "melody rests on the first 2 beats of every card; pad only changes chord on the downbeat"
+  },
+  {
+   "frames": [
+    1570,
+    1620
+   ],
+   "seconds": [
+    52.333,
+    54.0
+   ],
+   "beats": [
+    78.5,
+    81.0
+   ],
+   "sfx": "camera move + E1 card arrival + word reveals",
+   "density": "high",
+   "music_in_arrangement": "melody rests on the first 2 beats of every card; pad only changes chord on the downbeat"
+  },
+  {
+   "frames": [
+    220,
+    400
+   ],
+   "seconds": [
+    7.333,
+    13.333
+   ],
+   "beats": [
+    11.0,
+    20.0
+   ],
+   "sfx": "L1 landing scroll, cursor to nav",
+   "density": "medium",
+   "music_in_arrangement": "low marimba ostinato D3-D4 only"
+  },
+  {
+   "frames": [
+    509,
+    554
+   ],
+   "seconds": [
+    16.967,
+    18.467
+   ],
+   "beats": [
+    25.45,
+    27.7
+   ],
+   "sfx": "T1 slider drag detents (real slider_step cues)",
+   "density": "high",
+   "music_in_arrangement": "marimba figure follows the slider (fundamentals 294-587 Hz), carved -6 dB at 2.5 kHz"
+  },
+  {
+   "frames": [
+    606,
+    624
+   ],
+   "seconds": [
+    20.2,
+    20.8
+   ],
+   "beats": [
+    30.3,
+    31.2
+   ],
+   "sfx": "COVID crash chip click",
+   "density": "high",
+   "music_in_arrangement": "motif note on 29.5 is soft"
+  },
+  {
+   "frames": [
+    660,
+    678
+   ],
+   "seconds": [
+    22.0,
+    22.6
+   ],
+   "beats": [
+    33.0,
+    33.9
+   ],
+   "sfx": "2022 bear market chip click",
+   "density": "high",
+   "music_in_arrangement": "falling figure, low register"
+  },
+  {
+   "frames": [
+    800,
+    1120
+   ],
+   "seconds": [
+    26.667,
+    37.333
+   ],
+   "beats": [
+    40.0,
+    56.0
+   ],
+   "sfx": "A1 builder clicks, review, confirm",
+   "density": "high",
+   "music_in_arrangement": "sub + muted ticks <1.3 kHz + low ostinato A2-D4; no upper melody"
+  },
+  {
+   "frames": [
+    1180,
+    1360
+   ],
+   "seconds": [
+    39.333,
+    45.333
+   ],
+   "beats": [
+    59.0,
+    68.0
+   ],
+   "sfx": "A2 position and keeper",
+   "density": "medium",
+   "music_in_arrangement": "steady clock ticks (A4/D5, lowpassed 1.8 kHz), motif low (F#3-B3)"
+  },
+  {
+   "frames": [
+    1420,
+    1580
+   ],
+   "seconds": [
+    47.333,
+    52.667
+   ],
+   "beats": [
+    71.0,
+    79.0
+   ],
+   "sfx": "G1 agents page + callout",
+   "density": "medium",
+   "music_in_arrangement": "FM bells off the downbeats, lowpassed 2.6 kHz, restrained"
+  },
+  {
+   "frames": [
+    1670,
+    1735
+   ],
+   "seconds": [
+    55.667,
+    57.833
+   ],
+   "beats": [
+    83.5,
+    86.75
+   ],
+   "sfx": "E2 end card arrival, lockup stamp at 1720, final hit",
+   "density": "high",
+   "music_in_arrangement": "music final hit is ON beat 84 (frame 1680): SFX may layer, mixer should not duck the hit itself"
+  },
+  {
+   "note": "cue frames read from v2/cues.json",
+   "frames": [
+    0.0,
+    0.0,
+    14.0,
+    20.0,
+    40.0,
+    60.0,
+    80.0,
+    100.0,
+    146.0,
+    146.0,
+    160.0,
+    160.0,
+    172.0,
+    172.0,
+    180.0,
+    186.0,
+    219.0,
+    219.0,
+    219.0,
+    249.0,
+    249.0,
+    257.0,
+    259.0,
+    261.0,
+    262.0,
+    263.0,
+    263.0,
+    264.0,
+    265.0,
+    266.0,
+    267.0,
+    268.0,
+    269.0,
+    270.0,
+    271.0,
+    272.0,
+    273.0,
+    274.0,
+    275.0,
+    276.0,
+    277.0,
+    278.0,
+    279.0,
+    280.0,
+    281.0,
+    282.0,
+    283.0,
+    284.0,
+    285.0,
+    286.0,
+    287.0,
+    288.0,
+    289.0,
+    290.0,
+    291.0,
+    292.0,
+    293.0,
+    294.0,
+    295.0,
+    296.0,
+    297.0,
+    298.0,
+    299.0,
+    300.0,
+    301.0,
+    302.0,
+    303.0,
+    304.0,
+    305.0,
+    306.0,
+    307.0,
+    308.0,
+    309.0,
+    310.0,
+    311.0,
+    312.0,
+    313.0,
+    314.0,
+    315.0,
+    316.0,
+    317.0,
+    318.0,
+    319.0,
+    320.0,
+    321.0,
+    322.0,
+    323.0,
+    324.0,
+    325.0,
+    326.0,
+    327.0,
+    328.0,
+    329.0,
+    330.0,
+    331.0,
+    332.0,
+    333.0,
+    334.0,
+    335.0,
+    336.0,
+    337.0,
+    338.0,
+    339.0,
+    340.0,
+    341.0,
+    342.0,
+    343.0,
+    344.0,
+    345.0,
+    346.0,
+    347.0,
+    348.0,
+    349.0,
+    350.0,
+    351.0,
+    354.0,
+    356.0,
+    356.0,
+    394.0,
+    394.0,
+    400.0,
+    400.0,
+    410.0,
+    420.0,
+    459.0,
+    459.0,
+    459.0,
+    489.0,
+    489.0,
+    503.0,
+    504.0,
+    505.0,
+    507.0,
+    517.0,
+    524.0,
+    525.0,
+    528.0,
+    532.0,
+    534.0,
+    537.0,
+    539.0,
+    540.0,
+    542.0,
+    543.0,
+    547.0,
+    554.0,
+    560.0,
+    570.0,
+    600.0,
+    610.0,
+    620.0,
+    622.0,
+    640.0,
+    640.0,
+    664.0,
+    696.0,
+    696.0,
+    704.0,
+    734.0,
+    734.0,
+    740.0,
+    740.0,
+    750.0,
+    760.0,
+    799.0,
+    799.0,
+    799.0,
+    829.0,
+    829.0,
+    830.0,
+    843.0,
+    845.0,
+    847.0,
+    847.0,
+    854.0,
+    857.0,
+    859.0,
+    860.0,
+    863.0,
+    865.0,
+    869.0,
+    880.0,
+    880.0,
+    882.0,
+    883.0,
+    900.0,
+    901.0,
+    935.0,
+    940.0,
+    940.0,
+    942.0,
+    951.0,
+    959.0,
+    960.0,
+    967.0,
+    992.0,
+    992.0,
+    1000.0,
+    1000.0,
+    1002.0,
+    1020.0,
+    1058.0,
+    1076.0,
+    1076.0,
+    1084.0,
+    1114.0,
+    1114.0,
+    1120.0,
+    1120.0,
+    1130.0,
+    1140.0,
+    1140.0,
+    1179.0,
+    1179.0,
+    1179.0,
+    1209.0,
+    1209.0,
+    1223.0,
+    1225.0,
+    1227.0,
+    1245.0,
+    1280.0,
+    1280.0,
+    1281.0,
+    1282.0,
+    1283.0,
+    1300.0,
+    1316.0,
+    1316.0,
+    1324.0,
+    1354.0,
+    1354.0,
+    1360.0,
+    1360.0,
+    1370.0,
+    1380.0,
+    1419.0,
+    1419.0,
+    1419.0,
+    1449.0,
+    1449.0,
+    1463.0,
+    1465.0,
+    1467.0,
+    1485.0,
+    1536.0,
+    1536.0,
+    1544.0,
+    1574.0,
+    1574.0,
+    1580.0,
+    1590.0,
+    1600.0,
+    1620.0,
+    1654.0,
+    1654.0,
+    1678.0,
+    1678.0,
+    1680.0,
+    1692.0,
+    1700.0,
+    1720.0,
+    1740.0,
+    1740.0,
+    1740.0,
+    1740.0,
+    1799.0
+   ]
+  }
+ ]
+}

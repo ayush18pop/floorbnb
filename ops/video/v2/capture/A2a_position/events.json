@@ -1,0 +1,1170 @@
+{
+ "fps": 30,
+ "frames": 100,
+ "viewport": {
+  "w": 1440,
+  "h": 900,
+  "dpr": 2
+ },
+ "mode": "example",
+ "base_url": "http://localhost:3200",
+ "frames_data": [
+  {
+   "i": 0,
+   "t": 0,
+   "mouse": {
+    "x": 900,
+    "y": 130,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 1,
+   "t": 0.0333,
+   "mouse": {
+    "x": 900,
+    "y": 130,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 2,
+   "t": 0.0667,
+   "mouse": {
+    "x": 900,
+    "y": 130,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 3,
+   "t": 0.1,
+   "mouse": {
+    "x": 900,
+    "y": 130,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 4,
+   "t": 0.1333,
+   "mouse": {
+    "x": 900,
+    "y": 130,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 5,
+   "t": 0.1667,
+   "mouse": {
+    "x": 899.88,
+    "y": 130.01,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 6,
+   "t": 0.2,
+   "mouse": {
+    "x": 899.07,
+    "y": 130.09,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 7,
+   "t": 0.2333,
+   "mouse": {
+    "x": 896.87,
+    "y": 130.3,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 8,
+   "t": 0.2667,
+   "mouse": {
+    "x": 892.59,
+    "y": 130.7,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 9,
+   "t": 0.3,
+   "mouse": {
+    "x": 885.53,
+    "y": 131.37,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 10,
+   "t": 0.3333,
+   "mouse": {
+    "x": 875,
+    "y": 132.37,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 11,
+   "t": 0.3667,
+   "mouse": {
+    "x": 860.3,
+    "y": 133.76,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 12,
+   "t": 0.4,
+   "mouse": {
+    "x": 840.74,
+    "y": 135.62,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 13,
+   "t": 0.4333,
+   "mouse": {
+    "x": 815.62,
+    "y": 138,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 14,
+   "t": 0.4667,
+   "mouse": {
+    "x": 784.25,
+    "y": 140.97,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 15,
+   "t": 0.5,
+   "mouse": {
+    "x": 745.94,
+    "y": 144.6,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 16,
+   "t": 0.5333,
+   "mouse": {
+    "x": 699.99,
+    "y": 148.95,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 17,
+   "t": 0.5667,
+   "mouse": {
+    "x": 645.71,
+    "y": 154.09,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 18,
+   "t": 0.6,
+   "mouse": {
+    "x": 591.42,
+    "y": 159.24,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 19,
+   "t": 0.6333,
+   "mouse": {
+    "x": 545.47,
+    "y": 163.59,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 20,
+   "t": 0.6667,
+   "mouse": {
+    "x": 507.16,
+    "y": 167.22,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 21,
+   "t": 0.7,
+   "mouse": {
+    "x": 475.79,
+    "y": 170.19,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 22,
+   "t": 0.7333,
+   "mouse": {
+    "x": 450.68,
+    "y": 172.57,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 23,
+   "t": 0.7667,
+   "mouse": {
+    "x": 431.12,
+    "y": 174.43,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 24,
+   "t": 0.8,
+   "mouse": {
+    "x": 416.42,
+    "y": 175.82,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 25,
+   "t": 0.8333,
+   "mouse": {
+    "x": 405.88,
+    "y": 176.82,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 26,
+   "t": 0.8667,
+   "mouse": {
+    "x": 398.82,
+    "y": 177.49,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 27,
+   "t": 0.9,
+   "mouse": {
+    "x": 394.54,
+    "y": 177.89,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 28,
+   "t": 0.9333,
+   "mouse": {
+    "x": 392.34,
+    "y": 178.1,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 29,
+   "t": 0.9667,
+   "mouse": {
+    "x": 391.53,
+    "y": 178.18,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 30,
+   "t": 1,
+   "mouse": {
+    "x": 391.41,
+    "y": 178.19,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 31,
+   "t": 1.0333,
+   "mouse": {
+    "x": 391.41,
+    "y": 178.19,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 32,
+   "t": 1.0667,
+   "mouse": {
+    "x": 391.41,
+    "y": 178.19,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 33,
+   "t": 1.1,
+   "mouse": {
+    "x": 391.41,
+    "y": 178.19,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 34,
+   "t": 1.1333,
+   "mouse": {
+    "x": 391.41,
+    "y": 178.19,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 35,
+   "t": 1.1667,
+   "mouse": {
+    "x": 391.41,
+    "y": 178.19,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 36,
+   "t": 1.2,
+   "mouse": {
+    "x": 391.41,
+    "y": 178.19,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 37,
+   "t": 1.2333,
+   "mouse": {
+    "x": 391.49,
+    "y": 178.32,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 38,
+   "t": 1.2667,
+   "mouse": {
+    "x": 392.03,
+    "y": 179.25,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 39,
+   "t": 1.3,
+   "mouse": {
+    "x": 393.49,
+    "y": 181.78,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 40,
+   "t": 1.3333,
+   "mouse": {
+    "x": 396.34,
+    "y": 186.7,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 41,
+   "t": 1.3667,
+   "mouse": {
+    "x": 401.04,
+    "y": 194.81,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 42,
+   "t": 1.4,
+   "mouse": {
+    "x": 408.05,
+    "y": 206.91,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 43,
+   "t": 1.4333,
+   "mouse": {
+    "x": 417.83,
+    "y": 223.8,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 44,
+   "t": 1.4667,
+   "mouse": {
+    "x": 427.61,
+    "y": 240.69,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 45,
+   "t": 1.5,
+   "mouse": {
+    "x": 434.62,
+    "y": 252.79,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 46,
+   "t": 1.5333,
+   "mouse": {
+    "x": 439.32,
+    "y": 260.9,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 47,
+   "t": 1.5667,
+   "mouse": {
+    "x": 442.17,
+    "y": 265.82,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 48,
+   "t": 1.6,
+   "mouse": {
+    "x": 443.63,
+    "y": 268.35,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 49,
+   "t": 1.6333,
+   "mouse": {
+    "x": 444.17,
+    "y": 269.28,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 50,
+   "t": 1.6667,
+   "mouse": {
+    "x": 444.25,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 51,
+   "t": 1.7,
+   "mouse": {
+    "x": 444.25,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 52,
+   "t": 1.7333,
+   "mouse": {
+    "x": 444.25,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 53,
+   "t": 1.7667,
+   "mouse": {
+    "x": 444.25,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 54,
+   "t": 1.8,
+   "mouse": {
+    "x": 444.25,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 55,
+   "t": 1.8333,
+   "mouse": {
+    "x": 444.37,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 56,
+   "t": 1.8667,
+   "mouse": {
+    "x": 445.25,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 57,
+   "t": 1.9,
+   "mouse": {
+    "x": 447.65,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 58,
+   "t": 1.9333,
+   "mouse": {
+    "x": 452.31,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 59,
+   "t": 1.9667,
+   "mouse": {
+    "x": 460.01,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 60,
+   "t": 2,
+   "mouse": {
+    "x": 471.48,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 61,
+   "t": 2.0333,
+   "mouse": {
+    "x": 487.49,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 62,
+   "t": 2.0667,
+   "mouse": {
+    "x": 508.8,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 63,
+   "t": 2.1,
+   "mouse": {
+    "x": 536.16,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 64,
+   "t": 2.1333,
+   "mouse": {
+    "x": 563.52,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 65,
+   "t": 2.1667,
+   "mouse": {
+    "x": 584.83,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 66,
+   "t": 2.2,
+   "mouse": {
+    "x": 600.84,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 67,
+   "t": 2.2333,
+   "mouse": {
+    "x": 612.31,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 68,
+   "t": 2.2667,
+   "mouse": {
+    "x": 620.01,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 69,
+   "t": 2.3,
+   "mouse": {
+    "x": 624.67,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 70,
+   "t": 2.3333,
+   "mouse": {
+    "x": 627.07,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 71,
+   "t": 2.3667,
+   "mouse": {
+    "x": 627.95,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 72,
+   "t": 2.4,
+   "mouse": {
+    "x": 628.07,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 73,
+   "t": 2.4333,
+   "mouse": {
+    "x": 628.07,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 74,
+   "t": 2.4667,
+   "mouse": {
+    "x": 628.07,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 75,
+   "t": 2.5,
+   "mouse": {
+    "x": 628.07,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 76,
+   "t": 2.5333,
+   "mouse": {
+    "x": 628.07,
+    "y": 269.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 77,
+   "t": 2.5667,
+   "mouse": {
+    "x": 628.11,
+    "y": 269.29,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 78,
+   "t": 2.6,
+   "mouse": {
+    "x": 628.37,
+    "y": 268.45,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 79,
+   "t": 2.6333,
+   "mouse": {
+    "x": 629.07,
+    "y": 266.16,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 80,
+   "t": 2.6667,
+   "mouse": {
+    "x": 630.44,
+    "y": 261.69,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 81,
+   "t": 2.7,
+   "mouse": {
+    "x": 632.7,
+    "y": 254.33,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 82,
+   "t": 2.7333,
+   "mouse": {
+    "x": 636.07,
+    "y": 243.34,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 83,
+   "t": 2.7667,
+   "mouse": {
+    "x": 640.77,
+    "y": 228.01,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 84,
+   "t": 2.8,
+   "mouse": {
+    "x": 647.02,
+    "y": 207.61,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 85,
+   "t": 2.8333,
+   "mouse": {
+    "x": 655.05,
+    "y": 181.42,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 86,
+   "t": 2.8667,
+   "mouse": {
+    "x": 665.08,
+    "y": 148.71,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 87,
+   "t": 2.9,
+   "mouse": {
+    "x": 675.11,
+    "y": 116,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 88,
+   "t": 2.9333,
+   "mouse": {
+    "x": 683.14,
+    "y": 89.81,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 89,
+   "t": 2.9667,
+   "mouse": {
+    "x": 689.4,
+    "y": 69.41,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 90,
+   "t": 3,
+   "mouse": {
+    "x": 694.1,
+    "y": 54.08,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 91,
+   "t": 3.0333,
+   "mouse": {
+    "x": 697.46,
+    "y": 43.09,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 92,
+   "t": 3.0667,
+   "mouse": {
+    "x": 699.72,
+    "y": 35.73,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 93,
+   "t": 3.1,
+   "mouse": {
+    "x": 701.09,
+    "y": 31.26,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 94,
+   "t": 3.1333,
+   "mouse": {
+    "x": 701.79,
+    "y": 28.97,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 95,
+   "t": 3.1667,
+   "mouse": {
+    "x": 702.05,
+    "y": 28.13,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 96,
+   "t": 3.2,
+   "mouse": {
+    "x": 702.09,
+    "y": 28,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 97,
+   "t": 3.2333,
+   "mouse": {
+    "x": 702.09,
+    "y": 28,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 98,
+   "t": 3.2667,
+   "mouse": {
+    "x": 702.09,
+    "y": 28,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  },
+  {
+   "i": 99,
+   "t": 3.3,
+   "mouse": {
+    "x": 702.09,
+    "y": 28,
+    "down": false
+   },
+   "click": false,
+   "scrollY": 0
+  }
+ ],
+ "regions": {
+  "position_value": {
+   "x": 193,
+   "y": 156.19,
+   "w": 276.83,
+   "h": 44
+  },
+  "floor_line": {
+   "x": 248.98,
+   "y": 662.31,
+   "w": 521.85,
+   "h": 2
+  },
+  "floor_tile": {
+   "x": 352.83,
+   "y": 214.28,
+   "w": 182.83,
+   "h": 110.27
+  },
+  "cushion": {
+   "x": 536.66,
+   "y": 214.28,
+   "w": 182.83,
+   "h": 110.27
+  },
+  "tiles": {
+   "x": 169,
+   "y": 213.28,
+   "w": 1102,
+   "h": 112.27
+  },
+  "value_chart": {
+   "x": 193,
+   "y": 338.55,
+   "w": 593.83,
+   "h": 16.8
+  },
+  "chart_section": {
+   "x": 169,
+   "y": 326.55,
+   "w": 642.83,
+   "h": 527.45
+  },
+  "activity_panel": {
+   "x": 811.83,
+   "y": 326.55,
+   "w": 459.17,
+   "h": 527.45
+  },
+  "nav_keeper_link": {
+   "x": 667.59,
+   "y": 9.16,
+   "w": 69,
+   "h": 37.69
+  }
+ },
+ "notes": "Route /app/position (example mode; the app's own EXAMPLE position). k0-7 hold, k8-35 eased glide over the value, k44-55 floor tile, k62-71 cushion tile, k78-95 glide to nav \"Keeper log\" (the click lands in A2b k2)."
+}

@@ -1,0 +1,181 @@
+{
+ "version": "15s",
+ "fps": 30,
+ "beat_frames": 20,
+ "frames": 440,
+ "samples": 704000,
+ "seconds": 14.6667,
+ "segments": [
+  {
+   "src_beats": [
+    0,
+    4
+   ],
+   "dst_beats": [
+    0,
+    4
+   ],
+   "src_frames": [
+    0,
+    80
+   ],
+   "dst_frames": [
+    0,
+    80
+   ],
+   "frame_offset_dst_minus_src": 0,
+   "src_scenes": [
+    "S0"
+   ],
+   "excluded_instruments": []
+  },
+  {
+   "src_beats": [
+    24,
+    31
+   ],
+   "dst_beats": [
+    4,
+    11
+   ],
+   "src_frames": [
+    480,
+    620
+   ],
+   "dst_frames": [
+    80,
+    220
+   ],
+   "frame_offset_dst_minus_src": -400,
+   "src_scenes": [
+    "T1"
+   ],
+   "excluded_instruments": []
+  },
+  {
+   "src_beats": [
+    40,
+    45
+   ],
+   "dst_beats": [
+    11,
+    16
+   ],
+   "src_frames": [
+    800,
+    900
+   ],
+   "dst_frames": [
+    220,
+    320
+   ],
+   "frame_offset_dst_minus_src": -580,
+   "src_scenes": [
+    "A1"
+   ],
+   "excluded_instruments": []
+  },
+  {
+   "src_beats": [
+    79,
+    81
+   ],
+   "dst_beats": [
+    16,
+    18
+   ],
+   "src_frames": [
+    1580,
+    1620
+   ],
+   "dst_frames": [
+    320,
+    360
+   ],
+   "frame_offset_dst_minus_src": -1260,
+   "src_scenes": [
+    "E1"
+   ],
+   "excluded_instruments": []
+  },
+  {
+   "src_beats": [
+    84,
+    86
+   ],
+   "dst_beats": [
+    18,
+    20
+   ],
+   "src_frames": [
+    1680,
+    1720
+   ],
+   "dst_frames": [
+    360,
+    400
+   ],
+   "frame_offset_dst_minus_src": -1320,
+   "src_scenes": [
+    "E2"
+   ],
+   "excluded_instruments": []
+  },
+  {
+   "src_beats": [
+    88,
+    90
+   ],
+   "dst_beats": [
+    20,
+    22
+   ],
+   "src_frames": [
+    1760,
+    1800
+   ],
+   "dst_frames": [
+    400,
+    440
+   ],
+   "frame_offset_dst_minus_src": -1360,
+   "src_scenes": [
+    "E2"
+   ],
+   "excluded_instruments": []
+  }
+ ],
+ "edit_points_dst_frames": [
+  80,
+  220,
+  320,
+  360,
+  400
+ ],
+ "method": "Musical edit: the same note events re-timed per segment (dst = src + offset), cuts on bar lines/beats, phrases kept whole, release and reverb tails ring across each edit; no crossfades.",
+ "rule": "master frame f inside a segment's src_frames maps to cut frame f + frame_offset_dst_minus_src",
+ "picture_sync": {
+  "hook_word_groups_frames": [
+   0,
+   20,
+   40
+  ],
+  "hook_music": "src beats 0-4 (S0: Dsus2 pad, heartbeat from beat 1, kalimba motif F#4-A4-B4-A4-E4 from cut beat 2 = frame 40, audible by 1.4 s)",
+  "slider_figure_frames": [
+   90,
+   160
+  ],
+  "motif_in_plucks_frame": 160,
+  "covid_chip_frame": 190,
+  "app_bass_entry_frame": 220,
+  "E1_frame": 320,
+  "E2_landing_hit_frame": 360,
+  "motif_resolves_D4_frame": 400,
+  "tail_digital_silence_from_frame": 439.85,
+  "tail_fade_s": [
+   13.867,
+   14.662
+  ],
+  "end_card_extras": "factory address and floor.ayush.works need no music cue (SFX: a soft typing tick at most)"
+ }
+}

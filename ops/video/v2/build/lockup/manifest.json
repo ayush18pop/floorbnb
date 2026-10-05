@@ -1,0 +1,62 @@
+{
+  "source": "design/logo/floor-lockup-light.svg",
+  "sha256": "4e8a428199d8165d3d07f7a51a9471ea8505a4394847819a35a8c096cb2133bc",
+  "sizes": {
+    "358": {
+      "alpha": "lockup_358_alpha.png",
+      "paper": "lockup_358_paper.png",
+      "w": 358,
+      "h": 72,
+      "h_exact": 72
+    },
+    "400": {
+      "alpha": "lockup_400_alpha.png",
+      "paper": "lockup_400_paper.png",
+      "w": 400,
+      "h": 81,
+      "h_exact": 80.44692737430168
+    },
+    "448": {
+      "alpha": "lockup_448_alpha.png",
+      "paper": "lockup_448_paper.png",
+      "w": 448,
+      "h": 91,
+      "h_exact": 90.10055865921788
+    },
+    "537": {
+      "alpha": "lockup_537_alpha.png",
+      "paper": "lockup_537_paper.png",
+      "w": 537,
+      "h": 108,
+      "h_exact": 108
+    },
+    "716": {
+      "alpha": "lockup_716_alpha.png",
+      "paper": "lockup_716_paper.png",
+      "w": 716,
+      "h": 144,
+      "h_exact": 144
+    },
+    "800": {
+      "alpha": "lockup_800_alpha.png",
+      "paper": "lockup_800_paper.png",
+      "w": 800,
+      "h": 161,
+      "h_exact": 160.89385474860336
+    },
+    "896": {
+      "alpha": "lockup_896_alpha.png",
+      "paper": "lockup_896_paper.png",
+      "w": 896,
+      "h": 181,
+      "h_exact": 180.20111731843576
+    },
+    "1074": {
+      "alpha": "lockup_1074_alpha.png",
+      "paper": "lockup_1074_paper.png",
+      "w": 1074,
+      "h": 216,
+      "h_exact": 216
+    }
+  }
+}

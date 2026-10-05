@@ -1,0 +1,140 @@
+{
+ "version": "30s",
+ "fps": 30,
+ "beat_frames": 20,
+ "frames": 900,
+ "samples": 1440000,
+ "seconds": 30.0,
+ "segments": [
+  {
+   "src_beats": [
+    0,
+    4
+   ],
+   "dst_beats": [
+    0,
+    4
+   ],
+   "src_frames": [
+    0,
+    80
+   ],
+   "dst_frames": [
+    0,
+    80
+   ],
+   "frame_offset_dst_minus_src": 0,
+   "src_scenes": [
+    "S0"
+   ],
+   "excluded_instruments": []
+  },
+  {
+   "src_beats": [
+    20,
+    32
+   ],
+   "dst_beats": [
+    4,
+    16
+   ],
+   "src_frames": [
+    400,
+    640
+   ],
+   "dst_frames": [
+    80,
+    320
+   ],
+   "frame_offset_dst_minus_src": -320,
+   "src_scenes": [
+    "C2",
+    "T1"
+   ],
+   "excluded_instruments": []
+  },
+  {
+   "src_beats": [
+    37,
+    52
+   ],
+   "dst_beats": [
+    16,
+    31
+   ],
+   "src_frames": [
+    740,
+    1040
+   ],
+   "dst_frames": [
+    320,
+    620
+   ],
+   "frame_offset_dst_minus_src": -420,
+   "src_scenes": [
+    "C3",
+    "A1"
+   ],
+   "excluded_instruments": []
+  },
+  {
+   "src_beats": [
+    76,
+    79
+   ],
+   "dst_beats": [
+    31,
+    34
+   ],
+   "src_frames": [
+    1520,
+    1580
+   ],
+   "dst_frames": [
+    620,
+    680
+   ],
+   "frame_offset_dst_minus_src": -900,
+   "src_scenes": [
+    "G1"
+   ],
+   "excluded_instruments": [
+    "bell",
+    "shaker",
+    "tick"
+   ]
+  },
+  {
+   "src_beats": [
+    79,
+    90
+   ],
+   "dst_beats": [
+    34,
+    45
+   ],
+   "src_frames": [
+    1580,
+    1800
+   ],
+   "dst_frames": [
+    680,
+    900
+   ],
+   "frame_offset_dst_minus_src": -900,
+   "src_scenes": [
+    "E1",
+    "E2"
+   ],
+   "excluded_instruments": []
+  }
+ ],
+ "edit_points_dst_frames": [
+  80,
+  320,
+  620,
+  680
+ ],
+ "method": "Musical edit: the same note events re-timed per segment (dst = src + offset), cuts on bar lines/beats, phrases kept whole, release and reverb tails ring across each edit; no crossfades.",
+ "rule": "master frame f inside a segment's src_frames maps to cut frame f + frame_offset_dst_minus_src"
+}

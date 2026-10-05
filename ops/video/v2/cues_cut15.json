@@ -1,0 +1,783 @@
+{
+ "plan": "cut15",
+ "fps": 30,
+ "frames": 440,
+ "seconds": 14.6667,
+ "bpm": 90,
+ "beat_frames": 20,
+ "beat_seconds": 0.6667,
+ "beats": [
+  0,
+  20,
+  40,
+  60,
+  80,
+  100,
+  120,
+  140,
+  160,
+  180,
+  200,
+  220,
+  240,
+  260,
+  280,
+  300,
+  320,
+  340,
+  360,
+  380,
+  400,
+  420,
+  440
+ ],
+ "bars_4_4_frames": [
+  0,
+  80,
+  160,
+  240,
+  320,
+  400
+ ],
+ "camera": {
+  "max_speed_units_per_frame": 358.0,
+  "max_accel_units_per_frame2": 75.6
+ },
+ "stations": [
+  {
+   "id": "S0",
+   "kind": "card",
+   "arrive": 0,
+   "focus_lock": 8,
+   "depart": 56,
+   "yaw": 0
+  },
+  {
+   "id": "T1",
+   "kind": "panel",
+   "arrive": 80,
+   "focus_lock": 92,
+   "depart": 204,
+   "yaw": -17
+  },
+  {
+   "id": "A1",
+   "kind": "panel",
+   "arrive": 226,
+   "focus_lock": 238,
+   "depart": 292,
+   "yaw": 17
+  },
+  {
+   "id": "E1",
+   "kind": "card",
+   "arrive": 312,
+   "focus_lock": 324,
+   "depart": 340,
+   "yaw": 20
+  },
+  {
+   "id": "E2",
+   "kind": "card",
+   "arrive": 356,
+   "focus_lock": 370,
+   "depart": 439,
+   "yaw": 0
+  }
+ ],
+ "cues": [
+  {
+   "kind": "arrival",
+   "name": "card S0 settled",
+   "frame": 0,
+   "seconds": 0.0,
+   "station": "S0",
+   "plane": "card"
+  },
+  {
+   "kind": "camera",
+   "name": "drift on S0",
+   "frame": 0,
+   "seconds": 0.0,
+   "end_frame": 56,
+   "end_seconds": 1.8667,
+   "move": "hold-drift",
+   "station": "S0",
+   "intensity": 0.15
+  },
+  {
+   "kind": "word_reveal",
+   "name": "S0_h0",
+   "frame": 0,
+   "seconds": 0.0,
+   "station": "S0",
+   "text": "Set a floor",
+   "role": "headline"
+  },
+  {
+   "kind": "focus_lock",
+   "name": "S0 sharp",
+   "frame": 8,
+   "seconds": 0.2667,
+   "station": "S0",
+   "sharp_from": 8,
+   "sharp_until": 56,
+   "rack_start": 0,
+   "blur_start_px": 16.0
+  },
+  {
+   "kind": "word_reveal",
+   "name": "S0_h1",
+   "frame": 20,
+   "seconds": 0.6667,
+   "station": "S0",
+   "text": "under your",
+   "role": "headline"
+  },
+  {
+   "kind": "word_reveal",
+   "name": "S0_h2",
+   "frame": 40,
+   "seconds": 1.3333,
+   "station": "S0",
+   "text": "stocks.",
+   "role": "headline"
+  },
+  {
+   "kind": "word_reveal",
+   "name": "S0_sub_cut15",
+   "frame": 40,
+   "seconds": 1.3333,
+   "station": "S0",
+   "text": "Live on BNB Chain mainnet.",
+   "role": "sub"
+  },
+  {
+   "kind": "camera",
+   "name": "move to T1",
+   "frame": 56,
+   "seconds": 1.8667,
+   "end_frame": 80,
+   "end_seconds": 2.6667,
+   "move": "dolly+orbit",
+   "station": "T1",
+   "distance_units": 3445,
+   "intensity": 0.86,
+   "peak_frame": 68,
+   "yaw_start": 2.0,
+   "yaw_end": -17.0,
+   "direction": "forward",
+   "lateral": "right"
+  },
+  {
+   "kind": "defocus",
+   "name": "S0 leaves focus",
+   "frame": 56,
+   "seconds": 1.8667,
+   "station": "S0"
+  },
+  {
+   "kind": "caption",
+   "name": "cap_T1",
+   "frame": 62,
+   "seconds": 2.0667,
+   "end_frame": 214
+  },
+  {
+   "kind": "ui_click_down",
+   "name": "T1_try mouse down",
+   "frame": 70,
+   "seconds": 2.3333,
+   "shot": "T1_try",
+   "capture_frame": 30,
+   "x": 387.33,
+   "y": 287.8
+  },
+  {
+   "kind": "arrival",
+   "name": "panel T1 settled",
+   "frame": 80,
+   "seconds": 2.6667,
+   "station": "T1",
+   "plane": "panel"
+  },
+  {
+   "kind": "camera",
+   "name": "drift on T1",
+   "frame": 80,
+   "seconds": 2.6667,
+   "end_frame": 204,
+   "end_seconds": 6.8,
+   "move": "hold-drift",
+   "station": "T1",
+   "intensity": 0.15
+  },
+  {
+   "kind": "slider_step",
+   "name": "T1_try floor 90->89",
+   "frame": 87,
+   "seconds": 2.9,
+   "shot": "T1_try",
+   "capture_frame": 47,
+   "value": 89,
+   "delta": -1
+  },
+  {
+   "kind": "focus_lock",
+   "name": "T1 sharp",
+   "frame": 92,
+   "seconds": 3.0667,
+   "station": "T1",
+   "sharp_from": 92,
+   "sharp_until": 204,
+   "rack_start": 74,
+   "blur_start_px": 16.0
+  },
+  {
+   "kind": "slider_step",
+   "name": "T1_try floor 89->88",
+   "frame": 94,
+   "seconds": 3.1333,
+   "shot": "T1_try",
+   "capture_frame": 54,
+   "value": 88,
+   "delta": -1
+  },
+  {
+   "kind": "slider_step",
+   "name": "T1_try floor 88->87",
+   "frame": 98,
+   "seconds": 3.2667,
+   "shot": "T1_try",
+   "capture_frame": 58,
+   "value": 87,
+   "delta": -1
+  },
+  {
+   "kind": "sticker_pop",
+   "name": "T1_drag",
+   "frame": 100,
+   "seconds": 3.3333,
+   "text": "Drag the floor.",
+   "station": "T1",
+   "color": "coral"
+  },
+  {
+   "kind": "slider_step",
+   "name": "T1_try floor 87->86",
+   "frame": 102,
+   "seconds": 3.4,
+   "shot": "T1_try",
+   "capture_frame": 62,
+   "value": 86,
+   "delta": -1
+  },
+  {
+   "kind": "sticker_text",
+   "name": "T1_drag text",
+   "frame": 102,
+   "seconds": 3.4
+  },
+  {
+   "kind": "slider_step",
+   "name": "T1_try floor 86->85",
+   "frame": 104,
+   "seconds": 3.4667,
+   "shot": "T1_try",
+   "capture_frame": 64,
+   "value": 85,
+   "delta": -1
+  },
+  {
+   "kind": "slider_step",
+   "name": "T1_try floor 85->84",
+   "frame": 107,
+   "seconds": 3.5667,
+   "shot": "T1_try",
+   "capture_frame": 67,
+   "value": 84,
+   "delta": -1
+  },
+  {
+   "kind": "slider_step",
+   "name": "T1_try floor 84->83",
+   "frame": 109,
+   "seconds": 3.6333,
+   "shot": "T1_try",
+   "capture_frame": 69,
+   "value": 83,
+   "delta": -1
+  },
+  {
+   "kind": "slider_step",
+   "name": "T1_try floor 83->82",
+   "frame": 113,
+   "seconds": 3.7667,
+   "shot": "T1_try",
+   "capture_frame": 73,
+   "value": 82,
+   "delta": -1
+  },
+  {
+   "kind": "slider_step",
+   "name": "T1_try floor 82->81",
+   "frame": 117,
+   "seconds": 3.9,
+   "shot": "T1_try",
+   "capture_frame": 77,
+   "value": 81,
+   "delta": -1
+  },
+  {
+   "kind": "arrow",
+   "name": "T1_drag arrow",
+   "frame": 120,
+   "seconds": 4.0
+  },
+  {
+   "kind": "slider_step",
+   "name": "T1_try floor 81->80",
+   "frame": 124,
+   "seconds": 4.1333,
+   "shot": "T1_try",
+   "capture_frame": 84,
+   "value": 80,
+   "delta": -1
+  },
+  {
+   "kind": "ui_click_up",
+   "name": "T1_try mouse up",
+   "frame": 140,
+   "seconds": 4.6667,
+   "shot": "T1_try",
+   "capture_frame": 100
+  },
+  {
+   "kind": "ui_click",
+   "name": "T1_try click",
+   "frame": 153,
+   "seconds": 5.1,
+   "shot": "T1_try",
+   "capture_frame": 155,
+   "x": 227,
+   "y": 476.59
+  },
+  {
+   "kind": "sticker_out",
+   "name": "T1_drag",
+   "frame": 160,
+   "seconds": 5.3333
+  },
+  {
+   "kind": "sticker_pop",
+   "name": "T1_tradeoff",
+   "frame": 160,
+   "seconds": 5.3333,
+   "text": "Higher floor: less loss, less upside.",
+   "station": "T1",
+   "color": "periwinkle"
+  },
+  {
+   "kind": "sticker_text",
+   "name": "T1_tradeoff text",
+   "frame": 162,
+   "seconds": 5.4
+  },
+  {
+   "kind": "arrow",
+   "name": "T1_tradeoff arrow",
+   "frame": 180,
+   "seconds": 6.0
+  },
+  {
+   "kind": "camera",
+   "name": "move to A1",
+   "frame": 204,
+   "seconds": 6.8,
+   "end_frame": 226,
+   "end_seconds": 7.5333,
+   "move": "dolly+orbit",
+   "station": "A1",
+   "distance_units": 3223,
+   "intensity": 0.81,
+   "peak_frame": 215,
+   "yaw_start": -14.0,
+   "yaw_end": 17.0,
+   "direction": "forward",
+   "lateral": "left"
+  },
+  {
+   "kind": "defocus",
+   "name": "T1 leaves focus",
+   "frame": 204,
+   "seconds": 6.8,
+   "station": "T1"
+  },
+  {
+   "kind": "sticker_out",
+   "name": "T1_tradeoff",
+   "frame": 212,
+   "seconds": 7.0667
+  },
+  {
+   "kind": "caption",
+   "name": "cap_A1",
+   "frame": 214,
+   "seconds": 7.1333,
+   "end_frame": 330
+  },
+  {
+   "kind": "arrival",
+   "name": "panel A1 settled",
+   "frame": 226,
+   "seconds": 7.5333,
+   "station": "A1",
+   "plane": "panel"
+  },
+  {
+   "kind": "camera",
+   "name": "drift on A1",
+   "frame": 226,
+   "seconds": 7.5333,
+   "end_frame": 292,
+   "end_seconds": 9.7333,
+   "move": "hold-drift",
+   "station": "A1",
+   "intensity": 0.15
+  },
+  {
+   "kind": "ui_click_down",
+   "name": "A1a_builder mouse down",
+   "frame": 226,
+   "seconds": 7.5333,
+   "shot": "A1a_builder",
+   "capture_frame": 50,
+   "x": 456.39,
+   "y": 384.42
+  },
+  {
+   "kind": "slider_step",
+   "name": "A1a_builder floor 90->89",
+   "frame": 228,
+   "seconds": 7.6,
+   "shot": "A1a_builder",
+   "capture_frame": 52,
+   "value": 89,
+   "delta": -1
+  },
+  {
+   "kind": "slider_step",
+   "name": "A1a_builder floor 89->88",
+   "frame": 231,
+   "seconds": 7.7,
+   "shot": "A1a_builder",
+   "capture_frame": 55,
+   "value": 88,
+   "delta": -1
+  },
+  {
+   "kind": "slider_step",
+   "name": "A1a_builder floor 88->87",
+   "frame": 233,
+   "seconds": 7.7667,
+   "shot": "A1a_builder",
+   "capture_frame": 57,
+   "value": 87,
+   "delta": -1
+  },
+  {
+   "kind": "slider_step",
+   "name": "A1a_builder floor 87->86",
+   "frame": 234,
+   "seconds": 7.8,
+   "shot": "A1a_builder",
+   "capture_frame": 58,
+   "value": 86,
+   "delta": -1
+  },
+  {
+   "kind": "slider_step",
+   "name": "A1a_builder floor 86->85",
+   "frame": 237,
+   "seconds": 7.9,
+   "shot": "A1a_builder",
+   "capture_frame": 61,
+   "value": 85,
+   "delta": -1
+  },
+  {
+   "kind": "focus_lock",
+   "name": "A1 sharp",
+   "frame": 238,
+   "seconds": 7.9333,
+   "station": "A1",
+   "sharp_from": 238,
+   "sharp_until": 292,
+   "rack_start": 220,
+   "blur_start_px": 16.0
+  },
+  {
+   "kind": "ui_click_up",
+   "name": "A1a_builder mouse up",
+   "frame": 243,
+   "seconds": 8.1,
+   "shot": "A1a_builder",
+   "capture_frame": 67
+  },
+  {
+   "kind": "sticker_pop",
+   "name": "A1_review",
+   "frame": 244,
+   "seconds": 8.1333,
+   "text": "Review, then confirm.",
+   "station": "A1",
+   "color": "coral"
+  },
+  {
+   "kind": "sticker_text",
+   "name": "A1_review text",
+   "frame": 246,
+   "seconds": 8.2
+  },
+  {
+   "kind": "ui_click",
+   "name": "A1a_builder click",
+   "frame": 263,
+   "seconds": 8.7667,
+   "shot": "A1a_builder",
+   "capture_frame": 159,
+   "x": 354,
+   "y": 358.61
+  },
+  {
+   "kind": "arrow",
+   "name": "A1_review arrow",
+   "frame": 264,
+   "seconds": 8.8
+  },
+  {
+   "kind": "page_change",
+   "name": "A1a_builder -> A1b_review",
+   "frame": 268,
+   "seconds": 8.9333,
+   "station": "A1"
+  },
+  {
+   "kind": "ui_click",
+   "name": "A1b_review click",
+   "frame": 268,
+   "seconds": 8.9333,
+   "shot": "A1b_review",
+   "capture_frame": 0,
+   "x": 1156,
+   "y": 511.91
+  },
+  {
+   "kind": "page_change",
+   "name": "A1b_review -> A1c_confirmed",
+   "frame": 280,
+   "seconds": 9.3333,
+   "station": "A1"
+  },
+  {
+   "kind": "camera",
+   "name": "move to E1",
+   "frame": 292,
+   "seconds": 9.7333,
+   "end_frame": 312,
+   "end_seconds": 10.4,
+   "move": "dolly+orbit",
+   "station": "E1",
+   "distance_units": 3779,
+   "intensity": 0.94,
+   "peak_frame": 302,
+   "yaw_start": 19.0,
+   "yaw_end": 20.0,
+   "direction": "forward",
+   "lateral": "right"
+  },
+  {
+   "kind": "defocus",
+   "name": "A1 leaves focus",
+   "frame": 292,
+   "seconds": 9.7333,
+   "station": "A1"
+  },
+  {
+   "kind": "sticker_out",
+   "name": "A1_review",
+   "frame": 300,
+   "seconds": 10.0
+  },
+  {
+   "kind": "arrival",
+   "name": "card E1 settled",
+   "frame": 312,
+   "seconds": 10.4,
+   "station": "E1",
+   "plane": "card"
+  },
+  {
+   "kind": "camera",
+   "name": "drift on E1",
+   "frame": 312,
+   "seconds": 10.4,
+   "end_frame": 340,
+   "end_seconds": 11.3333,
+   "move": "hold-drift",
+   "station": "E1",
+   "intensity": 0.15
+  },
+  {
+   "kind": "word_reveal",
+   "name": "E1_h0",
+   "frame": 320,
+   "seconds": 10.6667,
+   "station": "E1",
+   "text": "A floor is not",
+   "role": "headline"
+  },
+  {
+   "kind": "word_reveal",
+   "name": "E1_h1",
+   "frame": 320,
+   "seconds": 10.6667,
+   "station": "E1",
+   "text": "a guarantee.",
+   "role": "headline"
+  },
+  {
+   "kind": "focus_lock",
+   "name": "E1 sharp",
+   "frame": 324,
+   "seconds": 10.8,
+   "station": "E1",
+   "sharp_from": 324,
+   "sharp_until": 340,
+   "rack_start": 306,
+   "blur_start_px": 16.0
+  },
+  {
+   "kind": "camera",
+   "name": "move to E2",
+   "frame": 340,
+   "seconds": 11.3333,
+   "end_frame": 356,
+   "end_seconds": 11.8667,
+   "move": "dolly+orbit",
+   "station": "E2",
+   "distance_units": 3073,
+   "intensity": 0.77,
+   "peak_frame": 348,
+   "yaw_start": 22.0,
+   "yaw_end": -0.0,
+   "direction": "forward",
+   "lateral": "right"
+  },
+  {
+   "kind": "defocus",
+   "name": "E1 leaves focus",
+   "frame": 340,
+   "seconds": 11.3333,
+   "station": "E1"
+  },
+  {
+   "kind": "arrival",
+   "name": "card E2 settled",
+   "frame": 356,
+   "seconds": 11.8667,
+   "station": "E2",
+   "plane": "card"
+  },
+  {
+   "kind": "camera",
+   "name": "drift on E2",
+   "frame": 356,
+   "seconds": 11.8667,
+   "end_frame": 439,
+   "end_seconds": 14.6333,
+   "move": "hold-drift",
+   "station": "E2",
+   "intensity": 0.15
+  },
+  {
+   "kind": "word_reveal",
+   "name": "E2_h0",
+   "frame": 360,
+   "seconds": 12.0,
+   "station": "E2",
+   "text": "We are live",
+   "role": "headline"
+  },
+  {
+   "kind": "focus_lock",
+   "name": "E2 sharp",
+   "frame": 370,
+   "seconds": 12.3333,
+   "station": "E2",
+   "sharp_from": 370,
+   "sharp_until": 439,
+   "rack_start": 350,
+   "blur_start_px": 16.0
+  },
+  {
+   "kind": "stamp",
+   "name": "lockup E2",
+   "frame": 380,
+   "seconds": 12.6667,
+   "station": "E2"
+  },
+  {
+   "kind": "word_reveal",
+   "name": "E2_h1",
+   "frame": 380,
+   "seconds": 12.6667,
+   "station": "E2",
+   "text": "on mainnet.",
+   "role": "headline"
+  },
+  {
+   "kind": "word_reveal",
+   "name": "E2_factory",
+   "frame": 400,
+   "seconds": 13.3333,
+   "station": "E2",
+   "text": "Factory 0x1147d482fD08DDd7F377838efb610B606B3Ad765",
+   "role": "sub"
+  },
+  {
+   "kind": "word_reveal",
+   "name": "E2_url",
+   "frame": 400,
+   "seconds": 13.3333,
+   "station": "E2",
+   "text": "floor.ayush.works",
+   "role": "sub"
+  },
+  {
+   "kind": "word_reveal",
+   "name": "E2_mono",
+   "frame": 400,
+   "seconds": 13.3333,
+   "station": "E2",
+   "text": "BNB Chain \u00b7 Launch caps \u00b7 No human audit",
+   "role": "sub"
+  },
+  {
+   "kind": "word_reveal",
+   "name": "E2_small",
+   "frame": 400,
+   "seconds": 13.3333,
+   "station": "E2",
+   "text": "App screens in this video show example data.",
+   "role": "sub"
+  },
+  {
+   "kind": "defocus",
+   "name": "E2 leaves focus",
+   "frame": 439,
+   "seconds": 14.6333,
+   "station": "E2"
+  }
+ ]
+}

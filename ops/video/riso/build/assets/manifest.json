@@ -1,0 +1,89 @@
+{
+  "fonts": {
+    "headline": "@fontsource/anton 5.x (Anton Regular, SIL OFL)",
+    "accent": "@fontsource/instrument-serif italic, rasterised at 1/5 and nearest-neighbour upscaled (pixel serif italic)",
+    "mono": "Geist Mono 400/500 from apps/web/node_modules/geist"
+  },
+  "accent": {
+    "baseline": 759,
+    "px": 5,
+    "fs": 52.215999999999994
+  },
+  "layers": {
+    "h1": {
+      "file": "h1.png",
+      "x": 72,
+      "y": 144,
+      "w": 908,
+      "h": 248
+    },
+    "h2": {
+      "file": "h2.png",
+      "x": 72,
+      "y": 344,
+      "w": 974,
+      "h": 248
+    },
+    "h3": {
+      "file": "h3.png",
+      "x": 62,
+      "y": 530,
+      "w": 653,
+      "h": 263
+    },
+    "l1": {
+      "file": "l1.png",
+      "x": 96,
+      "y": 226,
+      "w": 1181,
+      "h": 274
+    },
+    "l2": {
+      "file": "l2.png",
+      "x": 96,
+      "y": 452,
+      "w": 1010,
+      "h": 274
+    },
+    "caption": {
+      "file": "caption.png",
+      "x": 0,
+      "y": 0,
+      "w": 785,
+      "h": 47
+    },
+    "footer": {
+      "file": "footer.png",
+      "x": 0,
+      "y": 200,
+      "w": 558,
+      "h": 40
+    }
+  },
+  "lockup": {
+    "300": {
+      "file": "lockup_300_alpha.png",
+      "w": 300,
+      "h": 61,
+      "h_exact": 60.33519553072626
+    },
+    "640": {
+      "file": "lockup_640_alpha.png",
+      "w": 640,
+      "h": 129,
+      "h_exact": 128.7150837988827
+    },
+    "659": {
+      "file": "lockup_659_alpha.png",
+      "w": 659,
+      "h": 133,
+      "h_exact": 132.53631284916202
+    },
+    "678": {
+      "file": "lockup_678_alpha.png",
+      "w": 678,
+      "h": 137,
+      "h_exact": 136.35754189944134
+    }
+  }
+}

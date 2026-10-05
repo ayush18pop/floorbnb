@@ -1,0 +1,255 @@
+{
+ "max_speed_units_per_frame": 246.99763702006743,
+ "max_speed_frame": 711,
+ "max_accel": 74.20126642332318,
+ "max_accel_frame": 516,
+ "max_jerk": 54.67249322686188,
+ "max_jerk_frame": 517,
+ "max_ang_vel_deg_per_frame": 3.880334440831378,
+ "max_ang_vel_frame": 479,
+ "max_ang_acc": 0.5675421043829456,
+ "max_ang_acc_frame": 484,
+ "frames_over_25deg_readable": {
+  "L1": 3,
+  "T1": 3,
+  "A1": 2,
+  "A2": 3,
+  "G1": 3
+ },
+ "stations": [
+  {
+   "station": "S0",
+   "kind": "card",
+   "plane_yaw_deg": 0,
+   "plane_pitch_deg": 0,
+   "arrival": 0,
+   "lock": 14,
+   "depart": 146,
+   "D_arrival": 2180.0,
+   "D_end": 2180.0,
+   "max_view_angle_in_hold": 2.0,
+   "min_view_angle_in_hold": 0.0,
+   "sharp_frames": [
+    14,
+    146
+   ],
+   "sharp_seconds": 4.4
+  },
+  {
+   "station": "C1",
+   "kind": "card",
+   "plane_yaw_deg": -20,
+   "plane_pitch_deg": 2,
+   "arrival": 172,
+   "lock": 186,
+   "depart": 219,
+   "D_arrival": 2180.0,
+   "D_end": 2180.0,
+   "max_view_angle_in_hold": 2.0,
+   "min_view_angle_in_hold": 0.0,
+   "sharp_frames": [
+    186,
+    219
+   ],
+   "sharp_seconds": 1.1
+  },
+  {
+   "station": "L1",
+   "kind": "panel",
+   "plane_yaw_deg": 18,
+   "plane_pitch_deg": -2,
+   "arrival": 249,
+   "lock": 263,
+   "depart": 356,
+   "D_arrival": 1900.0,
+   "D_end": 2000,
+   "max_view_angle_in_hold": 3.0,
+   "min_view_angle_in_hold": 0.0,
+   "sharp_frames": [
+    263,
+    356
+   ],
+   "sharp_seconds": 3.1
+  },
+  {
+   "station": "C2",
+   "kind": "card",
+   "plane_yaw_deg": 22,
+   "plane_pitch_deg": 2,
+   "arrival": 386,
+   "lock": 400,
+   "depart": 459,
+   "D_arrival": 2180.0,
+   "D_end": 2180.0,
+   "max_view_angle_in_hold": 2.0,
+   "min_view_angle_in_hold": 0.0,
+   "sharp_frames": [
+    400,
+    459
+   ],
+   "sharp_seconds": 1.97
+  },
+  {
+   "station": "T1",
+   "kind": "panel",
+   "plane_yaw_deg": -17,
+   "plane_pitch_deg": 2,
+   "arrival": 489,
+   "lock": 503,
+   "depart": 696,
+   "D_arrival": 1900.0,
+   "D_end": 2250,
+   "max_view_angle_in_hold": 3.0,
+   "min_view_angle_in_hold": 0.0,
+   "sharp_frames": [
+    503,
+    696
+   ],
+   "sharp_seconds": 6.43
+  },
+  {
+   "station": "C3",
+   "kind": "card",
+   "plane_yaw_deg": -22,
+   "plane_pitch_deg": -2,
+   "arrival": 726,
+   "lock": 740,
+   "depart": 799,
+   "D_arrival": 2180.0,
+   "D_end": 2180.0,
+   "max_view_angle_in_hold": 2.0,
+   "min_view_angle_in_hold": 0.0,
+   "sharp_frames": [
+    740,
+    799
+   ],
+   "sharp_seconds": 1.97
+  },
+  {
+   "station": "A1",
+   "kind": "panel",
+   "plane_yaw_deg": 17,
+   "plane_pitch_deg": -2,
+   "arrival": 829,
+   "lock": 843,
+   "depart": 1076,
+   "D_arrival": 1900.0,
+   "D_end": 1900.0,
+   "max_view_angle_in_hold": 2.0,
+   "min_view_angle_in_hold": 0.0,
+   "sharp_frames": [
+    843,
+    1076
+   ],
+   "sharp_seconds": 7.77
+  },
+  {
+   "station": "C4",
+   "kind": "card",
+   "plane_yaw_deg": 24,
+   "plane_pitch_deg": 2,
+   "arrival": 1106,
+   "lock": 1120,
+   "depart": 1179,
+   "D_arrival": 2180.0,
+   "D_end": 2180.0,
+   "max_view_angle_in_hold": 2.0,
+   "min_view_angle_in_hold": 0.0,
+   "sharp_frames": [
+    1120,
+    1179
+   ],
+   "sharp_seconds": 1.97
+  },
+  {
+   "station": "A2",
+   "kind": "panel",
+   "plane_yaw_deg": -15,
+   "plane_pitch_deg": 1,
+   "arrival": 1209,
+   "lock": 1223,
+   "depart": 1316,
+   "D_arrival": 1900.0,
+   "D_end": 2000,
+   "max_view_angle_in_hold": 2.0,
+   "min_view_angle_in_hold": 0.0,
+   "sharp_frames": [
+    1223,
+    1316
+   ],
+   "sharp_seconds": 3.1
+  },
+  {
+   "station": "C5",
+   "kind": "card",
+   "plane_yaw_deg": -22,
+   "plane_pitch_deg": -2,
+   "arrival": 1346,
+   "lock": 1360,
+   "depart": 1419,
+   "D_arrival": 2180.0,
+   "D_end": 2180.0,
+   "max_view_angle_in_hold": 2.0,
+   "min_view_angle_in_hold": 0.0,
+   "sharp_frames": [
+    1360,
+    1419
+   ],
+   "sharp_seconds": 1.97
+  },
+  {
+   "station": "G1",
+   "kind": "panel",
+   "plane_yaw_deg": 18,
+   "plane_pitch_deg": 2,
+   "arrival": 1449,
+   "lock": 1463,
+   "depart": 1536,
+   "D_arrival": 1900.0,
+   "D_end": 2000,
+   "max_view_angle_in_hold": 2.0,
+   "min_view_angle_in_hold": 0.0,
+   "sharp_frames": [
+    1463,
+    1536
+   ],
+   "sharp_seconds": 2.43
+  },
+  {
+   "station": "E1",
+   "kind": "card",
+   "plane_yaw_deg": 20,
+   "plane_pitch_deg": -1,
+   "arrival": 1566,
+   "lock": 1580,
+   "depart": 1654,
+   "D_arrival": 2180.0,
+   "D_end": 2180.0,
+   "max_view_angle_in_hold": 2.0,
+   "min_view_angle_in_hold": 0.0,
+   "sharp_frames": [
+    1580,
+    1654
+   ],
+   "sharp_seconds": 2.47
+  },
+  {
+   "station": "E2",
+   "kind": "card",
+   "plane_yaw_deg": 0,
+   "plane_pitch_deg": 0,
+   "arrival": 1678,
+   "lock": 1692,
+   "depart": 1799,
+   "D_arrival": 2180.0,
+   "D_end": 2180.0,
+   "max_view_angle_in_hold": 1.0,
+   "min_view_angle_in_hold": 0.0,
+   "sharp_frames": [
+    1692,
+    1799
+   ],
+   "sharp_seconds": 3.57
+  }
+ ]
+}

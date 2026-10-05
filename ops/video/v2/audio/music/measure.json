@@ -1,0 +1,1136 @@
+{
+ "beat_grid": {
+  "detected_onsets": 86,
+  "expected_thumps": 60,
+  "max_abs_dev_to_16th_grid_ms": 82.792,
+  "onsets_on_beat_grid": 46,
+  "max_abs_dev_on_beat_ms": 1.562,
+  "mean_dev_ms": -12.047,
+  "first_onsets_frames": [
+   19.959,
+   25.106,
+   39.97,
+   45.108,
+   59.97,
+   65.107,
+   68.349,
+   79.971,
+   85.108,
+   88.349,
+   99.971,
+   105.108
+  ]
+ },
+ "harmony_score": {
+  "key": "D major",
+  "bars": [
+   {
+    "bar_start_beat": 0,
+    "beats": 4,
+    "chord": "Dsus2",
+    "notes": [
+     "D3 146.8Hz",
+     "A3 220.0Hz",
+     "E4 329.6Hz",
+     "F#4 370.0Hz",
+     "A4 440.0Hz",
+     "B4 493.9Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 4,
+    "beats": 4,
+    "chord": "Bm7",
+    "notes": [
+     "B2 123.5Hz",
+     "F#3 185.0Hz",
+     "A3 220.0Hz",
+     "D4 293.7Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 8,
+    "beats": 4,
+    "chord": "Gadd9",
+    "notes": [
+     "G2 98.0Hz",
+     "D3 146.8Hz",
+     "B3 246.9Hz",
+     "D4 293.7Hz",
+     "A4 440.0Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 12,
+    "beats": 4,
+    "chord": "D/F#",
+    "notes": [
+     "F#2 92.5Hz",
+     "D3 146.8Hz",
+     "F#3 185.0Hz",
+     "A3 220.0Hz",
+     "D4 293.7Hz",
+     "F#4 370.0Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 16,
+    "beats": 4,
+    "chord": "A",
+    "notes": [
+     "A2 110.0Hz",
+     "E3 164.8Hz",
+     "A3 220.0Hz",
+     "C#4 277.2Hz",
+     "E4 329.6Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 20,
+    "beats": 4,
+    "chord": "Bm7",
+    "notes": [
+     "B2 123.5Hz",
+     "A3 220.0Hz",
+     "D4 293.7Hz",
+     "F#4 370.0Hz",
+     "D5 587.3Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 24,
+    "beats": 4,
+    "chord": "G",
+    "notes": [
+     "G2 98.0Hz",
+     "B3 246.9Hz",
+     "D4 293.7Hz",
+     "E4 329.6Hz",
+     "F#4 370.0Hz",
+     "G4 392.0Hz",
+     "A4 440.0Hz",
+     "B4 493.9Hz",
+     "C#5 554.4Hz",
+     "D5 587.3Hz",
+     "E5 659.3Hz",
+     "F#5 740.0Hz",
+     "A5 880.0Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 28,
+    "beats": 4,
+    "chord": "F#m7",
+    "notes": [
+     "F#2 92.5Hz",
+     "E3 164.8Hz",
+     "F#3 185.0Hz",
+     "A3 220.0Hz",
+     "B3 246.9Hz",
+     "C#4 277.2Hz",
+     "D4 293.7Hz",
+     "E4 329.6Hz",
+     "F#4 370.0Hz",
+     "G4 392.0Hz",
+     "A4 440.0Hz",
+     "B4 493.9Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 32,
+    "beats": 5,
+    "chord": "Em7",
+    "notes": [
+     "E2 82.4Hz",
+     "G3 196.0Hz",
+     "A3 220.0Hz",
+     "B3 246.9Hz",
+     "D4 293.7Hz",
+     "E4 329.6Hz",
+     "F#4 370.0Hz",
+     "A4 440.0Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 37,
+    "beats": 3,
+    "chord": "Asus4",
+    "notes": [
+     "A1 55.0Hz",
+     "A2 110.0Hz",
+     "A3 220.0Hz",
+     "D4 293.7Hz",
+     "E4 329.6Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 40,
+    "beats": 4,
+    "chord": "D",
+    "notes": [
+     "D2 73.4Hz",
+     "A2 110.0Hz",
+     "D3 146.8Hz",
+     "F#3 185.0Hz",
+     "A3 220.0Hz",
+     "D4 293.7Hz",
+     "F#4 370.0Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 44,
+    "beats": 4,
+    "chord": "Bm7",
+    "notes": [
+     "B1 61.7Hz",
+     "A2 110.0Hz",
+     "B2 123.5Hz",
+     "D3 146.8Hz",
+     "F#3 185.0Hz",
+     "A3 220.0Hz",
+     "B3 246.9Hz",
+     "D4 293.7Hz",
+     "F#4 370.0Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 48,
+    "beats": 4,
+    "chord": "Gmaj7",
+    "notes": [
+     "G1 49.0Hz",
+     "G2 98.0Hz",
+     "B2 123.5Hz",
+     "D3 146.8Hz",
+     "F#3 185.0Hz",
+     "G3 196.0Hz",
+     "B3 246.9Hz",
+     "D4 293.7Hz",
+     "F#4 370.0Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 52,
+    "beats": 4,
+    "chord": "A",
+    "notes": [
+     "A1 55.0Hz",
+     "A2 110.0Hz",
+     "C#3 138.6Hz",
+     "E3 164.8Hz",
+     "A3 220.0Hz",
+     "C#4 277.2Hz",
+     "E4 329.6Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 56,
+    "beats": 4,
+    "chord": "Dadd9",
+    "notes": [
+     "D2 73.4Hz",
+     "D3 146.8Hz",
+     "A3 220.0Hz",
+     "E4 329.6Hz",
+     "F#4 370.0Hz",
+     "A4 440.0Hz",
+     "D5 587.3Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 60,
+    "beats": 4,
+    "chord": "Gmaj7",
+    "notes": [
+     "G1 49.0Hz",
+     "G2 98.0Hz",
+     "D3 146.8Hz",
+     "F#3 185.0Hz",
+     "A3 220.0Hz",
+     "B3 246.9Hz",
+     "F#4 370.0Hz",
+     "A4 440.0Hz",
+     "B4 493.9Hz",
+     "D5 587.3Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 64,
+    "beats": 4,
+    "chord": "Em7",
+    "notes": [
+     "E2 82.4Hz",
+     "E3 164.8Hz",
+     "A3 220.0Hz",
+     "B3 246.9Hz",
+     "D4 293.7Hz",
+     "G4 392.0Hz",
+     "A4 440.0Hz",
+     "D5 587.3Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 68,
+    "beats": 4,
+    "chord": "G6",
+    "notes": [
+     "G1 49.0Hz",
+     "D2 73.4Hz",
+     "G2 98.0Hz",
+     "B3 246.9Hz",
+     "D4 293.7Hz",
+     "E4 329.6Hz",
+     "A4 440.0Hz",
+     "B4 493.9Hz",
+     "D5 587.3Hz",
+     "E5 659.3Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 72,
+    "beats": 4,
+    "chord": "D/F#",
+    "notes": [
+     "F#1 46.2Hz",
+     "F#2 92.5Hz",
+     "A3 220.0Hz",
+     "D4 293.7Hz",
+     "F#4 370.0Hz",
+     "A4 440.0Hz",
+     "D5 587.3Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 76,
+    "beats": 3,
+    "chord": "Em7",
+    "notes": [
+     "E2 82.4Hz",
+     "G3 196.0Hz",
+     "B3 246.9Hz",
+     "D4 293.7Hz",
+     "E4 329.6Hz",
+     "A4 440.0Hz",
+     "B4 493.9Hz",
+     "D5 587.3Hz",
+     "E5 659.3Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 79,
+    "beats": 5,
+    "chord": "Asus4(add9)",
+    "notes": [
+     "A1 55.0Hz",
+     "A3 220.0Hz",
+     "D4 293.7Hz",
+     "E4 329.6Hz",
+     "B4 493.9Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 84,
+    "beats": 4,
+    "chord": "D/G/D",
+    "notes": [
+     "D2 73.4Hz",
+     "D3 146.8Hz",
+     "F#3 185.0Hz",
+     "G3 196.0Hz",
+     "A3 220.0Hz",
+     "B3 246.9Hz",
+     "D4 293.7Hz",
+     "F#4 370.0Hz",
+     "G4 392.0Hz",
+     "A4 440.0Hz",
+     "B4 493.9Hz"
+    ],
+    "out_of_key": []
+   },
+   {
+    "bar_start_beat": 88,
+    "beats": 2,
+    "chord": "D",
+    "notes": [
+     "D2 73.4Hz",
+     "D3 146.8Hz",
+     "A3 220.0Hz",
+     "D4 293.7Hz",
+     "F#4 370.0Hz",
+     "A4 440.0Hz"
+    ],
+    "out_of_key": []
+   }
+  ],
+  "out_of_key_total": 0
+ },
+ "harmony_audio_pad_sub": [
+  {
+   "bar_start_beat": 0,
+   "peaks": [
+    "146.7Hz D -2c",
+    "219.9Hz A -1c",
+    "293.7Hz D +0c",
+    "329.6Hz E +0c",
+    "438.7Hz A -5c"
+   ],
+   "out_of_key": []
+  },
+  {
+   "bar_start_beat": 4,
+   "peaks": [
+    "123.4Hz B -1c",
+    "184.9Hz F# -1c",
+    "220.1Hz A +1c",
+    "247.0Hz B +0c",
+    "293.7Hz D +0c",
+    "370.2Hz F# +1c",
+    "440.0Hz A +0c"
+   ],
+   "out_of_key": []
+  },
+  {
+   "bar_start_beat": 8,
+   "peaks": [
+    "98.1Hz G +3c",
+    "146.9Hz D +0c",
+    "185.5Hz F# +5c",
+    "196.1Hz G +1c",
+    "247.0Hz B +0c",
+    "293.7Hz D +0c",
+    "392.0Hz G +0c",
+    "438.4Hz A -6c",
+    "490.0Hz B -14c",
+    "493.8Hz B +0c",
+    "587.2Hz D +0c"
+   ],
+   "out_of_key": []
+  },
+  {
+   "bar_start_beat": 12,
+   "peaks": [
+    "92.7Hz F# +3c",
+    "184.9Hz F# -1c",
+    "219.9Hz A -1c",
+    "277.6Hz C# +3c",
+    "293.7Hz D +0c",
+    "370.1Hz F# +0c",
+    "438.5Hz A -6c",
+    "587.4Hz D +0c",
+    "659.9Hz E +2c"
+   ],
+   "out_of_key": []
+  },
+  {
+   "bar_start_beat": 16,
+   "peaks": [
+    "110.2Hz A +4c",
+    "220.1Hz A +1c",
+    "277.2Hz C# +0c",
+    "329.6Hz E +0c",
+    "440.0Hz A +0c",
+    "550.0Hz C# -14c",
+    "554.4Hz C# +0c",
+    "659.5Hz E +1c"
+   ],
+   "out_of_key": []
+  },
+  {
+   "bar_start_beat": 20,
+   "peaks": [
+    "123.6Hz B +2c",
+    "219.9Hz A -1c",
+    "247.0Hz B +0c",
+    "293.7Hz D +0c",
+    "371.5Hz F# +7c",
+    "438.5Hz A -6c",
+    "493.8Hz B +0c",
+    "587.4Hz D +0c",
+    "659.9Hz E +2c"
+   ],
+   "out_of_key": []
+  },
+  {
+   "bar_start_beat": 24,
+   "peaks": [
+    "98.1Hz G +3c",
+    "123.6Hz B +2c",
+    "196.1Hz G +1c",
+    "247.0Hz B +0c",
+    "293.7Hz D +0c",
+    "392.0Hz G +0c",
+    "490.0Hz B -14c",
+    "493.8Hz B +0c",
+    "587.2Hz D +0c"
+   ],
+   "out_of_key": []
+  },
+  {
+   "bar_start_beat": 28,
+   "peaks": [
+    "92.5Hz F# -1c",
+    "184.9Hz F# -1c",
+    "219.9Hz A -1c",
+    "277.2Hz C# +0c",
+    "329.6Hz E +0c",
+    "370.1Hz F# +0c",
+    "440.0Hz A +0c",
+    "462.5Hz A# -14c OUT",
+    "554.3Hz C# +0c",
+    "659.4Hz E +0c"
+   ],
+   "out_of_key": [
+    "A#"
+   ]
+  },
+  {
+   "bar_start_beat": 32,
+   "peaks": [
+    "82.3Hz E -2c",
+    "164.8Hz E +0c",
+    "196.0Hz G +0c",
+    "246.9Hz B +0c",
+    "293.7Hz D +0c",
+    "329.6Hz E +0c",
+    "392.0Hz G +0c",
+    "412.0Hz G# -14c OUT",
+    "493.8Hz B +0c",
+    "588.0Hz D +2c"
+   ],
+   "out_of_key": [
+    "G#"
+   ]
+  },
+  {
+   "bar_start_beat": 37,
+   "peaks": [
+    "54.9Hz A -2c",
+    "82.2Hz E -4c",
+    "110.0Hz A +1c",
+    "195.9Hz G -1c",
+    "219.9Hz A -1c",
+    "247.9Hz B +7c",
+    "293.7Hz D +0c",
+    "329.6Hz E +0c",
+    "440.0Hz A +0c",
+    "587.4Hz D +0c",
+    "659.4Hz E +0c"
+   ],
+   "out_of_key": []
+  },
+  {
+   "bar_start_beat": 40,
+   "peaks": [
+    "69.0Hz C# -7c",
+    "73.2Hz D -4c",
+    "78.0Hz D# +5c OUT",
+    "147.0Hz D +2c",
+    "220.1Hz A +1c",
+    "293.7Hz D +0c",
+    "370.1Hz F# +0c",
+    "440.2Hz A +1c",
+    "587.4Hz D +0c",
+    "659.9Hz E +2c"
+   ],
+   "out_of_key": [
+    "D#"
+   ]
+  },
+  {
+   "bar_start_beat": 44,
+   "peaks": [
+    "61.7Hz B -1c",
+    "65.9Hz C +13c OUT",
+    "123.2Hz B -3c",
+    "220.1Hz A +1c",
+    "246.8Hz B -1c",
+    "293.7Hz D +0c",
+    "369.9Hz F# -1c",
+    "438.5Hz A -6c",
+    "493.8Hz B +0c",
+    "587.2Hz D +0c",
+    "617.4Hz D# -13c OUT",
+    "660.1Hz E +2c"
+   ],
+   "out_of_key": [
+    "C",
+    "D#"
+   ]
+  },
+  {
+   "bar_start_beat": 48,
+   "peaks": [
+    "50.9Hz G# -34c OUT",
+    "55.5Hz A +15c",
+    "98.0Hz G -1c",
+    "123.4Hz B -1c",
+    "195.9Hz G -1c",
+    "247.0Hz B +0c",
+    "293.7Hz D +0c",
+    "370.1Hz F# +0c",
+    "392.0Hz G +0c",
+    "490.0Hz B -14c",
+    "493.8Hz B +0c",
+    "587.4Hz D +0c"
+   ],
+   "out_of_key": [
+    "G#"
+   ]
+  },
+  {
+   "bar_start_beat": 52,
+   "peaks": [
+    "55.3Hz A +9c",
+    "109.9Hz A -2c",
+    "220.1Hz A +1c",
+    "277.2Hz C# +0c",
+    "329.6Hz E +0c",
+    "440.0Hz A +0c",
+    "550.0Hz C# -14c",
+    "554.4Hz C# +0c",
+    "659.2Hz E +0c"
+   ],
+   "out_of_key": []
+  },
+  {
+   "bar_start_beat": 56,
+   "peaks": [
+    "73.4Hz D +0c",
+    "146.7Hz D -2c",
+    "219.9Hz A -1c",
+    "293.7Hz D +0c",
+    "329.6Hz E +0c",
+    "370.1Hz F# +0c",
+    "438.4Hz A -6c",
+    "659.5Hz E +1c"
+   ],
+   "out_of_key": []
+  },
+  {
+   "bar_start_beat": 60,
+   "peaks": [
+    "98.1Hz G +3c",
+    "146.9Hz D +0c",
+    "195.9Hz G -1c",
+    "247.0Hz B +0c",
+    "293.7Hz D +0c",
+    "370.1Hz F# +0c",
+    "392.0Hz G +0c",
+    "438.9Hz A -4c",
+    "490.0Hz B -14c",
+    "493.8Hz B +0c",
+    "587.4Hz D +0c"
+   ],
+   "out_of_key": []
+  },
+  {
+   "bar_start_beat": 64,
+   "peaks": [
+    "82.4Hz E +0c",
+    "247.0Hz B +0c",
+    "293.7Hz D +0c",
+    "392.0Hz G +0c",
+    "493.8Hz B +0c"
+   ],
+   "out_of_key": []
+  },
+  {
+   "bar_start_beat": 68,
+   "peaks": [
+    "50.2Hz G +41c",
+    "73.4Hz D +0c",
+    "98.0Hz G -1c",
+    "196.1Hz G +1c",
+    "246.8Hz B -1c",
+    "293.7Hz D +0c",
+    "329.6Hz E +0c",
+    "392.2Hz G +1c",
+    "493.8Hz B +0c",
+    "587.2Hz D +0c",
+    "659.2Hz E +0c"
+   ],
+   "out_of_key": []
+  },
+  {
+   "bar_start_beat": 72,
+   "peaks": [
+    "92.5Hz F# -1c",
+    "184.9Hz F# -1c",
+    "220.1Hz A +1c",
+    "277.6Hz C# +3c",
+    "293.7Hz D +0c",
+    "370.1Hz F# +0c",
+    "440.0Hz A +0c",
+    "462.5Hz A# -14c OUT",
+    "587.4Hz D +0c",
+    "660.1Hz E +2c"
+   ],
+   "out_of_key": [
+    "A#"
+   ]
+  },
+  {
+   "bar_start_beat": 76,
+   "peaks": [
+    "82.4Hz E +0c",
+    "164.6Hz E -2c",
+    "196.1Hz G +1c",
+    "247.2Hz B +2c",
+    "293.7Hz D +0c",
+    "392.0Hz G +0c",
+    "494.0Hz B +0c",
+    "587.8Hz D +1c"
+   ],
+   "out_of_key": []
+  },
+  {
+   "bar_start_beat": 79,
+   "peaks": [
+    "55.0Hz A +1c",
+    "110.0Hz A -1c",
+    "220.0Hz A +0c",
+    "293.6Hz D +0c",
+    "329.6Hz E +0c",
+    "438.4Hz A -6c",
+    "493.8Hz B +0c",
+    "587.3Hz D +0c",
+    "659.3Hz E +0c"
+   ],
+   "out_of_key": []
+  },
+  {
+   "bar_start_beat": 84,
+   "peaks": [
+    "73.6Hz D +5c",
+    "147.2Hz D +5c",
+    "196.1Hz G +1c",
+    "220.1Hz A +1c",
+    "247.4Hz B +3c",
+    "293.0Hz D -4c",
+    "370.1Hz F# +0c",
+    "391.8Hz G -1c",
+    "440.0Hz A +0c",
+    "493.5Hz B -1c",
+    "587.4Hz D +0c",
+    "659.9Hz E +2c"
+   ],
+   "out_of_key": []
+  },
+  {
+   "bar_start_beat": 88,
+   "peaks": [
+    "73.2Hz D -4c",
+    "146.9Hz D +0c",
+    "195.9Hz G -1c",
+    "219.7Hz A -2c",
+    "247.6Hz B +4c",
+    "293.3Hz D -2c",
+    "370.6Hz F# +3c",
+    "391.5Hz G -2c",
+    "440.2Hz A +1c",
+    "587.4Hz D +0c",
+    "659.9Hz E +2c"
+   ],
+   "out_of_key": []
+  }
+ ],
+ "landing_hits": {
+  "60s": {
+   "expected_frame": 1680,
+   "detected_frame": 1680.006,
+   "dev_ms": 0.188
+  },
+  "30s": {
+   "expected_frame": 780,
+   "detected_frame": 780.005,
+   "dev_ms": 0.167
+  },
+  "15s": {
+   "expected_frame": 360,
+   "detected_frame": 360.006,
+   "dev_ms": 0.188
+  }
+ },
+ "files": {
+  "60s/pad": {
+   "samples": 2880000,
+   "dc": [
+    1.36e-09,
+    5.23e-10
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -20.11,
+   "mono_minus_stereo_db": -1.45,
+   "lr_correlation": 0.432
+  },
+  "60s/sub": {
+   "samples": 2880000,
+   "dc": [
+    -8.73e-10,
+    -8.73e-10
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -23.5,
+   "mono_minus_stereo_db": 0.0,
+   "lr_correlation": 1.0
+  },
+  "60s/pulse_perc": {
+   "samples": 2880000,
+   "dc": [
+    6.37e-12,
+    -1.44e-11
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -30.88,
+   "mono_minus_stereo_db": 0.11,
+   "lr_correlation": 0.853
+  },
+  "60s/melody": {
+   "samples": 2880000,
+   "dc": [
+    1.55e-10,
+    -9.66e-11
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -25.98,
+   "mono_minus_stereo_db": -1.06,
+   "lr_correlation": 0.553
+  },
+  "60s/texture": {
+   "samples": 2880000,
+   "dc": [
+    2.55e-09,
+    -6.08e-08
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -42.02,
+   "mono_minus_stereo_db": -0.96,
+   "lr_correlation": 0.658
+  },
+  "60s/finale": {
+   "samples": 2880000,
+   "dc": [
+    -2.32e-10,
+    -8.64e-10
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -20.46,
+   "mono_minus_stereo_db": -1.53,
+   "lr_correlation": 0.429
+  },
+  "60s/mix_preview": {
+   "samples": 2880000,
+   "dc": [
+    2.97e-09,
+    -6.21e-08
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -18.3,
+   "mono_minus_stereo_db": -1.09,
+   "lr_correlation": 0.613
+  },
+  "30s/pad": {
+   "samples": 1440000,
+   "dc": [
+    2.51e-10,
+    -5.25e-10
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -20.48,
+   "mono_minus_stereo_db": -1.4,
+   "lr_correlation": 0.463
+  },
+  "30s/sub": {
+   "samples": 1440000,
+   "dc": [
+    -1.72e-09,
+    -1.72e-09
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -24.08,
+   "mono_minus_stereo_db": 0.0,
+   "lr_correlation": 1.0
+  },
+  "30s/pulse_perc": {
+   "samples": 1440000,
+   "dc": [
+    -4.16e-11,
+    -8.36e-12
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -31.08,
+   "mono_minus_stereo_db": 0.39,
+   "lr_correlation": 0.855
+  },
+  "30s/melody": {
+   "samples": 1440000,
+   "dc": [
+    2.63e-10,
+    -2.73e-10
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -24.55,
+   "mono_minus_stereo_db": -0.89,
+   "lr_correlation": 0.589
+  },
+  "30s/texture": {
+   "samples": 1440000,
+   "dc": [
+    -3.96e-08,
+    -1.7e-07
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -42.46,
+   "mono_minus_stereo_db": -0.96,
+   "lr_correlation": 0.659
+  },
+  "30s/finale": {
+   "samples": 1440000,
+   "dc": [
+    -9.18e-10,
+    2.05e-09
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -21.44,
+   "mono_minus_stereo_db": -1.64,
+   "lr_correlation": 0.396
+  },
+  "30s/mix_preview": {
+   "samples": 1440000,
+   "dc": [
+    -4.18e-08,
+    -1.7e-07
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -18.3,
+   "mono_minus_stereo_db": -1.03,
+   "lr_correlation": 0.631
+  },
+  "15s/pad": {
+   "samples": 704000,
+   "dc": [
+    1.18e-09,
+    -1.85e-09
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -21.4,
+   "mono_minus_stereo_db": -1.58,
+   "lr_correlation": 0.425
+  },
+  "15s/sub": {
+   "samples": 704000,
+   "dc": [
+    -5.05e-09,
+    -5.05e-09
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -23.6,
+   "mono_minus_stereo_db": 0.0,
+   "lr_correlation": 1.0
+  },
+  "15s/pulse_perc": {
+   "samples": 704000,
+   "dc": [
+    -6.94e-12,
+    1.54e-11
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -30.99,
+   "mono_minus_stereo_db": 0.31,
+   "lr_correlation": 0.856
+  },
+  "15s/melody": {
+   "samples": 704000,
+   "dc": [
+    -1.95e-10,
+    -1.43e-09
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -23.98,
+   "mono_minus_stereo_db": -0.92,
+   "lr_correlation": 0.591
+  },
+  "15s/texture": {
+   "samples": 704000,
+   "dc": [
+    -3.74e-08,
+    -3.09e-07
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -42.17,
+   "mono_minus_stereo_db": -0.96,
+   "lr_correlation": 0.658
+  },
+  "15s/finale": {
+   "samples": 704000,
+   "dc": [
+    -3.35e-09,
+    -1.23e-10
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -21.3,
+   "mono_minus_stereo_db": -1.61,
+   "lr_correlation": 0.418
+  },
+  "15s/mix_preview": {
+   "samples": 704000,
+   "dc": [
+    -4.48e-08,
+    -3.18e-07
+   ],
+   "first5ms_max": 0.0,
+   "last5ms_max": 0.0,
+   "lufs_internal": -18.3,
+   "mono_minus_stereo_db": -1.08,
+   "lr_correlation": 0.599
+  }
+ },
+ "ffmpeg": {
+  "60s/finale.wav": {
+   "integrated_lufs": -20.5,
+   "true_peak_dbtp": -7.6,
+   "lra_lu": 7.5
+  },
+  "60s/melody.wav": {
+   "integrated_lufs": -26.0,
+   "true_peak_dbtp": -11.4,
+   "lra_lu": 15.1
+  },
+  "60s/music_mix_preview.wav": {
+   "integrated_lufs": -18.3,
+   "true_peak_dbtp": -3.3,
+   "lra_lu": 4.3
+  },
+  "60s/pad.wav": {
+   "integrated_lufs": -20.1,
+   "true_peak_dbtp": -7.9,
+   "lra_lu": 5.0
+  },
+  "60s/pulse_perc.wav": {
+   "integrated_lufs": -30.9,
+   "true_peak_dbtp": -13.1,
+   "lra_lu": 9.8
+  },
+  "60s/sub.wav": {
+   "integrated_lufs": -23.5,
+   "true_peak_dbtp": -13.0,
+   "lra_lu": 5.0
+  },
+  "60s/texture.wav": {
+   "integrated_lufs": -42.0,
+   "true_peak_dbtp": -25.8,
+   "lra_lu": 5.4
+  },
+  "30s/finale_30s.wav": {
+   "integrated_lufs": -21.4,
+   "true_peak_dbtp": -10.2,
+   "lra_lu": 8.2
+  },
+  "30s/melody_30s.wav": {
+   "integrated_lufs": -24.6,
+   "true_peak_dbtp": -11.8,
+   "lra_lu": 11.5
+  },
+  "30s/music_mix_preview_30s.wav": {
+   "integrated_lufs": -18.3,
+   "true_peak_dbtp": -4.4,
+   "lra_lu": 6.2
+  },
+  "30s/pad_30s.wav": {
+   "integrated_lufs": -20.5,
+   "true_peak_dbtp": -7.9,
+   "lra_lu": 5.5
+  },
+  "30s/pulse_perc_30s.wav": {
+   "integrated_lufs": -31.1,
+   "true_peak_dbtp": -12.2,
+   "lra_lu": 4.2
+  },
+  "30s/sub_30s.wav": {
+   "integrated_lufs": -24.1,
+   "true_peak_dbtp": -13.5,
+   "lra_lu": 6.6
+  },
+  "30s/texture_30s.wav": {
+   "integrated_lufs": -42.5,
+   "true_peak_dbtp": -26.4,
+   "lra_lu": 5.6
+  },
+  "15s/finale_15s.wav": {
+   "integrated_lufs": -21.3,
+   "true_peak_dbtp": -8.5,
+   "lra_lu": 7.9
+  },
+  "15s/melody_15s.wav": {
+   "integrated_lufs": -24.0,
+   "true_peak_dbtp": -12.4,
+   "lra_lu": 6.7
+  },
+  "15s/music_mix_preview_15s.wav": {
+   "integrated_lufs": -18.3,
+   "true_peak_dbtp": -5.3,
+   "lra_lu": 4.3
+  },
+  "15s/pad_15s.wav": {
+   "integrated_lufs": -21.4,
+   "true_peak_dbtp": -10.3,
+   "lra_lu": 5.9
+  },
+  "15s/pulse_perc_15s.wav": {
+   "integrated_lufs": -31.0,
+   "true_peak_dbtp": -14.2,
+   "lra_lu": 4.4
+  },
+  "15s/sub_15s.wav": {
+   "integrated_lufs": -23.6,
+   "true_peak_dbtp": -13.9,
+   "lra_lu": 5.6
+  },
+  "15s/texture_15s.wav": {
+   "integrated_lufs": -42.2,
+   "true_peak_dbtp": -26.3,
+   "lra_lu": 5.7
+  }
+ }
+}

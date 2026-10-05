@@ -1,0 +1,206 @@
+{
+ "ffmpeg": {
+  "integrated_lufs": -14.0,
+  "true_peak_dbtp": -1.6,
+  "lra_lu": 5.9,
+  "momentary_max_lufs": -8.1
+ },
+ "checks": {
+  "samples": 480000,
+  "channels": 2,
+  "duration_s": 10.0,
+  "first_5ms_peak_dbfs": -240.0,
+  "last_5ms_peak_dbfs": -240.0,
+  "sample_peak_dbfs": -1.61,
+  "any_sample_at_full_scale": false,
+  "dc_offset_dbfs": [
+   -83.4,
+   -83.1
+  ],
+  "limiter_max_gr_db": 4.05,
+  "limiter_gr_over_0p5db_ms": 135.8,
+  "master_gain_db": 3.6,
+  "music_peak_dbfs": -1.43,
+  "sfx_peak_dbfs": -1.14,
+  "hf_above_16k_rel_db": -46.9,
+  "band_2k_5k_rel_db": -18.0
+ },
+ "onsets": [
+  {
+   "cue": "line draw",
+   "stem": "sfx",
+   "intended_s": 0.1,
+   "frame": 3.0,
+   "measured_s": 0.098,
+   "err_ms": -2.0
+  },
+  {
+   "cue": "stamp",
+   "stem": "sfx",
+   "intended_s": 0.5,
+   "frame": 15.0,
+   "measured_s": 0.498,
+   "err_ms": -2.0
+  },
+  {
+   "cue": "word 1",
+   "stem": "sfx",
+   "intended_s": 1.0,
+   "frame": 30.0,
+   "measured_s": 0.997,
+   "err_ms": -3.0
+  },
+  {
+   "cue": "word 2",
+   "stem": "sfx",
+   "intended_s": 1.5,
+   "frame": 45.0,
+   "measured_s": 1.497,
+   "err_ms": -3.0
+  },
+  {
+   "cue": "word 3",
+   "stem": "sfx",
+   "intended_s": 2.0,
+   "frame": 60.0,
+   "measured_s": 1.997,
+   "err_ms": -3.0
+  },
+  {
+   "cue": "cut 1 (whoosh+thud)",
+   "stem": "sfx",
+   "intended_s": 2.5,
+   "frame": 75.0,
+   "measured_s": 2.497,
+   "err_ms": -3.0
+  },
+  {
+   "cue": "slider tick 1 (89%)",
+   "stem": "sfx",
+   "intended_s": 3.4333,
+   "frame": 103.0,
+   "measured_s": 3.4298,
+   "err_ms": -3.5
+  },
+  {
+   "cue": "slider tick 2 (88%)",
+   "stem": "sfx",
+   "intended_s": 3.45,
+   "frame": 103.5,
+   "measured_s": 3.4435,
+   "err_ms": -6.5
+  },
+  {
+   "cue": "slider tick 3 (87%)",
+   "stem": "sfx",
+   "intended_s": 3.5,
+   "frame": 105.0,
+   "measured_s": 3.4965,
+   "err_ms": -3.5
+  },
+  {
+   "cue": "slider tick 4 (86%)",
+   "stem": "sfx",
+   "intended_s": 3.5667,
+   "frame": 107.0,
+   "measured_s": 3.5632,
+   "err_ms": -3.5
+  },
+  {
+   "cue": "slider tick 5 (85%)",
+   "stem": "sfx",
+   "intended_s": 3.5833,
+   "frame": 107.5,
+   "measured_s": 3.5768,
+   "err_ms": -6.5
+  },
+  {
+   "cue": "slider tick 6 (84%)",
+   "stem": "sfx",
+   "intended_s": 3.6667,
+   "frame": 110.0,
+   "measured_s": 3.6632,
+   "err_ms": -3.5
+  },
+  {
+   "cue": "slider tick 7 (83%)",
+   "stem": "sfx",
+   "intended_s": 3.6833,
+   "frame": 110.5,
+   "measured_s": 3.6768,
+   "err_ms": -6.5
+  },
+  {
+   "cue": "slider tick 8 (82%)",
+   "stem": "sfx",
+   "intended_s": 3.7667,
+   "frame": 113.0,
+   "measured_s": 3.7632,
+   "err_ms": -3.5
+  },
+  {
+   "cue": "slider tick 9 (81%)",
+   "stem": "sfx",
+   "intended_s": 3.9333,
+   "frame": 118.0,
+   "measured_s": 3.9298,
+   "err_ms": -3.5
+  },
+  {
+   "cue": "slider tick 10 (80%)",
+   "stem": "sfx",
+   "intended_s": 3.95,
+   "frame": 118.5,
+   "measured_s": 3.9435,
+   "err_ms": -6.5
+  },
+  {
+   "cue": "crash line",
+   "stem": "sfx",
+   "intended_s": 4.9,
+   "frame": 147.0,
+   "measured_s": 4.897,
+   "err_ms": -3.0
+  },
+  {
+   "cue": "cut 2 (hit+whoosh)",
+   "stem": "sfx",
+   "intended_s": 7.0,
+   "frame": 210.0,
+   "measured_s": 6.997,
+   "err_ms": -3.0
+  },
+  {
+   "cue": "card word 2",
+   "stem": "sfx",
+   "intended_s": 7.5,
+   "frame": 225.0,
+   "measured_s": 7.497,
+   "err_ms": -3.0
+  },
+  {
+   "cue": "shape hit 1",
+   "stem": "sfx",
+   "intended_s": 8.0,
+   "frame": 240.0,
+   "measured_s": 7.997,
+   "err_ms": -3.0
+  },
+  {
+   "cue": "shape hit 2",
+   "stem": "sfx",
+   "intended_s": 8.5,
+   "frame": 255.0,
+   "measured_s": 8.497,
+   "err_ms": -3.0
+  },
+  {
+   "cue": "end chord",
+   "stem": "music",
+   "intended_s": 9.0,
+   "frame": 270.0,
+   "measured_s": 9.004,
+   "err_ms": 4.0
+  }
+ ]
+}

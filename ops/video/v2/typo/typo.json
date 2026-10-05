@@ -1,0 +1,4740 @@
+{
+ "version": 2,
+ "generated_by": "ops/video/v2/typo/build_typo.py (python3 build_typo.py)",
+ "frame": {
+  "w": 1920,
+  "h": 1080,
+  "fps": 30,
+  "bpm": 90,
+  "beat_frames": 20,
+  "margin_px": 96,
+  "baseline_grid_px": 12
+ },
+ "asset_scale": 2,
+ "units": "bbox = [x, y, w, h] in 1x card px of a 1920x1080 card plane (PNG pixels are 2x). Callout canvases are local px. Anchor offsets for callouts are capture CSS px (1440x900 viewport space).",
+ "palette": {
+  "paper": "#FAFAF8",
+  "cobalt": "#2440E0",
+  "periwinkle": "#7C93FF",
+  "coral": "#FF7469",
+  "mint": "#3DD68C",
+  "ink": "#0B0C0E"
+ },
+ "fonts": {
+  "headline": "Anton Regular 400 (@fontsource/anton 5.3.0, fonts/Anton-Regular.ttf)",
+  "accent": "Instrument Serif Italic (@fontsource/instrument-serif 5.3.0), pixelated: x-height = 20 blocks, coverage threshold 0.44 at 8x8 supersampling, hairline rescue, nearest-neighbour upscale",
+  "mono": "Geist Mono Medium / Regular (apps/web/node_modules/geist)"
+ },
+ "type_scale": {
+  "headline_px": [
+   312,
+   288,
+   264,
+   252,
+   240
+  ],
+  "headline_secondary_px": [
+   168
+  ],
+  "callout_px": 72,
+  "mono_sub_px": 32,
+  "label_px": 30,
+  "mono_end_px": 30,
+  "caption_px": 28,
+  "small_mono_px": 26
+ },
+ "reveal_rule": "Word groups cut in fully on their beat frame (no fades, no per-letter animation). Holds >= 1.3 s. Riso misregistration only on colour layers (shapes, stickers, shadows); type stays registered or <= 1 px.",
+ "cards": [
+  {
+   "scene": "S0",
+   "title": "Cold open",
+   "frames": [
+    0,
+    160
+   ],
+   "plane": {
+    "w": 1920,
+    "h": 1080,
+    "paper": "#FAFAF8",
+    "asset_scale": 2
+   },
+   "type_all": "cards/S0/S0_type_all.png",
+   "lockup": {
+    "file": "design/logo/floor-lockup-light.svg (repo file, unmodified, scaled uniformly)",
+    "x": 96,
+    "y": 96,
+    "w": 320,
+    "h": 64.36,
+    "clear_space_px": 32.2,
+    "stamp_frame": 20,
+    "note": "no misregistration, halftone or blur on the lockup (BRAND.md)"
+   },
+   "assets": [
+    {
+     "id": "S0_h0",
+     "scene": "S0",
+     "role": "headline",
+     "text": "Set a floor",
+     "font": "Anton Regular",
+     "size_px": 228,
+     "tracking_em": -0.015,
+     "color": "ink",
+     "accent": null,
+     "file": "cards/S0/S0_h0.png",
+     "bbox": [
+      90.0,
+      196.0,
+      893.5,
+      204.0
+     ],
+     "lines": [
+      {
+       "text": "Set a floor",
+       "baseline": 396,
+       "size_px": 228,
+       "leading_px": null,
+       "ink_x": [
+        92.8,
+        981.2
+       ]
+      }
+     ],
+     "word_boxes": [
+      {
+       "text": "Set",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        92.8,
+        198.3,
+        269.9,
+        199.5
+       ]
+      },
+      {
+       "text": "a",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        418.5,
+        227.2,
+        98.3,
+        170.6
+       ]
+      },
+      {
+       "text": "floor",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        575.2,
+        198.1,
+        406.0,
+        199.7
+       ]
+      }
+     ],
+     "in": 40,
+     "out": 160,
+     "hold_frames": 120,
+     "hold_s": 4.0,
+     "in_beat": 2.0,
+     "reveal": "word group 1: hard cut on beat 2"
+    },
+    {
+     "id": "S0_h1",
+     "scene": "S0",
+     "role": "headline",
+     "text": "under your",
+     "font": "Anton Regular",
+     "size_px": 228,
+     "tracking_em": -0.015,
+     "color": "ink",
+     "accent": null,
+     "file": "cards/S0/S0_h1.png",
+     "bbox": [
+      93.0,
+      438.0,
+      959.0,
+      228.0
+     ],
+     "lines": [
+      {
+       "text": "under your",
+       "baseline": 636,
+       "size_px": 228,
+       "leading_px": 240,
+       "ink_x": [
+        95.7,
+        1049.7
+       ]
+      }
+     ],
+     "word_boxes": [
+      {
+       "text": "under",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        95.7,
+        440.1,
+        508.3,
+        197.7
+       ]
+      },
+      {
+       "text": "your",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        654.2,
+        467.0,
+        395.5,
+        196.8
+       ]
+      }
+     ],
+     "in": 60,
+     "out": 160,
+     "hold_frames": 100,
+     "hold_s": 3.333,
+     "in_beat": 3.0,
+     "reveal": "word group 2: hard cut on beat 3"
+    },
+    {
+     "id": "S0_h2",
+     "scene": "S0",
+     "role": "headline",
+     "text": "stocks.",
+     "font": "Anton Regular + pixel Instrument Serif Italic",
+     "size_px": 228,
+     "tracking_em": -0.015,
+     "color": "ink",
+     "accent": {
+      "word": "stocks.",
+      "color": "ink",
+      "style": "pixel serif italic"
+     },
+     "file": "cards/S0/S0_h2.png",
+     "bbox": [
+      91.0,
+      671.0,
+      613.5,
+      207.0
+     ],
+     "lines": [
+      {
+       "text": "stocks.",
+       "baseline": 876,
+       "size_px": 228,
+       "leading_px": 240,
+       "ink_x": [
+        93.5,
+        702.5
+       ]
+      }
+     ],
+     "word_boxes": [
+      {
+       "text": "stocks.",
+       "accent": true,
+       "color": "ink",
+       "bbox": [
+        93.5,
+        673.0,
+        609.0,
+        203.0
+       ],
+       "block_px_2x": 14,
+       "serif_size_px": 275.0
+      }
+     ],
+     "in": 80,
+     "out": 160,
+     "hold_frames": 80,
+     "hold_s": 2.667,
+     "in_beat": 4.0,
+     "reveal": "word group 3: hard cut on beat 4"
+    },
+    {
+     "id": "S0_sub",
+     "scene": "S0",
+     "role": "sub",
+     "text": "Tokenized stocks. Spot swaps. Live on BNB Chain mainnet.",
+     "font": "Geist Mono Medium",
+     "size_px": 32,
+     "tracking_em": 0,
+     "color": "ink",
+     "file": "cards/S0/S0_sub.png",
+     "bbox": [
+      94.0,
+      946.0,
+      1070.5,
+      33.0
+     ],
+     "baseline": 972,
+     "word_boxes": [
+      {
+       "text": "Tokenized",
+       "bbox": [
+        96.0,
+        949.2,
+        168.9,
+        23.2
+       ]
+      },
+      {
+       "text": "stocks.",
+       "bbox": [
+        289.1,
+        949.3,
+        124.6,
+        23.1
+       ]
+      },
+      {
+       "text": "Spot",
+       "bbox": [
+        441.7,
+        948.8,
+        73.0,
+        28.0
+       ]
+      },
+      {
+       "text": "swaps.",
+       "bbox": [
+        538.7,
+        954.6,
+        105.4,
+        22.2
+       ]
+      },
+      {
+       "text": "Live",
+       "bbox": [
+        673.9,
+        949.2,
+        71.8,
+        23.2
+       ]
+      },
+      {
+       "text": "on",
+       "bbox": [
+        768.4,
+        954.6,
+        34.1,
+        17.8
+       ]
+      },
+      {
+       "text": "BNB",
+       "bbox": [
+        827.0,
+        949.3,
+        53.6,
+        22.7
+       ]
+      },
+      {
+       "text": "Chain",
+       "bbox": [
+        902.3,
+        948.8,
+        92.3,
+        23.7
+       ]
+      },
+      {
+       "text": "mainnet.",
+       "bbox": [
+        1017.5,
+        949.2,
+        145.0,
+        23.2
+       ]
+      }
+     ],
+     "opentype_features": null,
+     "variant_only": null,
+     "in": 100,
+     "out": 160,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 5.0,
+     "reveal": "appears on beat 5"
+    },
+    {
+     "id": "S0_sub_cut15",
+     "scene": "S0",
+     "role": "sub",
+     "text": "Live on BNB Chain mainnet.",
+     "font": "Geist Mono Medium",
+     "size_px": 32,
+     "tracking_em": 0,
+     "color": "ink",
+     "file": "cards/S0/S0_sub_cut15.png",
+     "bbox": [
+      94.0,
+      946.0,
+      493.0,
+      28.5
+     ],
+     "baseline": 972,
+     "word_boxes": [
+      {
+       "text": "Live",
+       "bbox": [
+        96.0,
+        949.2,
+        71.8,
+        23.2
+       ]
+      },
+      {
+       "text": "on",
+       "bbox": [
+        190.6,
+        954.6,
+        34.1,
+        17.8
+       ]
+      },
+      {
+       "text": "BNB",
+       "bbox": [
+        249.1,
+        949.3,
+        53.6,
+        22.7
+       ]
+      },
+      {
+       "text": "Chain",
+       "bbox": [
+        324.4,
+        948.8,
+        92.3,
+        23.7
+       ]
+      },
+      {
+       "text": "mainnet.",
+       "bbox": [
+        439.6,
+        949.2,
+        145.0,
+        23.2
+       ]
+      }
+     ],
+     "opentype_features": null,
+     "variant_only": "cut15",
+     "in": 100,
+     "out": 160,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 5.0,
+     "reveal": "appears on beat 5"
+    }
+   ],
+   "shapes": [
+    {
+     "id": "S0_floorline_full",
+     "scene": "S0",
+     "role": "shape",
+     "color": "cobalt",
+     "desc": "cobalt floor line, full bleed, y 1002-1008; draws left to right",
+     "file": "shapes/S0_floorline_full.png",
+     "bbox": [
+      0.0,
+      1002.0,
+      1920.0,
+      6.0
+     ],
+     "z": "behind type",
+     "in": 0,
+     "out": 160,
+     "hold_frames": 160,
+     "hold_s": 5.333,
+     "in_beat": 0.0,
+     "reveal": "draws left to right over the first beat of the card"
+    },
+    {
+     "id": "S0_underline_coral",
+     "scene": "S0",
+     "role": "shape",
+     "color": "coral",
+     "desc": "coral underline bar under the accent word (18 px), wipes left to right on the accent beat",
+     "file": "shapes/S0_underline_coral.png",
+     "bbox": [
+      93.0,
+      900.0,
+      609.5,
+      18.0
+     ],
+     "z": "behind type",
+     "in": 0,
+     "out": 160,
+     "hold_frames": 160,
+     "hold_s": 5.333,
+     "in_beat": 0.0,
+     "reveal": "wipes in left to right on frame 80 + 4"
+    },
+    {
+     "id": "S0_S0_halftone",
+     "scene": "S0",
+     "role": "shape",
+     "color": "periwinkle",
+     "desc": "periwinkle halftone panel (45 deg, 12 px pitch)",
+     "file": "shapes/S0_S0_halftone.png",
+     "bbox": [
+      1272.0,
+      204.0,
+      456.0,
+      551.5
+     ],
+     "z": "behind type",
+     "in": 0,
+     "out": 160,
+     "hold_frames": 160,
+     "hold_s": 5.333,
+     "in_beat": 0.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    },
+    {
+     "id": "S0_S0_mint",
+     "scene": "S0",
+     "role": "shape",
+     "color": "mint",
+     "desc": "mint block overlapping the halftone panel",
+     "file": "shapes/S0_S0_mint.png",
+     "bbox": [
+      1200.0,
+      660.0,
+      216.0,
+      192.0
+     ],
+     "z": "behind type",
+     "in": 0,
+     "out": 160,
+     "hold_frames": 160,
+     "hold_s": 5.333,
+     "in_beat": 0.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    },
+    {
+     "id": "S0_S0_pixels",
+     "scene": "S0",
+     "role": "shape",
+     "color": "coral",
+     "desc": "coral pixel squares (24 px cells)",
+     "file": "shapes/S0_S0_pixels.png",
+     "bbox": [
+      1704.0,
+      168.0,
+      96.0,
+      72.0
+     ],
+     "z": "behind type",
+     "in": 0,
+     "out": 160,
+     "hold_frames": 160,
+     "hold_s": 5.333,
+     "in_beat": 0.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    }
+   ],
+   "shapes_note": "shape layers sit on the card plane behind the type; colour layers may take riso misregistration",
+   "type_all_bbox": [
+    92.0,
+    198.0,
+    1070.5,
+    779.0
+   ]
+  },
+  {
+   "scene": "C1",
+   "title": "Card 01",
+   "frames": [
+    160,
+    220
+   ],
+   "plane": {
+    "w": 1920,
+    "h": 1080,
+    "paper": "#FAFAF8",
+    "asset_scale": 2
+   },
+   "type_all": "cards/C1/C1_type_all.png",
+   "lockup": null,
+   "assets": [
+    {
+     "id": "C1_label",
+     "scene": "C1",
+     "role": "label",
+     "text": "01 / THE IDEA",
+     "font": "Geist Mono Medium",
+     "size_px": 30,
+     "tracking_em": 0.08,
+     "color": "cobalt",
+     "file": "cards/C1/C1_label.png",
+     "bbox": [
+      94.0,
+      94.0,
+      292.0,
+      55.5
+     ],
+     "baseline": 144,
+     "rule": {
+      "x": 96,
+      "y": 96,
+      "w": 288,
+      "h": 3,
+      "color": "cobalt"
+     },
+     "word_boxes": [
+      {
+       "text": "01",
+       "bbox": [
+        96.0,
+        122.2,
+        35.3,
+        22.3
+       ]
+      },
+      {
+       "text": "/",
+       "bbox": [
+        158.8,
+        121.5,
+        11.9,
+        25.8
+       ]
+      },
+      {
+       "text": "THE",
+       "bbox": [
+        197.8,
+        122.7,
+        55.6,
+        21.3
+       ]
+      },
+      {
+       "text": "IDEA",
+       "bbox": [
+        280.5,
+        122.7,
+        76.1,
+        21.3
+       ]
+      }
+     ],
+     "in": 160,
+     "out": 220,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 8.0,
+     "reveal": "with the card (beat 0)"
+    },
+    {
+     "id": "C1_h0",
+     "scene": "C1",
+     "role": "headline",
+     "text": "One rule.",
+     "font": "Anton Regular + pixel Instrument Serif Italic",
+     "size_px": 312,
+     "tracking_em": -0.02,
+     "color": "ink",
+     "accent": {
+      "word": "rule.",
+      "color": "cobalt",
+      "style": "pixel serif italic"
+     },
+     "file": "cards/C1/C1_h0.png",
+     "bbox": [
+      92.0,
+      202.0,
+      1106.0,
+      282.5
+     ],
+     "lines": [
+      {
+       "text": "One rule.",
+       "baseline": 480,
+       "size_px": 312,
+       "leading_px": null,
+       "ink_x": [
+        94.2,
+        1196.2
+       ]
+      }
+     ],
+     "word_boxes": [
+      {
+       "text": "One",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        94.2,
+        209.4,
+        428.6,
+        273.0
+       ]
+      },
+      {
+       "text": "rule.",
+       "accent": true,
+       "color": "cobalt",
+       "bbox": [
+        607.2,
+        204.5,
+        589.0,
+        275.5
+       ],
+       "block_px_2x": 19,
+       "serif_size_px": 376.4
+      }
+     ],
+     "in": 160,
+     "out": 220,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 8.0,
+     "reveal": "word group 1: hard cut on beat 8"
+    },
+    {
+     "id": "C1_h1",
+     "scene": "C1",
+     "role": "headline",
+     "text": "Sell as prices fall. / Buy as they rise.",
+     "font": "Anton Regular",
+     "size_px": 168,
+     "tracking_em": -0.012,
+     "color": "ink",
+     "accent": null,
+     "file": "cards/C1/C1_h1.png",
+     "bbox": [
+      91.0,
+      514.0,
+      1156.5,
+      360.5
+     ],
+     "lines": [
+      {
+       "text": "Sell as prices fall.",
+       "baseline": 672,
+       "size_px": 168,
+       "leading_px": 192,
+       "ink_x": [
+        93.6,
+        1245.3
+       ]
+      },
+      {
+       "text": "Buy as they rise.",
+       "baseline": 852,
+       "size_px": 168,
+       "leading_px": 180,
+       "ink_x": [
+        96.0,
+        1165.4
+       ]
+      }
+     ],
+     "word_boxes": [
+      {
+       "text": "Sell",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        93.6,
+        526.3,
+        227.5,
+        147.0
+       ]
+      },
+      {
+       "text": "as",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        365.7,
+        547.6,
+        152.4,
+        125.7
+       ]
+      },
+      {
+       "text": "prices",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        562.5,
+        517.0,
+        406.8,
+        175.5
+       ]
+      },
+      {
+       "text": "fall.",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        1011.1,
+        526.1,
+        234.2,
+        147.2
+       ]
+      },
+      {
+       "text": "Buy",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        96.0,
+        707.6,
+        229.4,
+        164.9
+       ]
+      },
+      {
+       "text": "as",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        365.9,
+        727.6,
+        152.4,
+        125.7
+       ]
+      },
+      {
+       "text": "they",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        559.6,
+        707.6,
+        285.1,
+        164.9
+       ]
+      },
+      {
+       "text": "rise.",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        887.7,
+        697.0,
+        277.7,
+        156.4
+       ]
+      }
+     ],
+     "in": 180,
+     "out": 220,
+     "hold_frames": 40,
+     "hold_s": 1.333,
+     "in_beat": 9.0,
+     "reveal": "word group 2: hard cut on beat 9"
+    }
+   ],
+   "shapes": [
+    {
+     "id": "C1_C1_mint",
+     "scene": "C1",
+     "role": "shape",
+     "color": "mint",
+     "desc": "mint block bleeding off the top right",
+     "file": "shapes/C1_C1_mint.png",
+     "bbox": [
+      1536.0,
+      0.0,
+      384.0,
+      420.0
+     ],
+     "z": "behind type",
+     "in": 160,
+     "out": 220,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 8.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    },
+    {
+     "id": "C1_C1_steps",
+     "scene": "C1",
+     "role": "shape",
+     "color": "cobalt",
+     "desc": "cobalt stepped price path: falls, rests above the floor, rises",
+     "file": "shapes/C1_C1_steps.png",
+     "bbox": [
+      1392.0,
+      594.0,
+      432.0,
+      204.0
+     ],
+     "z": "behind type",
+     "in": 160,
+     "out": 220,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 8.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    },
+    {
+     "id": "C1_C1_floor",
+     "scene": "C1",
+     "role": "shape",
+     "color": "ink",
+     "desc": "ink floor rule under the steps, on the last baseline",
+     "file": "shapes/C1_C1_floor.png",
+     "bbox": [
+      1392.0,
+      852.0,
+      432.0,
+      6.0
+     ],
+     "z": "behind type",
+     "in": 160,
+     "out": 220,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 8.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    }
+   ],
+   "shapes_note": "shape layers sit on the card plane behind the type; colour layers may take riso misregistration",
+   "type_all_bbox": [
+    93.0,
+    96.0,
+    1152.5,
+    776.5
+   ]
+  },
+  {
+   "scene": "C2",
+   "title": "Card 02",
+   "frames": [
+    400,
+    460
+   ],
+   "plane": {
+    "w": 1920,
+    "h": 1080,
+    "paper": "#FAFAF8",
+    "asset_scale": 2
+   },
+   "type_all": "cards/C2/C2_type_all.png",
+   "lockup": null,
+   "assets": [
+    {
+     "id": "C2_label",
+     "scene": "C2",
+     "role": "label",
+     "text": "02 / TRY IT",
+     "font": "Geist Mono Medium",
+     "size_px": 30,
+     "tracking_em": 0.08,
+     "color": "cobalt",
+     "file": "cards/C2/C2_label.png",
+     "bbox": [
+      94.0,
+      94.0,
+      292.0,
+      55.5
+     ],
+     "baseline": 144,
+     "rule": {
+      "x": 96,
+      "y": 96,
+      "w": 288,
+      "h": 3,
+      "color": "cobalt"
+     },
+     "word_boxes": [
+      {
+       "text": "02",
+       "bbox": [
+        96.0,
+        122.2,
+        35.5,
+        22.3
+       ]
+      },
+      {
+       "text": "/",
+       "bbox": [
+        158.8,
+        121.5,
+        11.9,
+        25.8
+       ]
+      },
+      {
+       "text": "TRY",
+       "bbox": [
+        197.8,
+        122.7,
+        56.5,
+        21.3
+       ]
+      },
+      {
+       "text": "IT",
+       "bbox": [
+        280.5,
+        122.7,
+        34.9,
+        21.3
+       ]
+      }
+     ],
+     "in": 400,
+     "out": 460,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 20.0,
+     "reveal": "with the card (beat 0)"
+    },
+    {
+     "id": "C2_h0",
+     "scene": "C2",
+     "role": "headline",
+     "text": "Drag the floor.",
+     "font": "Anton Regular",
+     "size_px": 264,
+     "tracking_em": -0.015,
+     "color": "ink",
+     "accent": null,
+     "file": "cards/C2/C2_h0.png",
+     "bbox": [
+      94.0,
+      224.0,
+      1419.0,
+      267.5
+     ],
+     "lines": [
+      {
+       "text": "Drag the floor.",
+       "baseline": 456,
+       "size_px": 264,
+       "leading_px": null,
+       "ink_x": [
+        96.0,
+        1510.9
+       ]
+      }
+     ],
+     "word_boxes": [
+      {
+       "text": "Drag",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        96.0,
+        229.1,
+        445.9,
+        260.4
+       ]
+      },
+      {
+       "text": "the",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        608.8,
+        229.1,
+        323.2,
+        228.9
+       ]
+      },
+      {
+       "text": "floor.",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        998.7,
+        226.8,
+        512.2,
+        231.3
+       ]
+      }
+     ],
+     "in": 400,
+     "out": 460,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 20.0,
+     "reveal": "word group 1: hard cut on beat 20"
+    },
+    {
+     "id": "C2_h1",
+     "scene": "C2",
+     "role": "headline",
+     "text": "See the past.",
+     "font": "Anton Regular + pixel Instrument Serif Italic",
+     "size_px": 264,
+     "tracking_em": -0.015,
+     "color": "ink",
+     "accent": {
+      "word": "past.",
+      "color": "cobalt",
+      "style": "pixel serif italic"
+     },
+     "file": "cards/C2/C2_h1.png",
+     "bbox": [
+      90.0,
+      501.0,
+      1362.5,
+      297.0
+     ],
+     "lines": [
+      {
+       "text": "See the past.",
+       "baseline": 732,
+       "size_px": 264,
+       "leading_px": 276,
+       "ink_x": [
+        92.3,
+        1450.3
+       ]
+      }
+     ],
+     "word_boxes": [
+      {
+       "text": "See",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        92.3,
+        503.1,
+        358.8,
+        231.0
+       ]
+      },
+      {
+       "text": "the",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        516.8,
+        505.1,
+        323.2,
+        228.9
+       ]
+      },
+      {
+       "text": "past.",
+       "accent": true,
+       "color": "cobalt",
+       "bbox": [
+        914.3,
+        524.0,
+        536.0,
+        272.0
+       ],
+       "block_px_2x": 16,
+       "serif_size_px": 318.5
+      }
+     ],
+     "in": 420,
+     "out": 460,
+     "hold_frames": 40,
+     "hold_s": 1.333,
+     "in_beat": 21.0,
+     "reveal": "word group 2: hard cut on beat 21"
+    }
+   ],
+   "shapes": [
+    {
+     "id": "C2_C2_track",
+     "scene": "C2",
+     "role": "shape",
+     "color": "coral",
+     "desc": "coral slider track bar",
+     "file": "shapes/C2_C2_track.png",
+     "bbox": [
+      96.0,
+      888.0,
+      1248.0,
+      12.0
+     ],
+     "z": "behind type",
+     "in": 400,
+     "out": 460,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 20.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    },
+    {
+     "id": "C2_C2_thumb",
+     "scene": "C2",
+     "role": "shape",
+     "color": "cobalt",
+     "desc": "cobalt slider thumb on the track (may slide left on the \"Drag\" beat)",
+     "file": "shapes/C2_C2_thumb.png",
+     "bbox": [
+      1032.0,
+      858.0,
+      48.0,
+      72.0
+     ],
+     "z": "behind type",
+     "in": 400,
+     "out": 460,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 20.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    },
+    {
+     "id": "C2_C2_halftone",
+     "scene": "C2",
+     "role": "shape",
+     "color": "periwinkle",
+     "desc": "periwinkle halftone panel, bottom right",
+     "file": "shapes/C2_C2_halftone.png",
+     "bbox": [
+      1440.0,
+      816.0,
+      384.0,
+      216.0
+     ],
+     "z": "behind type",
+     "in": 400,
+     "out": 460,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 20.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    }
+   ],
+   "shapes_note": "shape layers sit on the card plane behind the type; colour layers may take riso misregistration",
+   "type_all_bbox": [
+    92.0,
+    96.0,
+    1419.0,
+    700.0
+   ]
+  },
+  {
+   "scene": "C3",
+   "title": "Card 03",
+   "frames": [
+    740,
+    800
+   ],
+   "plane": {
+    "w": 1920,
+    "h": 1080,
+    "paper": "#FAFAF8",
+    "asset_scale": 2
+   },
+   "type_all": "cards/C3/C3_type_all.png",
+   "lockup": null,
+   "assets": [
+    {
+     "id": "C3_label",
+     "scene": "C3",
+     "role": "label",
+     "text": "03 / SET YOURS",
+     "font": "Geist Mono Medium",
+     "size_px": 30,
+     "tracking_em": 0.08,
+     "color": "cobalt",
+     "file": "cards/C3/C3_label.png",
+     "bbox": [
+      94.0,
+      94.0,
+      292.0,
+      55.5
+     ],
+     "baseline": 144,
+     "rule": {
+      "x": 96,
+      "y": 96,
+      "w": 288,
+      "h": 3,
+      "color": "cobalt"
+     },
+     "word_boxes": [
+      {
+       "text": "03",
+       "bbox": [
+        96.0,
+        122.2,
+        35.5,
+        22.3
+       ]
+      },
+      {
+       "text": "/",
+       "bbox": [
+        158.8,
+        121.5,
+        11.9,
+        25.8
+       ]
+      },
+      {
+       "text": "SET",
+       "bbox": [
+        197.9,
+        122.2,
+        56.3,
+        22.3
+       ]
+      },
+      {
+       "text": "YOURS",
+       "bbox": [
+        279.3,
+        122.2,
+        97.2,
+        22.3
+       ]
+      }
+     ],
+     "in": 740,
+     "out": 800,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 37.0,
+     "reveal": "with the card (beat 0)"
+    },
+    {
+     "id": "C3_h0",
+     "scene": "C3",
+     "role": "headline",
+     "text": "A basket. A floor.",
+     "font": "Anton Regular + pixel Instrument Serif Italic",
+     "size_px": 240,
+     "tracking_em": -0.015,
+     "color": "ink",
+     "accent": {
+      "word": "floor.",
+      "color": "cobalt",
+      "style": "pixel serif italic"
+     },
+     "file": "cards/C3/C3_h0.png",
+     "bbox": [
+      91.0,
+      236.0,
+      1579.5,
+      224.0
+     ],
+     "lines": [
+      {
+       "text": "A basket. A floor.",
+       "baseline": 456,
+       "size_px": 240,
+       "leading_px": null,
+       "ink_x": [
+        93.0,
+        1668.5
+       ]
+      }
+     ],
+     "word_boxes": [
+      {
+       "text": "A",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        93.0,
+        249.8,
+        109.5,
+        206.2
+       ]
+      },
+      {
+       "text": "basket.",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        264.0,
+        249.8,
+        673.5,
+        208.1
+       ]
+      },
+      {
+       "text": "A",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        996.5,
+        249.8,
+        109.5,
+        206.2
+       ]
+      },
+      {
+       "text": "floor.",
+       "accent": true,
+       "color": "cobalt",
+       "bbox": [
+        1166.0,
+        238.5,
+        502.5,
+        217.5
+       ],
+       "block_px_2x": 15,
+       "serif_size_px": 289.5
+      }
+     ],
+     "in": 740,
+     "out": 800,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 37.0,
+     "reveal": "word group 1: hard cut on beat 37"
+    },
+    {
+     "id": "C3_h1",
+     "scene": "C3",
+     "role": "headline",
+     "text": "A term.",
+     "font": "Anton Regular",
+     "size_px": 240,
+     "tracking_em": -0.015,
+     "color": "ink",
+     "accent": null,
+     "file": "cards/C3/C3_h1.png",
+     "bbox": [
+      91.0,
+      499.0,
+      653.5,
+      213.0
+     ],
+     "lines": [
+      {
+       "text": "A term.",
+       "baseline": 708,
+       "size_px": 240,
+       "leading_px": 252,
+       "ink_x": [
+        93.0,
+        742.3
+       ]
+      }
+     ],
+     "word_boxes": [
+      {
+       "text": "A",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        93.0,
+        501.8,
+        109.5,
+        206.2
+       ]
+      },
+      {
+       "text": "term.",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        258.9,
+        501.8,
+        483.4,
+        208.1
+       ]
+      }
+     ],
+     "in": 760,
+     "out": 800,
+     "hold_frames": 40,
+     "hold_s": 1.333,
+     "in_beat": 38.0,
+     "reveal": "word group 2: hard cut on beat 38"
+    }
+   ],
+   "shapes": [
+    {
+     "id": "C3_C3_floor",
+     "scene": "C3",
+     "role": "shape",
+     "color": "cobalt",
+     "desc": "cobalt floor line on the baseline of \"A term.\"",
+     "file": "shapes/C3_C3_floor.png",
+     "bbox": [
+      912.0,
+      708.0,
+      912.0,
+      6.0
+     ],
+     "z": "behind type",
+     "in": 740,
+     "out": 800,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 37.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    },
+    {
+     "id": "C3_C3_mint",
+     "scene": "C3",
+     "role": "shape",
+     "color": "mint",
+     "desc": "mint token block resting on the floor line",
+     "file": "shapes/C3_C3_mint.png",
+     "bbox": [
+      1056.0,
+      552.0,
+      144.0,
+      156.0
+     ],
+     "z": "behind type",
+     "in": 740,
+     "out": 800,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 37.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    },
+    {
+     "id": "C3_C3_peri",
+     "scene": "C3",
+     "role": "shape",
+     "color": "periwinkle",
+     "desc": "periwinkle halftone token block",
+     "file": "shapes/C3_C3_peri.png",
+     "bbox": [
+      1272.0,
+      600.0,
+      144.0,
+      108.0
+     ],
+     "z": "behind type",
+     "in": 740,
+     "out": 800,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 37.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    },
+    {
+     "id": "C3_C3_coral",
+     "scene": "C3",
+     "role": "shape",
+     "color": "coral",
+     "desc": "coral token block resting on the floor line",
+     "file": "shapes/C3_C3_coral.png",
+     "bbox": [
+      1488.0,
+      576.0,
+      144.0,
+      132.0
+     ],
+     "z": "behind type",
+     "in": 740,
+     "out": 800,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 37.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    }
+   ],
+   "shapes_note": "shape layers sit on the card plane behind the type; colour layers may take riso misregistration",
+   "type_all_bbox": [
+    93.0,
+    96.0,
+    1575.5,
+    614.0
+   ]
+  },
+  {
+   "scene": "C4",
+   "title": "Card 04",
+   "frames": [
+    1120,
+    1180
+   ],
+   "plane": {
+    "w": 1920,
+    "h": 1080,
+    "paper": "#FAFAF8",
+    "asset_scale": 2
+   },
+   "type_all": "cards/C4/C4_type_all.png",
+   "lockup": null,
+   "assets": [
+    {
+     "id": "C4_label",
+     "scene": "C4",
+     "role": "label",
+     "text": "04 / YOUR OWN VAULT",
+     "font": "Geist Mono Medium",
+     "size_px": 30,
+     "tracking_em": 0.08,
+     "color": "cobalt",
+     "file": "cards/C4/C4_label.png",
+     "bbox": [
+      94.0,
+      94.0,
+      387.0,
+      55.5
+     ],
+     "baseline": 144,
+     "rule": {
+      "x": 96,
+      "y": 96,
+      "w": 288,
+      "h": 3,
+      "color": "cobalt"
+     },
+     "word_boxes": [
+      {
+       "text": "04",
+       "bbox": [
+        96.0,
+        122.2,
+        35.9,
+        22.3
+       ]
+      },
+      {
+       "text": "/",
+       "bbox": [
+        158.8,
+        121.5,
+        11.9,
+        25.8
+       ]
+      },
+      {
+       "text": "YOUR",
+       "bbox": [
+        197.7,
+        122.2,
+        76.2,
+        22.3
+       ]
+      },
+      {
+       "text": "OWN",
+       "bbox": [
+        299.6,
+        122.2,
+        55.7,
+        22.3
+       ]
+      },
+      {
+       "text": "VAULT",
+       "bbox": [
+        381.0,
+        122.7,
+        97.6,
+        21.8
+       ]
+      }
+     ],
+     "in": 1120,
+     "out": 1180,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 56.0,
+     "reveal": "with the card (beat 0)"
+    },
+    {
+     "id": "C4_h0",
+     "scene": "C4",
+     "role": "headline",
+     "text": "Your money.",
+     "font": "Anton Regular",
+     "size_px": 288,
+     "tracking_em": -0.015,
+     "color": "ink",
+     "accent": null,
+     "file": "cards/C4/C4_h0.png",
+     "bbox": [
+      86.0,
+      218.0,
+      1361.5,
+      287.5
+     ],
+     "lines": [
+      {
+       "text": "Your money.",
+       "baseline": 468,
+       "size_px": 288,
+       "leading_px": null,
+       "ink_x": [
+        88.8,
+        1445.4
+       ]
+      }
+     ],
+     "word_boxes": [
+      {
+       "text": "Your",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        88.8,
+        220.5,
+        487.0,
+        249.8
+       ]
+      },
+      {
+       "text": "money.",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        647.0,
+        254.8,
+        798.4,
+        248.3
+       ]
+      }
+     ],
+     "in": 1120,
+     "out": 1180,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 56.0,
+     "reveal": "word group 1: hard cut on beat 56"
+    },
+    {
+     "id": "C4_h1",
+     "scene": "C4",
+     "role": "headline",
+     "text": "Your vault.",
+     "font": "Anton Regular + pixel Instrument Serif Italic",
+     "size_px": 288,
+     "tracking_em": -0.015,
+     "color": "ink",
+     "accent": {
+      "word": "vault.",
+      "color": "ink",
+      "style": "pixel serif italic"
+     },
+     "file": "cards/C4/C4_h1.png",
+     "bbox": [
+      86.0,
+      505.0,
+      1252.0,
+      267.5
+     ],
+     "lines": [
+      {
+       "text": "Your vault.",
+       "baseline": 768,
+       "size_px": 288,
+       "leading_px": 300,
+       "ink_x": [
+        88.8,
+        1336.2
+       ]
+      }
+     ],
+     "word_boxes": [
+      {
+       "text": "Your",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        88.8,
+        520.5,
+        487.0,
+        249.8
+       ]
+      },
+      {
+       "text": "vault.",
+       "accent": true,
+       "color": "ink",
+       "bbox": [
+        643.2,
+        507.0,
+        693.0,
+        261.0
+       ],
+       "block_px_2x": 18,
+       "serif_size_px": 347.4
+      }
+     ],
+     "in": 1140,
+     "out": 1180,
+     "hold_frames": 40,
+     "hold_s": 1.333,
+     "in_beat": 57.0,
+     "reveal": "word group 2: hard cut on beat 57"
+    },
+    {
+     "id": "C4_sub",
+     "scene": "C4",
+     "role": "sub",
+     "text": "One vault per position. Only you can exit it.",
+     "font": "Geist Mono Medium",
+     "size_px": 32,
+     "tracking_em": 0,
+     "color": "ink",
+     "file": "cards/C4/C4_sub.png",
+     "bbox": [
+      94.0,
+      874.0,
+      859.5,
+      33.0
+     ],
+     "baseline": 900,
+     "word_boxes": [
+      {
+       "text": "One",
+       "bbox": [
+        96.0,
+        876.8,
+        54.6,
+        23.7
+       ]
+      },
+      {
+       "text": "vault",
+       "bbox": [
+        173.1,
+        877.3,
+        92.1,
+        23.1
+       ]
+      },
+      {
+       "text": "per",
+       "bbox": [
+        289.2,
+        882.6,
+        53.6,
+        22.2
+       ]
+      },
+      {
+       "text": "position.",
+       "bbox": [
+        366.0,
+        877.2,
+        163.1,
+        27.6
+       ]
+      },
+      {
+       "text": "Only",
+       "bbox": [
+        556.8,
+        876.8,
+        74.2,
+        28.0
+       ]
+      },
+      {
+       "text": "you",
+       "bbox": [
+        653.1,
+        882.6,
+        53.2,
+        22.2
+       ]
+      },
+      {
+       "text": "can",
+       "bbox": [
+        730.5,
+        882.6,
+        53.0,
+        17.8
+       ]
+      },
+      {
+       "text": "exit",
+       "bbox": [
+        807.1,
+        877.2,
+        72.5,
+        23.2
+       ]
+      },
+      {
+       "text": "it.",
+       "bbox": [
+        903.7,
+        877.2,
+        47.7,
+        22.8
+       ]
+      }
+     ],
+     "opentype_features": null,
+     "variant_only": null,
+     "in": 1140,
+     "out": 1180,
+     "hold_frames": 40,
+     "hold_s": 1.333,
+     "in_beat": 57.0,
+     "reveal": "appears on beat 57"
+    }
+   ],
+   "shapes": [
+    {
+     "id": "C4_C4_halftone",
+     "scene": "C4",
+     "role": "shape",
+     "color": "periwinkle",
+     "desc": "periwinkle halftone offset behind the vault block",
+     "file": "shapes/C4_C4_halftone.png",
+     "bbox": [
+      1644.0,
+      132.0,
+      216.0,
+      672.0
+     ],
+     "z": "behind type",
+     "in": 1120,
+     "out": 1180,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 56.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    },
+    {
+     "id": "C4_C4_block",
+     "scene": "C4",
+     "role": "shape",
+     "color": "cobalt",
+     "desc": "cobalt vault block, top margin to the last baseline",
+     "file": "shapes/C4_C4_block.png",
+     "bbox": [
+      1608.0,
+      96.0,
+      216.0,
+      672.0
+     ],
+     "z": "behind type",
+     "in": 1120,
+     "out": 1180,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 56.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    },
+    {
+     "id": "C4_C4_key",
+     "scene": "C4",
+     "role": "shape",
+     "color": "mint",
+     "desc": "mint square on the vault block",
+     "file": "shapes/C4_C4_key.png",
+     "bbox": [
+      1680.0,
+      396.0,
+      72.0,
+      72.0
+     ],
+     "z": "behind type",
+     "in": 1120,
+     "out": 1180,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 56.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    }
+   ],
+   "shapes_note": "shape layers sit on the card plane behind the type; colour layers may take riso misregistration",
+   "type_all_bbox": [
+    88.0,
+    96.0,
+    1357.5,
+    809.0
+   ]
+  },
+  {
+   "scene": "C5",
+   "title": "Card 05",
+   "frames": [
+    1360,
+    1420
+   ],
+   "plane": {
+    "w": 1920,
+    "h": 1080,
+    "paper": "#FAFAF8",
+    "asset_scale": 2
+   },
+   "type_all": "cards/C5/C5_type_all.png",
+   "lockup": null,
+   "assets": [
+    {
+     "id": "C5_label",
+     "scene": "C5",
+     "role": "label",
+     "text": "05 / FOR AGENTS",
+     "font": "Geist Mono Medium",
+     "size_px": 30,
+     "tracking_em": 0.08,
+     "color": "cobalt",
+     "file": "cards/C5/C5_label.png",
+     "bbox": [
+      94.0,
+      94.0,
+      305.0,
+      55.5
+     ],
+     "baseline": 144,
+     "rule": {
+      "x": 96,
+      "y": 96,
+      "w": 288,
+      "h": 3,
+      "color": "cobalt"
+     },
+     "word_boxes": [
+      {
+       "text": "05",
+       "bbox": [
+        96.0,
+        122.2,
+        35.3,
+        22.3
+       ]
+      },
+      {
+       "text": "/",
+       "bbox": [
+        158.8,
+        121.5,
+        11.9,
+        25.8
+       ]
+      },
+      {
+       "text": "FOR",
+       "bbox": [
+        199.5,
+        122.2,
+        54.0,
+        22.3
+       ]
+      },
+      {
+       "text": "AGENTS",
+       "bbox": [
+        278.9,
+        122.2,
+        118.0,
+        22.3
+       ]
+      }
+     ],
+     "in": 1360,
+     "out": 1420,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 68.0,
+     "reveal": "with the card (beat 0)"
+    },
+    {
+     "id": "C5_h0",
+     "scene": "C5",
+     "role": "headline",
+     "text": "Your agent can",
+     "font": "Anton Regular + pixel Instrument Serif Italic",
+     "size_px": 252,
+     "tracking_em": -0.015,
+     "color": "ink",
+     "accent": {
+      "word": "agent",
+      "color": "cobalt",
+      "style": "pixel serif italic"
+     },
+     "file": "cards/C5/C5_h0.png",
+     "bbox": [
+      87.0,
+      237.0,
+      1512.5,
+      285.0
+     ],
+     "lines": [
+      {
+       "text": "Your agent can",
+       "baseline": 456,
+       "size_px": 252,
+       "leading_px": null,
+       "ink_x": [
+        89.7,
+        1597.2
+       ]
+      }
+     ],
+     "word_boxes": [
+      {
+       "text": "Your",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        89.7,
+        239.4,
+        426.1,
+        218.5
+       ]
+      },
+      {
+       "text": "agent",
+       "accent": true,
+       "color": "cobalt",
+       "bbox": [
+        577.2,
+        256.0,
+        608.0,
+        264.0
+       ],
+       "block_px_2x": 16,
+       "serif_size_px": 304.0
+      },
+      {
+       "text": "can",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        1249.3,
+        269.5,
+        347.9,
+        188.5
+       ]
+      }
+     ],
+     "in": 1360,
+     "out": 1420,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 68.0,
+     "reveal": "word group 1: hard cut on beat 68"
+    },
+    {
+     "id": "C5_h1",
+     "scene": "C5",
+     "role": "headline",
+     "text": "use it too.",
+     "font": "Anton Regular",
+     "size_px": 252,
+     "tracking_em": -0.015,
+     "color": "ink",
+     "accent": null,
+     "file": "cards/C5/C5_h1.png",
+     "bbox": [
+      93.0,
+      485.0,
+      959.5,
+      239.0
+     ],
+     "lines": [
+      {
+       "text": "use it too.",
+       "baseline": 720,
+       "size_px": 252,
+       "leading_px": 264,
+       "ink_x": [
+        95.6,
+        1050.2
+       ]
+      }
+     ],
+     "word_boxes": [
+      {
+       "text": "use",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        95.6,
+        533.5,
+        345.3,
+        188.5
+       ]
+      },
+      {
+       "text": "it",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        508.2,
+        487.4,
+        120.6,
+        234.5
+       ]
+      },
+      {
+       "text": "too.",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        689.6,
+        503.4,
+        360.6,
+        218.5
+       ]
+      }
+     ],
+     "in": 1380,
+     "out": 1420,
+     "hold_frames": 40,
+     "hold_s": 1.333,
+     "in_beat": 69.0,
+     "reveal": "word group 2: hard cut on beat 69"
+    }
+   ],
+   "shapes": [
+    {
+     "id": "C5_C5_halftone",
+     "scene": "C5",
+     "role": "shape",
+     "color": "periwinkle",
+     "desc": "periwinkle halftone panel (offset under the coral block)",
+     "file": "shapes/C5_C5_halftone.png",
+     "bbox": [
+      1200.0,
+      744.0,
+      576.0,
+      216.0
+     ],
+     "z": "behind type",
+     "in": 1360,
+     "out": 1420,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 68.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    },
+    {
+     "id": "C5_C5_coral",
+     "scene": "C5",
+     "role": "shape",
+     "color": "coral",
+     "desc": "coral block, bottom right",
+     "file": "shapes/C5_C5_coral.png",
+     "bbox": [
+      1248.0,
+      792.0,
+      576.0,
+      144.0
+     ],
+     "z": "behind type",
+     "in": 1360,
+     "out": 1420,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 68.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    },
+    {
+     "id": "C5_C5_pixels",
+     "scene": "C5",
+     "role": "shape",
+     "color": "mint",
+     "desc": "mint pixel squares (24 px cells)",
+     "file": "shapes/C5_C5_pixels.png",
+     "bbox": [
+      1656.0,
+      168.0,
+      96.0,
+      72.0
+     ],
+     "z": "behind type",
+     "in": 1360,
+     "out": 1420,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 68.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    }
+   ],
+   "shapes_note": "shape layers sit on the card plane behind the type; colour layers may take riso misregistration",
+   "type_all_bbox": [
+    89.0,
+    96.0,
+    1508.5,
+    626.0
+   ]
+  },
+  {
+   "scene": "E1",
+   "title": "Honest card",
+   "frames": [
+    1580,
+    1680
+   ],
+   "plane": {
+    "w": 1920,
+    "h": 1080,
+    "paper": "#FAFAF8",
+    "asset_scale": 2
+   },
+   "type_all": "cards/E1/E1_type_all.png",
+   "lockup": null,
+   "assets": [
+    {
+     "id": "E1_h0",
+     "scene": "E1",
+     "role": "headline",
+     "text": "A floor is not",
+     "font": "Anton Regular",
+     "size_px": 264,
+     "tracking_em": -0.015,
+     "color": "ink",
+     "accent": null,
+     "file": "cards/E1/E1_h0.png",
+     "bbox": [
+      90.0,
+      174.0,
+      1284.0,
+      250.5
+     ],
+     "lines": [
+      {
+       "text": "A floor is not",
+       "baseline": 420,
+       "size_px": 264,
+       "leading_px": null,
+       "ink_x": [
+        92.7,
+        1371.7
+       ]
+      }
+     ],
+     "word_boxes": [
+      {
+       "text": "A",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        92.7,
+        193.1,
+        120.4,
+        226.9
+       ]
+      },
+      {
+       "text": "floor",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        276.1,
+        190.8,
+        470.1,
+        231.3
+       ]
+      },
+      {
+       "text": "is",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        811.3,
+        176.4,
+        171.6,
+        245.7
+       ]
+      },
+      {
+       "text": "not",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        1051.0,
+        193.1,
+        320.7,
+        228.9
+       ]
+      }
+     ],
+     "in": 1580,
+     "out": 1680,
+     "hold_frames": 100,
+     "hold_s": 3.333,
+     "in_beat": 79.0,
+     "reveal": "word group 1: hard cut on beat 79"
+    },
+    {
+     "id": "E1_h1",
+     "scene": "E1",
+     "role": "headline",
+     "text": "a guarantee.",
+     "font": "Anton Regular + pixel Instrument Serif Italic",
+     "size_px": 264,
+     "tracking_em": -0.015,
+     "color": "ink",
+     "accent": {
+      "word": "guarantee.",
+      "color": "ink",
+      "style": "pixel serif italic"
+     },
+     "file": "cards/E1/E1_h1.png",
+     "bbox": [
+      89.0,
+      486.0,
+      1430.5,
+      284.0
+     ],
+     "lines": [
+      {
+       "text": "a guarantee.",
+       "baseline": 696,
+       "size_px": 264,
+       "leading_px": 276,
+       "ink_x": [
+        91.9,
+        1517.6
+       ]
+      }
+     ],
+     "word_boxes": [
+      {
+       "text": "a",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        91.9,
+        500.6,
+        113.8,
+        197.5
+       ]
+      },
+      {
+       "text": "guarantee.",
+       "accent": true,
+       "color": "ink",
+       "bbox": [
+        277.6,
+        488.0,
+        1240.0,
+        280.0
+       ],
+       "block_px_2x": 16,
+       "serif_size_px": 318.5
+      }
+     ],
+     "in": 1600,
+     "out": 1680,
+     "hold_frames": 80,
+     "hold_s": 2.667,
+     "in_beat": 80.0,
+     "reveal": "word group 2: hard cut on beat 80"
+    },
+    {
+     "id": "E1_sub",
+     "scene": "E1",
+     "role": "sub",
+     "text": "Price gaps. Delayed sells. Token and contract risk.",
+     "font": "Geist Mono Medium",
+     "size_px": 32,
+     "tracking_em": 0,
+     "color": "ink",
+     "file": "cards/E1/E1_sub.png",
+     "bbox": [
+      94.0,
+      839.0,
+      973.5,
+      32.5
+     ],
+     "baseline": 864,
+     "word_boxes": [
+      {
+       "text": "Price",
+       "bbox": [
+        96.0,
+        841.2,
+        91.4,
+        23.2
+       ]
+      },
+      {
+       "text": "gaps.",
+       "bbox": [
+        210.2,
+        846.6,
+        86.8,
+        22.6
+       ]
+      },
+      {
+       "text": "Delayed",
+       "bbox": [
+        326.3,
+        841.3,
+        129.1,
+        27.5
+       ]
+      },
+      {
+       "text": "sells.",
+       "bbox": [
+        479.6,
+        841.3,
+        105.4,
+        23.1
+       ]
+      },
+      {
+       "text": "Token",
+       "bbox": [
+        612.9,
+        841.3,
+        92.2,
+        23.1
+       ]
+      },
+      {
+       "text": "and",
+       "bbox": [
+        728.5,
+        841.3,
+        53.3,
+        23.1
+       ]
+      },
+      {
+       "text": "contract",
+       "bbox": [
+        805.7,
+        843.0,
+        149.1,
+        21.4
+       ]
+      },
+      {
+       "text": "risk.",
+       "bbox": [
+        979.1,
+        841.2,
+        85.9,
+        23.2
+       ]
+      }
+     ],
+     "opentype_features": null,
+     "variant_only": null,
+     "in": 1620,
+     "out": 1680,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 81.0,
+     "reveal": "appears on beat 81"
+    }
+   ],
+   "shapes": [
+    {
+     "id": "E1_E1_floor_broken",
+     "scene": "E1",
+     "role": "shape",
+     "color": "cobalt",
+     "desc": "cobalt floor line with a gap and a step down (a price gap)",
+     "file": "shapes/E1_E1_floor_broken.png",
+     "bbox": [
+      0.0,
+      924.0,
+      1920.0,
+      30.0
+     ],
+     "z": "behind type",
+     "in": 1580,
+     "out": 1680,
+     "hold_frames": 100,
+     "hold_s": 3.333,
+     "in_beat": 79.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    },
+    {
+     "id": "E1_E1_coral",
+     "scene": "E1",
+     "role": "shape",
+     "color": "coral",
+     "desc": "coral block hanging from the top edge",
+     "file": "shapes/E1_E1_coral.png",
+     "bbox": [
+      1584.0,
+      0.0,
+      240.0,
+      228.0
+     ],
+     "z": "behind type",
+     "in": 1580,
+     "out": 1680,
+     "hold_frames": 100,
+     "hold_s": 3.333,
+     "in_beat": 79.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    },
+    {
+     "id": "E1_E1_halftone",
+     "scene": "E1",
+     "role": "shape",
+     "color": "ink",
+     "desc": "ink halftone strip (45 deg screen)",
+     "file": "shapes/E1_E1_halftone.png",
+     "bbox": [
+      1344.0,
+      792.0,
+      480.0,
+      120.0
+     ],
+     "z": "behind type",
+     "in": 1580,
+     "out": 1680,
+     "hold_frames": 100,
+     "hold_s": 3.333,
+     "in_beat": 79.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    }
+   ],
+   "shapes_note": "shape layers sit on the card plane behind the type; colour layers may take riso misregistration",
+   "type_all_bbox": [
+    91.0,
+    176.0,
+    1426.5,
+    693.5
+   ]
+  },
+  {
+   "scene": "E2",
+   "title": "End card",
+   "frames": [
+    1680,
+    1800
+   ],
+   "plane": {
+    "w": 1920,
+    "h": 1080,
+    "paper": "#FAFAF8",
+    "asset_scale": 2
+   },
+   "type_all": "cards/E2/E2_type_all.png",
+   "lockup": {
+    "file": "design/logo/floor-lockup-light.svg (repo file, unmodified, scaled uniformly)",
+    "x": 96,
+    "y": 660,
+    "w": 320,
+    "h": 64.36,
+    "clear_space_px": 32.2,
+    "stamp_frame": 1720,
+    "note": "no misregistration, halftone or blur on the lockup (BRAND.md)"
+   },
+   "assets": [
+    {
+     "id": "E2_h0",
+     "scene": "E2",
+     "role": "headline",
+     "text": "We are live",
+     "font": "Anton Regular",
+     "size_px": 240,
+     "tracking_em": -0.015,
+     "color": "ink",
+     "accent": null,
+     "file": "cards/E2/E2_h0.png",
+     "bbox": [
+      90.0,
+      88.0,
+      1014.0,
+      228.0
+     ],
+     "lines": [
+      {
+       "text": "We are live",
+       "baseline": 312,
+       "size_px": 240,
+       "leading_px": null,
+       "ink_x": [
+        92.6,
+        1101.7
+       ]
+      }
+     ],
+     "word_boxes": [
+      {
+       "text": "We",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        92.6,
+        105.8,
+        272.1,
+        208.1
+       ]
+      },
+      {
+       "text": "are",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        425.4,
+        134.1,
+        292.3,
+        179.8
+       ]
+      },
+      {
+       "text": "live",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        782.0,
+        90.5,
+        319.7,
+        223.4
+       ]
+      }
+     ],
+     "in": 1680,
+     "out": 1800,
+     "hold_frames": 120,
+     "hold_s": 4.0,
+     "in_beat": 84.0,
+     "reveal": "word group 1: hard cut on beat 84"
+    },
+    {
+     "id": "E2_h1",
+     "scene": "E2",
+     "role": "headline",
+     "text": "on mainnet.",
+     "font": "Anton Regular + pixel Instrument Serif Italic",
+     "size_px": 240,
+     "tracking_em": -0.015,
+     "color": "ink",
+     "accent": {
+      "word": "mainnet.",
+      "color": "cobalt",
+      "style": "pixel serif italic"
+     },
+     "file": "cards/E2/E2_h1.png",
+     "bbox": [
+      92.0,
+      359.0,
+      1238.5,
+      209.0
+     ],
+     "lines": [
+      {
+       "text": "on mainnet.",
+       "baseline": 564,
+       "size_px": 240,
+       "leading_px": 252,
+       "ink_x": [
+        94.5,
+        1328.4
+       ]
+      }
+     ],
+     "word_boxes": [
+      {
+       "text": "on",
+       "accent": false,
+       "color": "ink",
+       "bbox": [
+        94.5,
+        386.3,
+        220.2,
+        179.5
+       ]
+      },
+      {
+       "text": "mainnet.",
+       "accent": true,
+       "color": "cobalt",
+       "bbox": [
+        383.4,
+        361.5,
+        945.0,
+        202.5
+       ],
+       "block_px_2x": 15,
+       "serif_size_px": 289.5
+      }
+     ],
+     "in": 1700,
+     "out": 1800,
+     "hold_frames": 100,
+     "hold_s": 3.333,
+     "in_beat": 85.0,
+     "reveal": "word group 2: hard cut on beat 85"
+    },
+    {
+     "id": "E2_factory",
+     "scene": "E2",
+     "role": "sub",
+     "text": "Factory 0x1147d482fD08DDd7F377838efb610B606B3Ad765",
+     "font": "Geist Mono Medium",
+     "size_px": 30,
+     "tracking_em": 0,
+     "color": "ink",
+     "file": "cards/E2/E2_factory.png",
+     "bbox": [
+      94.0,
+      768.0,
+      899.5,
+      30.5
+     ],
+     "baseline": 792,
+     "word_boxes": [
+      {
+       "text": "Factory",
+       "bbox": [
+        96.0,
+        770.7,
+        121.7,
+        25.8
+       ]
+      },
+      {
+       "text": "0x1147d482fD08DDd7F377838efb610B606B3Ad765",
+       "bbox": [
+        238.5,
+        770.2,
+        752.9,
+        22.3
+       ]
+      }
+     ],
+     "opentype_features": {
+      "kern": true,
+      "ss09": true
+     },
+     "variant_only": null,
+     "in": 1740,
+     "out": 1800,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 87.0,
+     "reveal": "appears on beat 87"
+    },
+    {
+     "id": "E2_url",
+     "scene": "E2",
+     "role": "sub",
+     "text": "floor.ayush.works",
+     "font": "Geist Mono Medium",
+     "size_px": 30,
+     "tracking_em": 0,
+     "color": "cobalt",
+     "file": "cards/E2/E2_url.png",
+     "bbox": [
+      94.0,
+      816.0,
+      306.0,
+      30.5
+     ],
+     "baseline": 840,
+     "word_boxes": [
+      {
+       "text": "floor.ayush.works",
+       "bbox": [
+        96.0,
+        818.7,
+        301.7,
+        25.8
+       ]
+      }
+     ],
+     "opentype_features": null,
+     "variant_only": null,
+     "in": 1740,
+     "out": 1800,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 87.0,
+     "reveal": "appears on beat 87"
+    },
+    {
+     "id": "E2_mono",
+     "scene": "E2",
+     "role": "sub",
+     "text": "BNB Chain · Launch caps · No human audit",
+     "font": "Geist Mono Medium",
+     "size_px": 30,
+     "tracking_em": 0,
+     "color": "ink",
+     "file": "cards/E2/E2_mono.png",
+     "bbox": [
+      94.0,
+      876.0,
+      719.5,
+      30.5
+     ],
+     "baseline": 900,
+     "word_boxes": [
+      {
+       "text": "BNB",
+       "bbox": [
+        96.0,
+        878.7,
+        50.2,
+        21.3
+       ]
+      },
+      {
+       "text": "Chain",
+       "bbox": [
+        166.6,
+        878.2,
+        86.5,
+        22.3
+       ]
+      },
+      {
+       "text": "·",
+       "bbox": [
+        280.5,
+        888.9,
+        4.1,
+        4.0
+       ]
+      },
+      {
+       "text": "Launch",
+       "bbox": [
+        312.4,
+        878.7,
+        102.8,
+        21.7
+       ]
+      },
+      {
+       "text": "caps",
+       "bbox": [
+        437.4,
+        883.7,
+        67.8,
+        20.8
+       ]
+      },
+      {
+       "text": "·",
+       "bbox": [
+        532.5,
+        888.9,
+        4.1,
+        4.0
+       ]
+      },
+      {
+       "text": "No",
+       "bbox": [
+        563.6,
+        878.7,
+        32.3,
+        21.7
+       ]
+      },
+      {
+       "text": "human",
+       "bbox": [
+        618.3,
+        878.7,
+        84.8,
+        21.7
+       ]
+      },
+      {
+       "text": "audit",
+       "bbox": [
+        725.0,
+        878.6,
+        86.2,
+        21.8
+       ]
+      }
+     ],
+     "opentype_features": null,
+     "variant_only": null,
+     "in": 1740,
+     "out": 1800,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 87.0,
+     "reveal": "appears on beat 87"
+    },
+    {
+     "id": "E2_small",
+     "scene": "E2",
+     "role": "sub",
+     "text": "App screens in this video show example data.",
+     "font": "Geist Mono Regular",
+     "size_px": 26,
+     "tracking_em": 0,
+     "color": "ink",
+     "file": "cards/E2/E2_small.png",
+     "bbox": [
+      94.0,
+      927.0,
+      684.0,
+      27.0
+     ],
+     "baseline": 948,
+     "word_boxes": [
+      {
+       "text": "App",
+       "bbox": [
+        96.0,
+        929.5,
+        44.8,
+        22.4
+       ]
+      },
+      {
+       "text": "screens",
+       "bbox": [
+        159.8,
+        933.9,
+        105.0,
+        14.4
+       ]
+      },
+      {
+       "text": "in",
+       "bbox": [
+        284.6,
+        929.5,
+        26.9,
+        18.5
+       ]
+      },
+      {
+       "text": "this",
+       "bbox": [
+        330.6,
+        929.5,
+        59.0,
+        18.8
+       ]
+      },
+      {
+       "text": "video",
+       "bbox": [
+        408.6,
+        929.5,
+        75.2,
+        18.8
+       ]
+      },
+      {
+       "text": "show",
+       "bbox": [
+        503.0,
+        929.5,
+        59.8,
+        18.8
+       ]
+      },
+      {
+       "text": "example",
+       "bbox": [
+        580.6,
+        929.5,
+        105.9,
+        22.4
+       ]
+      },
+      {
+       "text": "data.",
+       "bbox": [
+        704.8,
+        929.5,
+        70.8,
+        18.8
+       ]
+      }
+     ],
+     "opentype_features": null,
+     "variant_only": null,
+     "in": 1740,
+     "out": 1800,
+     "hold_frames": 60,
+     "hold_s": 2.0,
+     "in_beat": 87.0,
+     "reveal": "appears on beat 87"
+    }
+   ],
+   "shapes": [
+    {
+     "id": "E2_floorline_full",
+     "scene": "E2",
+     "role": "shape",
+     "color": "cobalt",
+     "desc": "cobalt floor line, full bleed, y 1002-1008; draws left to right",
+     "file": "shapes/E2_floorline_full.png",
+     "bbox": [
+      0.0,
+      1002.0,
+      1920.0,
+      6.0
+     ],
+     "z": "behind type",
+     "in": 1680,
+     "out": 1800,
+     "hold_frames": 120,
+     "hold_s": 4.0,
+     "in_beat": 84.0,
+     "reveal": "present when the card arrives"
+    },
+    {
+     "id": "E2_underline_mint",
+     "scene": "E2",
+     "role": "shape",
+     "color": "mint",
+     "desc": "mint underline bar under the accent word (18 px), wipes left to right on the accent beat",
+     "file": "shapes/E2_underline_mint.png",
+     "bbox": [
+      383.0,
+      588.0,
+      945.5,
+      18.0
+     ],
+     "z": "behind type",
+     "in": 1680,
+     "out": 1800,
+     "hold_frames": 120,
+     "hold_s": 4.0,
+     "in_beat": 84.0,
+     "reveal": "wipes in left to right on frame 1700 + 4"
+    },
+    {
+     "id": "E2_E2_pixels",
+     "scene": "E2",
+     "role": "shape",
+     "color": "coral",
+     "desc": "coral pixel squares (24 px cells)",
+     "file": "shapes/E2_E2_pixels.png",
+     "bbox": [
+      1704.0,
+      600.0,
+      96.0,
+      72.0
+     ],
+     "z": "behind type",
+     "in": 1680,
+     "out": 1800,
+     "hold_frames": 120,
+     "hold_s": 4.0,
+     "in_beat": 84.0,
+     "reveal": "present with the card plane (the paper already carries it)"
+    }
+   ],
+   "shapes_note": "shape layers sit on the card plane behind the type; colour layers may take riso misregistration",
+   "type_all_bbox": [
+    92.0,
+    90.0,
+    1236.5,
+    862.0
+   ]
+  }
+ ],
+ "callouts": [
+  {
+   "id": "T1_drag",
+   "scene": "T1",
+   "role": "callout",
+   "text": "Drag the floor.",
+   "lines": [
+    "Drag the floor."
+   ],
+   "font": "Anton Regular",
+   "size_px": 72,
+   "leading_px": null,
+   "tracking_em": -0.008,
+   "color": "ink",
+   "sticker": {
+    "color": "coral",
+    "hex": "#FF7469",
+    "shadow_color": "cobalt",
+    "shadow_offset_px": [
+     12,
+     12
+    ],
+    "angle_deg": -1.6,
+    "corners": [
+     [
+      21.8,
+      26.5
+     ],
+     [
+      471.7,
+      17.5
+     ],
+     [
+      475.2,
+      129.2
+     ],
+     [
+      25.5,
+      140.4
+     ]
+    ]
+   },
+   "files": {
+    "shadow": "callouts/T1_drag/T1_drag_shadow.png",
+    "sticker": "callouts/T1_drag/T1_drag_sticker.png",
+    "text": "callouts/T1_drag/T1_drag_text.png"
+   },
+   "canvas_px": [
+    508.9,
+    171.9
+   ],
+   "canvas_2x": [
+    1018,
+    344
+   ],
+   "layer_order": [
+    "shadow",
+    "sticker",
+    "text"
+   ],
+   "misregistration": "apply 1-3 px drift to shadow and sticker (colour layers); text layer stays registered or drifts <= 1 px",
+   "word_boxes": [
+    {
+     "text": "Drag",
+     "bbox_unrotated": [
+      52.0,
+      48.0,
+      123.1,
+      71.0
+     ]
+    },
+    {
+     "text": "the",
+     "bbox_unrotated": [
+      194.4,
+      48.0,
+      89.2,
+      62.4
+     ]
+    },
+    {
+     "text": "floor.",
+     "bbox_unrotated": [
+      302.7,
+      47.4,
+      142.2,
+      63.1
+     ]
+    }
+   ],
+   "arrow": {
+    "file": "callouts/T1_drag/T1_drag_arrow.png",
+    "direction": "up",
+    "tail_px": [
+     26.0,
+     116
+    ],
+    "tip_px": [
+     26.0,
+     8
+    ],
+    "attach_at_canvas_px": [
+     246.9,
+     24.0
+    ],
+    "color": "ink"
+   },
+   "anchor": "panel:T1_try:slider_thumb_by_frame",
+   "side": "below",
+   "offset_css_px": [
+    -40,
+    56
+   ],
+   "offset_rule": "offset is from the region edge named by side (below: bottom edge, above: top edge, left: left edge, right: right edge) to the nearest sticker edge, in capture CSS px; the arrow tip lands on that region edge, the sticker never covers the region",
+   "sync": "capture T1_try k30 mouse down (drag 90 -> 80 runs k30-100)",
+   "in": 480,
+   "out": 600,
+   "hold_frames": 120,
+   "hold_s": 4.0,
+   "in_beat": 24.0,
+   "reveal": "sticker cuts in on the in-beat (shadow first, sticker+text 2 frames later), arrow on the next beat; whole sticker cuts out on the out-beat"
+  },
+  {
+   "id": "T1_tradeoff",
+   "scene": "T1",
+   "role": "callout",
+   "text": "Higher floor: less loss, less upside.",
+   "lines": [
+    "Higher floor:",
+    "less loss, less upside."
+   ],
+   "font": "Anton Regular",
+   "size_px": 72,
+   "leading_px": 80,
+   "tracking_em": -0.008,
+   "color": "ink",
+   "sticker": {
+    "color": "periwinkle",
+    "hex": "#7C93FF",
+    "shadow_color": "ink",
+    "shadow_offset_px": [
+     12,
+     12
+    ],
+    "angle_deg": 1.2,
+    "corners": [
+     [
+      24.1,
+      16.5
+     ],
+     [
+      708.0,
+      28.0
+     ],
+     [
+      700.4,
+      220.4
+     ],
+     [
+      20.6,
+      205.4
+     ]
+    ]
+   },
+   "files": {
+    "shadow": "callouts/T1_tradeoff/T1_tradeoff_shadow.png",
+    "sticker": "callouts/T1_tradeoff/T1_tradeoff_sticker.png",
+    "text": "callouts/T1_tradeoff/T1_tradeoff_text.png"
+   },
+   "canvas_px": [
+    741.2,
+    251.9
+   ],
+   "canvas_2x": [
+    1483,
+    504
+   ],
+   "layer_order": [
+    "shadow",
+    "sticker",
+    "text"
+   ],
+   "misregistration": "apply 1-3 px drift to shadow and sticker (colour layers); text layer stays registered or drifts <= 1 px",
+   "word_boxes": [
+    {
+     "text": "Higher",
+     "bbox_unrotated": [
+      52.0,
+      43.4,
+      180.0,
+      75.6
+     ]
+    },
+    {
+     "text": "floor:",
+     "bbox_unrotated": [
+      249.7,
+      47.4,
+      143.8,
+      63.1
+     ]
+    },
+    {
+     "text": "less",
+     "bbox_unrotated": [
+      52.0,
+      128.0,
+      115.8,
+      62.4
+     ]
+    },
+    {
+     "text": "loss,",
+     "bbox_unrotated": [
+      187.4,
+      128.0,
+      131.6,
+      70.1
+     ]
+    },
+    {
+     "text": "less",
+     "bbox_unrotated": [
+      339.2,
+      128.0,
+      115.8,
+      62.4
+     ]
+    },
+    {
+     "text": "upside.",
+     "bbox_unrotated": [
+      474.4,
+      123.4,
+      202.8,
+      75.2
+     ]
+    }
+   ],
+   "arrow": {
+    "file": "callouts/T1_tradeoff/T1_tradeoff_arrow.png",
+    "direction": "left",
+    "tail_px": [
+     116,
+     26.0
+    ],
+    "tip_px": [
+     8,
+     26.0
+    ],
+    "attach_at_canvas_px": [
+     24.1,
+     112.8
+    ],
+    "color": "ink"
+   },
+   "anchor": "panel:T1_try:floor_readout",
+   "side": "right",
+   "offset_css_px": [
+    48,
+    -24
+   ],
+   "offset_rule": "offset is from the region edge named by side (below: bottom edge, above: top edge, left: left edge, right: right edge) to the nearest sticker edge, in capture CSS px; the arrow tip lands on that region edge, the sticker never covers the region",
+   "sync": "after drag ends (capture k100)",
+   "in": 540,
+   "out": 640,
+   "hold_frames": 100,
+   "hold_s": 3.333,
+   "in_beat": 27.0,
+   "reveal": "sticker cuts in on the in-beat (shadow first, sticker+text 2 frames later), arrow on the next beat; whole sticker cuts out on the out-beat"
+  },
+  {
+   "id": "T1_crash",
+   "scene": "T1",
+   "role": "callout",
+   "text": "Replay a crash.",
+   "lines": [
+    "Replay a crash."
+   ],
+   "font": "Anton Regular",
+   "size_px": 72,
+   "leading_px": null,
+   "tracking_em": -0.008,
+   "color": "ink",
+   "sticker": {
+    "color": "mint",
+    "hex": "#3DD68C",
+    "shadow_color": "cobalt",
+    "shadow_offset_px": [
+     12,
+     12
+    ],
+    "angle_deg": -1.0,
+    "corners": [
+     [
+      23.7,
+      27.0
+     ],
+     [
+      503.5,
+      18.3
+     ],
+     [
+      508.6,
+      133.8
+     ],
+     [
+      23.8,
+      136.5
+     ]
+    ]
+   },
+   "files": {
+    "shadow": "callouts/T1_crash/T1_crash_shadow.png",
+    "sticker": "callouts/T1_crash/T1_crash_sticker.png",
+    "text": "callouts/T1_crash/T1_crash_text.png"
+   },
+   "canvas_px": [
+    543.8,
+    171.9
+   ],
+   "canvas_2x": [
+    1088,
+    344
+   ],
+   "layer_order": [
+    "shadow",
+    "sticker",
+    "text"
+   ],
+   "misregistration": "apply 1-3 px drift to shadow and sticker (colour layers); text layer stays registered or drifts <= 1 px",
+   "word_boxes": [
+    {
+     "text": "Replay",
+     "bbox_unrotated": [
+      52.0,
+      48.0,
+      185.0,
+      70.7
+     ]
+    },
+    {
+     "text": "a",
+     "bbox_unrotated": [
+      255.0,
+      56.6,
+      31.0,
+      53.9
+     ]
+    },
+    {
+     "text": "crash.",
+     "bbox_unrotated": [
+      306.2,
+      48.0,
+      173.6,
+      62.4
+     ]
+    }
+   ],
+   "arrow": {
+    "file": "callouts/T1_crash/T1_crash_arrow.png",
+    "direction": "down",
+    "tail_px": [
+     26.0,
+     8.0
+    ],
+    "tip_px": [
+     26.0,
+     116.0
+    ],
+    "attach_at_canvas_px": [
+     266.9,
+     135.9
+    ],
+    "color": "ink"
+   },
+   "anchor": "panel:T1_try:crash_chips",
+   "side": "above",
+   "offset_css_px": [
+    0,
+    -40
+   ],
+   "offset_rule": "offset is from the region edge named by side (below: bottom edge, above: top edge, left: left edge, right: right edge) to the nearest sticker edge, in capture CSS px; the arrow tip lands on that region edge, the sticker never covers the region",
+   "sync": "capture k155 click COVID crash, k230 click 2022 bear market",
+   "in": 620,
+   "out": 720,
+   "hold_frames": 100,
+   "hold_s": 3.333,
+   "in_beat": 31.0,
+   "reveal": "sticker cuts in on the in-beat (shadow first, sticker+text 2 frames later), arrow on the next beat; whole sticker cuts out on the out-beat"
+  },
+  {
+   "id": "A1_basket",
+   "scene": "A1",
+   "role": "callout",
+   "text": "Pick a basket.",
+   "lines": [
+    "Pick a basket."
+   ],
+   "font": "Anton Regular",
+   "size_px": 72,
+   "leading_px": null,
+   "tracking_em": -0.008,
+   "color": "ink",
+   "sticker": {
+    "color": "mint",
+    "hex": "#3DD68C",
+    "shadow_color": "cobalt",
+    "shadow_offset_px": [
+     12,
+     12
+    ],
+    "angle_deg": -1.4,
+    "corners": [
+     [
+      21.8,
+      28.6
+     ],
+     [
+      468.1,
+      18.7
+     ],
+     [
+      473.8,
+      130.9
+     ],
+     [
+      29.1,
+      139.3
+     ]
+    ]
+   },
+   "files": {
+    "shadow": "callouts/A1_basket/A1_basket_shadow.png",
+    "sticker": "callouts/A1_basket/A1_basket_sticker.png",
+    "text": "callouts/A1_basket/A1_basket_text.png"
+   },
+   "canvas_px": [
+    507.7,
+    171.9
+   ],
+   "canvas_2x": [
+    1016,
+    344
+   ],
+   "layer_order": [
+    "shadow",
+    "sticker",
+    "text"
+   ],
+   "misregistration": "apply 1-3 px drift to shadow and sticker (colour layers); text layer stays registered or drifts <= 1 px",
+   "word_boxes": [
+    {
+     "text": "Pick",
+     "bbox_unrotated": [
+      52.0,
+      43.4,
+      118.6,
+      67.0
+     ]
+    },
+    {
+     "text": "a",
+     "bbox_unrotated": [
+      186.9,
+      56.6,
+      31.0,
+      53.9
+     ]
+    },
+    {
+     "text": "basket.",
+     "bbox_unrotated": [
+      238.7,
+      48.0,
+      205.1,
+      62.4
+     ]
+    }
+   ],
+   "arrow": {
+    "file": "callouts/A1_basket/A1_basket_arrow.png",
+    "direction": "right",
+    "tail_px": [
+     8.0,
+     26.0
+    ],
+    "tip_px": [
+     116.0,
+     26.0
+    ],
+    "attach_at_canvas_px": [
+     471.7,
+     74.5
+    ],
+    "color": "ink"
+   },
+   "anchor": "panel:A1a_builder:basket_picker",
+   "side": "left",
+   "offset_css_px": [
+    -48,
+    -8
+   ],
+   "offset_rule": "offset is from the region edge named by side (below: bottom edge, above: top edge, left: left edge, right: right edge) to the nearest sticker edge, in capture CSS px; the arrow tip lands on that region edge, the sticker never covers the region",
+   "sync": "capture A1a k26 click QQQB",
+   "in": 820,
+   "out": 880,
+   "hold_frames": 60,
+   "hold_s": 2.0,
+   "in_beat": 41.0,
+   "reveal": "sticker cuts in on the in-beat (shadow first, sticker+text 2 frames later), arrow on the next beat; whole sticker cuts out on the out-beat"
+  },
+  {
+   "id": "A1_floor",
+   "scene": "A1",
+   "role": "callout",
+   "text": "Set the floor.",
+   "lines": [
+    "Set the floor."
+   ],
+   "font": "Anton Regular",
+   "size_px": 72,
+   "leading_px": null,
+   "tracking_em": -0.008,
+   "color": "ink",
+   "sticker": {
+    "color": "coral",
+    "hex": "#FF7469",
+    "shadow_color": "cobalt",
+    "shadow_offset_px": [
+     12,
+     12
+    ],
+    "angle_deg": 1.0,
+    "corners": [
+     [
+      27.2,
+      20.5
+     ],
+     [
+      434.4,
+      25.4
+     ],
+     [
+      432.6,
+      138.6
+     ],
+     [
+      19.7,
+      133.7
+     ]
+    ]
+   },
+   "files": {
+    "shadow": "callouts/A1_floor/A1_floor_shadow.png",
+    "sticker": "callouts/A1_floor/A1_floor_sticker.png",
+    "text": "callouts/A1_floor/A1_floor_text.png"
+   },
+   "canvas_px": [
+    471.2,
+    171.9
+   ],
+   "canvas_2x": [
+    943,
+    344
+   ],
+   "layer_order": [
+    "shadow",
+    "sticker",
+    "text"
+   ],
+   "misregistration": "apply 1-3 px drift to shadow and sticker (colour layers); text layer stays registered or drifts <= 1 px",
+   "word_boxes": [
+    {
+     "text": "Set",
+     "bbox_unrotated": [
+      52.0,
+      47.4,
+      86.2,
+      63.0
+     ]
+    },
+    {
+     "text": "the",
+     "bbox_unrotated": [
+      156.6,
+      48.0,
+      89.2,
+      62.4
+     ]
+    },
+    {
+     "text": "floor.",
+     "bbox_unrotated": [
+      264.9,
+      47.4,
+      142.2,
+      63.1
+     ]
+    }
+   ],
+   "arrow": {
+    "file": "callouts/A1_floor/A1_floor_arrow.png",
+    "direction": "right",
+    "tail_px": [
+     8.0,
+     26.0
+    ],
+    "tip_px": [
+     116.0,
+     26.0
+    ],
+    "attach_at_canvas_px": [
+     435.1,
+     83.5
+    ],
+    "color": "ink"
+   },
+   "anchor": "panel:A1a_builder:floor_slider",
+   "side": "left",
+   "offset_css_px": [
+    -48,
+    0
+   ],
+   "offset_rule": "offset is from the region edge named by side (below: bottom edge, above: top edge, left: left edge, right: right edge) to the nearest sticker edge, in capture CSS px; the arrow tip lands on that region edge, the sticker never covers the region",
+   "sync": "capture A1a k44-80 drag to 85",
+   "in": 880,
+   "out": 940,
+   "hold_frames": 60,
+   "hold_s": 2.0,
+   "in_beat": 44.0,
+   "reveal": "sticker cuts in on the in-beat (shadow first, sticker+text 2 frames later), arrow on the next beat; whole sticker cuts out on the out-beat"
+  },
+  {
+   "id": "A1_term",
+   "scene": "A1",
+   "role": "callout",
+   "text": "Pick a term.",
+   "lines": [
+    "Pick a term."
+   ],
+   "font": "Anton Regular",
+   "size_px": 72,
+   "leading_px": null,
+   "tracking_em": -0.008,
+   "color": "ink",
+   "sticker": {
+    "color": "periwinkle",
+    "hex": "#7C93FF",
+    "shadow_color": "ink",
+    "shadow_offset_px": [
+     12,
+     12
+    ],
+    "angle_deg": -0.8,
+    "corners": [
+     [
+      21.1,
+      24.7
+     ],
+     [
+      409.0,
+      21.2
+     ],
+     [
+      412.8,
+      136.8
+     ],
+     [
+      25.3,
+      136.1
+     ]
+    ]
+   },
+   "files": {
+    "shadow": "callouts/A1_term/A1_term_shadow.png",
+    "sticker": "callouts/A1_term/A1_term_sticker.png",
+    "text": "callouts/A1_term/A1_term_text.png"
+   },
+   "canvas_px": [
+    448.2,
+    171.9
+   ],
+   "canvas_2x": [
+    897,
+    344
+   ],
+   "layer_order": [
+    "shadow",
+    "sticker",
+    "text"
+   ],
+   "misregistration": "apply 1-3 px drift to shadow and sticker (colour layers); text layer stays registered or drifts <= 1 px",
+   "word_boxes": [
+    {
+     "text": "Pick",
+     "bbox_unrotated": [
+      52.0,
+      43.4,
+      118.6,
+      67.0
+     ]
+    },
+    {
+     "text": "a",
+     "bbox_unrotated": [
+      186.9,
+      56.6,
+      31.0,
+      53.9
+     ]
+    },
+    {
+     "text": "term.",
+     "bbox_unrotated": [
+      237.1,
+      48.0,
+      147.0,
+      62.4
+     ]
+    }
+   ],
+   "arrow": {
+    "file": "callouts/A1_term/A1_term_arrow.png",
+    "direction": "right",
+    "tail_px": [
+     8.0,
+     26.0
+    ],
+    "tip_px": [
+     116.0,
+     26.0
+    ],
+    "attach_at_canvas_px": [
+     412.1,
+     77.2
+    ],
+    "color": "ink"
+   },
+   "anchor": "panel:A1a_builder:term_picker",
+   "side": "left",
+   "offset_css_px": [
+    -48,
+    0
+   ],
+   "offset_rule": "offset is from the region edge named by side (below: bottom edge, above: top edge, left: left edge, right: right edge) to the nearest sticker edge, in capture CSS px; the arrow tip lands on that region edge, the sticker never covers the region",
+   "sync": "capture A1a k96 click 6 months",
+   "in": 940,
+   "out": 1000,
+   "hold_frames": 60,
+   "hold_s": 2.0,
+   "in_beat": 47.0,
+   "reveal": "sticker cuts in on the in-beat (shadow first, sticker+text 2 frames later), arrow on the next beat; whole sticker cuts out on the out-beat"
+  },
+  {
+   "id": "A1_review",
+   "scene": "A1",
+   "role": "callout",
+   "text": "Review, then confirm.",
+   "lines": [
+    "Review, then confirm."
+   ],
+   "font": "Anton Regular",
+   "size_px": 72,
+   "leading_px": null,
+   "tracking_em": -0.008,
+   "color": "ink",
+   "sticker": {
+    "color": "coral",
+    "hex": "#FF7469",
+    "shadow_color": "ink",
+    "shadow_offset_px": [
+     12,
+     12
+    ],
+    "angle_deg": 1.4,
+    "corners": [
+     [
+      26.1,
+      15.3
+     ],
+     [
+      692.2,
+      31.3
+     ],
+     [
+      686.4,
+      144.2
+     ],
+     [
+      21.5,
+      128.1
+     ]
+    ]
+   },
+   "files": {
+    "shadow": "callouts/A1_review/A1_review_shadow.png",
+    "sticker": "callouts/A1_review/A1_review_sticker.png",
+    "text": "callouts/A1_review/A1_review_text.png"
+   },
+   "canvas_px": [
+    723.6,
+    171.9
+   ],
+   "canvas_2x": [
+    1448,
+    344
+   ],
+   "layer_order": [
+    "shadow",
+    "sticker",
+    "text"
+   ],
+   "misregistration": "apply 1-3 px drift to shadow and sticker (colour layers); text layer stays registered or drifts <= 1 px",
+   "word_boxes": [
+    {
+     "text": "Review,",
+     "bbox_unrotated": [
+      52.0,
+      43.4,
+      212.5,
+      74.7
+     ]
+    },
+    {
+     "text": "then",
+     "bbox_unrotated": [
+      283.3,
+      48.0,
+      124.1,
+      62.4
+     ]
+    },
+    {
+     "text": "confirm.",
+     "bbox_unrotated": [
+      427.6,
+      43.4,
+      231.9,
+      67.0
+     ]
+    }
+   ],
+   "arrow": {
+    "file": "callouts/A1_review/A1_review_arrow.png",
+    "direction": "up",
+    "tail_px": [
+     26.0,
+     116
+    ],
+    "tip_px": [
+     26.0,
+     8
+    ],
+    "attach_at_canvas_px": [
+     357.1,
+     24.0
+    ],
+    "color": "ink"
+   },
+   "anchor": "panel:A1b_review:confirm_button",
+   "side": "below",
+   "offset_css_px": [
+    -200,
+    56
+   ],
+   "offset_rule": "offset is from the region edge named by side (below: bottom edge, above: top edge, left: left edge, right: right edge) to the nearest sticker edge, in capture CSS px; the arrow tip lands on that region edge, the sticker never covers the region",
+   "sync": "A1a k150 click Review; A1b confirm click",
+   "in": 1000,
+   "out": 1100,
+   "hold_frames": 100,
+   "hold_s": 3.333,
+   "in_beat": 50.0,
+   "reveal": "sticker cuts in on the in-beat (shadow first, sticker+text 2 frames later), arrow on the next beat; whole sticker cuts out on the out-beat"
+  },
+  {
+   "id": "A2_tiles",
+   "scene": "A2",
+   "role": "callout",
+   "text": "Value. Floor. Cushion.",
+   "lines": [
+    "Value. Floor. Cushion."
+   ],
+   "font": "Anton Regular",
+   "size_px": 72,
+   "leading_px": null,
+   "tracking_em": -0.008,
+   "color": "ink",
+   "sticker": {
+    "color": "periwinkle",
+    "hex": "#7C93FF",
+    "shadow_color": "cobalt",
+    "shadow_offset_px": [
+     12,
+     12
+    ],
+    "angle_deg": -1.2,
+    "corners": [
+     [
+      26.8,
+      31.4
+     ],
+     [
+      670.0,
+      14.4
+     ],
+     [
+      676.1,
+      126.1
+     ],
+     [
+      25.6,
+      144.4
+     ]
+    ]
+   },
+   "files": {
+    "shadow": "callouts/A2_tiles/A2_tiles_shadow.png",
+    "sticker": "callouts/A2_tiles/A2_tiles_sticker.png",
+    "text": "callouts/A2_tiles/A2_tiles_text.png"
+   },
+   "canvas_px": [
+    708.3,
+    171.9
+   ],
+   "canvas_2x": [
+    1417,
+    344
+   ],
+   "layer_order": [
+    "shadow",
+    "sticker",
+    "text"
+   ],
+   "misregistration": "apply 1-3 px drift to shadow and sticker (colour layers); text layer stays registered or drifts <= 1 px",
+   "word_boxes": [
+    {
+     "text": "Value.",
+     "bbox_unrotated": [
+      52.0,
+      48.0,
+      166.7,
+      62.5
+     ]
+    },
+    {
+     "text": "Floor.",
+     "bbox_unrotated": [
+      239.1,
+      48.0,
+      147.3,
+      62.4
+     ]
+    },
+    {
+     "text": "Cushion.",
+     "bbox_unrotated": [
+      406.3,
+      43.4,
+      238.0,
+      67.0
+     ]
+    }
+   ],
+   "arrow": {
+    "file": "callouts/A2_tiles/A2_tiles_arrow.png",
+    "direction": "down",
+    "tail_px": [
+     26.0,
+     8.0
+    ],
+    "tip_px": [
+     26.0,
+     116.0
+    ],
+    "attach_at_canvas_px": [
+     349.3,
+     135.9
+    ],
+    "color": "ink"
+   },
+   "anchor": "panel:A2a_position:tiles",
+   "side": "above",
+   "offset_css_px": [
+    0,
+    -48
+   ],
+   "offset_rule": "offset is from the region edge named by side (below: bottom edge, above: top edge, left: left edge, right: right edge) to the nearest sticker edge, in capture CSS px; the arrow tip lands on that region edge, the sticker never covers the region",
+   "sync": "capture A2a k12-72 glide value, floor, cushion",
+   "in": 1200,
+   "out": 1280,
+   "hold_frames": 80,
+   "hold_s": 2.667,
+   "in_beat": 60.0,
+   "reveal": "sticker cuts in on the in-beat (shadow first, sticker+text 2 frames later), arrow on the next beat; whole sticker cuts out on the out-beat"
+  },
+  {
+   "id": "A2_keeper",
+   "scene": "A2",
+   "role": "callout",
+   "text": "A keeper rebalances. Spot swaps only.",
+   "lines": [
+    "A keeper rebalances.",
+    "Spot swaps only."
+   ],
+   "font": "Anton Regular",
+   "size_px": 72,
+   "leading_px": 80,
+   "tracking_em": -0.008,
+   "color": "ink",
+   "sticker": {
+    "color": "mint",
+    "hex": "#3DD68C",
+    "shadow_color": "cobalt",
+    "shadow_offset_px": [
+     12,
+     12
+    ],
+    "angle_deg": 1.0,
+    "corners": [
+     [
+      27.6,
+      21.2
+     ],
+     [
+      678.3,
+      26.0
+     ],
+     [
+      674.8,
+      225.5
+     ],
+     [
+      24.6,
+      210.8
+     ]
+    ]
+   },
+   "files": {
+    "shadow": "callouts/A2_keeper/A2_keeper_shadow.png",
+    "sticker": "callouts/A2_keeper/A2_keeper_sticker.png",
+    "text": "callouts/A2_keeper/A2_keeper_text.png"
+   },
+   "canvas_px": [
+    711.3,
+    251.9
+   ],
+   "canvas_2x": [
+    1423,
+    504
+   ],
+   "layer_order": [
+    "shadow",
+    "sticker",
+    "text"
+   ],
+   "misregistration": "apply 1-3 px drift to shadow and sticker (colour layers); text layer stays registered or drifts <= 1 px",
+   "word_boxes": [
+    {
+     "text": "A",
+     "bbox_unrotated": [
+      52.0,
+      48.0,
+      32.8,
+      61.9
+     ]
+    },
+    {
+     "text": "keeper",
+     "bbox_unrotated": [
+      104.1,
+      48.0,
+      195.9,
+      70.7
+     ]
+    },
+    {
+     "text": "rebalances.",
+     "bbox_unrotated": [
+      318.9,
+      48.0,
+      328.5,
+      62.4
+     ]
+    },
+    {
+     "text": "Spot",
+     "bbox_unrotated": [
+      52.0,
+      127.4,
+      122.4,
+      71.2
+     ]
+    },
+    {
+     "text": "swaps",
+     "bbox_unrotated": [
+      192.9,
+      136.6,
+      182.9,
+      62.1
+     ]
+    },
+    {
+     "text": "only.",
+     "bbox_unrotated": [
+      395.0,
+      128.0,
+      131.2,
+      70.7
+     ]
+    }
+   ],
+   "arrow": {
+    "file": "callouts/A2_keeper/A2_keeper_arrow.png",
+    "direction": "down",
+    "tail_px": [
+     26.0,
+     8.0
+    ],
+    "tip_px": [
+     26.0,
+     116.0
+    ],
+    "attach_at_canvas_px": [
+     348.0,
+     215.9
+    ],
+    "color": "ink"
+   },
+   "anchor": "panel:A2b_keeper:keeper_log_table",
+   "side": "above",
+   "offset_css_px": [
+    48,
+    -48
+   ],
+   "offset_rule": "offset is from the region edge named by side (below: bottom edge, above: top edge, left: left edge, right: right edge) to the nearest sticker edge, in capture CSS px; the arrow tip lands on that region edge, the sticker never covers the region",
+   "sync": "capture A2b k2 keeper page arrives",
+   "in": 1280,
+   "out": 1360,
+   "hold_frames": 80,
+   "hold_s": 2.667,
+   "in_beat": 64.0,
+   "reveal": "sticker cuts in on the in-beat (shadow first, sticker+text 2 frames later), arrow on the next beat; whole sticker cuts out on the out-beat"
+  },
+  {
+   "id": "G1_mcp",
+   "scene": "G1",
+   "role": "callout",
+   "text": "MCP tools. Unsigned transactions.",
+   "lines": [
+    "MCP tools.",
+    "Unsigned transactions."
+   ],
+   "font": "Anton Regular",
+   "size_px": 72,
+   "leading_px": 80,
+   "tracking_em": -0.008,
+   "color": "ink",
+   "sticker": {
+    "color": "coral",
+    "hex": "#FF7469",
+    "shadow_color": "cobalt",
+    "shadow_offset_px": [
+     12,
+     12
+    ],
+    "angle_deg": -1.2,
+    "corners": [
+     [
+      21.7,
+      31.9
+     ],
+     [
+      724.3,
+      17.5
+     ],
+     [
+      730.2,
+      205.6
+     ],
+     [
+      26.5,
+      223.9
+     ]
+    ]
+   },
+   "files": {
+    "shadow": "callouts/G1_mcp/G1_mcp_shadow.png",
+    "sticker": "callouts/G1_mcp/G1_mcp_sticker.png",
+    "text": "callouts/G1_mcp/G1_mcp_text.png"
+   },
+   "canvas_px": [
+    763.4,
+    251.9
+   ],
+   "canvas_2x": [
+    1527,
+    504
+   ],
+   "layer_order": [
+    "shadow",
+    "sticker",
+    "text"
+   ],
+   "misregistration": "apply 1-3 px drift to shadow and sticker (colour layers); text layer stays registered or drifts <= 1 px",
+   "word_boxes": [
+    {
+     "text": "MCP",
+     "bbox_unrotated": [
+      52.0,
+      47.4,
+      116.8,
+      63.0
+     ]
+    },
+    {
+     "text": "tools.",
+     "bbox_unrotated": [
+      186.8,
+      48.0,
+      155.6,
+      62.4
+     ]
+    },
+    {
+     "text": "Unsigned",
+     "bbox_unrotated": [
+      52.0,
+      123.4,
+      256.5,
+      75.6
+     ]
+    },
+    {
+     "text": "transactions.",
+     "bbox_unrotated": [
+      327.7,
+      123.4,
+      371.7,
+      67.0
+     ]
+    }
+   ],
+   "arrow": {
+    "file": "callouts/G1_mcp/G1_mcp_arrow.png",
+    "direction": "left",
+    "tail_px": [
+     116,
+     26.0
+    ],
+    "tip_px": [
+     8,
+     26.0
+    ],
+    "attach_at_canvas_px": [
+     24.1,
+     127.3
+    ],
+    "color": "ink"
+   },
+   "anchor": "panel:G1_agents:tool_list",
+   "side": "right",
+   "offset_css_px": [
+    48,
+    0
+   ],
+   "offset_rule": "offset is from the region edge named by side (below: bottom edge, above: top edge, left: left edge, right: right edge) to the nearest sticker edge, in capture CSS px; the arrow tip lands on that region edge, the sticker never covers the region",
+   "sync": "G1 tool list on screen",
+   "in": 1440,
+   "out": 1560,
+   "hold_frames": 120,
+   "hold_s": 4.0,
+   "in_beat": 72.0,
+   "reveal": "sticker cuts in on the in-beat (shadow first, sticker+text 2 frames later), arrow on the next beat; whole sticker cuts out on the out-beat"
+  }
+ ],
+ "captions": [
+  {
+   "id": "cap_L1",
+   "scene": "L1",
+   "role": "caption",
+   "text": "BACKTEST ON PAST DATA, NOT A PREDICTION",
+   "font": "Geist Mono Medium",
+   "size_px": 28,
+   "tracking_em": 0.06,
+   "color": "ink",
+   "chip": {
+    "fill": "paper",
+    "keyline_px": 2,
+    "keyline_color": "ink",
+    "h": 48,
+    "w": 756
+   },
+   "files": {
+    "merged": "captions/cap_L1.png",
+    "text": "captions/cap_L1_text.png",
+    "chip": "captions/cap_L1_chip.png"
+   },
+   "size_frame_px": [
+    756,
+    48
+   ],
+   "baseline_in_chip": 33.9,
+   "anchor": "screen:lower_left",
+   "offset_frame_px": [
+    96,
+    936
+   ],
+   "anchor_alt": "panel:L1:frame below-left, offset (0, +24) CSS px under the panel's bottom edge",
+   "rule": "screen-space lower third (x 96, chip bottom on the 984 margin); never over UI text that must be read: if the panel bottom edge projects below y 920, move the chip to the top margin (y 96)",
+   "note": "visible while any chart shows; held for the whole landing shot",
+   "in": 220,
+   "out": 400,
+   "hold_frames": 180,
+   "hold_s": 6.0,
+   "in_beat": 11.0,
+   "reveal": "cuts in on the scene beat, holds the whole shot"
+  },
+  {
+   "id": "cap_T1",
+   "scene": "T1",
+   "role": "caption",
+   "text": "SIMULATOR · BACKTEST ON PAST DATA, NOT A PREDICTION",
+   "font": "Geist Mono Medium",
+   "size_px": 28,
+   "tracking_em": 0.06,
+   "color": "ink",
+   "chip": {
+    "fill": "paper",
+    "keyline_px": 2,
+    "keyline_color": "ink",
+    "h": 48,
+    "w": 980
+   },
+   "files": {
+    "merged": "captions/cap_T1.png",
+    "text": "captions/cap_T1_text.png",
+    "chip": "captions/cap_T1_chip.png"
+   },
+   "size_frame_px": [
+    980,
+    48
+   ],
+   "baseline_in_chip": 33.9,
+   "anchor": "screen:lower_left",
+   "offset_frame_px": [
+    96,
+    936
+   ],
+   "anchor_alt": "panel:T1:frame below-left, offset (0, +24) CSS px under the panel's bottom edge",
+   "rule": "screen-space lower third (x 96, chip bottom on the 984 margin); never over UI text that must be read: if the panel bottom edge projects below y 920, move the chip to the top margin (y 96)",
+   "note": "",
+   "in": 460,
+   "out": 740,
+   "hold_frames": 280,
+   "hold_s": 9.333,
+   "in_beat": 23.0,
+   "reveal": "cuts in on the scene beat, holds the whole shot"
+  },
+  {
+   "id": "cap_A1",
+   "scene": "A1",
+   "role": "caption",
+   "text": "EXAMPLE DATA ON SCREEN",
+   "font": "Geist Mono Medium",
+   "size_px": 28,
+   "tracking_em": 0.06,
+   "color": "ink",
+   "chip": {
+    "fill": "paper",
+    "keyline_px": 2,
+    "keyline_color": "ink",
+    "h": 48,
+    "w": 444
+   },
+   "files": {
+    "merged": "captions/cap_A1.png",
+    "text": "captions/cap_A1_text.png",
+    "chip": "captions/cap_A1_chip.png"
+   },
+   "size_frame_px": [
+    444,
+    48
+   ],
+   "baseline_in_chip": 33.9,
+   "anchor": "screen:lower_left",
+   "offset_frame_px": [
+    96,
+    936
+   ],
+   "anchor_alt": "panel:A1:frame below-left, offset (0, +24) CSS px under the panel's bottom edge",
+   "rule": "screen-space lower third (x 96, chip bottom on the 984 margin); never over UI text that must be read: if the panel bottom edge projects below y 920, move the chip to the top margin (y 96)",
+   "note": "",
+   "in": 800,
+   "out": 1120,
+   "hold_frames": 320,
+   "hold_s": 10.667,
+   "in_beat": 40.0,
+   "reveal": "cuts in on the scene beat, holds the whole shot"
+  },
+  {
+   "id": "cap_A2",
+   "scene": "A2",
+   "role": "caption",
+   "text": "EXAMPLE DATA ON SCREEN",
+   "font": "Geist Mono Medium",
+   "size_px": 28,
+   "tracking_em": 0.06,
+   "color": "ink",
+   "chip": {
+    "fill": "paper",
+    "keyline_px": 2,
+    "keyline_color": "ink",
+    "h": 48,
+    "w": 444
+   },
+   "files": {
+    "merged": "captions/cap_A2.png",
+    "text": "captions/cap_A2_text.png",
+    "chip": "captions/cap_A2_chip.png"
+   },
+   "size_frame_px": [
+    444,
+    48
+   ],
+   "baseline_in_chip": 33.9,
+   "anchor": "screen:lower_left",
+   "offset_frame_px": [
+    96,
+    936
+   ],
+   "anchor_alt": "panel:A2:frame below-left, offset (0, +24) CSS px under the panel's bottom edge",
+   "rule": "screen-space lower third (x 96, chip bottom on the 984 margin); never over UI text that must be read: if the panel bottom edge projects below y 920, move the chip to the top margin (y 96)",
+   "note": "",
+   "in": 1180,
+   "out": 1360,
+   "hold_frames": 180,
+   "hold_s": 6.0,
+   "in_beat": 59.0,
+   "reveal": "cuts in on the scene beat, holds the whole shot"
+  },
+  {
+   "id": "cap_G1",
+   "scene": "G1",
+   "role": "caption",
+   "text": "DEVELOPER PREVIEW · EXAMPLE DATA ON SCREEN",
+   "font": "Geist Mono Medium",
+   "size_px": 28,
+   "tracking_em": 0.06,
+   "color": "ink",
+   "chip": {
+    "fill": "paper",
+    "keyline_px": 2,
+    "keyline_color": "ink",
+    "h": 48,
+    "w": 812
+   },
+   "files": {
+    "merged": "captions/cap_G1.png",
+    "text": "captions/cap_G1_text.png",
+    "chip": "captions/cap_G1_chip.png"
+   },
+   "size_frame_px": [
+    812,
+    48
+   ],
+   "baseline_in_chip": 33.9,
+   "anchor": "screen:lower_left",
+   "offset_frame_px": [
+    96,
+    936
+   ],
+   "anchor_alt": "panel:G1:frame below-left, offset (0, +24) CSS px under the panel's bottom edge",
+   "rule": "screen-space lower third (x 96, chip bottom on the 984 margin); never over UI text that must be read: if the panel bottom edge projects below y 920, move the chip to the top margin (y 96)",
+   "note": "",
+   "in": 1420,
+   "out": 1580,
+   "hold_frames": 160,
+   "hold_s": 5.333,
+   "in_beat": 71.0,
+   "reveal": "cuts in on the scene beat, holds the whole shot"
+  }
+ ],
+ "variants": {
+  "cut15": {
+   "frames_total": 440,
+   "note": "SCRIPT.md \"15 s cut for X\". Same assets, new in/out. Hook readable by f60.",
+   "assets": {
+    "S0_h0": {
+     "in": 0,
+     "out": 80
+    },
+    "S0_h1": {
+     "in": 20,
+     "out": 80
+    },
+    "S0_h2": {
+     "in": 40,
+     "out": 80
+    },
+    "S0_underline_coral": {
+     "in": 44,
+     "out": 80
+    },
+    "S0_floorline_full": {
+     "in": 0,
+     "out": 80,
+     "reveal": "already drawn on frame 0 (no draw-on in the hook)"
+    },
+    "S0_sub_cut15": {
+     "in": 40,
+     "out": 80,
+     "text": "Live on BNB Chain mainnet."
+    },
+    "S0_sub": null,
+    "S0_lockup": null,
+    "T1_drag": {
+     "in": 100,
+     "out": 160
+    },
+    "T1_tradeoff": {
+     "in": 160,
+     "out": 220
+    },
+    "cap_T1": {
+     "in": 80,
+     "out": 220
+    },
+    "A1_review": {
+     "in": 240,
+     "out": 320
+    },
+    "cap_A1": {
+     "in": 220,
+     "out": 320
+    },
+    "E1_h0": {
+     "in": 320,
+     "out": 360,
+     "reveal": "both lines together on beat 16 (2-beat card, 1.33 s hold)"
+    },
+    "E1_h1": {
+     "in": 320,
+     "out": 360
+    },
+    "E1_sub": null,
+    "E1_shapes": {
+     "in": 320,
+     "out": 360
+    },
+    "E2_h0": {
+     "in": 360,
+     "out": 440
+    },
+    "E2_h1": {
+     "in": 380,
+     "out": 440
+    },
+    "E2_lockup": {
+     "in": 380,
+     "out": 440
+    },
+    "E2_factory": {
+     "in": 400,
+     "out": 440
+    },
+    "E2_url": {
+     "in": 400,
+     "out": 440
+    },
+    "E2_mono": {
+     "in": 400,
+     "out": 440
+    },
+    "E2_small": {
+     "in": 400,
+     "out": 440
+    },
+    "E2_shapes": {
+     "in": 360,
+     "out": 440
+    }
+   },
+   "hold_check": "every group holds >= 40 frames (1.33 s) except S0_h2/S0_sub_cut15 (40) and E2 mono lines (40); hook complete on f40, fully readable by f60"
+  },
+  "cut30": {
+   "note": "SCRIPT.md 30 s cut (lower priority): reuse S0 cut15 timing for the 4-beat hook, C2/C3 labels (C2_label, C3_label) as 2-beat labels over the panels, E1 + E2 as in cut15 shifted to the cut. Exact frames come from the Composer edit points."
+  }
+ },
+ "no_callout_scenes": {
+  "L1": "SCRIPT.md gives no callout words for the landing page; caption only"
+ },
+ "checks": [
+  "LEAD C1_h1 192/168=1.143",
+  "LEAD C1_h1 180/168=1.071",
+  "OVERLAP S0 'Tokenized' x 'Live' (box level; check pixels)",
+  "OVERLAP S0 'Tokenized' x 'on' (box level; check pixels)",
+  "OVERLAP S0 'Tokenized' x 'BNB' (box level; check pixels)",
+  "OVERLAP S0 'stocks.' x 'BNB' (box level; check pixels)",
+  "OVERLAP S0 'stocks.' x 'Chain' (box level; check pixels)",
+  "OVERLAP S0 'Spot' x 'mainnet.' (box level; check pixels)",
+  "OVERLAP S0 'swaps.' x 'mainnet.' (box level; check pixels)",
+  "OVERLAP C5 'agent' x 'it' (box level; check pixels)",
+  "OVERLAP C5 'agent' x 'too.' (box level; check pixels)"
+ ]
+}

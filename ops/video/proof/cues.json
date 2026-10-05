@@ -1,0 +1,287 @@
+{
+ "fps": 30,
+ "frames": 300,
+ "duration_s": 10.0,
+ "beat_frames": 15,
+ "bpm": 120,
+ "source_capture": "proof/capture",
+ "events": [
+  {
+   "event": "floor_line_draw_start",
+   "frame": 3,
+   "t": 0.1
+  },
+  {
+   "event": "floor_line_step",
+   "frame": 3,
+   "t": 0.1,
+   "step": 1
+  },
+  {
+   "event": "floor_line_step",
+   "frame": 6,
+   "t": 0.2,
+   "step": 2
+  },
+  {
+   "event": "floor_line_step",
+   "frame": 9,
+   "t": 0.3,
+   "step": 3
+  },
+  {
+   "event": "floor_line_draw_end",
+   "frame": 12,
+   "t": 0.4
+  },
+  {
+   "event": "floor_line_step",
+   "frame": 12,
+   "t": 0.4,
+   "step": 4
+  },
+  {
+   "event": "lockup_stamp",
+   "frame": 15,
+   "t": 0.5
+  },
+  {
+   "event": "headline_shapes_hit",
+   "frame": 30,
+   "t": 1.0,
+   "what": "halftone blocks"
+  },
+  {
+   "event": "headline_word_group",
+   "frame": 30,
+   "t": 1.0,
+   "text": "Set a floor"
+  },
+  {
+   "event": "headline_shapes_hit",
+   "frame": 45,
+   "t": 1.5,
+   "what": "cobalt value line"
+  },
+  {
+   "event": "headline_word_group",
+   "frame": 45,
+   "t": 1.5,
+   "text": "under your"
+  },
+  {
+   "event": "headline_shapes_hit",
+   "frame": 60,
+   "t": 2.0,
+   "what": "mint disc, coral squares, coral underline"
+  },
+  {
+   "event": "headline_word_group",
+   "frame": 60,
+   "t": 2.0,
+   "text": "stocks."
+  },
+  {
+   "event": "caption_on",
+   "frame": 75,
+   "t": 2.5
+  },
+  {
+   "event": "headline_slide_off",
+   "frame": 75,
+   "t": 2.5
+  },
+  {
+   "event": "panel_slide_in_start",
+   "frame": 75,
+   "t": 2.5
+  },
+  {
+   "event": "panel_slide_in_end",
+   "frame": 83,
+   "t": 2.7667
+  },
+  {
+   "event": "camera_push_in_start",
+   "frame": 90,
+   "t": 3.0
+  },
+  {
+   "event": "slider_mouse_down",
+   "frame": 102,
+   "t": 3.4,
+   "capture_frame": 27
+  },
+  {
+   "event": "slider_step",
+   "frame": 103,
+   "t": 3.4333,
+   "value_pct": 89,
+   "source": "floor"
+  },
+  {
+   "event": "slider_step",
+   "frame": 103,
+   "t": 3.4333,
+   "value_pct": 88,
+   "source": "floor"
+  },
+  {
+   "event": "slider_step",
+   "frame": 105,
+   "t": 3.5,
+   "value_pct": 87,
+   "source": "floor"
+  },
+  {
+   "event": "slider_step",
+   "frame": 107,
+   "t": 3.5667,
+   "value_pct": 86,
+   "source": "floor"
+  },
+  {
+   "event": "slider_step",
+   "frame": 107,
+   "t": 3.5667,
+   "value_pct": 85,
+   "source": "floor"
+  },
+  {
+   "event": "slider_step",
+   "frame": 110,
+   "t": 3.6667,
+   "value_pct": 84,
+   "source": "floor"
+  },
+  {
+   "event": "slider_step",
+   "frame": 110,
+   "t": 3.6667,
+   "value_pct": 83,
+   "source": "floor"
+  },
+  {
+   "event": "slider_step",
+   "frame": 113,
+   "t": 3.7667,
+   "value_pct": 82,
+   "source": "floor"
+  },
+  {
+   "event": "slider_step",
+   "frame": 118,
+   "t": 3.9333,
+   "value_pct": 81,
+   "source": "floor"
+  },
+  {
+   "event": "slider_step",
+   "frame": 118,
+   "t": 3.9333,
+   "value_pct": 80,
+   "source": "floor"
+  },
+  {
+   "event": "camera_pull_back_start",
+   "frame": 138,
+   "t": 4.6
+  },
+  {
+   "event": "slider_mouse_up",
+   "frame": 138,
+   "t": 4.6,
+   "capture_frame": 63
+  },
+  {
+   "event": "camera_whole_panel",
+   "frame": 147,
+   "t": 4.9
+  },
+  {
+   "event": "crash_replay_start",
+   "frame": 147,
+   "t": 4.9,
+   "capture_frame": 72
+  },
+  {
+   "event": "crash_swap",
+   "frame": 147,
+   "t": 4.9,
+   "capture_frame": 72,
+   "note": "real chart swap (COVID crash chip), hard cut; coral shadow swap + misreg jolt"
+  },
+  {
+   "event": "camera_push_in_readout_start",
+   "frame": 152,
+   "t": 5.0667
+  },
+  {
+   "event": "camera_push_in_readout_end",
+   "frame": 162,
+   "t": 5.4
+  },
+  {
+   "event": "camera_slow_pull_back_start",
+   "frame": 178,
+   "t": 5.9333
+  },
+  {
+   "event": "cut_to_line_card",
+   "frame": 210,
+   "t": 7.0,
+   "text": "Spot swaps."
+  },
+  {
+   "event": "shape_hit",
+   "frame": 210,
+   "t": 7.0,
+   "what": "mint shape"
+  },
+  {
+   "event": "line_card_word_group",
+   "frame": 225,
+   "t": 7.5,
+   "text": "BNB Chain."
+  },
+  {
+   "event": "shape_hit",
+   "frame": 225,
+   "t": 7.5,
+   "what": "periwinkle halftone block"
+  },
+  {
+   "event": "shape_hit",
+   "frame": 240,
+   "t": 8.0,
+   "what": "cobalt squares"
+  },
+  {
+   "event": "shape_hit",
+   "frame": 255,
+   "t": 8.5,
+   "what": "coral squares + dot ramp"
+  },
+  {
+   "event": "end_card_cut",
+   "frame": 270,
+   "t": 9.0
+  },
+  {
+   "event": "final_fade_start",
+   "frame": 294,
+   "t": 9.8
+  },
+  {
+   "event": "final_fade_end",
+   "frame": 299,
+   "t": 9.9667
+  },
+  {
+   "event": "end",
+   "frame": 300,
+   "t": 10.0,
+   "t_end": 10.0
+  }
+ ]
+}

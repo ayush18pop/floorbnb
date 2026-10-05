@@ -1,0 +1,1979 @@
+{
+ "key": "D major",
+ "key_source": "music/arrangement.json",
+ "seed": 20261005,
+ "timing_sources": [
+  "v2/cues.json (60 s master, used directly)"
+ ],
+ "master_60s": {
+  "global_gain_db": -5.41,
+  "stems": {
+   "camera": {
+    "file": "v2/audio/sfx/camera.wav",
+    "samples": 2880000,
+    "channels": 2,
+    "duration_s": 60.0,
+    "sample_peak_dbfs": -9.5,
+    "true_peak_dbtp": -9.49,
+    "integrated_lufs": -25.0,
+    "short_term_max_lufs": -27.6,
+    "limiter_max_gr_db": -0.0,
+    "limiter_ms_over_0p5db": 0.0,
+    "mono_sum_minus_stereo_rms_db": -0.6,
+    "low_band_LR_correlation": 1.0,
+    "band_2k_5k_re_total_db": -22.5,
+    "first_5ms_peak": 0.0,
+    "last_5ms_peak": 0.0
+   },
+   "focus": {
+    "file": "v2/audio/sfx/focus.wav",
+    "samples": 2880000,
+    "channels": 2,
+    "duration_s": 60.0,
+    "sample_peak_dbfs": -19.28,
+    "true_peak_dbtp": -19.02,
+    "integrated_lufs": -36.1,
+    "short_term_max_lufs": -37.5,
+    "limiter_max_gr_db": -0.0,
+    "limiter_ms_over_0p5db": 0.0,
+    "mono_sum_minus_stereo_rms_db": -1.19,
+    "low_band_LR_correlation": 0.2,
+    "band_2k_5k_re_total_db": -7.9,
+    "first_5ms_peak": 0.0,
+    "last_5ms_peak": 0.0
+   },
+   "paper": {
+    "file": "v2/audio/sfx/paper.wav",
+    "samples": 2880000,
+    "channels": 2,
+    "duration_s": 60.0,
+    "sample_peak_dbfs": -11.42,
+    "true_peak_dbtp": -10.54,
+    "integrated_lufs": -33.6,
+    "short_term_max_lufs": -33.1,
+    "limiter_max_gr_db": -0.0,
+    "limiter_ms_over_0p5db": 0.0,
+    "mono_sum_minus_stereo_rms_db": -0.4,
+    "low_band_LR_correlation": 0.995,
+    "band_2k_5k_re_total_db": -9.8,
+    "first_5ms_peak": 0.0,
+    "last_5ms_peak": 0.0
+   },
+   "ink_press": {
+    "file": "v2/audio/sfx/ink_press.wav",
+    "samples": 2880000,
+    "channels": 2,
+    "duration_s": 60.0,
+    "sample_peak_dbfs": -7.75,
+    "true_peak_dbtp": -7.72,
+    "integrated_lufs": -23.1,
+    "short_term_max_lufs": -27.0,
+    "limiter_max_gr_db": -0.0,
+    "limiter_ms_over_0p5db": 0.0,
+    "mono_sum_minus_stereo_rms_db": -0.25,
+    "low_band_LR_correlation": 0.989,
+    "band_2k_5k_re_total_db": -18.6,
+    "first_5ms_peak": 0.0,
+    "last_5ms_peak": 0.0
+   },
+   "type": {
+    "file": "v2/audio/sfx/type.wav",
+    "samples": 2880000,
+    "channels": 2,
+    "duration_s": 60.0,
+    "sample_peak_dbfs": -14.73,
+    "true_peak_dbtp": -14.65,
+    "integrated_lufs": -40.0,
+    "short_term_max_lufs": -42.2,
+    "limiter_max_gr_db": -0.0,
+    "limiter_ms_over_0p5db": 0.0,
+    "mono_sum_minus_stereo_rms_db": -1.74,
+    "low_band_LR_correlation": 0.884,
+    "band_2k_5k_re_total_db": -27.1,
+    "first_5ms_peak": 0.0,
+    "last_5ms_peak": 0.0
+   },
+   "ui": {
+    "file": "v2/audio/sfx/ui.wav",
+    "samples": 2880000,
+    "channels": 2,
+    "duration_s": 60.0,
+    "sample_peak_dbfs": -16.14,
+    "true_peak_dbtp": -16.13,
+    "integrated_lufs": -36.8,
+    "short_term_max_lufs": -33.4,
+    "limiter_max_gr_db": -0.0,
+    "limiter_ms_over_0p5db": 0.0,
+    "mono_sum_minus_stereo_rms_db": -0.52,
+    "low_band_LR_correlation": 0.957,
+    "band_2k_5k_re_total_db": -17.1,
+    "first_5ms_peak": 0.0,
+    "last_5ms_peak": 0.0
+   },
+   "emotion": {
+    "file": "v2/audio/sfx/emotion.wav",
+    "samples": 2880000,
+    "channels": 2,
+    "duration_s": 60.0,
+    "sample_peak_dbfs": -6.31,
+    "true_peak_dbtp": -6.3,
+    "integrated_lufs": -22.6,
+    "short_term_max_lufs": -24.4,
+    "limiter_max_gr_db": 3.24,
+    "limiter_ms_over_0p5db": 63.1,
+    "mono_sum_minus_stereo_rms_db": -0.11,
+    "low_band_LR_correlation": 0.998,
+    "band_2k_5k_re_total_db": -19.9,
+    "first_5ms_peak": 0.0,
+    "last_5ms_peak": 0.0
+   },
+   "room": {
+    "file": "v2/audio/sfx/room.wav",
+    "samples": 2880000,
+    "channels": 2,
+    "duration_s": 60.0,
+    "sample_peak_dbfs": -28.11,
+    "true_peak_dbtp": -28.1,
+    "integrated_lufs": -41.0,
+    "short_term_max_lufs": -40.1,
+    "limiter_max_gr_db": -0.0,
+    "limiter_ms_over_0p5db": 0.0,
+    "mono_sum_minus_stereo_rms_db": -0.86,
+    "low_band_LR_correlation": 0.631,
+    "band_2k_5k_re_total_db": -24.4,
+    "first_5ms_peak": 0.0,
+    "last_5ms_peak": 0.0
+   }
+  },
+  "sum_short_term_max_lufs": -23.7,
+  "sum_short_term_max_at_s": 56.7,
+  "sum_integrated_lufs": -26.5,
+  "sum_true_peak_dbtp": -5.86,
+  "onsets": {
+   "structural_cues": 110,
+   "found": 110,
+   "worst_abs_err_ms": 4.0,
+   "mean_abs_err_ms": 2.54,
+   "worst5": [
+    {
+     "family": "paper",
+     "name": "sticker_pop",
+     "frame": 915.0,
+     "intended_s": 30.5,
+     "measured_s": 30.496,
+     "err_ms": -4.0,
+     "visual": "sticker 'Pick a term.' (periwinkle) pops"
+    },
+    {
+     "family": "paper",
+     "name": "sticker_pop",
+     "frame": 970.0,
+     "intended_s": 32.3333,
+     "measured_s": 32.3293,
+     "err_ms": -4.0,
+     "visual": "sticker 'Review, then confirm.' (coral) pops"
+    },
+    {
+     "family": "paper",
+     "name": "sticker_pop",
+     "frame": 1465.0,
+     "intended_s": 48.8333,
+     "measured_s": 48.8293,
+     "err_ms": -4.0,
+     "visual": "sticker 'MCP tools. Unsigned transactions.' (coral) pops"
+    },
+    {
+     "family": "paper",
+     "name": "sticker_pop",
+     "frame": 615.0,
+     "intended_s": 20.5,
+     "measured_s": 20.4965,
+     "err_ms": -3.5,
+     "visual": "sticker 'Replay a crash.' (mint) pops"
+    },
+    {
+     "family": "paper",
+     "name": "sticker_pop",
+     "frame": 875.0,
+     "intended_s": 29.1667,
+     "measured_s": 29.1632,
+     "err_ms": -3.5,
+     "visual": "sticker 'Set the floor.' (coral) pops"
+    }
+   ],
+   "missing": [],
+   "masked_by_neighbour": [
+    {
+     "family": "ui",
+     "name": "slider_detent",
+     "frame": 534.0,
+     "reason": "another structural cue of the family within 80 ms before"
+    },
+    {
+     "family": "ui",
+     "name": "slider_detent",
+     "frame": 539.0,
+     "reason": "another structural cue of the family within 80 ms before"
+    },
+    {
+     "family": "ui",
+     "name": "slider_detent",
+     "frame": 859.0,
+     "reason": "another structural cue of the family within 80 ms before"
+    },
+    {
+     "family": "ui",
+     "name": "slider_detent",
+     "frame": 860.0,
+     "reason": "another structural cue of the family within 80 ms before"
+    },
+    {
+     "family": "ui",
+     "name": "key_tick",
+     "frame": 902.0,
+     "reason": "another structural cue of the family within 80 ms before"
+    },
+    {
+     "family": "ui",
+     "name": "click",
+     "frame": 1283.0,
+     "reason": "another structural cue of the family within 80 ms before"
+    }
+   ]
+  },
+  "camera_envelope_lag_ms": {
+   "moves": 12,
+   "max_abs": 53.0,
+   "median": 19.0
+  },
+  "onset_table": [
+   {
+    "family": "focus",
+    "name": "focus_lock",
+    "frame": 14.0,
+    "intended_s": 0.4667,
+    "measured_s": 0.4637,
+    "err_ms": -3.0,
+    "visual": "S0 blur clears; sharp from f14 (tick on the lock frame)"
+   },
+   {
+    "family": "focus",
+    "name": "focus_lock",
+    "frame": 186.0,
+    "intended_s": 6.2,
+    "measured_s": 6.1975,
+    "err_ms": -2.5,
+    "visual": "C1 blur clears; sharp from f186 (tick on the lock frame)"
+   },
+   {
+    "family": "focus",
+    "name": "focus_lock",
+    "frame": 263.0,
+    "intended_s": 8.7667,
+    "measured_s": 8.7637,
+    "err_ms": -3.0,
+    "visual": "L1 blur clears; sharp from f263 (tick on the lock frame)"
+   },
+   {
+    "family": "focus",
+    "name": "focus_lock",
+    "frame": 410.0,
+    "intended_s": 13.6667,
+    "measured_s": 13.6637,
+    "err_ms": -3.0,
+    "visual": "C2 blur clears; sharp from f410 (tick on the lock frame)"
+   },
+   {
+    "family": "focus",
+    "name": "focus_lock",
+    "frame": 503.0,
+    "intended_s": 16.7667,
+    "measured_s": 16.7637,
+    "err_ms": -3.0,
+    "visual": "T1 blur clears; sharp from f503 (tick on the lock frame)"
+   },
+   {
+    "family": "focus",
+    "name": "focus_lock",
+    "frame": 750.0,
+    "intended_s": 25.0,
+    "measured_s": 24.9975,
+    "err_ms": -2.5,
+    "visual": "C3 blur clears; sharp from f750 (tick on the lock frame)"
+   },
+   {
+    "family": "focus",
+    "name": "focus_lock",
+    "frame": 843.0,
+    "intended_s": 28.1,
+    "measured_s": 28.0975,
+    "err_ms": -2.5,
+    "visual": "A1 blur clears; sharp from f843 (tick on the lock frame)"
+   },
+   {
+    "family": "focus",
+    "name": "focus_lock",
+    "frame": 1130.0,
+    "intended_s": 37.6667,
+    "measured_s": 37.6637,
+    "err_ms": -3.0,
+    "visual": "C4 blur clears; sharp from f1130 (tick on the lock frame)"
+   },
+   {
+    "family": "focus",
+    "name": "focus_lock",
+    "frame": 1223.0,
+    "intended_s": 40.7667,
+    "measured_s": 40.7637,
+    "err_ms": -3.0,
+    "visual": "A2 blur clears; sharp from f1223 (tick on the lock frame)"
+   },
+   {
+    "family": "focus",
+    "name": "focus_lock",
+    "frame": 1370.0,
+    "intended_s": 45.6667,
+    "measured_s": 45.6637,
+    "err_ms": -3.0,
+    "visual": "C5 blur clears; sharp from f1370 (tick on the lock frame)"
+   },
+   {
+    "family": "focus",
+    "name": "focus_lock",
+    "frame": 1463.0,
+    "intended_s": 48.7667,
+    "measured_s": 48.7637,
+    "err_ms": -3.0,
+    "visual": "G1 blur clears; sharp from f1463 (tick on the lock frame)"
+   },
+   {
+    "family": "focus",
+    "name": "focus_lock",
+    "frame": 1590.0,
+    "intended_s": 53.0,
+    "measured_s": 52.9975,
+    "err_ms": -2.5,
+    "visual": "E1 blur clears; sharp from f1590 (tick on the lock frame)"
+   },
+   {
+    "family": "focus",
+    "name": "focus_lock",
+    "frame": 1692.0,
+    "intended_s": 56.4,
+    "measured_s": 56.3975,
+    "err_ms": -2.5,
+    "visual": "E2 blur clears; sharp from f1692 (tick on the lock frame)"
+   },
+   {
+    "family": "ink_press",
+    "name": "lockup_stamp",
+    "frame": 20.0,
+    "intended_s": 0.6667,
+    "measured_s": 0.6652,
+    "err_ms": -1.5,
+    "visual": "S0 lockup stamps onto paper"
+   },
+   {
+    "family": "ink_press",
+    "name": "lockup_stamp",
+    "frame": 1720.0,
+    "intended_s": 57.3333,
+    "measured_s": 57.3308,
+    "err_ms": -2.5,
+    "visual": "E2 lockup stamps"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 40.0,
+    "intended_s": 1.3333,
+    "measured_s": 1.3308,
+    "err_ms": -2.5,
+    "visual": "S0 headline group: 'Set a floor'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 60.0,
+    "intended_s": 2.0,
+    "measured_s": 1.9975,
+    "err_ms": -2.5,
+    "visual": "S0 headline group: 'under your'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 80.0,
+    "intended_s": 2.6667,
+    "measured_s": 2.6637,
+    "err_ms": -3.0,
+    "visual": "S0 headline group: 'stocks.'"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 100.0,
+    "intended_s": 3.3333,
+    "measured_s": 3.3308,
+    "err_ms": -2.5,
+    "visual": "S0 mono line 'Tokenized stocks. Spot swaps. Live on BNB Chain '"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 160.0,
+    "intended_s": 5.3333,
+    "measured_s": 5.3308,
+    "err_ms": -2.5,
+    "visual": "C1 label '01 / THE IDEA'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 160.0,
+    "intended_s": 5.3333,
+    "measured_s": 5.3308,
+    "err_ms": -2.5,
+    "visual": "C1 headline group: 'One rule.'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 180.0,
+    "intended_s": 6.0,
+    "measured_s": 5.9975,
+    "err_ms": -2.5,
+    "visual": "C1 headline group: 'Sell as prices fall. / Buy as they rise.'"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 219.0,
+    "intended_s": 7.3,
+    "measured_s": 7.2975,
+    "err_ms": -2.5,
+    "visual": "mono caption chip appears"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 400.0,
+    "intended_s": 13.3333,
+    "measured_s": 13.3308,
+    "err_ms": -2.5,
+    "visual": "C2 label '02 / TRY IT'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 400.0,
+    "intended_s": 13.3333,
+    "measured_s": 13.3308,
+    "err_ms": -2.5,
+    "visual": "C2 headline group: 'Drag the floor.'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 420.0,
+    "intended_s": 14.0,
+    "measured_s": 13.9975,
+    "err_ms": -2.5,
+    "visual": "C2 headline group: 'See the past.'"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 459.0,
+    "intended_s": 15.3,
+    "measured_s": 15.2975,
+    "err_ms": -2.5,
+    "visual": "mono caption chip appears"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 507.0,
+    "intended_s": 16.9,
+    "measured_s": 16.8975,
+    "err_ms": -2.5,
+    "visual": "sticker text 'T1_drag' prints"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 572.0,
+    "intended_s": 19.0667,
+    "measured_s": 19.0642,
+    "err_ms": -2.5,
+    "visual": "sticker text 'T1_tradeoff' prints"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 617.0,
+    "intended_s": 20.5667,
+    "measured_s": 20.5642,
+    "err_ms": -2.5,
+    "visual": "sticker text 'T1_crash' prints"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 740.0,
+    "intended_s": 24.6667,
+    "measured_s": 24.6637,
+    "err_ms": -3.0,
+    "visual": "C3 label '03 / SET YOURS'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 740.0,
+    "intended_s": 24.6667,
+    "measured_s": 24.6637,
+    "err_ms": -3.0,
+    "visual": "C3 headline group: 'A basket. A floor.'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 760.0,
+    "intended_s": 25.3333,
+    "measured_s": 25.3308,
+    "err_ms": -2.5,
+    "visual": "C3 headline group: 'A term.'"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 799.0,
+    "intended_s": 26.6333,
+    "measured_s": 26.6308,
+    "err_ms": -2.5,
+    "visual": "mono caption chip appears"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 837.0,
+    "intended_s": 27.9,
+    "measured_s": 27.8975,
+    "err_ms": -2.5,
+    "visual": "sticker text 'A1_basket' prints"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 877.0,
+    "intended_s": 29.2333,
+    "measured_s": 29.2308,
+    "err_ms": -2.5,
+    "visual": "sticker text 'A1_floor' prints"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 917.0,
+    "intended_s": 30.5667,
+    "measured_s": 30.5642,
+    "err_ms": -2.5,
+    "visual": "sticker text 'A1_term' prints"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 972.0,
+    "intended_s": 32.4,
+    "measured_s": 32.3975,
+    "err_ms": -2.5,
+    "visual": "sticker text 'A1_review' prints"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 1120.0,
+    "intended_s": 37.3333,
+    "measured_s": 37.3308,
+    "err_ms": -2.5,
+    "visual": "C4 label '04 / YOUR OWN VAULT'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 1120.0,
+    "intended_s": 37.3333,
+    "measured_s": 37.3308,
+    "err_ms": -2.5,
+    "visual": "C4 headline group: 'Your money.'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 1140.0,
+    "intended_s": 38.0,
+    "measured_s": 37.9975,
+    "err_ms": -2.5,
+    "visual": "C4 headline group: 'Your vault.'"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 1140.0,
+    "intended_s": 38.0,
+    "measured_s": 37.9975,
+    "err_ms": -2.5,
+    "visual": "C4 mono line 'One vault per position. Only you can exit it.'"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 1179.0,
+    "intended_s": 39.3,
+    "measured_s": 39.2975,
+    "err_ms": -2.5,
+    "visual": "mono caption chip appears"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 1227.0,
+    "intended_s": 40.9,
+    "measured_s": 40.8975,
+    "err_ms": -2.5,
+    "visual": "sticker text 'A2_tiles' prints"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 1277.0,
+    "intended_s": 42.5667,
+    "measured_s": 42.5642,
+    "err_ms": -2.5,
+    "visual": "sticker text 'A2_keeper' prints"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 1360.0,
+    "intended_s": 45.3333,
+    "measured_s": 45.3308,
+    "err_ms": -2.5,
+    "visual": "C5 label '05 / FOR AGENTS'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 1360.0,
+    "intended_s": 45.3333,
+    "measured_s": 45.3308,
+    "err_ms": -2.5,
+    "visual": "C5 headline group: 'Your agent can'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 1380.0,
+    "intended_s": 46.0,
+    "measured_s": 45.9975,
+    "err_ms": -2.5,
+    "visual": "C5 headline group: 'use it too.'"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 1419.0,
+    "intended_s": 47.3,
+    "measured_s": 47.2975,
+    "err_ms": -2.5,
+    "visual": "mono caption chip appears"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 1467.0,
+    "intended_s": 48.9,
+    "measured_s": 48.8975,
+    "err_ms": -2.5,
+    "visual": "sticker text 'G1_mcp' prints"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 1580.0,
+    "intended_s": 52.6667,
+    "measured_s": 52.6642,
+    "err_ms": -2.5,
+    "visual": "E1 headline group: 'A floor is not'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 1600.0,
+    "intended_s": 53.3333,
+    "measured_s": 53.3308,
+    "err_ms": -2.5,
+    "visual": "E1 headline group: 'a guarantee.'"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 1620.0,
+    "intended_s": 54.0,
+    "measured_s": 53.998,
+    "err_ms": -2.0,
+    "visual": "E1 mono line 'Price gaps. Delayed sells. Token and contract ri'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 1680.0,
+    "intended_s": 56.0,
+    "measured_s": 55.9975,
+    "err_ms": -2.5,
+    "visual": "E2 headline group: 'We are live'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 1700.0,
+    "intended_s": 56.6667,
+    "measured_s": 56.6637,
+    "err_ms": -3.0,
+    "visual": "E2 headline group: 'on mainnet.'"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 1740.0,
+    "intended_s": 58.0,
+    "measured_s": 57.9975,
+    "err_ms": -2.5,
+    "visual": "E2 mono line 'Factory 0x1147d482fD08DDd7F377838efb610B606B3Ad7'"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 1740.0,
+    "intended_s": 58.0,
+    "measured_s": 57.9975,
+    "err_ms": -2.5,
+    "visual": "E2 mono line 'floor.ayush.works'"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 1740.0,
+    "intended_s": 58.0,
+    "measured_s": 57.9975,
+    "err_ms": -2.5,
+    "visual": "E2 mono line 'BNB Chain \u00b7 Launch caps \u00b7 No human audit'"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 1740.0,
+    "intended_s": 58.0,
+    "measured_s": 57.9975,
+    "err_ms": -2.5,
+    "visual": "E2 mono line 'App screens in this video show example data.'"
+   },
+   {
+    "family": "paper",
+    "name": "card_arrival",
+    "frame": 172.0,
+    "intended_s": 5.7333,
+    "measured_s": 5.7313,
+    "err_ms": -2.0,
+    "visual": "C1 card settles (camera arrives)"
+   },
+   {
+    "family": "paper",
+    "name": "panel_arrival",
+    "frame": 249.0,
+    "intended_s": 8.3,
+    "measured_s": 8.2975,
+    "err_ms": -2.5,
+    "visual": "L1 panel settles (camera arrives)"
+   },
+   {
+    "family": "paper",
+    "name": "card_arrival",
+    "frame": 394.0,
+    "intended_s": 13.1333,
+    "measured_s": 13.1313,
+    "err_ms": -2.0,
+    "visual": "C2 card settles (camera arrives)"
+   },
+   {
+    "family": "paper",
+    "name": "panel_arrival",
+    "frame": 489.0,
+    "intended_s": 16.3,
+    "measured_s": 16.298,
+    "err_ms": -2.0,
+    "visual": "T1 panel settles (camera arrives)"
+   },
+   {
+    "family": "paper",
+    "name": "sticker_pop",
+    "frame": 505.0,
+    "intended_s": 16.8333,
+    "measured_s": 16.8303,
+    "err_ms": -3.0,
+    "visual": "sticker 'Drag the floor.' (coral) pops"
+   },
+   {
+    "family": "paper",
+    "name": "sticker_pop",
+    "frame": 570.0,
+    "intended_s": 19.0,
+    "measured_s": 18.997,
+    "err_ms": -3.0,
+    "visual": "sticker 'Higher floor: less loss, less upside.' (periwinkle) pops"
+   },
+   {
+    "family": "paper",
+    "name": "sticker_pop",
+    "frame": 615.0,
+    "intended_s": 20.5,
+    "measured_s": 20.4965,
+    "err_ms": -3.5,
+    "visual": "sticker 'Replay a crash.' (mint) pops"
+   },
+   {
+    "family": "paper",
+    "name": "card_arrival",
+    "frame": 734.0,
+    "intended_s": 24.4667,
+    "measured_s": 24.4647,
+    "err_ms": -2.0,
+    "visual": "C3 card settles (camera arrives)"
+   },
+   {
+    "family": "paper",
+    "name": "panel_arrival",
+    "frame": 829.0,
+    "intended_s": 27.6333,
+    "measured_s": 27.6308,
+    "err_ms": -2.5,
+    "visual": "A1 panel settles (camera arrives)"
+   },
+   {
+    "family": "paper",
+    "name": "sticker_pop",
+    "frame": 835.0,
+    "intended_s": 27.8333,
+    "measured_s": 27.8343,
+    "err_ms": 1.0,
+    "visual": "sticker 'Pick a basket.' (mint) pops"
+   },
+   {
+    "family": "paper",
+    "name": "sticker_pop",
+    "frame": 875.0,
+    "intended_s": 29.1667,
+    "measured_s": 29.1632,
+    "err_ms": -3.5,
+    "visual": "sticker 'Set the floor.' (coral) pops"
+   },
+   {
+    "family": "paper",
+    "name": "sticker_pop",
+    "frame": 915.0,
+    "intended_s": 30.5,
+    "measured_s": 30.496,
+    "err_ms": -4.0,
+    "visual": "sticker 'Pick a term.' (periwinkle) pops"
+   },
+   {
+    "family": "paper",
+    "name": "sticker_pop",
+    "frame": 970.0,
+    "intended_s": 32.3333,
+    "measured_s": 32.3293,
+    "err_ms": -4.0,
+    "visual": "sticker 'Review, then confirm.' (coral) pops"
+   },
+   {
+    "family": "paper",
+    "name": "card_arrival",
+    "frame": 1114.0,
+    "intended_s": 37.1333,
+    "measured_s": 37.1313,
+    "err_ms": -2.0,
+    "visual": "C4 card settles (camera arrives)"
+   },
+   {
+    "family": "paper",
+    "name": "panel_arrival",
+    "frame": 1209.0,
+    "intended_s": 40.3,
+    "measured_s": 40.298,
+    "err_ms": -2.0,
+    "visual": "A2 panel settles (camera arrives)"
+   },
+   {
+    "family": "paper",
+    "name": "sticker_pop",
+    "frame": 1225.0,
+    "intended_s": 40.8333,
+    "measured_s": 40.8308,
+    "err_ms": -2.5,
+    "visual": "sticker 'Value. Floor. Cushion.' (periwinkle) pops"
+   },
+   {
+    "family": "paper",
+    "name": "sticker_pop",
+    "frame": 1275.0,
+    "intended_s": 42.5,
+    "measured_s": 42.497,
+    "err_ms": -3.0,
+    "visual": "sticker 'A keeper rebalances. Spot swaps only.' (mint) pops"
+   },
+   {
+    "family": "paper",
+    "name": "card_arrival",
+    "frame": 1354.0,
+    "intended_s": 45.1333,
+    "measured_s": 45.1313,
+    "err_ms": -2.0,
+    "visual": "C5 card settles (camera arrives)"
+   },
+   {
+    "family": "paper",
+    "name": "panel_arrival",
+    "frame": 1449.0,
+    "intended_s": 48.3,
+    "measured_s": 48.298,
+    "err_ms": -2.0,
+    "visual": "G1 panel settles (camera arrives)"
+   },
+   {
+    "family": "paper",
+    "name": "sticker_pop",
+    "frame": 1465.0,
+    "intended_s": 48.8333,
+    "measured_s": 48.8293,
+    "err_ms": -4.0,
+    "visual": "sticker 'MCP tools. Unsigned transactions.' (coral) pops"
+   },
+   {
+    "family": "ui",
+    "name": "mouse_down",
+    "frame": 504.0,
+    "intended_s": 16.8,
+    "measured_s": 16.7975,
+    "err_ms": -2.5,
+    "visual": "T1_try real mouse down"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 517.0,
+    "intended_s": 17.2333,
+    "measured_s": 17.2308,
+    "err_ms": -2.5,
+    "visual": "T1_try slider -> 89%"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 524.0,
+    "intended_s": 17.4667,
+    "measured_s": 17.4637,
+    "err_ms": -3.0,
+    "visual": "T1_try slider -> 88%"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 528.0,
+    "intended_s": 17.6,
+    "measured_s": 17.5975,
+    "err_ms": -2.5,
+    "visual": "T1_try slider -> 87%"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 532.0,
+    "intended_s": 17.7333,
+    "measured_s": 17.7308,
+    "err_ms": -2.5,
+    "visual": "T1_try slider -> 86%"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 537.0,
+    "intended_s": 17.9,
+    "measured_s": 17.898,
+    "err_ms": -2.0,
+    "visual": "T1_try slider -> 84%"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 543.0,
+    "intended_s": 18.1,
+    "measured_s": 18.0975,
+    "err_ms": -2.5,
+    "visual": "T1_try slider -> 82%"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 547.0,
+    "intended_s": 18.2333,
+    "measured_s": 18.2308,
+    "err_ms": -2.5,
+    "visual": "T1_try slider -> 81%"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 554.0,
+    "intended_s": 18.4667,
+    "measured_s": 18.4637,
+    "err_ms": -3.0,
+    "visual": "T1_try slider -> 80%"
+   },
+   {
+    "family": "ui",
+    "name": "click_chip",
+    "frame": 610.0,
+    "intended_s": 20.3333,
+    "measured_s": 20.3308,
+    "err_ms": -2.5,
+    "visual": "T1_try real click (chip) at x=227"
+   },
+   {
+    "family": "ui",
+    "name": "click_chip",
+    "frame": 664.0,
+    "intended_s": 22.1333,
+    "measured_s": 22.1308,
+    "err_ms": -2.5,
+    "visual": "T1_try real click (chip) at x=373"
+   },
+   {
+    "family": "ui",
+    "name": "click_chip",
+    "frame": 830.0,
+    "intended_s": 27.6667,
+    "measured_s": 27.6642,
+    "err_ms": -2.5,
+    "visual": "A1a_builder real click (chip) at x=450"
+   },
+   {
+    "family": "ui",
+    "name": "mouse_down",
+    "frame": 847.0,
+    "intended_s": 28.2333,
+    "measured_s": 28.2308,
+    "err_ms": -2.5,
+    "visual": "A1a_builder real mouse down"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 854.0,
+    "intended_s": 28.4667,
+    "measured_s": 28.4642,
+    "err_ms": -2.5,
+    "visual": "A1a_builder slider -> 89%"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 857.0,
+    "intended_s": 28.5667,
+    "measured_s": 28.5647,
+    "err_ms": -2.0,
+    "visual": "A1a_builder slider -> 88%"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 863.0,
+    "intended_s": 28.7667,
+    "measured_s": 28.7647,
+    "err_ms": -2.0,
+    "visual": "A1a_builder slider -> 85%"
+   },
+   {
+    "family": "ui",
+    "name": "click_chip",
+    "frame": 883.0,
+    "intended_s": 29.4333,
+    "measured_s": 29.4308,
+    "err_ms": -2.5,
+    "visual": "A1a_builder real click (chip) at x=398"
+   },
+   {
+    "family": "ui",
+    "name": "key_tick",
+    "frame": 894.0,
+    "intended_s": 29.8,
+    "measured_s": 29.7975,
+    "err_ms": -2.5,
+    "visual": "A1a_builder typed digit (capture k94, notes)"
+   },
+   {
+    "family": "ui",
+    "name": "key_tick",
+    "frame": 898.0,
+    "intended_s": 29.9333,
+    "measured_s": 29.9313,
+    "err_ms": -2.0,
+    "visual": "A1a_builder typed digit (capture k98, notes)"
+   },
+   {
+    "family": "ui",
+    "name": "click",
+    "frame": 901.0,
+    "intended_s": 30.0333,
+    "measured_s": 30.0308,
+    "err_ms": -2.5,
+    "visual": "A1a_builder real click (field) at x=398"
+   },
+   {
+    "family": "ui",
+    "name": "key_tick",
+    "frame": 906.0,
+    "intended_s": 30.2,
+    "measured_s": 30.198,
+    "err_ms": -2.0,
+    "visual": "A1a_builder typed digit (capture k106, notes)"
+   },
+   {
+    "family": "ui",
+    "name": "click",
+    "frame": 935.0,
+    "intended_s": 31.1667,
+    "measured_s": 31.1642,
+    "err_ms": -2.5,
+    "visual": "A1a_builder real click (button) at x=398"
+   },
+   {
+    "family": "ui",
+    "name": "click_chip",
+    "frame": 951.0,
+    "intended_s": 31.7,
+    "measured_s": 31.6975,
+    "err_ms": -2.5,
+    "visual": "A1a_builder real click (check) at x=354"
+   },
+   {
+    "family": "ui",
+    "name": "click_chip",
+    "frame": 959.0,
+    "intended_s": 31.9667,
+    "measured_s": 31.9642,
+    "err_ms": -2.5,
+    "visual": "A1a_builder real click (check) at x=354"
+   },
+   {
+    "family": "ui",
+    "name": "click_chip",
+    "frame": 967.0,
+    "intended_s": 32.2333,
+    "measured_s": 32.2308,
+    "err_ms": -2.5,
+    "visual": "A1a_builder real click (check) at x=354"
+   },
+   {
+    "family": "ui",
+    "name": "paper_flip",
+    "frame": 992.0,
+    "intended_s": 33.0667,
+    "measured_s": 33.0637,
+    "err_ms": -3.0,
+    "visual": "page change A1a_builder -> A1b_review"
+   },
+   {
+    "family": "ui",
+    "name": "click_confirm",
+    "frame": 992.0,
+    "intended_s": 33.0667,
+    "measured_s": 33.0637,
+    "err_ms": -3.0,
+    "visual": "A1b_review real click (confirm) at x=1156"
+   },
+   {
+    "family": "ui",
+    "name": "paper_flip",
+    "frame": 1058.0,
+    "intended_s": 35.2667,
+    "measured_s": 35.2642,
+    "err_ms": -2.5,
+    "visual": "page change A1b_review -> A1c_confirmed"
+   },
+   {
+    "family": "ui",
+    "name": "paper_flip",
+    "frame": 1281.0,
+    "intended_s": 42.7,
+    "measured_s": 42.6975,
+    "err_ms": -2.5,
+    "visual": "page change A2a_position -> A2b_keeper"
+   },
+   {
+    "family": "emotion",
+    "name": "honest_thud",
+    "frame": 1574.0,
+    "intended_s": 52.4667,
+    "measured_s": 52.4657,
+    "err_ms": -1.0,
+    "visual": "E1 'A floor is not a guarantee.' card lands; everything pulls down"
+   },
+   {
+    "family": "emotion",
+    "name": "landing",
+    "frame": 1680.0,
+    "intended_s": 56.0,
+    "measured_s": 55.9985,
+    "err_ms": -1.5,
+    "visual": "E2 'We are live on mainnet.' lands: low hit, stamp, paper burst, shimmer"
+   }
+  ]
+ },
+ "cut_15s": {
+  "global_gain_db": -5.42,
+  "stems": {
+   "camera": {
+    "file": "v2/audio/sfx/camera_15s.wav",
+    "samples": 704000,
+    "channels": 2,
+    "duration_s": 14.666666666666666,
+    "sample_peak_dbfs": -12.42,
+    "true_peak_dbtp": -12.42,
+    "integrated_lufs": -26.0,
+    "short_term_max_lufs": -30.6,
+    "limiter_max_gr_db": -0.0,
+    "limiter_ms_over_0p5db": 0.0,
+    "mono_sum_minus_stereo_rms_db": -0.57,
+    "low_band_LR_correlation": 1.0,
+    "band_2k_5k_re_total_db": -22.3,
+    "first_5ms_peak": 0.0,
+    "last_5ms_peak": 0.0
+   },
+   "focus": {
+    "file": "v2/audio/sfx/focus_15s.wav",
+    "samples": 704000,
+    "channels": 2,
+    "duration_s": 14.666666666666666,
+    "sample_peak_dbfs": -21.27,
+    "true_peak_dbtp": -20.98,
+    "integrated_lufs": -37.3,
+    "short_term_max_lufs": -40.2,
+    "limiter_max_gr_db": -0.0,
+    "limiter_ms_over_0p5db": 0.0,
+    "mono_sum_minus_stereo_rms_db": -1.13,
+    "low_band_LR_correlation": 0.201,
+    "band_2k_5k_re_total_db": -7.6,
+    "first_5ms_peak": 0.0,
+    "last_5ms_peak": 0.0
+   },
+   "paper": {
+    "file": "v2/audio/sfx/paper_15s.wav",
+    "samples": 704000,
+    "channels": 2,
+    "duration_s": 14.666666666666666,
+    "sample_peak_dbfs": -11.08,
+    "true_peak_dbtp": -10.68,
+    "integrated_lufs": -34.5,
+    "short_term_max_lufs": -35.1,
+    "limiter_max_gr_db": -0.0,
+    "limiter_ms_over_0p5db": 0.0,
+    "mono_sum_minus_stereo_rms_db": -0.55,
+    "low_band_LR_correlation": 0.99,
+    "band_2k_5k_re_total_db": -8.5,
+    "first_5ms_peak": 0.0,
+    "last_5ms_peak": 0.0
+   },
+   "ink_press": {
+    "file": "v2/audio/sfx/ink_press_15s.wav",
+    "samples": 704000,
+    "channels": 2,
+    "duration_s": 14.666666666666666,
+    "sample_peak_dbfs": -12.49,
+    "true_peak_dbtp": -12.41,
+    "integrated_lufs": -26.8,
+    "short_term_max_lufs": -34.6,
+    "limiter_max_gr_db": -0.0,
+    "limiter_ms_over_0p5db": 0.0,
+    "mono_sum_minus_stereo_rms_db": -0.05,
+    "low_band_LR_correlation": 0.991,
+    "band_2k_5k_re_total_db": -24.9,
+    "first_5ms_peak": 0.0,
+    "last_5ms_peak": 0.0
+   },
+   "type": {
+    "file": "v2/audio/sfx/type_15s.wav",
+    "samples": 704000,
+    "channels": 2,
+    "duration_s": 14.666666666666666,
+    "sample_peak_dbfs": -15.67,
+    "true_peak_dbtp": -15.63,
+    "integrated_lufs": -37.6,
+    "short_term_max_lufs": -39.1,
+    "limiter_max_gr_db": -0.0,
+    "limiter_ms_over_0p5db": 0.0,
+    "mono_sum_minus_stereo_rms_db": -0.9,
+    "low_band_LR_correlation": 0.951,
+    "band_2k_5k_re_total_db": -30.4,
+    "first_5ms_peak": 0.0,
+    "last_5ms_peak": 0.0
+   },
+   "ui": {
+    "file": "v2/audio/sfx/ui_15s.wav",
+    "samples": 704000,
+    "channels": 2,
+    "duration_s": 14.666666666666666,
+    "sample_peak_dbfs": -17.21,
+    "true_peak_dbtp": -17.21,
+    "integrated_lufs": -41.8,
+    "short_term_max_lufs": -42.9,
+    "limiter_max_gr_db": -0.0,
+    "limiter_ms_over_0p5db": 0.0,
+    "mono_sum_minus_stereo_rms_db": -0.9,
+    "low_band_LR_correlation": 0.982,
+    "band_2k_5k_re_total_db": -13.2,
+    "first_5ms_peak": 0.0,
+    "last_5ms_peak": 0.0
+   },
+   "emotion": {
+    "file": "v2/audio/sfx/emotion_15s.wav",
+    "samples": 704000,
+    "channels": 2,
+    "duration_s": 14.666666666666666,
+    "sample_peak_dbfs": -6.31,
+    "true_peak_dbtp": -6.3,
+    "integrated_lufs": -21.9,
+    "short_term_max_lufs": -23.9,
+    "limiter_max_gr_db": 3.14,
+    "limiter_ms_over_0p5db": 62.3,
+    "mono_sum_minus_stereo_rms_db": -0.09,
+    "low_band_LR_correlation": 0.998,
+    "band_2k_5k_re_total_db": -21.1,
+    "first_5ms_peak": 0.0,
+    "last_5ms_peak": 0.0
+   },
+   "room": {
+    "file": "v2/audio/sfx/room_15s.wav",
+    "samples": 704000,
+    "channels": 2,
+    "duration_s": 14.666666666666666,
+    "sample_peak_dbfs": -26.67,
+    "true_peak_dbtp": -26.66,
+    "integrated_lufs": -41.5,
+    "short_term_max_lufs": -40.8,
+    "limiter_max_gr_db": -0.0,
+    "limiter_ms_over_0p5db": 0.0,
+    "mono_sum_minus_stereo_rms_db": -0.86,
+    "low_band_LR_correlation": 0.672,
+    "band_2k_5k_re_total_db": -24.3,
+    "first_5ms_peak": 0.0,
+    "last_5ms_peak": 0.0
+   }
+  },
+  "sum_short_term_max_lufs": -22.7,
+  "sum_short_term_max_at_s": 11.3,
+  "sum_integrated_lufs": -25.5,
+  "sum_true_peak_dbtp": -5.96,
+  "onsets": {
+   "structural_cues": 47,
+   "found": 47,
+   "worst_abs_err_ms": 9.5,
+   "mean_abs_err_ms": 2.67,
+   "worst5": [
+    {
+     "family": "type",
+     "name": "word_strike",
+     "frame": 0.0,
+     "intended_s": 0.0,
+     "measured_s": 0.0095,
+     "err_ms": 9.5,
+     "visual": "S0 headline group: 'Set a floor'"
+    },
+    {
+     "family": "paper",
+     "name": "sticker_pop",
+     "frame": 100.0,
+     "intended_s": 3.3333,
+     "measured_s": 3.3293,
+     "err_ms": -4.0,
+     "visual": "sticker 'Drag the floor.' (coral) pops"
+    },
+    {
+     "family": "paper",
+     "name": "sticker_pop",
+     "frame": 160.0,
+     "intended_s": 5.3333,
+     "measured_s": 5.3298,
+     "err_ms": -3.5,
+     "visual": "sticker 'Higher floor: less loss, less upside.' (periwinkle) pops"
+    },
+    {
+     "family": "paper",
+     "name": "sticker_pop",
+     "frame": 244.0,
+     "intended_s": 8.1333,
+     "measured_s": 8.1298,
+     "err_ms": -3.5,
+     "visual": "sticker 'Review, then confirm.' (coral) pops"
+    },
+    {
+     "family": "type",
+     "name": "word_strike",
+     "frame": 380.0,
+     "intended_s": 12.6667,
+     "measured_s": 12.6637,
+     "err_ms": -3.0,
+     "visual": "E2 headline group: 'on mainnet.'"
+    }
+   ],
+   "missing": [],
+   "masked_by_neighbour": [
+    {
+     "family": "ui",
+     "name": "slider_detent",
+     "frame": 104.0,
+     "reason": "another structural cue of the family within 80 ms before"
+    },
+    {
+     "family": "ui",
+     "name": "slider_detent",
+     "frame": 109.0,
+     "reason": "another structural cue of the family within 80 ms before"
+    },
+    {
+     "family": "ui",
+     "name": "slider_detent",
+     "frame": 228.0,
+     "reason": "another structural cue of the family within 80 ms before"
+    },
+    {
+     "family": "ui",
+     "name": "slider_detent",
+     "frame": 233.0,
+     "reason": "another structural cue of the family within 80 ms before"
+    },
+    {
+     "family": "ui",
+     "name": "slider_detent",
+     "frame": 234.0,
+     "reason": "another structural cue of the family within 80 ms before"
+    }
+   ]
+  },
+  "camera_envelope_lag_ms": {
+   "moves": 4,
+   "max_abs": 22.0,
+   "median": 18.0
+  },
+  "onset_table": [
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 0.0,
+    "intended_s": 0.0,
+    "measured_s": 0.0095,
+    "err_ms": 9.5,
+    "visual": "S0 headline group: 'Set a floor'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 20.0,
+    "intended_s": 0.6667,
+    "measured_s": 0.6642,
+    "err_ms": -2.5,
+    "visual": "S0 headline group: 'under your'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 40.0,
+    "intended_s": 1.3333,
+    "measured_s": 1.3308,
+    "err_ms": -2.5,
+    "visual": "S0 headline group: 'stocks.'"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 40.0,
+    "intended_s": 1.3333,
+    "measured_s": 1.3308,
+    "err_ms": -2.5,
+    "visual": "S0 mono line 'Live on BNB Chain mainnet.'"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 62.0,
+    "intended_s": 2.0667,
+    "measured_s": 2.0642,
+    "err_ms": -2.5,
+    "visual": "mono caption chip appears"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 102.0,
+    "intended_s": 3.4,
+    "measured_s": 3.3975,
+    "err_ms": -2.5,
+    "visual": "sticker text 'T1_drag' prints"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 162.0,
+    "intended_s": 5.4,
+    "measured_s": 5.3975,
+    "err_ms": -2.5,
+    "visual": "sticker text 'T1_tradeoff' prints"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 214.0,
+    "intended_s": 7.1333,
+    "measured_s": 7.1308,
+    "err_ms": -2.5,
+    "visual": "mono caption chip appears"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 246.0,
+    "intended_s": 8.2,
+    "measured_s": 8.1975,
+    "err_ms": -2.5,
+    "visual": "sticker text 'A1_review' prints"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 320.0,
+    "intended_s": 10.6667,
+    "measured_s": 10.6642,
+    "err_ms": -2.5,
+    "visual": "E1 headline group: 'A floor is not'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 320.0,
+    "intended_s": 10.6667,
+    "measured_s": 10.6642,
+    "err_ms": -2.5,
+    "visual": "E1 headline group: 'a guarantee.'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 360.0,
+    "intended_s": 12.0,
+    "measured_s": 11.9975,
+    "err_ms": -2.5,
+    "visual": "E2 headline group: 'We are live'"
+   },
+   {
+    "family": "type",
+    "name": "word_strike",
+    "frame": 380.0,
+    "intended_s": 12.6667,
+    "measured_s": 12.6637,
+    "err_ms": -3.0,
+    "visual": "E2 headline group: 'on mainnet.'"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 400.0,
+    "intended_s": 13.3333,
+    "measured_s": 13.3308,
+    "err_ms": -2.5,
+    "visual": "E2 mono line 'Factory 0x1147d482fD08DDd7F377838efb610B606B3Ad7'"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 400.0,
+    "intended_s": 13.3333,
+    "measured_s": 13.3308,
+    "err_ms": -2.5,
+    "visual": "E2 mono line 'floor.ayush.works'"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 400.0,
+    "intended_s": 13.3333,
+    "measured_s": 13.3308,
+    "err_ms": -2.5,
+    "visual": "E2 mono line 'BNB Chain \u00b7 Launch caps \u00b7 No human audit'"
+   },
+   {
+    "family": "type",
+    "name": "mono_ticks",
+    "frame": 400.0,
+    "intended_s": 13.3333,
+    "measured_s": 13.3308,
+    "err_ms": -2.5,
+    "visual": "E2 mono line 'App screens in this video show example data.'"
+   },
+   {
+    "family": "focus",
+    "name": "focus_lock",
+    "frame": 8.0,
+    "intended_s": 0.2667,
+    "measured_s": 0.2637,
+    "err_ms": -3.0,
+    "visual": "S0 blur clears; sharp from f8 (tick on the lock frame)"
+   },
+   {
+    "family": "focus",
+    "name": "focus_lock",
+    "frame": 92.0,
+    "intended_s": 3.0667,
+    "measured_s": 3.0637,
+    "err_ms": -3.0,
+    "visual": "T1 blur clears; sharp from f92 (tick on the lock frame)"
+   },
+   {
+    "family": "focus",
+    "name": "focus_lock",
+    "frame": 238.0,
+    "intended_s": 7.9333,
+    "measured_s": 7.9308,
+    "err_ms": -2.5,
+    "visual": "A1 blur clears; sharp from f238 (tick on the lock frame)"
+   },
+   {
+    "family": "focus",
+    "name": "focus_lock",
+    "frame": 324.0,
+    "intended_s": 10.8,
+    "measured_s": 10.7975,
+    "err_ms": -2.5,
+    "visual": "E1 blur clears; sharp from f324 (tick on the lock frame)"
+   },
+   {
+    "family": "focus",
+    "name": "focus_lock",
+    "frame": 370.0,
+    "intended_s": 12.3333,
+    "measured_s": 12.3308,
+    "err_ms": -2.5,
+    "visual": "E2 blur clears; sharp from f370 (tick on the lock frame)"
+   },
+   {
+    "family": "ui",
+    "name": "mouse_down",
+    "frame": 70.0,
+    "intended_s": 2.3333,
+    "measured_s": 2.3308,
+    "err_ms": -2.5,
+    "visual": "T1_try real mouse down"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 87.0,
+    "intended_s": 2.9,
+    "measured_s": 2.8975,
+    "err_ms": -2.5,
+    "visual": "T1_try slider -> 89%"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 94.0,
+    "intended_s": 3.1333,
+    "measured_s": 3.1308,
+    "err_ms": -2.5,
+    "visual": "T1_try slider -> 88%"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 98.0,
+    "intended_s": 3.2667,
+    "measured_s": 3.2642,
+    "err_ms": -2.5,
+    "visual": "T1_try slider -> 87%"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 102.0,
+    "intended_s": 3.4,
+    "measured_s": 3.3975,
+    "err_ms": -2.5,
+    "visual": "T1_try slider -> 86%"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 107.0,
+    "intended_s": 3.5667,
+    "measured_s": 3.5642,
+    "err_ms": -2.5,
+    "visual": "T1_try slider -> 84%"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 113.0,
+    "intended_s": 3.7667,
+    "measured_s": 3.7642,
+    "err_ms": -2.5,
+    "visual": "T1_try slider -> 82%"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 117.0,
+    "intended_s": 3.9,
+    "measured_s": 3.8975,
+    "err_ms": -2.5,
+    "visual": "T1_try slider -> 81%"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 124.0,
+    "intended_s": 4.1333,
+    "measured_s": 4.1308,
+    "err_ms": -2.5,
+    "visual": "T1_try slider -> 80%"
+   },
+   {
+    "family": "ui",
+    "name": "click_chip",
+    "frame": 153.0,
+    "intended_s": 5.1,
+    "measured_s": 5.0975,
+    "err_ms": -2.5,
+    "visual": "T1_try real click (chip) at x=227"
+   },
+   {
+    "family": "ui",
+    "name": "mouse_down",
+    "frame": 226.0,
+    "intended_s": 7.5333,
+    "measured_s": 7.5308,
+    "err_ms": -2.5,
+    "visual": "A1a_builder real mouse down"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 231.0,
+    "intended_s": 7.7,
+    "measured_s": 7.698,
+    "err_ms": -2.0,
+    "visual": "A1a_builder slider -> 88%"
+   },
+   {
+    "family": "ui",
+    "name": "slider_detent",
+    "frame": 237.0,
+    "intended_s": 7.9,
+    "measured_s": 7.898,
+    "err_ms": -2.0,
+    "visual": "A1a_builder slider -> 85%"
+   },
+   {
+    "family": "ui",
+    "name": "click_chip",
+    "frame": 263.0,
+    "intended_s": 8.7667,
+    "measured_s": 8.7642,
+    "err_ms": -2.5,
+    "visual": "A1a_builder real click (check) at x=354"
+   },
+   {
+    "family": "ui",
+    "name": "paper_flip",
+    "frame": 268.0,
+    "intended_s": 8.9333,
+    "measured_s": 8.9308,
+    "err_ms": -2.5,
+    "visual": "page change A1a_builder -> A1b_review"
+   },
+   {
+    "family": "ui",
+    "name": "click_confirm",
+    "frame": 268.0,
+    "intended_s": 8.9333,
+    "measured_s": 8.9308,
+    "err_ms": -2.5,
+    "visual": "A1b_review real click (confirm) at x=1156"
+   },
+   {
+    "family": "ui",
+    "name": "paper_flip",
+    "frame": 280.0,
+    "intended_s": 9.3333,
+    "measured_s": 9.3308,
+    "err_ms": -2.5,
+    "visual": "page change A1b_review -> A1c_confirmed"
+   },
+   {
+    "family": "paper",
+    "name": "panel_arrival",
+    "frame": 80.0,
+    "intended_s": 2.6667,
+    "measured_s": 2.6642,
+    "err_ms": -2.5,
+    "visual": "T1 panel settles (camera arrives)"
+   },
+   {
+    "family": "paper",
+    "name": "sticker_pop",
+    "frame": 100.0,
+    "intended_s": 3.3333,
+    "measured_s": 3.3293,
+    "err_ms": -4.0,
+    "visual": "sticker 'Drag the floor.' (coral) pops"
+   },
+   {
+    "family": "paper",
+    "name": "sticker_pop",
+    "frame": 160.0,
+    "intended_s": 5.3333,
+    "measured_s": 5.3298,
+    "err_ms": -3.5,
+    "visual": "sticker 'Higher floor: less loss, less upside.' (periwinkle) pops"
+   },
+   {
+    "family": "paper",
+    "name": "panel_arrival",
+    "frame": 226.0,
+    "intended_s": 7.5333,
+    "measured_s": 7.5313,
+    "err_ms": -2.0,
+    "visual": "A1 panel settles (camera arrives)"
+   },
+   {
+    "family": "paper",
+    "name": "sticker_pop",
+    "frame": 244.0,
+    "intended_s": 8.1333,
+    "measured_s": 8.1298,
+    "err_ms": -3.5,
+    "visual": "sticker 'Review, then confirm.' (coral) pops"
+   },
+   {
+    "family": "emotion",
+    "name": "honest_thud",
+    "frame": 312.0,
+    "intended_s": 10.4,
+    "measured_s": 10.399,
+    "err_ms": -1.0,
+    "visual": "E1 'A floor is not a guarantee.' card lands; everything pulls down"
+   },
+   {
+    "family": "emotion",
+    "name": "landing",
+    "frame": 360.0,
+    "intended_s": 12.0,
+    "measured_s": 11.999,
+    "err_ms": -1.0,
+    "visual": "E2 'We are live on mainnet.' lands: low hit, stamp, paper burst, shimmer"
+   },
+   {
+    "family": "ink_press",
+    "name": "lockup_stamp",
+    "frame": 380.0,
+    "intended_s": 12.6667,
+    "measured_s": 12.6637,
+    "err_ms": -3.0,
+    "visual": "E2 lockup stamps"
+   }
+  ],
+  "scenes": [
+   [
+    "S0",
+    0,
+    80,
+    "card"
+   ],
+   [
+    "T1",
+    80,
+    226,
+    "screen"
+   ],
+   [
+    "A1",
+    226,
+    312,
+    "screen"
+   ],
+   [
+    "E1",
+    312,
+    356,
+    "card"
+   ],
+   [
+    "E2",
+    356,
+    440,
+    "card"
+   ]
+  ],
+  "cue_file_repairs": []
+ },
+ "timeline_15s": [
+  "S0 f0-80 (0.0-2.7 s, card): type: word_strikex3, mono_ticks; focus: focus_lock, defocus_smear; camera: camera_move; paper: departure_slide",
+  "T1 f80-226 (2.7-7.5 s, screen): type: mono_ticksx3; ui: mouse_down, slider_detentx10, mouse_up, click_chip, paper_flip; paper: panel_arrival, sticker_popx2, arrow_drawx2, sticker_out, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; camera: camera_move",
+  "A1 f226-312 (7.5-10.4 s, screen): paper: sticker_out, panel_arrival, sticker_pop, arrow_draw, departure_slide; type: mono_ticksx2; focus: defocus_bloom, focus_lock, defocus_smear; ui: mouse_down, slider_detentx5, mouse_up, click_chip, paper_flipx2, click_confirm; camera: camera_move",
+  "E1 f312-356 (10.4-11.9 s, card): paper: sticker_out; focus: defocus_bloom, focus_lock; emotion: honest_thud; type: word_strikex2",
+  "E2 f356-440 (11.9-14.7 s, card): camera: camera_move; focus: defocus_smear, defocus_bloom, focus_lock; paper: departure_slide; type: word_strikex2, mono_ticksx4; emotion: landing; ink_press: lockup_stamp"
+ ],
+ "timeline_60s": [
+  "S0 f0-172 (0.0-5.7 s, card): ink_press: roller_draw, lockup_stamp, misreg_jolt; focus: focus_lock, defocus_smear; type: word_strikex3, mono_ticks; camera: camera_move; paper: departure_slide",
+  "C1 f172-249 (5.7-8.3 s, card): type: mono_ticksx2, word_strikex2; paper: card_arrival, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; camera: camera_move",
+  "L1 f249-394 (8.3-13.1 s, screen): paper: panel_arrival, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; ui: scroll_swish; camera: camera_move",
+  "C2 f394-489 (13.1-16.3 s, card): paper: card_arrival, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; type: mono_ticksx2, word_strikex2; camera: camera_move",
+  "T1 f489-734 (16.3-24.5 s, screen): paper: panel_arrival, sticker_popx3, arrow_drawx3, sticker_outx3, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; ui: mouse_down, slider_detentx10, mouse_up, click_chipx2, paper_flipx2; type: mono_ticksx3; camera: camera_move",
+  "C3 f734-829 (24.5-27.6 s, card): paper: card_arrival, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; type: mono_ticksx2, word_strikex2; camera: camera_move",
+  "A1 f829-1114 (27.6-37.1 s, screen): paper: panel_arrival, sticker_popx4, arrow_drawx4, sticker_outx4, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; ui: click_chipx5, mouse_down, slider_detentx5, mouse_up, key_tickx4, clickx2, paper_flipx2, click_confirm; type: mono_ticksx4; camera: camera_move",
+  "C4 f1114-1209 (37.1-40.3 s, card): paper: card_arrival, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; type: mono_ticksx3, word_strikex2; camera: camera_move",
+  "A2 f1209-1354 (40.3-45.1 s, screen): paper: panel_arrival, sticker_popx2, arrow_drawx2, sticker_outx2, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; type: mono_ticksx2; ui: paper_flip, click; camera: camera_move",
+  "C5 f1354-1449 (45.1-48.3 s, card): paper: card_arrival, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; type: mono_ticksx2, word_strikex2; camera: camera_move",
+  "G1 f1449-1574 (48.3-52.5 s, screen): paper: panel_arrival, sticker_pop, arrow_draw, departure_slide, sticker_out; focus: defocus_bloom, focus_lock, defocus_smear; type: mono_ticks; camera: camera_move",
+  "E1 f1574-1678 (52.5-55.9 s, card): focus: defocus_bloom, focus_lock, defocus_smear; emotion: honest_thud; type: word_strikex2, mono_ticks; camera: camera_move; paper: departure_slide",
+  "E2 f1678-1800 (55.9-60.0 s, card): focus: defocus_bloom, focus_lock; type: word_strikex2, mono_ticksx4; emotion: landing; ink_press: lockup_stamp"
+ ],
+ "counts_60s": {
+  "camera": 12,
+  "focus": 37,
+  "paper": 53,
+  "ink_press": 4,
+  "type": 44,
+  "ui": 40,
+  "emotion": 2,
+  "room": 1
+ },
+ "counts_15s": {
+  "camera": 4,
+  "focus": 13,
+  "paper": 16,
+  "ink_press": 1,
+  "type": 17,
+  "ui": 25,
+  "emotion": 2,
+  "room": 1
+ },
+ "render_s": 150.4
+}

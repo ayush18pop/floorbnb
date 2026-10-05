@@ -1,0 +1,71 @@
+key: D major (music/arrangement.json)
+{
+ "key": "D major",
+ "key_source": "music/arrangement.json",
+ "seed": 20261005,
+ "timing_sources": [
+  "v2/cues.json (60 s master, used directly)"
+ ],
+ "counts_60s": {
+  "camera": 12,
+  "focus": 37,
+  "paper": 53,
+  "ink_press": 4,
+  "type": 44,
+  "ui": 40,
+  "emotion": 2,
+  "room": 1
+ },
+ "counts_15s": {
+  "camera": 4,
+  "focus": 13,
+  "paper": 16,
+  "ink_press": 1,
+  "type": 17,
+  "ui": 25,
+  "emotion": 2,
+  "room": 1
+ },
+ "render_s": 150.4
+}
+master_60s gain -5.41 sumS -23.7 sumTP -5.86 onsets {'structural_cues': 110, 'found': 110, 'worst_abs_err_ms': 4.0, 'mean_abs_err_ms': 2.54, 'masked_by_neighbour': [{'family': 'ui', 'name': 'slider_detent', 'frame': 534.0, 'reason': 'another structural cue of the family within 80 ms before'}, {'family': 'ui', 'name': 'slider_detent', 'frame': 539.0, 'reason': 'another structural cue of the family within 80 ms before'}, {'family': 'ui', 'name': 'slider_detent', 'frame': 859.0, 'reason': 'another structural cue of the family within 80 ms before'}, {'family': 'ui', 'name': 'slider_detent', 'frame': 860.0, 'reason': 'another structural cue of the family within 80 ms before'}, {'family': 'ui', 'name': 'key_tick', 'frame': 902.0, 'reason': 'another structural cue of the family within 80 ms before'}, {'family': 'ui', 'name': 'click', 'frame': 1283.0, 'reason': 'another structural cue of the family within 80 ms before'}]} camlag {'moves': 12, 'max_abs': np.float64(53.0), 'median': 19.0}
+  camera     TP  -9.49  I  -25.0  Smax  -27.6  GR -0.0  mono -0.60  lowcc 1.0  2-5k -22.5  n 2880000
+  focus      TP -19.02  I  -36.1  Smax  -37.5  GR -0.0  mono -1.19  lowcc 0.2  2-5k -7.9  n 2880000
+  paper      TP -10.54  I  -33.6  Smax  -33.1  GR -0.0  mono -0.40  lowcc 0.995  2-5k -9.8  n 2880000
+  ink_press  TP  -7.72  I  -23.1  Smax  -27.0  GR -0.0  mono -0.25  lowcc 0.989  2-5k -18.6  n 2880000
+  type       TP -14.65  I  -40.0  Smax  -42.2  GR -0.0  mono -1.74  lowcc 0.884  2-5k -27.1  n 2880000
+  ui         TP -16.13  I  -36.8  Smax  -33.4  GR -0.0  mono -0.52  lowcc 0.957  2-5k -17.1  n 2880000
+  emotion    TP  -6.30  I  -22.6  Smax  -24.4  GR  3.2  mono -0.11  lowcc 0.998  2-5k -19.9  n 2880000
+  room       TP -28.10  I  -41.0  Smax  -40.1  GR -0.0  mono -0.86  lowcc 0.631  2-5k -24.4  n 2880000
+   worst paper sticker_pop 915.0 -4.0
+   worst paper sticker_pop 970.0 -4.0
+   worst paper sticker_pop 1465.0 -4.0
+   worst paper sticker_pop 615.0 -3.5
+   worst paper sticker_pop 875.0 -3.5
+cut_15s gain -5.42 sumS -22.7 sumTP -5.96 onsets {'structural_cues': 47, 'found': 47, 'worst_abs_err_ms': 9.5, 'mean_abs_err_ms': 2.67, 'masked_by_neighbour': [{'family': 'ui', 'name': 'slider_detent', 'frame': 104.0, 'reason': 'another structural cue of the family within 80 ms before'}, {'family': 'ui', 'name': 'slider_detent', 'frame': 109.0, 'reason': 'another structural cue of the family within 80 ms before'}, {'family': 'ui', 'name': 'slider_detent', 'frame': 228.0, 'reason': 'another structural cue of the family within 80 ms before'}, {'family': 'ui', 'name': 'slider_detent', 'frame': 233.0, 'reason': 'another structural cue of the family within 80 ms before'}, {'family': 'ui', 'name': 'slider_detent', 'frame': 234.0, 'reason': 'another structural cue of the family within 80 ms before'}]} camlag {'moves': 4, 'max_abs': np.float64(22.0), 'median': 18.0}
+  camera     TP -12.42  I  -26.0  Smax  -30.6  GR -0.0  mono -0.57  lowcc 1.0  2-5k -22.3  n 704000
+  focus      TP -20.98  I  -37.3  Smax  -40.2  GR -0.0  mono -1.13  lowcc 0.201  2-5k -7.6  n 704000
+  paper      TP -10.68  I  -34.5  Smax  -35.1  GR -0.0  mono -0.55  lowcc 0.99  2-5k -8.5  n 704000
+  ink_press  TP -12.41  I  -26.8  Smax  -34.6  GR -0.0  mono -0.05  lowcc 0.991  2-5k -24.9  n 704000
+  type       TP -15.63  I  -37.6  Smax  -39.1  GR -0.0  mono -0.90  lowcc 0.951  2-5k -30.4  n 704000
+  ui         TP -17.21  I  -41.8  Smax  -42.9  GR -0.0  mono -0.90  lowcc 0.982  2-5k -13.2  n 704000
+  emotion    TP  -6.30  I  -21.9  Smax  -23.9  GR  3.1  mono -0.09  lowcc 0.998  2-5k -21.1  n 704000
+  room       TP -26.66  I  -41.5  Smax  -40.8  GR -0.0  mono -0.86  lowcc 0.672  2-5k -24.3  n 704000
+   worst type word_strike 0.0 9.5
+   worst paper sticker_pop 100.0 -4.0
+   worst paper sticker_pop 160.0 -3.5
+   worst paper sticker_pop 244.0 -3.5
+   worst type word_strike 380.0 -3.0
+S0 f0-172 (0.0-5.7 s, card): ink_press: roller_draw, lockup_stamp, misreg_jolt; focus: focus_lock, defocus_smear; type: word_strikex3, mono_ticks; camera: camera_move; paper: departure_slide
+C1 f172-249 (5.7-8.3 s, card): type: mono_ticksx2, word_strikex2; paper: card_arrival, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; camera: camera_move
+L1 f249-394 (8.3-13.1 s, screen): paper: panel_arrival, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; ui: scroll_swish; camera: camera_move
+C2 f394-489 (13.1-16.3 s, card): paper: card_arrival, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; type: mono_ticksx2, word_strikex2; camera: camera_move
+T1 f489-734 (16.3-24.5 s, screen): paper: panel_arrival, sticker_popx3, arrow_drawx3, sticker_outx3, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; ui: mouse_down, slider_detentx10, mouse_up, click_chipx2, paper_flipx2; type: mono_ticksx3; camera: camera_move
+C3 f734-829 (24.5-27.6 s, card): paper: card_arrival, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; type: mono_ticksx2, word_strikex2; camera: camera_move
+A1 f829-1114 (27.6-37.1 s, screen): paper: panel_arrival, sticker_popx4, arrow_drawx4, sticker_outx4, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; ui: click_chipx5, mouse_down, slider_detentx5, mouse_up, key_tickx4, clickx2, paper_flipx2, click_confirm; type: mono_ticksx4; camera: camera_move
+C4 f1114-1209 (37.1-40.3 s, card): paper: card_arrival, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; type: mono_ticksx3, word_strikex2; camera: camera_move
+A2 f1209-1354 (40.3-45.1 s, screen): paper: panel_arrival, sticker_popx2, arrow_drawx2, sticker_outx2, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; type: mono_ticksx2; ui: paper_flip, click; camera: camera_move
+C5 f1354-1449 (45.1-48.3 s, card): paper: card_arrival, departure_slide; focus: defocus_bloom, focus_lock, defocus_smear; type: mono_ticksx2, word_strikex2; camera: camera_move
+G1 f1449-1574 (48.3-52.5 s, screen): paper: panel_arrival, sticker_pop, arrow_draw, departure_slide, sticker_out; focus: defocus_bloom, focus_lock, defocus_smear; type: mono_ticks; camera: camera_move
+E1 f1574-1678 (52.5-55.9 s, card): focus: defocus_bloom, focus_lock, defocus_smear; emotion: honest_thud; type: word_strikex2, mono_ticks; camera: camera_move; paper: departure_slide
+E2 f1678-1800 (55.9-60.0 s, card): focus: defocus_bloom, focus_lock; type: word_strikex2, mono_ticksx4; emotion: landing; ink_press: lockup_stamp

@@ -1,0 +1,988 @@
+{
+ "title": "Floor launch video v2 score",
+ "seed": 9090,
+ "sample_rate": 48000,
+ "bit_depth": 24,
+ "channels": 2,
+ "key": "D major",
+ "key_why": "D major: open, bright-but-not-sugary key whose relative minor (B minor) gives sober colour; the low D (73 Hz) and A (55 Hz) roots sit cleanly in the sub range below 120 Hz, and the melodic register F#3-A4 stays under 1 kHz, leaving 1-4 kHz to the SFX.",
+ "tempo_bpm": 90,
+ "beat_s": 0.6666666666666666,
+ "beat_frames": 20,
+ "beat_samples": 32000,
+ "fps": 30,
+ "length": {
+  "60s": {
+   "beats": 90,
+   "frames": 1800,
+   "samples": 2880000
+  },
+  "30s": {
+   "beats": 45,
+   "frames": 900,
+   "samples": 1440000
+  }
+ },
+ "meter_note": "Mixed meter (4/4 with one 5/4 at the crash, 3/4 at C3 and G1 end, 5/4 at E1, 2/4 tail) so every section change is a bar downbeat.",
+ "sync_source": "v2/cues.json",
+ "motif": {
+  "notes": [
+   "F#4",
+   "A4",
+   "B4",
+   "A4",
+   "E4"
+  ],
+  "rhythm_beats": [
+   0,
+   0.5,
+   1.0,
+   2.0,
+   2.5
+  ],
+  "resolved_form": [
+   "F#4",
+   "A4",
+   "B4",
+   "A4",
+   "D4"
+  ],
+  "degrees": "3-5-6-5-2 (open) / 3-5-6-5-1 (resolved)",
+  "appearances": [
+   {
+    "where": "S0 stamp",
+    "beat": 1,
+    "frame": 20,
+    "inst": "kalimba",
+    "form": "open"
+   },
+   {
+    "where": "T1 pluck figure (after the slider)",
+    "beat": 28,
+    "frame": 560,
+    "inst": "marimba + kalimba 8vb",
+    "form": "open"
+   },
+   {
+    "where": "A2 augmented, octave low",
+    "beat": 60,
+    "frame": 1200,
+    "inst": "kalimba",
+    "form": "open, half speed"
+   },
+   {
+    "where": "E2 resolution",
+    "beat": 84,
+    "frame": 1680,
+    "inst": "kalimba + marimba 8vb",
+    "form": "resolved (ends on D4 at beat 88, frame 1760)"
+   }
+  ]
+ },
+ "scenes": [
+  {
+   "id": "S0",
+   "beats": [
+    0,
+    8
+   ],
+   "frames": [
+    0,
+    160
+   ],
+   "name": "Cold open"
+  },
+  {
+   "id": "C1",
+   "beats": [
+    8,
+    11
+   ],
+   "frames": [
+    160,
+    220
+   ],
+   "name": "Card 01 The idea"
+  },
+  {
+   "id": "L1",
+   "beats": [
+    11,
+    20
+   ],
+   "frames": [
+    220,
+    400
+   ],
+   "name": "Landing page"
+  },
+  {
+   "id": "C2",
+   "beats": [
+    20,
+    23
+   ],
+   "frames": [
+    400,
+    460
+   ],
+   "name": "Card 02 Try it"
+  },
+  {
+   "id": "T1",
+   "beats": [
+    23,
+    37
+   ],
+   "frames": [
+    460,
+    740
+   ],
+   "name": "Simulator"
+  },
+  {
+   "id": "C3",
+   "beats": [
+    37,
+    40
+   ],
+   "frames": [
+    740,
+    800
+   ],
+   "name": "Card 03 Set yours"
+  },
+  {
+   "id": "A1",
+   "beats": [
+    40,
+    56
+   ],
+   "frames": [
+    800,
+    1120
+   ],
+   "name": "App builder, review, confirmed"
+  },
+  {
+   "id": "C4",
+   "beats": [
+    56,
+    59
+   ],
+   "frames": [
+    1120,
+    1180
+   ],
+   "name": "Card 04 Your own vault"
+  },
+  {
+   "id": "A2",
+   "beats": [
+    59,
+    68
+   ],
+   "frames": [
+    1180,
+    1360
+   ],
+   "name": "Position and keeper"
+  },
+  {
+   "id": "C5",
+   "beats": [
+    68,
+    71
+   ],
+   "frames": [
+    1360,
+    1420
+   ],
+   "name": "Card 05 For agents"
+  },
+  {
+   "id": "G1",
+   "beats": [
+    71,
+    79
+   ],
+   "frames": [
+    1420,
+    1580
+   ],
+   "name": "Agents page"
+  },
+  {
+   "id": "E1",
+   "beats": [
+    79,
+    84
+   ],
+   "frames": [
+    1580,
+    1680
+   ],
+   "name": "Honest card"
+  },
+  {
+   "id": "E2",
+   "beats": [
+    84,
+    90
+   ],
+   "frames": [
+    1680,
+    1800
+   ],
+   "name": "End card"
+  }
+ ],
+ "sections": [
+  {
+   "name": "Intro: paper and heartbeat",
+   "scenes": [
+    "S0"
+   ],
+   "beats": [
+    0,
+    8
+   ],
+   "frames": [
+    0,
+    160
+   ],
+   "music": "Curious, sparse. Paper/tape bed, heartbeat lub-dub on beats 1-7, faint Dsus2 pad (filter closed). Motif (open form) on kalimba on the stamp."
+  },
+  {
+   "name": "The idea",
+   "scenes": [
+    "C1",
+    "L1"
+   ],
+   "beats": [
+    8,
+    20
+   ],
+   "frames": [
+    160,
+    400
+   ],
+   "music": "Warm pad opens (Gadd9, D/F#, A), soft pulse every beat, low marimba ostinato with dotted forward motion from beat 12, shaker offbeats above 5.6 kHz."
+  },
+  {
+   "name": "Try it",
+   "scenes": [
+    "C2",
+    "T1"
+   ],
+   "beats": [
+    20,
+    37
+   ],
+   "frames": [
+    400,
+    740
+   ],
+   "music": "Playful: Bm7-G. Marimba figure follows the slider 90->80 (beats 24.5-28, descending D5..D4 with the same ease in-out), motif in plucks at 28 over F#m7, crash replay: heartbeat returns, figure falls to B3, holds (the floor), rises into C3."
+  },
+  {
+   "name": "Set it up",
+   "scenes": [
+    "C3",
+    "A1"
+   ],
+   "beats": [
+    37,
+    56
+   ],
+   "frames": [
+    740,
+    1120
+   ],
+   "music": "Confident build: Asus4 pickup with sub swell, sub bass enters on 40 (D-Bm-Gmaj7-A), quiet print press: muted woody 8th ticks, brushes on 2 and 4, low marimba ostinato under the UI."
+  },
+  {
+   "name": "Your own vault",
+   "scenes": [
+    "C4",
+    "A2"
+   ],
+   "beats": [
+    56,
+    68
+   ],
+   "frames": [
+    1120,
+    1360
+   ],
+   "music": "Calm, assured: wider pad (Dadd9, Gmaj7, Em7), keeper clock tick-tock on every beat, motif augmented an octave low at 60."
+  },
+  {
+   "name": "For agents",
+   "scenes": [
+    "C5",
+    "G1"
+   ],
+   "beats": [
+    68,
+    79
+   ],
+   "frames": [
+    1360,
+    1580
+   ],
+   "music": "Lighter, techy: restrained FM glass bells arpeggiating G6, D/F#, Em7 off the downbeats; clock at half level; air shaker."
+  },
+  {
+   "name": "Honesty",
+   "scenes": [
+    "E1"
+   ],
+   "beats": [
+    79,
+    84
+   ],
+   "frames": [
+    1580,
+    1680
+   ],
+   "music": "Thins to a low A drone and a thin Asus4(add9) pad. No percussion, no melody. Suspended, no resolution."
+  },
+  {
+   "name": "Release",
+   "scenes": [
+    "E2"
+   ],
+   "beats": [
+    84,
+    90
+   ],
+   "frames": [
+    1680,
+    1800
+   ],
+   "music": "Resolves to D exactly on beat 84 (frame 1680): final hit, low brass-like swell, D - G/D - D, motif resolves to the tonic on 88; clean fade to digital silence at 59.995 s."
+  }
+ ],
+ "bars": [
+  {
+   "bar": 1,
+   "start_beat": 0,
+   "beats": 4,
+   "meter": "4/4",
+   "start_frame": 0,
+   "start_s": 0.0,
+   "scene_at_downbeat": "S0",
+   "chords": [
+    {
+     "beat": 0,
+     "frame": 0,
+     "chord": "Dsus2",
+     "pad_voicing": "D3 A3 E4",
+     "sub": null
+    }
+   ]
+  },
+  {
+   "bar": 2,
+   "start_beat": 4,
+   "beats": 4,
+   "meter": "4/4",
+   "start_frame": 80,
+   "start_s": 2.6667,
+   "scene_at_downbeat": "S0",
+   "chords": [
+    {
+     "beat": 4,
+     "frame": 80,
+     "chord": "Bm7",
+     "pad_voicing": "B2 F#3 A3 D4",
+     "sub": null
+    }
+   ]
+  },
+  {
+   "bar": 3,
+   "start_beat": 8,
+   "beats": 4,
+   "meter": "4/4",
+   "start_frame": 160,
+   "start_s": 5.3333,
+   "scene_at_downbeat": "C1",
+   "chords": [
+    {
+     "beat": 8,
+     "frame": 160,
+     "chord": "Gadd9",
+     "pad_voicing": "G2 D3 B3 D4 A4",
+     "sub": null
+    }
+   ]
+  },
+  {
+   "bar": 4,
+   "start_beat": 12,
+   "beats": 4,
+   "meter": "4/4",
+   "start_frame": 240,
+   "start_s": 8.0,
+   "scene_at_downbeat": "L1",
+   "chords": [
+    {
+     "beat": 12,
+     "frame": 240,
+     "chord": "D/F#",
+     "pad_voicing": "F#2 A3 D4 F#4",
+     "sub": null
+    }
+   ]
+  },
+  {
+   "bar": 5,
+   "start_beat": 16,
+   "beats": 4,
+   "meter": "4/4",
+   "start_frame": 320,
+   "start_s": 10.6667,
+   "scene_at_downbeat": "L1",
+   "chords": [
+    {
+     "beat": 16,
+     "frame": 320,
+     "chord": "A",
+     "pad_voicing": "A2 A3 C#4 E4",
+     "sub": null
+    }
+   ]
+  },
+  {
+   "bar": 6,
+   "start_beat": 20,
+   "beats": 4,
+   "meter": "4/4",
+   "start_frame": 400,
+   "start_s": 13.3333,
+   "scene_at_downbeat": "C2",
+   "chords": [
+    {
+     "beat": 20,
+     "frame": 400,
+     "chord": "Bm7",
+     "pad_voicing": "B2 A3 D4 F#4",
+     "sub": null
+    }
+   ]
+  },
+  {
+   "bar": 7,
+   "start_beat": 24,
+   "beats": 4,
+   "meter": "4/4",
+   "start_frame": 480,
+   "start_s": 16.0,
+   "scene_at_downbeat": "T1",
+   "chords": [
+    {
+     "beat": 24,
+     "frame": 480,
+     "chord": "G",
+     "pad_voicing": "G2 B3 D4 G4",
+     "sub": null
+    }
+   ]
+  },
+  {
+   "bar": 8,
+   "start_beat": 28,
+   "beats": 4,
+   "meter": "4/4",
+   "start_frame": 560,
+   "start_s": 18.6667,
+   "scene_at_downbeat": "T1",
+   "chords": [
+    {
+     "beat": 28,
+     "frame": 560,
+     "chord": "F#m7",
+     "pad_voicing": "F#2 A3 C#4 E4",
+     "sub": null
+    }
+   ]
+  },
+  {
+   "bar": 9,
+   "start_beat": 32,
+   "beats": 5,
+   "meter": "5/4",
+   "start_frame": 640,
+   "start_s": 21.3333,
+   "scene_at_downbeat": "T1",
+   "chords": [
+    {
+     "beat": 32,
+     "frame": 640,
+     "chord": "Em7",
+     "pad_voicing": "E2 G3 B3 D4",
+     "sub": null
+    }
+   ]
+  },
+  {
+   "bar": 10,
+   "start_beat": 37,
+   "beats": 3,
+   "meter": "3/4",
+   "start_frame": 740,
+   "start_s": 24.6667,
+   "scene_at_downbeat": "C3",
+   "chords": [
+    {
+     "beat": 37,
+     "frame": 740,
+     "chord": "Asus4",
+     "pad_voicing": "A2 A3 D4 E4",
+     "sub": "A1"
+    }
+   ]
+  },
+  {
+   "bar": 11,
+   "start_beat": 40,
+   "beats": 4,
+   "meter": "4/4",
+   "start_frame": 800,
+   "start_s": 26.6667,
+   "scene_at_downbeat": "A1",
+   "chords": [
+    {
+     "beat": 40,
+     "frame": 800,
+     "chord": "D",
+     "pad_voicing": "D3 A3 D4 F#4",
+     "sub": "D2"
+    }
+   ]
+  },
+  {
+   "bar": 12,
+   "start_beat": 44,
+   "beats": 4,
+   "meter": "4/4",
+   "start_frame": 880,
+   "start_s": 29.3333,
+   "scene_at_downbeat": "A1",
+   "chords": [
+    {
+     "beat": 44,
+     "frame": 880,
+     "chord": "Bm7",
+     "pad_voicing": "B2 A3 D4 F#4",
+     "sub": "B1"
+    }
+   ]
+  },
+  {
+   "bar": 13,
+   "start_beat": 48,
+   "beats": 4,
+   "meter": "4/4",
+   "start_frame": 960,
+   "start_s": 32.0,
+   "scene_at_downbeat": "A1",
+   "chords": [
+    {
+     "beat": 48,
+     "frame": 960,
+     "chord": "Gmaj7",
+     "pad_voicing": "G2 B3 D4 F#4",
+     "sub": "G1"
+    }
+   ]
+  },
+  {
+   "bar": 14,
+   "start_beat": 52,
+   "beats": 4,
+   "meter": "4/4",
+   "start_frame": 1040,
+   "start_s": 34.6667,
+   "scene_at_downbeat": "A1",
+   "chords": [
+    {
+     "beat": 52,
+     "frame": 1040,
+     "chord": "A",
+     "pad_voicing": "A2 A3 C#4 E4",
+     "sub": "A1"
+    }
+   ]
+  },
+  {
+   "bar": 15,
+   "start_beat": 56,
+   "beats": 4,
+   "meter": "4/4",
+   "start_frame": 1120,
+   "start_s": 37.3333,
+   "scene_at_downbeat": "C4",
+   "chords": [
+    {
+     "beat": 56,
+     "frame": 1120,
+     "chord": "Dadd9",
+     "pad_voicing": "D3 A3 E4 F#4 A4",
+     "sub": "D2"
+    }
+   ]
+  },
+  {
+   "bar": 16,
+   "start_beat": 60,
+   "beats": 4,
+   "meter": "4/4",
+   "start_frame": 1200,
+   "start_s": 40.0,
+   "scene_at_downbeat": "A2",
+   "chords": [
+    {
+     "beat": 60,
+     "frame": 1200,
+     "chord": "Gmaj7",
+     "pad_voicing": "G2 D3 B3 F#4 B4",
+     "sub": "G1"
+    }
+   ]
+  },
+  {
+   "bar": 17,
+   "start_beat": 64,
+   "beats": 4,
+   "meter": "4/4",
+   "start_frame": 1280,
+   "start_s": 42.6667,
+   "scene_at_downbeat": "A2",
+   "chords": [
+    {
+     "beat": 64,
+     "frame": 1280,
+     "chord": "Em7",
+     "pad_voicing": "E2 B3 D4 G4",
+     "sub": "E2"
+    }
+   ]
+  },
+  {
+   "bar": 18,
+   "start_beat": 68,
+   "beats": 4,
+   "meter": "4/4",
+   "start_frame": 1360,
+   "start_s": 45.3333,
+   "scene_at_downbeat": "C5",
+   "chords": [
+    {
+     "beat": 68,
+     "frame": 1360,
+     "chord": "G6",
+     "pad_voicing": "G2 B3 D4 E4",
+     "sub": "G1"
+    }
+   ]
+  },
+  {
+   "bar": 19,
+   "start_beat": 72,
+   "beats": 4,
+   "meter": "4/4",
+   "start_frame": 1440,
+   "start_s": 48.0,
+   "scene_at_downbeat": "G1",
+   "chords": [
+    {
+     "beat": 72,
+     "frame": 1440,
+     "chord": "D/F#",
+     "pad_voicing": "F#2 A3 D4 F#4",
+     "sub": "F#1"
+    }
+   ]
+  },
+  {
+   "bar": 20,
+   "start_beat": 76,
+   "beats": 3,
+   "meter": "3/4",
+   "start_frame": 1520,
+   "start_s": 50.6667,
+   "scene_at_downbeat": "G1",
+   "chords": [
+    {
+     "beat": 76,
+     "frame": 1520,
+     "chord": "Em7",
+     "pad_voicing": "E2 G3 B3 D4",
+     "sub": "E2"
+    }
+   ]
+  },
+  {
+   "bar": 21,
+   "start_beat": 79,
+   "beats": 5,
+   "meter": "5/4",
+   "start_frame": 1580,
+   "start_s": 52.6667,
+   "scene_at_downbeat": "E1",
+   "chords": [
+    {
+     "beat": 79,
+     "frame": 1580,
+     "chord": "Asus4(add9)",
+     "pad_voicing": "A3 D4 E4 B4",
+     "sub": "A1"
+    }
+   ]
+  },
+  {
+   "bar": 22,
+   "start_beat": 84,
+   "beats": 4,
+   "meter": "4/4",
+   "start_frame": 1680,
+   "start_s": 56.0,
+   "scene_at_downbeat": "E2",
+   "chords": [
+    {
+     "beat": 84,
+     "frame": 1680,
+     "chord": "D",
+     "pad_voicing": "D3 A3 D4 F#4 A4",
+     "sub": "D2"
+    },
+    {
+     "beat": 86,
+     "frame": 1720,
+     "chord": "G/D",
+     "pad_voicing": "D3 G3 B3 D4 G4",
+     "sub": "D2"
+    }
+   ]
+  },
+  {
+   "bar": 23,
+   "start_beat": 88,
+   "beats": 2,
+   "meter": "2/4",
+   "start_frame": 1760,
+   "start_s": 58.6667,
+   "scene_at_downbeat": "E2",
+   "chords": [
+    {
+     "beat": 88,
+     "frame": 1760,
+     "chord": "D",
+     "pad_voicing": "D3 A3 D4 F#4 A4",
+     "sub": "D2"
+    }
+   ]
+  }
+ ],
+ "sync_points": {
+  "stamp_motif_beat": 1,
+  "slider_figure_beats": [
+   25.85,
+   27.7
+  ],
+  "slider_figure_frames": [
+   517,
+   554
+  ],
+  "t1_chip_clicks_frames": [
+   610,
+   664
+  ],
+  "e2_lockup_stamp_frame": [
+   1720
+  ],
+  "crash_heartbeat_beats": [
+   30,
+   37
+  ],
+  "station_arrivals_frames": {
+   "S0": 0,
+   "C1": 172,
+   "L1": 249,
+   "C2": 394,
+   "T1": 489,
+   "C3": 734,
+   "A1": 829,
+   "C4": 1114,
+   "A2": 1209,
+   "C5": 1354,
+   "G1": 1449,
+   "E1": 1574,
+   "E2": 1678
+  },
+  "station_focus_lock_frames": {
+   "S0": 14,
+   "C1": 186,
+   "L1": 263,
+   "C2": 410,
+   "T1": 503,
+   "C3": 750,
+   "A1": 843,
+   "C4": 1130,
+   "A2": 1223,
+   "C5": 1370,
+   "G1": 1463,
+   "E1": 1590,
+   "E2": 1692
+  },
+  "bass_entry_beat": 40,
+  "e1_suspension_beat": 79,
+  "final_hit_beat": 84,
+  "final_hit_frame": 1680,
+  "final_hit_s": 56.0,
+  "tail_silent_from_s": 59.995
+ },
+ "cut_30s": {
+  "segments": [
+   {
+    "src_beats": [
+     0,
+     4
+    ],
+    "dst_beats": [
+     0,
+     4
+    ],
+    "src_frames": [
+     0,
+     80
+    ],
+    "dst_frames": [
+     0,
+     80
+    ],
+    "src_scenes": [
+     "S0"
+    ],
+    "excluded_instruments": []
+   },
+   {
+    "src_beats": [
+     20,
+     32
+    ],
+    "dst_beats": [
+     4,
+     16
+    ],
+    "src_frames": [
+     400,
+     640
+    ],
+    "dst_frames": [
+     80,
+     320
+    ],
+    "src_scenes": [
+     "C2",
+     "T1"
+    ],
+    "excluded_instruments": []
+   },
+   {
+    "src_beats": [
+     37,
+     52
+    ],
+    "dst_beats": [
+     16,
+     31
+    ],
+    "src_frames": [
+     740,
+     1040
+    ],
+    "dst_frames": [
+     320,
+     620
+    ],
+    "src_scenes": [
+     "C3",
+     "A1"
+    ],
+    "excluded_instruments": []
+   },
+   {
+    "src_beats": [
+     76,
+     79
+    ],
+    "dst_beats": [
+     31,
+     34
+    ],
+    "src_frames": [
+     1520,
+     1580
+    ],
+    "dst_frames": [
+     620,
+     680
+    ],
+    "src_scenes": [
+     "G1"
+    ],
+    "excluded_instruments": [
+     "bell",
+     "shaker",
+     "tick"
+    ]
+   },
+   {
+    "src_beats": [
+     79,
+     90
+    ],
+    "dst_beats": [
+     34,
+     45
+    ],
+    "src_frames": [
+     1580,
+     1800
+    ],
+    "dst_frames": [
+     680,
+     900
+    ],
+    "src_scenes": [
+     "E1",
+     "E2"
+    ],
+    "excluded_instruments": []
+   }
+  ],
+  "landing_beat_30s": 39,
+  "landing_frame_30s": 780,
+  "landing_s_30s": 26.0,
+  "edit_points_dst_beats": [
+   4,
+   16,
+   31,
+   34
+  ],
+  "method": "Re-rendered from the same note events: each kept segment's notes are re-timed (dst = src - src_start + dst_start); phrases are kept whole (anchored by phrase start) and tails ring over the edit, so every join is a musical edit on a bar line, not a fade.",
+  "picture_note": "Picture order matches SCRIPT.md 30 s cut: S0 (4) | C2 label + T1 (12) | C3 label + A1 (15) | bridge bar (3) | E1 (5) | E2 (6). If the picture editor uses other lengths, move whole bars."
+ },
+ "stems": {
+  "pad": "pad.wav",
+  "sub": "sub.wav",
+  "pulse_perc": "pulse_perc.wav",
+  "melody": "melody.wav",
+  "texture": "texture.wav",
+  "finale": "finale.wav"
+ }
+}
