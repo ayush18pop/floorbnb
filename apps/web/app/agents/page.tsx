@@ -58,9 +58,9 @@ export default function AgentsPage() {
   const connect = (
     <div className="grid lg:grid-cols-2">
       <section aria-labelledby="conn-h" className="min-w-0 border-b border-grid lg:border-b-0 lg:border-r">
-        <h2 id="conn-h" className="label p-4 pb-1 md:px-6">Connect · example</h2>
+        <h2 id="conn-h" className="label p-4 pb-1 md:px-6">Connect</h2>
         <pre className="code !border-0 !bg-transparent !px-4 !py-2 md:!px-6" tabIndex={0} aria-label="Example MCP client config">{config}</pre>
-        {!MCP_URL && <p className="small px-4 pb-3 md:px-6">The address is a placeholder: the server is not live.</p>}
+        <p className="small px-4 pb-3 md:px-6">Hosted on a free Render instance, so the first call after a quiet period can take a few seconds.</p>
       </section>
       <section aria-labelledby="pay-h" className="min-w-0 p-4 md:p-6">
         <h2 id="pay-h" className="label mb-3">How an agent pays</h2>
@@ -81,7 +81,7 @@ export default function AgentsPage() {
       <div className="fill flex flex-col">
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 border-b border-grid px-4 py-2 md:px-6">
           <p className="body !max-w-none">{BRAND.name}&apos;s actions are MCP tools. The agent&apos;s own wallet signs; {BRAND.name} never signs for users.</p>
-          <p className="small whitespace-nowrap">Building, server not live. <Link href="/docs/agents" className="prose-link">Docs</Link> · <Link href="/agents/run" className="prose-link">Example run</Link> · <Link href="/app/keeper" className="prose-link">Keeper log</Link></p>
+          <p className="small whitespace-nowrap">Live on mainnet. <Link href="/docs/agents" className="prose-link">Docs</Link> · <Link href="/agents/run" className="prose-link">Example run</Link> · <Link href="/app/keeper" className="prose-link">Keeper log</Link></p>
         </div>
         <div className="relative min-w-0">
           <Xh style={{ left: 0, top: 0 }} /><Xh style={{ left: "100%", top: 0 }} />

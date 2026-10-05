@@ -41,7 +41,7 @@ export function AgentRun() {
         ))}
       </ol>
       <section className="min-w-0 px-4 py-3 md:px-6" aria-labelledby="trace-h">
-        <h2 id="trace-h" className="label mb-2">Trace · example<InfoPopover label="this trace" title="Scripted example"><p>Scripted example. The MCP server is not live yet, and no transaction was sent.</p></InfoPopover></h2>
+        <h2 id="trace-h" className="label mb-2">Trace · example<InfoPopover label="this trace" title="Scripted example"><p>Scripted example of the flow. The MCP server is live, but this trace is not a recording, and no transaction was sent.</p></InfoPopover></h2>
         <div className="overflow-x-auto"><ul className="mono min-w-[520px] space-y-1 text-[13px] leading-6">
           {TRACE.map(([s, t, who, what, rest], i) => (
             <li key={i} className="grid grid-cols-[72px_72px_1fr] gap-2" style={{ opacity: sel === null || sel === s ? 1 : 0.35 }}>

@@ -6,8 +6,8 @@ import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata("/docs/agents", "Agents");
 
-const snippet = `// Example only. The endpoint is a placeholder until the server is live.
-POST https://mcp.<domain>/mcp
+const snippet = `// Example request to the hosted MCP server (Streamable HTTP).
+POST https://floor-server-wb4i.onrender.com/mcp
 {
   "method": "tools/call",
   "params": {
@@ -42,7 +42,7 @@ export default function Page() {
         <p>The Agentic Wallet keeper depends on Developer Mode and is not set up. A plain wallet is the main keeper, so rebalances never depend on it.</p>
       </Callout>
 
-      <h2 id="mcp">MCP server <span className="badge b-warn align-middle">building</span></h2>
+      <h2 id="mcp">MCP server <span className="badge b-pos align-middle">live</span></h2>
       <p>{BRAND.name} exposes its actions as MCP tools: quote_protection, build_create_position_tx, build_exit_tx, get_status, backtest. Any MCP-capable agent can use them. Tools that change state return an unsigned transaction. {BRAND.name} never signs.</p>
       <p>The full tool list, inputs, prices, connection examples and a sample keeper log are on the <L href="/agents">agent reference page</L>.</p>
       <div className="block border border-grid bg-surface">
@@ -57,7 +57,7 @@ export default function Page() {
       <p>quote_protection, backtest and simulate_gap each cost {PAID_TOOL_PRICE_LABEL}, paid in {PAID_TOKENS}. The free tools stay free. Buyers need no account. Payments settle through {BRAND.name}&apos;s own x402 facilitator today: our server verifies the signed payment and sends the transfer itself. That path is tested end to end on a local fork with a test token.</p>
       <p>b402 is Binance&apos;s x402 facilitator on BSC (gas sponsored). It is wired in, and our server calls it with a Binance Web3 API key that has the B402 Payments permission. Its supported and verify calls have been run live and passed. Settle has not been run live yet, so b402 is not the live path. Payments cover calls to {BRAND.name}&apos;s API, not LLM inference. More on the <L href="/agents">reference page</L>.</p>
 
-      <h2 id="skill">Agent skill <span className="badge b-warn align-middle">building</span></h2>
+      <h2 id="skill">Agent skill <span className="badge align-middle">in the repo</span></h2>
       <p>A {BRAND.name} skill so a user&apos;s own agent can deposit and withdraw with the user&apos;s own wallet. It tells the agent to read the factory address from get_floor_info and check every unsigned transaction against it before signing.</p>
       <p>Next: <L href="/docs/contracts">Contracts</L>.</p>
     </DocPage>

@@ -43,7 +43,7 @@ export default function Page() {
         ))}
       </ul>
       <h2 id="roles">Who can do what</h2>
-      <p>Floor has three trusted roles besides you. At launch the owner and the guardian are the same address, so the guardian gives no separation of duties; the owner is meant to be a hardware wallet (a multisig is not set up yet). None of them can take your funds, but they can stop trading or pick who may trade. This is read from the contracts: the factory and vault source, and the roles section of the contract design.</p>
+      <p>Floor has three trusted roles besides you. At launch the owner and the guardian are the same address, so the guardian gives no separation of duties; the owner is a single wallet (a multisig is not set up). None of them can take your funds, but they can stop trading or pick who may trade. This is read from the contracts: the factory and vault source, and the roles section of the contract design.</p>
       <ul className="list" style={{ maxWidth: "none" }}>
         {roles.map(([h, can, cannot]) => (
           <li key={h}>

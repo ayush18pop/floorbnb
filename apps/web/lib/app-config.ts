@@ -23,7 +23,7 @@ export const LENS_ADDRESS = (process.env.NEXT_PUBLIC_LENS_ADDRESS || MAINNET_LEN
 export const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 export const FACTORY_ADDRESS = (process.env.NEXT_PUBLIC_FACTORY_ADDRESS || MAINNET_FACTORY) as `0x${string}`;
 export const REOWN_PROJECT_ID = process.env.NEXT_PUBLIC_REOWN_PROJECT_ID ?? "";
-export const MCP_URL = process.env.NEXT_PUBLIC_MCP_URL ?? "";
+export const MCP_URL = process.env.NEXT_PUBLIC_MCP_URL ?? "https://floor-server-wb4i.onrender.com/mcp";
 export const TRADING_WINDOW_SHORT = "Mon–Fri 15:30–19:30 UTC";
 /** Mainnet publicDelay is 3600 s of open-market time (packages/contracts/script/params/56.json). */
 export const PUBLIC_DELAY_HOURS = 1;
