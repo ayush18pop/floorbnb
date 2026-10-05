@@ -4,6 +4,7 @@ import { Bw3Client } from '@floor/bw3';
 import { setDeployment } from '@floor/sdk';
 import { createApp } from './app';
 import { ChainKeeperRunStore, readHeartbeat } from './keeperRuns';
+import { chainLogReaderFromEnv } from './chainLogs';
 import { loadConfig } from './config';
 import { paidGateFromEnv, paidPriceFromEnv } from './paid';
 
@@ -30,9 +31,10 @@ try {
 }
 // FLOOR_RUNS_FROM_BLOCK: serve the keeper run log from on-chain Rebalanced events (the keeper does not write to an API store yet).
 const runsFrom = process.env.FLOOR_RUNS_FROM_BLOCK;
-const runs = runsFrom ? new ChainKeeperRunStore(client, cfg.deployment.factory, BigInt(runsFrom)) : undefined;
+const logReader = runsFrom ? chainLogReaderFromEnv(client, cfg.deployment.factory, BigInt(runsFrom), process.env) : undefined;
+const runs = logReader ? new ChainKeeperRunStore(client, cfg.deployment.factory, BigInt(runsFrom!), logReader) : undefined;
 // FLOOR_KEEPER_HEARTBEAT_FILE: the keeper (KEEPER_HEARTBEAT_FILE, same host) writes {"lastScan": unix seconds} each tick; /healthz serves it.
 const hbFile = process.env.FLOOR_KEEPER_HEARTBEAT_FILE;
 const keeperHeartbeat = hbFile ? async () => readHeartbeat(hbFile) : undefined;
-const app = createApp({ chainId: cfg.chainId, deployment: cfg.deployment, client, bw3, paidGate, paidQuotePriceUsd, runs, keeperHeartbeat, corsOrigins: cfg.corsOrigins, trustProxy: cfg.trustProxy });
+const app = createApp({ chainId: cfg.chainId, deployment: cfg.deployment, client, bw3, paidGate, paidQuotePriceUsd, runs, activity: logReader ? (v) => logReader.activity(v) : undefined, keeperHeartbeat, corsOrigins: cfg.corsOrigins, trustProxy: cfg.trustProxy });
 serve({ fetch: app.fetch, port: cfg.port }, (i) => console.log(`[api] listening on :${i.port} chain ${cfg.chainId} factory ${cfg.deployment.factory} market=${bw3 ? 'bw3' : 'off'} paid=${paidGate ? 'on' : 'off (501)'}`));

@@ -176,3 +176,13 @@ export class ChainLogReader {
     return Promise.all(Array.from({ length: Number(n) }, (_, i) => this.client.readContract({ address: this.factory, abi: floorFactoryAbi, functionName: 'positions', args: [BigInt(i)] }) as Promise<Address>));
   }
 }
+
+/**
+ * The reader both servers use. ETHERSCAN_API_KEY (env only, never logged) makes Etherscan v2 the primary log source,
+ * with the chunked RPC as the fallback. `fromBlock` is the factory deploy block (FLOOR_RUNS_FROM_BLOCK).
+ */
+export function chainLogReaderFromEnv(client: PublicClient, factory: Address, fromBlock: bigint, env: Record<string, string | undefined>): ChainLogReader {
+  const key = env.ETHERSCAN_API_KEY?.trim();
+  const provider = key ? withFallback(etherscanProvider(key), rpcProvider(client)) : undefined;
+  return new ChainLogReader(client, factory, fromBlock, provider ? { provider } : {});
+}
