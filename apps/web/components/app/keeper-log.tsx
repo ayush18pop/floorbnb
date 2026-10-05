@@ -28,7 +28,7 @@ export function KeeperLog() {
             <Tile label="Last rebalance" value={st.data.lastRunTime ? `${isoTime(st.data.lastRunTime)} UTC` : "none yet"} note={st.data.lastRunTime ? <ChainDate>{isoDate(st.data.lastRunTime)}</ChainDate> : undefined} />
             <Tile label="Trading window" tone={st.data.tradingOpen ? "pos" : "warn"} value={st.data.tradingOpen ? "Open" : "Closed"} info="Mon–Fri 15:30–19:30 UTC" />
             <Tile label="Rebalances today" value={st.data.rebalancesToday} note={s.kind === "mock" ? "example" : undefined} />
-            <Tile label="Fallback" value={`After ${PUBLIC_DELAY_HOURS} h idle`} info={`Anyone can rebalance after ${PUBLIC_DELAY_HOURS} h idle.`} />
+            <Tile label="Fallback" value={`After ${PUBLIC_DELAY_HOURS} h idle`} info={`Anyone can rebalance after ${PUBLIC_DELAY_HOURS} h of open-market time without a keeper trade.`} />
           </div>
         )}
       </div>
