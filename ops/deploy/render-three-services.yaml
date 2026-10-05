@@ -19,7 +19,7 @@ services:
       - { key: FLOOR_FACTORY, sync: false }
       - { key: FLOOR_LENS, sync: false }
       - { key: FLOOR_RPC_URL, sync: false }          # BSC mainnet RPC (a paid/keyed one; not the public dataseed)
-      - { key: WEB_ORIGIN, value: "https://floorbnb.vercel.app" }   # CORS; add your final domain, comma separated
+      - { key: WEB_ORIGIN, value: "https://floor.ayush.works,https://floorbnb.vercel.app" }   # CORS; add your final domain, comma separated
       - { key: TRUST_PROXY, value: "1" }             # Render sits behind a proxy
       - { key: BW3_API_KEY, sync: false }
       - { key: BW3_API_SECRET, sync: false }
@@ -40,7 +40,7 @@ services:
       - { key: TRUST_PROXY, value: "1" }
       - { key: API_BASE_URL, sync: false }           # the floor-api URL, e.g. https://floor-api.onrender.com
       - { key: MCP_PUBLIC_URL, sync: false }         # https://<this service>.onrender.com/mcp
-      - { key: MCP_ALLOWED_ORIGINS, value: "https://floorbnb.vercel.app" }
+      - { key: MCP_ALLOWED_ORIGINS, value: "https://floor.ayush.works,https://floorbnb.vercel.app" }
       - { key: X402_NETWORK, value: "eip155:56" }
       - { key: X402_FACILITATOR, value: "self" }     # "b402" only once Binance grants credentials
       - { key: X402_PAYTO, sync: false }             # receive-only payout wallet (0xF5f3...816B)

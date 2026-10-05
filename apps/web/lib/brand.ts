@@ -22,7 +22,7 @@ export const BRAND = {
   deployed: false,
   contractsStatus: "Contracts: not yet on mainnet",
   /** Public site URL used for metadata. Override with NEXT_PUBLIC_SITE_URL. */
-  siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "https://floor.ayush.works",
   disclosure:
     "A floor that holds unless prices gap more than about 24% before the vault can rebalance. Not a guarantee.",
   backtestCaption: "Backtest on past prices. It does not predict the future.",

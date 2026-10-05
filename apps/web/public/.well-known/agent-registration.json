@@ -2,10 +2,10 @@
   "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
   "name": "Floor",
   "description": "Floor is a protection protocol for tokenized-stock positions on BNB Chain. This agent exposes read tools and unsigned transaction builders over MCP. Some tools are paid per call via x402. It never holds user keys.",
-  "image": "https://REPLACE_DOMAIN/icon.svg",
+  "image": "https://floor.ayush.works/icon.svg",
   "services": [
-    { "name": "MCP", "endpoint": "https://mcp.REPLACE_DOMAIN/mcp", "version": "2025-06-18" },
-    { "name": "web", "endpoint": "https://REPLACE_DOMAIN/" }
+    { "name": "MCP", "endpoint": "https://floor-server-wb4i.onrender.com/mcp", "version": "2025-06-18" },
+    { "name": "web", "endpoint": "https://floor.ayush.works/" }
   ],
   "x402Support": true,
   "active": true,

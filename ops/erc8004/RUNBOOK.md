@@ -18,7 +18,7 @@ Claim to use: "Floor's MCP server is discoverable through the ERC-8004 registry"
 3. Approval at gate G7 (external publication).
 
 ## Steps
-1. Replace `REPLACE_DOMAIN` in `apps/web/public/.well-known/agent-registration.json` (3 places), deploy the web app, and confirm `curl https://<domain>/.well-known/agent-registration.json` returns the JSON. Unlock note: the path is allowlisted in `apps/web/lib/launch.ts`.
+1. Replace `floor.ayush.works` in `apps/web/public/.well-known/agent-registration.json` (3 places), deploy the web app, and confirm `curl https://<domain>/.well-known/agent-registration.json` returns the JSON. Unlock note: the path is allowlisted in `apps/web/lib/launch.ts`.
 2. Dry run: `FLOOR_DOMAIN=<domain> ops/erc8004/register.sh` (add `--testnet` to rehearse on chain 97 first).
 3. Send: `ERC8004_CONFIRM_BROADCAST=yes ERC8004_SIGNER_ARGS="--ledger" FLOOR_DOMAIN=<domain> ops/erc8004/register.sh --broadcast`.
 4. Read agentId from the `Registered` event, add `{"agentId": N, "agentRegistry": "eip155:56:0x8004A169FB4a3325136EB29fA0ceB6D2e539a432"}` to `registrations`, redeploy. Verify with `cast call <registry> 'tokenURI(uint256)(string)' N`.

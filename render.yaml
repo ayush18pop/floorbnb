@@ -25,13 +25,13 @@ services:
       - { key: FLOOR_FACTORY, sync: false }
       - { key: FLOOR_LENS, sync: false }
       - { key: FLOOR_RPC_URL, sync: false }          # BSC mainnet RPC (a paid/keyed one; not the public dataseed). Also used by the keeper and x402 unless BSC_RPC_URL / X402_RPC_URL are set
-      - { key: WEB_ORIGIN, value: "https://floorbnb.vercel.app" }   # CORS; add your final domain, comma separated
+      - { key: WEB_ORIGIN, value: "https://floor.ayush.works,https://floorbnb.vercel.app" }   # CORS; add your final domain, comma separated
       - { key: BW3_API_KEY, sync: false }
       - { key: BW3_API_SECRET, sync: false }
       - { key: FLOOR_RUNS_FROM_BLOCK, sync: false }  # block of the factory deploy; serves the keeper log from on-chain events
       # --- MCP (agents, x402-paid tools). API_BASE_URL is not needed: it defaults to this same process ---
       - { key: MCP_PUBLIC_URL, value: "https://floor-server.onrender.com/mcp" }   # change if the service name differs
-      - { key: MCP_ALLOWED_ORIGINS, value: "https://floorbnb.vercel.app" }
+      - { key: MCP_ALLOWED_ORIGINS, value: "https://floor.ayush.works,https://floorbnb.vercel.app" }
       - { key: X402_NETWORK, value: "eip155:56" }
       - { key: X402_FACILITATOR, value: "self" }     # "b402" only once Binance grants credentials
       - { key: X402_PAYTO, sync: false }             # receive-only payout wallet (0xF5f3...816B)
