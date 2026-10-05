@@ -40,7 +40,7 @@ export default function Page() {
         <p>The Agentic Wallet keeper depends on Developer Mode, which is still being tested. A plain wallet is the main keeper, so rebalances do not stop if the Agentic Wallet is blocked.</p>
       </Callout>
 
-      <h2 id="mcp">MCP server <span className="badge b-warn align-middle">building</span></h2>
+      <h2 id="mcp">MCP server <span className="badge b-pos align-middle">verified live: supported + verify</span></h2>
       <p>{BRAND.name} exposes its actions as MCP tools: quote_protection, build_create_position_tx, build_exit_tx, get_status, backtest. Any MCP-capable agent can use them. Tools that change state return an unsigned transaction. {BRAND.name} never signs.</p>
       <p>The full tool list, inputs, prices, connection examples and a sample keeper log are on the <L href="/agents">agent reference page</L>.</p>
       <div className="block border border-grid bg-surface">
@@ -52,7 +52,7 @@ export default function Page() {
       </div>
 
       <h2 id="b402">Pay per call with b402 <span className="badge b-warn align-middle">building</span></h2>
-      <p>The agent pays a small fee for each paid call in stablecoins, through Binance&apos;s x402 on BSC (called b402). No sign-up, no API key. Gas is sponsored. b402 does not pay for LLM inference. Production access is by merchant application and is not granted yet. Our b402 client is built but has never been tested against the live service (only against recorded fixtures). Live settlement uses our own x402 facilitator: our server verifies the signed payment and sends the transfer itself. That path is tested end to end on a local fork with a test token. More on the <L href="/agents#b402">reference page</L>.</p>
+      <p>The agent pays a small fee for each paid call in stablecoins, through b402, Binance&apos;s x402 facilitator on BSC. Buyers need no account. Our server calls b402 with a Binance Web3 API key that has the B402 Payments permission. Gas is sponsored. b402 does not pay for LLM inference. The supported and verify calls have been run live and passed. Settle has not been run live yet, so the demo settles through our own self facilitator: our server verifies the signed payment and sends the transfer itself. That path is tested end to end on a local fork with a test token. More on the <L href="/agents#b402">reference page</L>.</p>
 
       <h2 id="skill">Agent skill <span className="badge b-warn align-middle">building</span></h2>
       <p>A {BRAND.name} skill so a user&apos;s own agent can deposit and withdraw with the user&apos;s own wallet. It tells the agent to read the factory address from get_floor_info and check every unsigned transaction against it before signing.</p>

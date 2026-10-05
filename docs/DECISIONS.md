@@ -30,7 +30,7 @@ Where documents disagree, this file wins, then CONTRACTS.md (on-chain), then ARC
 2. **CONTRACTS.md found bStocks have an issuer pause, a per-token blocklist and a sanctions list.** That
    contradicts EXECUTION.md §4. Treat CONTRACTS.md as correct. The landing page's risk section must mention it.
 3. **NVDAB pool TVL is ~$4.8M (measured 2026-10-02)**, not $3.35M (2026-09-30).
-4. **b402 production access is gated** (merchant application). The team lead must apply.
+4. **b402 uses a normal Binance Web3 API key** with the B402 Payments permission (no merchant application). Supported and verify are verified live; settle is not yet, so the demo uses the self facilitator (`X402_FACILITATOR=self`) until it is.
 
 ## Honesty pass (2026-10-04, agent DISCLOSE)
 Headline numbers come from `research/m_study2/REPORT.md`: 0.44% of one-year windows ended more than 1 point below a 90% floor (95% CI 0.07% to 0.93%), 0.09% of one-month windows, cash lock 2.85% / 0.17%, upside kept about 4 x (100 - floor)%. "93 of 93" is never used alone and "42%" always carries "at a 90% floor". Never "max loss 10%": the worst one-week window lost 24%. Trusted roles and the batch acceptance disclosures are on the public risks page, README and `/docs/open-items`.

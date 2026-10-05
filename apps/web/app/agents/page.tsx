@@ -71,7 +71,7 @@ export default function AgentsPage() {
   );
   const notes = (
     <div className="space-y-3 p-4 md:p-6">
-      <div className="notice info"><Info size={18} strokeWidth={1.5} aria-hidden="true" /><p>Gas for b402 payments is sponsored. {BRAND.name} never signs for users. b402 production access is by merchant application and is not granted yet; if it does not arrive in time, the same flow runs on a self-run x402 facilitator and we will say so. b402 pays for calls to {BRAND.name}&apos;s API, not for LLM inference.</p></div>
+      <div className="notice info"><Info size={18} strokeWidth={1.5} aria-hidden="true" /><p>Gas for b402 payments is sponsored. {BRAND.name} never signs for users. b402 supported and verify have been run live; settle has not, so the demo uses our own self facilitator until it has. b402 pays for calls to {BRAND.name}&apos;s API, not for LLM inference.</p></div>
       <div className="notice warn"><Info size={18} strokeWidth={1.5} aria-hidden="true" /><p><b>Agentic Wallet keeper.</b> A plain keeper wallet is the main keeper. A Binance Agentic Wallet holds the same role as a supervised second keeper. It depends on Developer Mode, whose confirmation and risk-check behaviour for a new contract is still being tested. The vault does not rely on it, and after {PUBLIC_DELAY_HOURS} hours idle anyone can call <span className="mono">rebalancePublic</span>.</p></div>
     </div>
   );

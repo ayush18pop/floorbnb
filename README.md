@@ -32,4 +32,4 @@ Full list with status at `/docs/open-items` (`apps/web/app/docs/open-items/page.
 
 ## Launch lock and payments
 
-The app routes are locked by default (`apps/web/lib/launch.ts`, see `docs/BRANCHING.md`); docs stay public. The b402 (Binance x402) client in `packages/x402/src/b402.ts` is built but untested against the live service. Live paid calls use our own x402 facilitator (`packages/x402/src/self.ts`; `X402_FACILITATOR` defaults to `self` in `apps/api/src/paid.ts`).
+The app routes are locked by default (`apps/web/lib/launch.ts`, see `docs/BRANCHING.md`); docs stay public. The b402 (Binance x402) client in `packages/x402/src/b402.ts` works with a Binance Web3 API key (B402 Payments permission); supported and verify have been run live, settle has not. Live paid calls use our own self facilitator (`packages/x402/src/self.ts`; `X402_FACILITATOR` defaults to `self` in `apps/api/src/paid.ts`).
