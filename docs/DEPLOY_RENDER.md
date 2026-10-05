@@ -25,7 +25,7 @@ Render dashboard > New > Blueprint > pick this repo and branch (`main`). It read
 | `BW3_API_KEY`, `BW3_API_SECRET` | Binance Web3 API (market data). Optional: without them market routes are off |
 | `FLOOR_ASSETS` | comma-separated bStock token addresses the keeper pokes each cycle |
 | `KEEPER_PRIVATE_KEY` | key of `0x46FD797AeBD0250A2E768022AD992DF21F12e58a`, about 0.03 BNB on it. Secret, dashboard only. **If unset the keeper runs dry-run** (simulates, signs nothing) and `/healthz` says so |
-| `X402_PAYTO` | receive-only payout wallet |
+| `X402_PAYTO` | receive-only payout wallet: the project payee address `0xF5f349ABe9647278AC3450058bc054886DaF816B` |
 | `X402_ASSET`, `X402_ASSET_SYMBOL` | the payment token (USD1 or U on BSC; must support EIP-3009) |
 | `X402_ASSET_NAME`, `X402_ASSET_VERSION` | the token's EIP-712 domain, read on-chain (below) |
 | `SELF_FACILITATOR_KEY` | a small gas EOA (about 0.005 BNB); not the keeper key, not the payout wallet |

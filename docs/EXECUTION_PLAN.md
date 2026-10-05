@@ -1,6 +1,8 @@
 # Floor: execution plan (agents as the team)
 
 Written Fri 2026-10-02, 16:30 UTC (22:00 IST). Deadline **Sun 2026-10-11 12:00 UTC (17:30 IST)**.
+
+> **Snapshot from 2026-10-02.** Some lines are superseded: b402 needs no merchant application, `clientId` or RSA key (a Web3 API key with the B402 Payments permission works; see `docs/DECISIONS.md` item 4 and `docs/ARCHITECTURE.md` step 1), the deploy target date has passed, and the frontend domain is planned as `https://floor.ayush.works` (`floorbnb.vercel.app` is the fallback). Read `docs/DECISIONS.md` first.
 Owner of this file: the manager agent. The team lead approves it before any agent is spawned.
 Priority between docs: `docs/DECISIONS.md` > `docs/CONTRACTS.md` (on-chain) > `docs/ARCHITECTURE.md` (off-chain) > everything else.
 This plan adds decisions P0 to P13 (section 1). Once approved, they rank with DECISIONS.md.

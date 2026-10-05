@@ -14,7 +14,7 @@ export default function Page() {
       <p>A factory contract creates one small vault contract for each position. Your USDT goes into that vault and nowhere else. One user&apos;s gap loss cannot touch another user&apos;s money. Your position id is the vault&apos;s address.</p>
 
       <h2 id="deposit">Deposits</h2>
-      <p>You deposit USDT only, up to the launch caps: 1,000 USDT per position and 5,000 USDT in total. You approve USDT to the factory, then create the position with an amount, a floor and a term (one year at launch). There is no protocol fee in v1. You pay gas in BNB. The rule the vault follows is on <L href="/docs/how-it-works">How it works</L>.</p>
+      <p>You deposit USDT only, up to the launch caps: 1,000 USDT per position and 5,000 USDT in total across all users. The owner can change both caps at any time, with no redeploy; positions that already exist are not affected. You approve USDT to the factory, then create the position with an amount, a floor and a term. The app offers floors from 80% to 95% and terms from 30 days to 1 year. The contract accepts floors from 50% to 98% and terms from 7 to 400 days. There is no protocol fee in v1. You pay gas in BNB. The rule the vault follows is on <L href="/docs/how-it-works">How it works</L>.</p>
 
       <h2 id="price">Price</h2>
       <p>The vault reads a 10-minute time-weighted average price (TWAP) from the PancakeSwap v3 pool, on-chain. The keeper supplies no price. Each asset has a trade cap, with QQQB the lowest, so a small pool cannot be pushed around cheaply.</p>
@@ -24,10 +24,10 @@ export default function Page() {
 
       <h2 id="roles">Roles</h2>
       <ul className="list">
-        <li><strong>Keeper.</strong> Calls rebalance, one swap per call, through allowlisted routers. The vault re-validates direction, size, router and minimum out. The keeper cannot withdraw or set prices. An EOA is the primary keeper; a Binance Agentic Wallet holds the same role as a supervised second keeper. See <L href="/docs/agents#keeper">Agents</L>.</li>
+        <li><strong>Keeper.</strong> Calls rebalance, one swap per call, through allowlisted routers. The vault re-validates direction, size, router and minimum out. The keeper cannot withdraw or set prices. An EOA is the primary keeper. A Binance Agentic Wallet is an optional second keeper; it is not set up yet. See <L href="/docs/agents#keeper">Agents</L>.</li>
         <li><strong>Anyone.</strong> After the public delay (3,600 seconds of open-market time at launch, counted from that stock&apos;s last trade), anyone can call a public rebalance through the direct Pancake pool. It can be sandwiched within the 1% slippage bound.</li>
         <li><strong>Guardian.</strong> Can pause, halt trading, set holidays, remove a router, disable an asset and approve a new token implementation. It cannot move funds or add a router. A pause or halt stops rebalances and de-risking sells, never exits.</li>
-        <li><strong>Owner (hardware wallet; a multisig is not set up).</strong> Adds assets, adds routers (active after 24 hours), sets keepers and the guardian, sets defaults for new positions and the launch caps. Cannot touch any existing position or its funds. See <L href="/docs/risks#roles">Risks</L>.</li>
+        <li><strong>Owner (hardware wallet; a multisig is not set up).</strong> Adds assets, adds routers (active after 24 hours), sets keepers and the guardian, sets defaults for new positions and the launch caps (at any time, with no redeploy; existing positions are unaffected). At launch the owner and the guardian are the same address, so the guardian adds no separation. Cannot touch any existing position or its funds. See <L href="/docs/risks#roles">Risks</L>.</li>
         <li><strong>You.</strong> Only you can exit your position.</li>
       </ul>
 

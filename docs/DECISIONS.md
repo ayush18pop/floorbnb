@@ -34,3 +34,9 @@ Where documents disagree, this file wins, then CONTRACTS.md (on-chain), then ARC
 
 ## Honesty pass (2026-10-04, agent DISCLOSE)
 Headline numbers come from `research/m_study2/REPORT.md`: 0.44% of one-year windows ended more than 1 point below a 90% floor (95% CI 0.07% to 0.93%), 0.09% of one-month windows, cash lock 2.85% / 0.17%, upside kept about 4 x (100 - floor)%. "93 of 93" is never used alone and "42%" always carries "at a 90% floor". Never "max loss 10%": the worst one-week window lost 24%. Trusted roles and the batch acceptance disclosures are on the public risks page, README and `/docs/open-items`.
+
+## Docs sync (2026-10-05)
+5. **Launch caps are shared and owner-changeable.** 1,000 USDT per position and 5,000 USDT in total across all users, at deploy. The owner can change both at any time with `setLimits` (no redeploy); existing positions are unaffected. This is stated beside "owner and guardian are the same address" (`0x762c…1F1A`) in the README, `/docs/risks`, `/docs/contracts` and `/docs/open-items`.
+6. **Pashov run 06 (2026-10-05): proposed acceptance, no contract change.** The finding (a caller with 5,000 USDT can fill the shared cap) is proposed accepted for the hackathon launch in `reviews/acceptances.md`. Not signed. The team lead confirms in writing.
+7. **Keepers.** An EOA keeper is primary. An Agentic Wallet is an optional second keeper and is not set up. BNB Agent Studio and the Agentic Wallet side prize are skipped. ERC-8004 registration is optional, prepared and not broadcast. Frontend domain: `https://floor.ayush.works` (planned, not verified live); fallback `floorbnb.vercel.app`.
+8. **Deadline.** Sun 2026-10-11 12:00 UTC, which is 17:30 IST.

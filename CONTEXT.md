@@ -5,7 +5,7 @@ in your report instead of inventing it. Mark anything unverified as **unverified
 
 ## The hackathon
 **BNB Hack: Tokenized Stocks Edition** (BNB Chain + Binance Web3 Wallet).
-- Submission deadline **2026-10-11 12:00 UTC**. Judging 10-12 → 10-23.
+- Submission deadline **2026-10-11 12:00 UTC (Sun 11 Oct, 17:30 IST)**. Judging 10-12 → 10-23.
 - Hard rules: one of **bStocks, Ondo, or xStocks** must be central. **Spot only: no perps or derivatives.**
   **BSC mainnet** deployment. The named execution venue is PancakeSwap / BSC tokenized-equity liquidity.
 - Judging: Technical 30%, Creativity 25% ("does this already exist five times over?"), Developer
@@ -111,8 +111,9 @@ Full detail: `docs/RESEARCH_RESULTS.md`. Scripts and raw data:
 developers.binance.com/en/docs/products/onchainpay-x402/introduction). An HTTP API returns 402; the
 caller signs an EIP-712 authorization; the B402 Facilitator verifies and settles on-chain in
 U/USD1/USDT/USDC, gas sponsored. Role in Floor: AI agents pay per call for Floor's API/MCP tools.
-It does **not** pay for LLM inference. Production access is by merchant application (gated); USDT/USDC
-are Permit2-only, U/USD1 support eip3009 (per ARCHITECTURE.md).
+It does **not** pay for LLM inference. Corrected 2026-10-05: no merchant application is needed. A Binance Web3 API key with the
+"B402 Payments" permission works against `https://web3.binance.com/build/api/v2/b402/*`; supported and verify were run live,
+settle was not. USDT/USDC are Permit2-only, U/USD1 support eip3009 (per ARCHITECTURE.md).
 
 **MCP server:** Floor exposes its main actions (e.g. `quote_protection`, `deposit`, `withdraw`,
 `status`, `backtest`) as MCP tools so any agent can use Floor. The team lead considers this more

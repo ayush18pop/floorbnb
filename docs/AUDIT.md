@@ -57,3 +57,6 @@ Rules:
 - Do not claim a number of bugs found or a score.
 - State the commit hash the claim applies to, when space allows.
 - The claims reviews (A03, A24, A25) check this wording on the site, README, video script and submission text.
+
+## Run 06 (2026-10-05)
+Report: `floorbnb-pashov-ai-audit-report-20261005-051324.md` at the repo root on `main` (repo head `84706ee`, 1 pass, 12 agents). It was not copied to `reviews/audit-pashov-NN.md` and `reviews/audit-pashov-final.md` still does not exist, so the `AUDITED_COMMIT` placeholder in `ops/deploy/runbook.md` stays. The acceptance for it is only PROPOSED in `reviews/acceptances.md`. The public surfaces describe it without a bug count, per the claim rules above.

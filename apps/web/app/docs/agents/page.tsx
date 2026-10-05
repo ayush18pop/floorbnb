@@ -34,10 +34,10 @@ export default function Page() {
         <AgentFlow />
       </div>
 
-      <h2 id="keeper">Keeper <span className="badge b-acc align-middle">Binance Agentic Wallet</span></h2>
-      <p>An automated keeper triggers rebalances; a Binance Agentic Wallet holds the same role. Neither can move your funds. Your funds stay in your own vault contract. Your own Agentic Wallet can sign deposits and pay b402. Roles are described on <L href="/docs/contracts#roles">Contracts</L>.</p>
+      <h2 id="keeper">Keeper <span className="badge b-acc align-middle">EOA primary</span></h2>
+      <p>An automated keeper triggers rebalances. An EOA keeper is the primary one; a Binance Agentic Wallet is an optional second keeper and is not set up. Neither can move your funds. Your funds stay in your own vault contract. Your own Agentic Wallet can sign deposits and pay b402. Roles are described on <L href="/docs/contracts#roles">Contracts</L>.</p>
       <Callout>
-        <p>The Agentic Wallet keeper depends on Developer Mode, which is still being tested. A plain wallet is the main keeper, so rebalances do not stop if the Agentic Wallet is blocked.</p>
+        <p>The Agentic Wallet keeper depends on Developer Mode and is not set up. A plain wallet is the main keeper, so rebalances never depend on it.</p>
       </Callout>
 
       <h2 id="mcp">MCP server <span className="badge b-warn align-middle">building</span></h2>

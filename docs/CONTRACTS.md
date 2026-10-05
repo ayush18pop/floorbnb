@@ -195,7 +195,7 @@ Guards (all fail closed: revert and do nothing):
 - Pool `liquidity()` >= `minLiquidity[asset]` (guards a drained pool).
 - Per-trade value cap `maxTradeValue[asset]` (launch: NVDAB 25k, SPCXB 10k, QQQB 5k USDT; **proposed**, tune
   from quotes at deploy).
-- Global launch cap on TVL per position (`maxDeposit`, launch: 1,000 USDT) and total (`maxTotalTvl`, launch: 5,000 USDT). `totalTvl` counts deposits of OPEN positions: a vault reports its close once to `factory.onPositionClosed()` (from `closeToUSDT` / `exitInKind`, best effort, gas capped, result ignored) and the deposit is released. Minimum deposit is 1 USDT (A12 F-07 / F-01).
+- Global launch cap on TVL per position (`maxDeposit`, launch: 1,000 USDT) and total (`maxTotalTvl`, launch: 5,000 USDT, shared by all users). The OWNER can change both at any time with `setLimits(maxDeposit, maxTotalTvl)`, with no redeploy; existing positions are unaffected. A caller with `maxTotalTvl` of USDT can fill the shared cap and block new deposits (Pashov run 06, 2026-10-05: proposed acceptance, see `reviews/acceptances.md`). `totalTvl` counts deposits of OPEN positions: a vault reports its close once to `factory.onPositionClosed()` (from `closeToUSDT` / `exitInKind`, best effort, gas capped, result ignored) and the deposit is released. Minimum deposit is 1 USDT (A12 F-07 / F-01).
 - Pricing when a pool guard fails (A12 F-03, A12r M-01): the asset cannot be traded and buys are suppressed, but it is still VALUED at its 10-minute TWAP (history is required, the spot-deviation and liquidity guards are not), so pushing one pool's spot for a block cannot understate V and force a sale of another asset. Only an asset with no TWAP at all (history too short) counts as 0, which can only make the vault sell more, never buy more. Preview (`previewRebalance`) skips an asset that cannot be traded (failed price, or a multiplier in its transition window; Pashov 02 #10) and treats a reverting token beacon as "buys blocked" (A12r L-02).
 - Multiplier guard (section 4).
 
@@ -480,7 +480,7 @@ prices (**estimate**). Keeper gas is paid by the keeper wallet. No gas refund fr
 `rebalancePublic(assetIdx)`: anyone, no calldata. The vault itself computes the trade and swaps through the
 **direct Pancake v3 pool** (`exactInputSingle` on the registered pool and fee). Allowed only when:
 - market open, not paused, same checks as keeper path;
-- `publicDelay` seconds of REAL OPEN-MARKET time have passed since THIS ASSET'S last trade, or the position start (default 4 h;
+- `publicDelay` seconds of REAL OPEN-MARKET time have passed since THIS ASSET'S last trade, or the position start (design default 4 h; the mainnet value in `script/params/56.json` is 3600 s, decided 2026-10-04;
   Pashov 02 #11, Pashov 03 #5). Closed hours, weekends, guardian-listed holidays (`nonTradingDay`) and everything before the last
   unpause or un-halt (`factory.tradingResumedAt`) do not count (`factory.hasOpenSeconds`, a backward walk that stops as soon as the
   delay is reached). A trade of another asset does not reset it. `publicDelay` is bounded to 1 h .. 24 h of open time. NOTE: with the 4 h window and a 4 h delay the public path opens from
