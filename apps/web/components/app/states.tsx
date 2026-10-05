@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useAccount, useSwitchChain } from "wagmi";
 import { appChain } from "@/lib/wagmi";
 import { BRAND } from "@/lib/brand";
-import { Notice } from "./ui";
+import { Notice, TradingWindow } from "./ui";
 import { Xh } from "@/components/ui/xh";
 
 export function EmptyPositions() {
@@ -31,7 +31,7 @@ export function NotEnoughUsdt({ have }: { have: string }) {
   );
 }
 export function OutsideWindow() {
-  return <Notice kind="info">Rebalances run {BRAND.tradingWindow}. Your deposit is safe in the vault; the basket is bought in the next window.</Notice>;
+  return <Notice kind="info">Rebalances run <TradingWindow />. Your deposit is safe in the vault; the basket is bought in the next window.</Notice>;
 }
 export function PriceCheckFailed() {
   return <Notice kind="warn" title="Rebalance skipped" action={<Link href="/docs/how-it-works" className="prose-link">Why?</Link>}>The pool price moved more than the allowed band from its 10-minute average, so the vault did not trade. It tries again at the next run.</Notice>;

@@ -1,13 +1,34 @@
 "use client";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useSyncExternalStore, type ReactNode } from "react";
 import { AlertTriangle, Info, OctagonAlert, X } from "lucide-react";
 import { getSource } from "@/lib/adapters";
+import { BRAND } from "@/lib/brand";
+import { stamp, isoDate, isoTime, localStamp, localZone, localRange } from "@/lib/adapters/format";
 import { InfoPopover } from "@/components/ui/info-popover";
 import { ExpandRow } from "@/components/ui/expand-row";
 
 /** A date or time that comes from the chain clock. On the local fork that clock differs from the browser's, so say so (tooltip, local only). */
 export function ChainDate({ children }: { children: ReactNode }) {
   return <span title={process.env.NEXT_PUBLIC_LOCAL_DEV === "1" ? "Chain time (the local fork's clock, not your computer's)" : undefined}>{children}</span>;
+}
+
+const noSubscribe = () => () => {};
+/** The viewer's zone, read after hydration, so server and first client render match (UTC only) and local time appears after. */
+function useLocalZone(): string | null {
+  return useSyncExternalStore(noSubscribe, localZone, () => null);
+}
+
+/** A chain timestamp in UTC, followed by the viewer's local time when their zone is not UTC. `short` drops the year and the UTC suffix (table cells). */
+export function UtcTime({ t, short = false }: { t: number; short?: boolean }) {
+  const z = useLocalZone();
+  const utc = short ? `${isoDate(t).slice(5)} ${isoTime(t)}` : `${stamp(t)} UTC`;
+  return <ChainDate>{utc}{z && <span className="!text-muted" title={z}> · {localStamp(t)}</span>}</ChainDate>;
+}
+
+/** The trading window in UTC, plus the same window in the viewer's local time. */
+export function TradingWindow() {
+  const z = useLocalZone();
+  return <>{BRAND.tradingWindow}{z && <span title={z}> ({localRange(15, 30, 19, 30)} your time)</span>}</>;
 }
 
 /** True when the screens render the labelled mock. */

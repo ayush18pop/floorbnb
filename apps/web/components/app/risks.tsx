@@ -1,6 +1,7 @@
 "use client";
 import { DetailsDrawer } from "@/components/ui/details-drawer";
 import { BRAND } from "@/lib/brand";
+import { TradingWindow } from "./ui";
 import { acksFor } from "@/lib/acks";
 
 /** The backtest caveat, word for word as it was on the builder before the declutter pass. */
@@ -11,7 +12,7 @@ export function RisksBody({ term }: { term?: { end: string; days: number } }) {
   return (
     <>
       <p className="!text-ink">{BRAND.disclosure}</p>
-      <p>The vault does not trade on weekends or outside the trading window ({BRAND.tradingWindow}). Holidays can move it.</p>
+      <p>The vault does not trade on weekends or outside the trading window (<TradingWindow />). Holidays can move it.</p>
       <h3>What you accept</h3>
       <ul className="list-disc space-y-2 pl-5">
         {term ? acksFor(term.end, term.days).map((t) => <li key={t}>{t}</li>) : (

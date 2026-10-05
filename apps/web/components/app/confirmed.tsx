@@ -3,9 +3,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Xh } from "@/components/ui/xh";
 import { useChainNow } from "@/lib/adapters/use-chain";
-import { fmt, isAddress, isoDate, nextWindow, stamp, dow } from "@/lib/adapters";
-import { BRAND } from "@/lib/brand";
-import { ChainDate, ExampleBadge } from "./ui";
+import { fmt, isAddress, isoDate, nextWindow } from "@/lib/adapters";
+import { ChainDate, ExampleBadge, TradingWindow, UtcTime } from "./ui";
 import { AddrLink, TxLink } from "./explorer-link";
 import { termLabel, parseTermDays, termEndText } from "@/lib/floor-config";
 import { FlowRail } from "./review";
@@ -34,7 +33,7 @@ export function Confirmed() {
             <p className="body mt-2">Your vault holds <span className="mono text-ink">{fmt(amount)} USDT</span>.
               <InfoPopover label="what happens next" title="What happens next">
                 <p>Your vault holds <span className="mono text-ink">{fmt(amount)} USDT</span>. It buys your basket in the next trading window. Nothing is bought at deposit.</p>
-                <p className="small">First rebalance is the next trading window ({BRAND.tradingWindow}). Holidays can move it.{end && <> {termEndText(end)}</>}</p>
+                <p className="small">First rebalance is the next trading window (<TradingWindow />). Holidays can move it.{end && <> {termEndText(end)}</>}</p>
               </InfoPopover>
             </p>
           </div>
@@ -43,7 +42,7 @@ export function Confirmed() {
             <div><dt>Transaction</dt><dd>{tx ? <TxLink hash={tx} /> : "n/a"}</dd></div>
             <div><dt>Floor</dt><dd>{fmt(floor)} USDT</dd></div>
             <div><dt>Term</dt><dd>{termLabel(days)}{end ? <>, ends <ChainDate>{end}</ChainDate></> : ""}</dd></div>
-            <div><dt>First rebalance</dt><dd>{win ? <ChainDate>{`${dow(win)} ${stamp(win).replace(" ", ", from ")} UTC`}</ChainDate> : "…"}</dd></div>
+            <div><dt>First rebalance</dt><dd>{win ? <UtcTime t={win} /> : "…"}</dd></div>
           </dl>
           <div className="btn-stack flex flex-col gap-4 border-t border-grid p-4 sm:flex-row sm:items-center md:px-6">
             <Link href={isAddress(vault) ? `/app/position?v=${vault}` : "/app/positions"} className="btn btn-primary">Open position</Link>

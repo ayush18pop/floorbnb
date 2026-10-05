@@ -12,7 +12,7 @@ import { useChainNow } from "@/lib/adapters/use-chain";
 import { parseBuilderParams, equalWeights } from "@/lib/builder-params";
 import { ASSETS, type AssetSymbol, fmt, isoDate, num } from "@/lib/adapters";
 import { BRAND } from "@/lib/brand";
-import { Notice } from "./ui";
+import { Notice, TradingWindow } from "./ui";
 import { useConnectModal } from "./wallet";
 import { FloorControl, TermControl } from "./floor-term";
 import { TradeoffDetail, MiniMeter } from "./tradeoff";
@@ -105,7 +105,7 @@ export function Builder() {
         <section className="border-b border-grid px-4 py-3 md:px-6" aria-labelledby="l-basket">
           <h2 id="l-basket" className="label mb-2">Basket<InfoPopover label="basket" title="Basket">
             <p>Equal weight. Pick one to three. bStocks only. You deposit USDT.</p>
-            <p className="small">Trading window: {BRAND.tradingWindow} · no weekend trades</p>
+            <p className="small">Trading window: <TradingWindow /> · no weekend trades</p>
           </InfoPopover></h2>
           <div className="basket basket-s" role="group" aria-labelledby="l-basket">
             {ASSETS.map((a) => (

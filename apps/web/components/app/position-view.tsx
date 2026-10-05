@@ -3,13 +3,12 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useAccount } from "wagmi";
-import { getSource, isAddress, fmt, fmtW, num, pct, phaseOf, stockPct, daysLeft, isoDate, stamp, dow, nextWindow, type VaultEvent, type PositionView } from "@/lib/adapters";
+import { getSource, isAddress, fmt, fmtW, num, pct, phaseOf, stockPct, daysLeft, isoDate, dow, nextWindow, type VaultEvent, type PositionView } from "@/lib/adapters";
 import { useAsync } from "@/lib/adapters/use";
 import { useAgeSeconds } from "@/lib/adapters/use-chain";
-import { BRAND } from "@/lib/brand";
 import { Xh } from "@/components/ui/xh";
 import { AddrLink, TxLink } from "./explorer-link";
-import { Banner, ChainDate, ErrorBox, ExampleBadge, Notice, Skeleton, Tile } from "./ui";
+import { Banner, ChainDate, ErrorBox, ExampleBadge, Notice, Skeleton, Tile, TradingWindow, UtcTime } from "./ui";
 import { Tabs } from "@/components/ui/tabs";
 import { InfoPopover } from "@/components/ui/info-popover";
 import { useViewportHeight, useViewportWidth } from "@/components/ui/use-viewport";
@@ -102,8 +101,8 @@ export function PositionScreen() {
       {ph === "cashLock" && <Banner kind="neg" title="Cash lock." more={<>Your value reached the floor{lockEv ? ` on ${isoDate(lockEv.time)}` : ""}. The vault sold all stock and holds USDT until the term ends on {isoDate(p.maturity)}. You keep {fmtW(p.status.V)} USDT. You will not gain from a recovery during this term.</>}>Value reached the floor; the vault holds USDT until {isoDate(p.maturity)}.</Banner>}
       {ph === "closing" && <Banner kind="warn" title="Close requested." more="When the stock is sold, choose Close to USDT to receive your USDT.">The vault sells its stock in the next trading window.</Banner>}
       {ph === "closed" && <Banner kind="info" title="This position is closed." more="The floor no longer applies.">{closedText}</Banner>}
-      {waiting && <Banner kind="info" title="Waiting for the first rebalance." more={<>Nothing is bought at deposit. The vault buys your basket in the first trading window ({BRAND.tradingWindow}); until then it holds {fmtW(p.usdtBalance)} USDT, which is normal. Your floor already applies.<WindowWhy /></>}>{p.status.tradingOpen ? "The window is open: the keeper runs about once a minute." : <>Next trading window: <ChainDate>{dow(nw)} {stamp(nw).replace(" ", ", ")} UTC</ChainDate>.</>}</Banner>}
-      {ph === "active" && !p.status.tradingOpen && !waiting && <Banner kind="warn" title="Market closed." more={<>{weekend ? "The vault does not trade on weekends." : "The vault trades only inside its window, and not on exchange holidays."} The floor maths already assumes the full weekend gap.<WindowWhy /></>}>Next trading window: <ChainDate>{dow(nw)} {stamp(nw).replace(" ", ", ")} UTC</ChainDate>.</Banner>}
+      {waiting && <Banner kind="info" title="Waiting for the first rebalance." more={<>Nothing is bought at deposit. The vault buys your basket in the first trading window (<TradingWindow />); until then it holds {fmtW(p.usdtBalance)} USDT, which is normal. Your floor already applies.<WindowWhy /></>}>{p.status.tradingOpen ? "The window is open: the keeper runs about once a minute." : <>Next trading window: <UtcTime t={nw} />.</>}</Banner>}
+      {ph === "active" && !p.status.tradingOpen && !waiting && <Banner kind="warn" title="Market closed." more={<>{weekend ? "The vault does not trade on weekends." : "The vault trades only inside its window, and not on exchange holidays."} The floor maths already assumes the full weekend gap.<WindowWhy /></>}>Next trading window: <UtcTime t={nw} />.</Banner>}
     </>
   );
   const alertsOn = ph !== "active" || !p.status.tradingOpen || waiting;
@@ -115,7 +114,7 @@ export function PositionScreen() {
         const rb = e.type === "Rebalanced";
         const inner = (
           <>
-            <span className="mono small !text-muted">{stamp(e.time).slice(5)}</span>
+            <span className="mono small !text-muted"><UtcTime t={e.time} short /></span>
             <span className="min-w-0"><span className="block text-[14px] text-ink">{d.title}</span><span className="block mono small">{d.sub}</span></span>
           </>
         );
@@ -170,7 +169,7 @@ export function PositionScreen() {
         </section>
         <section className="flex min-h-0 min-w-0 flex-col" aria-label="Activity and holdings">
           <Tabs label="Activity and holdings" className="h-full" panelMaxHeight={vw >= 1200 ? chartH + 30 : undefined} items={[
-            { id: "act", label: "Activity", panel: <><p className="label border-b border-grid px-4 py-1">Rebalance rules<InfoPopover label="rebalance rules" title="Rebalance rules"><p>Sell when stock is more than 1% of value over target. Buy when it is more than 2% under. {BRAND.tradingWindow}.</p></InfoPopover></p>{activity}</> },
+            { id: "act", label: "Activity", panel: <><p className="label border-b border-grid px-4 py-1">Rebalance rules<InfoPopover label="rebalance rules" title="Rebalance rules"><p>Sell when stock is more than 1% of value over target. Buy when it is more than 2% under. <TradingWindow />.</p></InfoPopover></p>{activity}</> },
             { id: "hold", label: "Holdings", panel: holdings },
           ]} />
         </section>

@@ -1,6 +1,6 @@
 "use client";
-import { fmt, fmtW, stamp, type VaultEvent } from "@/lib/adapters";
-import { Dialog, ExampleBadge } from "./ui";
+import { fmt, fmtW, type VaultEvent } from "@/lib/adapters";
+import { Dialog, ExampleBadge, UtcTime } from "./ui";
 import { AddrLink, TxLink } from "./explorer-link";
 
 type Rb = Extract<VaultEvent, { type: "Rebalanced" }>;
@@ -15,7 +15,7 @@ export function RebalanceDetail({ e, onClose }: { e: Rb | null; onClose: () => v
         <div className="space-y-5">
           <p className="label">Rebalance #{e.id} <ExampleBadge className="ml-2" /></p>
           <dl className="kv -mx-6">
-            <div className="contents"><dt>Time</dt><dd>{stamp(e.time)} UTC</dd></div>
+            <div className="contents"><dt>Time</dt><dd><UtcTime t={e.time} /></dd></div>
             {e.trigger && <div className="contents"><dt>Trigger</dt><dd>{e.trigger}</dd></div>}
             <div className="contents"><dt>Action</dt><dd>{e.buy ? `BUY ${e.symbol}: ${fmtW(e.amountIn)} USDT → ${fmtW(e.amountOut, 4)} ${e.symbol}` : `SELL ${fmtW(e.amountIn, 4)} ${e.symbol} → ${fmtW(e.amountOut)} USDT`}</dd></div>
             <div className="contents"><dt>Price source</dt><dd>PancakeSwap v3, 10-minute average</dd></div>

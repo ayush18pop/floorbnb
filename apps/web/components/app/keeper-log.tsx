@@ -1,12 +1,12 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { getSource, scanNote, fmt, shortAddr, isoTime, isoDate } from "@/lib/adapters";
+import { getSource, scanNote, fmt, shortAddr } from "@/lib/adapters";
 import { useAsync } from "@/lib/adapters/use";
 import { PUBLIC_DELAY_HOURS } from "@/lib/app-config";
 import { BRAND } from "@/lib/brand";
 import { Xh } from "@/components/ui/xh";
-import { ChainDate, ErrorBox, ExampleBadge, Skeleton, Tile } from "./ui";
+import { ErrorBox, ExampleBadge, Skeleton, Tile, UtcTime } from "./ui";
 import { TxLink } from "./explorer-link";
 import { InfoPopover } from "@/components/ui/info-popover";
 
@@ -26,7 +26,7 @@ export function KeeperLog() {
         {st.error ? <ErrorBox message={st.error} /> : !st.data ? <Skeleton lines={1} /> : (
           <div className="tiles" style={{ ["--n" as string]: 5 }}>
             <Tile label="Keeper" value={<span className={`badge ${st.data.online ? "b-pos" : "b-neg"}`}>{st.data.online ? "Online" : "Offline"}</span>} note={<span data-testid="keeper-scan">{scanNote(st.data.heartbeatAgeSeconds)}</span>} />
-            <Tile label="Last rebalance" value={st.data.lastRunTime ? `${isoTime(st.data.lastRunTime)} UTC` : "none yet"} note={st.data.lastRunTime ? <ChainDate>{isoDate(st.data.lastRunTime)}</ChainDate> : undefined} />
+            <Tile label="Last rebalance" value={st.data.lastRunTime ? <UtcTime t={st.data.lastRunTime} /> : "none yet"} />
             <Tile label="Trading window" tone={st.data.tradingOpen ? "pos" : "warn"} value={st.data.tradingOpen ? "Open" : "Closed"} info="Mon–Fri 15:30–19:30 UTC" />
             <Tile label="Rebalances today" value={st.data.rebalancesToday} note={s.kind === "mock" ? "example" : undefined} />
             <Tile label="Fallback" value={`After ${PUBLIC_DELAY_HOURS} h idle`} info={`Anyone can rebalance after ${PUBLIC_DELAY_HOURS} h of open-market time without a keeper trade.`} />
@@ -41,7 +41,7 @@ export function KeeperLog() {
             <tbody>
               {rows.map((r, i) => (
                 <tr key={i}>
-                  <td className="mono whitespace-nowrap">{isoDate(r.time).slice(5)} {isoTime(r.time)}</td>
+                  <td className="mono whitespace-nowrap"><UtcTime t={r.time} short /></td>
                   <td className="mono"><Link href={`/app/position?v=${r.vault}`} className="!text-ink underline-offset-4 hover:underline">{shortAddr(r.vault)}</Link></td>
                   <td className={`mono whitespace-nowrap ${r.buy ? "pos" : "neg"}`}>{r.cashLock ? "SELL ALL · CASH LOCK" : `${r.buy ? "BUY" : "SELL"} ${r.symbol}`}</td>
                   <td className="r">{fmt(r.amountIn)} {r.amountInUnit}</td>
