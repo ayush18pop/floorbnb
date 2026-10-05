@@ -268,3 +268,13 @@ Every run: the same gas numbers, `totalTvl` back to 0, all positions closed, anv
 - **R-2:** the committed `56.json` has `keepers: []` and zero roles; the pre-flight aborts on it by design.
 - **R-3:** the fork warp (Sat to Tue) is fine for the Pancake direct route; a warp breaks live aggregator calldata (A09b finding 8), so the aggregator route is not part of the dry-run.
 - **R-4 (fork only):** the factory deploys at block time T and the demo then runs at T+3 days. On mainnet the 24 h `addRouter` delay is real; only the constructor routers are active immediately.
+
+## Verification (2026-10-05)
+
+Verified with `forge verify-contract --verifier etherscan` (Etherscan v2, chain 56) at commit 078eab9 (contracts unchanged since audited commit ed38624). Factory constructor args used the direct-only router arrays and `publicDelay` 3600 (as deployed from `script/params/56.json`; the example in section 5 shows 14400); they match the trailing bytes of the deploy init code.
+
+| Contract | Address | Status | BscScan |
+|---|---|---|---|
+| FloorVault (impl) | 0xEA0603a83BCf28a1D57d8534971149eACD874055 | Verified | https://bscscan.com/address/0xEA0603a83BCf28a1D57d8534971149eACD874055#code |
+| FloorFactory | 0x1147d482fD08DDd7F377838efb610B606B3Ad765 | Verified | https://bscscan.com/address/0x1147d482fD08DDd7F377838efb610B606B3Ad765#code |
+| FloorLens | 0x63Ae440B9D309959442eaD3E08cBC3A025C67780 | Verified | https://bscscan.com/address/0x63Ae440B9D309959442eaD3E08cBC3A025C67780#code |
