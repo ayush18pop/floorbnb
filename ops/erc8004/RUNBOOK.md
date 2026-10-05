@@ -16,7 +16,7 @@ Claim to use: "Floor's MCP server is discoverable through the ERC-8004 registry"
 
 ## Human provides
 1. Owner address (receives the agent NFT; use the hardware wallet or fund-less-then-funded EOA).
-2. Final public domain: `floor.ayush.works` for the web app. The registration file also names `mcp.floor.ayush.works` for the MCP endpoint. Neither host is verified live (not verified: DNS, TLS, or that the MCP server answers on that host). Fallback web host: `floorbnb.vercel.app`; the file would then need its URLs changed.
+2. Final public domain: `floor.ayush.works` for the web app. The web host is live (200, 2026-10-05). The registration file names the Render onebox for the MCP endpoint, `https://floor-server-wb4i.onrender.com/mcp` (GET answers 405, so it is up; a full MCP handshake is not verified). Fallback web host: `floorbnb.vercel.app`; the file would then need its URLs changed.
 3. Approval at gate G7 (external publication).
 
 ## Steps
