@@ -4,8 +4,9 @@ import { Callout, DocPage, L } from "@/components/docs/doc-page";
 import { proofData } from "@/lib/docs-data";
 import { UpsidePanel } from "@/components/docs/proof-panels";
 import { BRAND } from "@/lib/brand";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "The trade-off" };
+export const metadata = pageMetadata("/docs/trade-off", "The trade-off");
 
 const rows: [string, string][] = [
   ["About 58% of the gain in an up year. At a 90% floor the vault kept about 42% of a three-stock basket's gain (roughly 4 × (100 − floor)%).", "Bad years cut to −8.6% where holding lost 17.2% (NVDA + TSLA + QQQ basket, typical bad year)."],

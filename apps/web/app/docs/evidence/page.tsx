@@ -2,8 +2,9 @@ import { ChartPanel } from "@/components/charts/panel";
 import { SingleBars } from "@/components/charts/bars";
 import { Callout, DocPage, L } from "@/components/docs/doc-page";
 import { BRAND } from "@/lib/brand";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Evidence" };
+export const metadata = pageMetadata("/docs/evidence", "Evidence");
 
 /**
  * Every number on this page comes from research/m_study/REPORT.md (agent MSTUDY, 2026-10-03),

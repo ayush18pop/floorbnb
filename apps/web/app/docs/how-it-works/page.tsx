@@ -5,8 +5,9 @@ import { DocPage, L } from "@/components/docs/doc-page";
 import { loadPath } from "@/lib/data";
 import { worked } from "@/lib/cppi";
 import { BRAND } from "@/lib/brand";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "How it works" };
+export const metadata = pageMetadata("/docs/how-it-works", "How it works");
 
 export default function Page() {
   const worst = loadPath("nvda_worst");

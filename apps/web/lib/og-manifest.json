@@ -1,0 +1,153 @@
+[
+  {
+    "route": "/",
+    "file": "home.png",
+    "headline": "Set a floor under your stocks.",
+    "description": "Tokenized stocks. Spot swaps. BNB Chain."
+  },
+  {
+    "route": "/try",
+    "file": "try.png",
+    "headline": "Try Floor. No wallet.",
+    "description": "Replay past prices. Change the floor."
+  },
+  {
+    "route": "/docs",
+    "file": "docs.png",
+    "headline": "Floor, explained.",
+    "description": "The mechanism, the trade-off, the risks."
+  },
+  {
+    "route": "/docs/how-it-works",
+    "file": "how-it-works.png",
+    "headline": "The floor. The cushion. The rule.",
+    "description": "Stock exposure adjusts as the cushion changes."
+  },
+  {
+    "route": "/docs/trade-off",
+    "file": "trade-off.png",
+    "headline": "A floor has a trade-off.",
+    "description": "Less stock exposure also means less upside."
+  },
+  {
+    "route": "/docs/backtest",
+    "file": "backtest.png",
+    "headline": "What past prices show.",
+    "description": "Methods, assumptions and historical replays.",
+    "label": "BACKTEST · Past data, not a prediction"
+  },
+  {
+    "route": "/docs/evidence",
+    "file": "evidence.png",
+    "headline": "Test the rule. Show the limits.",
+    "description": "Long-history backtests and where the floor was missed.",
+    "label": "BACKTEST · Past data, not a prediction"
+  },
+  {
+    "route": "/docs/spot-only",
+    "file": "spot-only.png",
+    "headline": "Only spot swaps.",
+    "description": "No perps. No options. No leverage. No borrowing."
+  },
+  {
+    "route": "/docs/agents",
+    "file": "docs-agents.png",
+    "headline": "How agents use Floor.",
+    "description": "MCP tools, keeper roles and payment flow."
+  },
+  {
+    "route": "/docs/contracts",
+    "file": "contracts.png",
+    "headline": "The contract design.",
+    "description": "Vaults, roles, trading rules and exits."
+  },
+  {
+    "route": "/docs/risks",
+    "file": "risks.png",
+    "headline": "A floor is not a guarantee.",
+    "description": "Price gaps. Delayed sells. Token and contract risk."
+  },
+  {
+    "route": "/docs/open-items",
+    "file": "open-items.png",
+    "headline": "What is still open.",
+    "description": "Deployment, human audit and known limits."
+  },
+  {
+    "route": "/docs/faq",
+    "file": "faq.png",
+    "headline": "Questions worth asking.",
+    "description": "Deposits, exits, trading and risk."
+  },
+  {
+    "route": "/locked",
+    "file": "locked.png",
+    "headline": "The app opens at mainnet launch.",
+    "description": "Try the simulator. Read the docs.",
+    "noindex": true
+  },
+  {
+    "route": "/app",
+    "file": "app.png",
+    "headline": "Set your floor.",
+    "description": "Choose a basket, floor and term.",
+    "label": "APP PREVIEW"
+  },
+  {
+    "route": "/app/review",
+    "file": "review.png",
+    "headline": "Review before you sign.",
+    "description": "Check the basket, floor, term and deposit.",
+    "label": "APP PREVIEW"
+  },
+  {
+    "route": "/app/confirmed",
+    "file": "confirmed.png",
+    "headline": "The position confirmation view.",
+    "description": "Creation details and next steps.",
+    "label": "APP PREVIEW"
+  },
+  {
+    "route": "/app/positions",
+    "file": "positions.png",
+    "headline": "Your floors, in one view.",
+    "description": "Position summaries and status.",
+    "label": "APP PREVIEW"
+  },
+  {
+    "route": "/app/position",
+    "file": "position.png",
+    "headline": "Inside a position.",
+    "description": "Value, floor, cushion and actions.",
+    "label": "APP PREVIEW"
+  },
+  {
+    "route": "/app/keeper",
+    "file": "keeper.png",
+    "headline": "The keeper log.",
+    "description": "Inspect rebalance history and status.",
+    "label": "APP PREVIEW"
+  },
+  {
+    "route": "/app/states",
+    "file": "states.png",
+    "headline": "Interface states.",
+    "description": "Empty, error and loading views.",
+    "label": "COMPONENT DEMO",
+    "noindex": true
+  },
+  {
+    "route": "/agents",
+    "file": "agents.png",
+    "headline": "Floor for agents.",
+    "description": "MCP tools and unsigned transaction building.",
+    "label": "DEVELOPER PREVIEW"
+  },
+  {
+    "route": "/agents/run",
+    "file": "agent-run.png",
+    "headline": "An agent run, step by step.",
+    "description": "An example flow, not a live position.",
+    "label": "EXAMPLE FLOW"
+  }
+]

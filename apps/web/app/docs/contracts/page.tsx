@@ -1,7 +1,8 @@
 import { DocPage, L } from "@/components/docs/doc-page";
 import { BRAND } from "@/lib/brand";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Contracts" };
+export const metadata = pageMetadata("/docs/contracts", "Contracts");
 
 export default function Page() {
   return (

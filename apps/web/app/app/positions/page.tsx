@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { AppShell } from "@/components/app/shell";
 import { Positions } from "@/components/app/positions";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Your floors" };
+export const metadata = pageMetadata("/app/positions", "Your floors");
 
 export default function PositionsPage() {
   return (

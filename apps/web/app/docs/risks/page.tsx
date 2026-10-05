@@ -1,7 +1,8 @@
 import { DocPage, L } from "@/components/docs/doc-page";
 import { BRAND } from "@/lib/brand";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Risks" };
+export const metadata = pageMetadata("/docs/risks", "Risks");
 
 const limits: [string, React.ReactNode][] = [
   [`${BRAND.name} is not a guarantee.`, <>It holds unless prices gap more than about {BRAND.gapLimitPct}% before the vault can rebalance. It does not cap your loss at the gap between 100% and your floor. In our one-week windows the worst result (AIG, 15 Sep 2008, 90% floor) lost 24%. Past drops since 2018 in the tokenized names were smaller (worst: NVDA −19.3%; SPCX has only 76 days of history. See <L href="/docs/backtest#gaps">worst gaps</L>). A future drop could be larger. Single stocks have fallen 30% to 61% in a day (AIG 2008, Apple 2000), and no setting survives that. See <L href="/docs/evidence">Evidence</L>.</>],

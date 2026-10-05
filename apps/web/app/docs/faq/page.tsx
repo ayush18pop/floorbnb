@@ -1,7 +1,8 @@
 import { DocPage, L } from "@/components/docs/doc-page";
 import { BRAND } from "@/lib/brand";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "FAQ" };
+export const metadata = pageMetadata("/docs/faq", "FAQ");
 
 const faqs: [string, React.ReactNode][] = [
   ["Can I lose money?", <>Yes. You set a floor, for example 90%, and the vault tries to keep your value above it. It is not a guarantee. It can fail if prices gap more than about 24% before the vault can rebalance: the worst one-week window we simulated lost 24%, and 0.44% of one-year windows at a 90% floor ended more than 1 point below it. Your money is still in the market, so it can fall to the floor. The token issuer can also pause or block a stock token. See <L href="/docs/risks">Risks</L>.</>],

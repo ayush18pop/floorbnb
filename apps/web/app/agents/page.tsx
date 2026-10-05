@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { Info } from "lucide-react";
 import { AppShell } from "@/components/app/shell";
@@ -6,8 +5,9 @@ import { Xh } from "@/components/ui/xh";
 import { Tabs } from "@/components/ui/tabs";
 import { BRAND } from "@/lib/brand";
 import { MCP_URL, PUBLIC_DELAY_HOURS } from "@/lib/app-config";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Agents" };
+export const metadata = pageMetadata("/agents", "Agents");
 
 /** Names and inputs: docs/EXECUTION_PLAN.md A18 (MCP server). Prices are proposals, not final. */
 const TOOLS = [
