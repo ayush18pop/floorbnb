@@ -1,6 +1,14 @@
 # Floor: smart-contract design (BSC mainnet)
 
-Status: design only. Nothing here is deployed. Written 2026-10-02 (Fri). Build window ~8 days.
+Status: design document, written 2026-10-02 (Fri). The contracts are now LIVE on BSC mainnet (chain 56, block 125815981), all source-verified on BscScan. Sections below describe the design and may predate the final deployment; the deployed addresses win.
+
+| Contract | Address |
+| --- | --- |
+| FloorFactory | `0x1147d482fD08DDd7F377838efb610B606B3Ad765` |
+| FloorLens | `0x63Ae440B9D309959442eaD3E08cBC3A025C67780` |
+| FloorVault implementation | `0xEA0603a83BCf28a1D57d8534971149eACD874055` |
+
+Owner and guardian `0x762c9626711BCc882050cBf06Edd610fE8b91F1A`; keeper `0x46FD797AeBD0250A2E768022AD992DF21F12e58a`; paid-API payee `0xF5f349ABe9647278AC3450058bc054886DaF816B`. Verify with `cast call <factory> "owner()(address)" --rpc-url https://bsc-dataseed.bnbchain.org` (also `guardian()`, `maxDeposit()`, `maxTotalTvl()`, `defaults()`). AI-assisted reviews only; no formal audit. See `/docs/live-contracts`.
 Every external fact has a source URL or a reproducible RPC call. Anything not checked is marked **unverified**.
 
 RPC used for all read-only checks: `https://bsc-dataseed.bnbchain.org` (call it `$R`). Block at time of checks: 125,295,731.

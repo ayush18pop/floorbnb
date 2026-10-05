@@ -9,6 +9,7 @@ export const DOCS: DocLink[] = [
   { slug: "spot-only", href: "/docs/spot-only", title: "Spot only", blurb: "No perps, options, leverage or borrowing. How swaps work." },
   { slug: "agents", href: "/docs/agents", title: "Agents", blurb: "Keeper, MCP tools, b402 and the agent skill." },
   { slug: "contracts", href: "/docs/contracts", title: "Contracts", blurb: "The on-chain design in plain words." },
+  { slug: "live-contracts", href: "/docs/live-contracts", title: "Live contracts", blurb: "Addresses, roles, caps and how to verify them yourself." },
   { slug: "risks", href: "/docs/risks", title: "Risks", blurb: "What we do not claim." },
   { slug: "open-items", href: "/docs/open-items", title: "Known open items", blurb: "What is not done, not tested or accepted, with status." },
   { slug: "faq", href: "/docs/faq", title: "FAQ", blurb: "Questions you should ask." },

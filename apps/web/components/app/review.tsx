@@ -145,7 +145,7 @@ export function Review() {
             ))}
           </fieldset>
           <div className="space-y-3 border-t border-grid px-4 py-3 md:px-6">
-            {mock && <p className="small">Example mode: invented hashes, nothing is sent to BNB Chain.<InfoPopover label="example mode" title="Example mode"><p>No contract is deployed yet. This runs the two steps with invented hashes. Nothing is sent to BNB Chain.</p></InfoPopover></p>}
+            {mock && <p className="small">Local dev mock: invented hashes, nothing is sent to BNB Chain.<InfoPopover label="local dev mock" title="Local dev mock"><p>This build uses the mock data source (NEXT_PUBLIC_DATA_SOURCE=mock). It runs the two steps with invented hashes. Nothing is sent to BNB Chain.</p></InfoPopover></p>}
             <NetworkGuard />
             {tx.approve && <p className="small">Approval <Addr value={tx.approve} kind="tx" />{tx.create && <> · Create <Addr value={tx.create} kind="tx" /></>}</p>}
             {!check.ok && <Notice kind="warn" title="This would be rejected">{check.issues.map((i) => i.message).join(" ")} <Link href={back} className="prose-link">Change settings</Link></Notice>}
@@ -156,7 +156,7 @@ export function Review() {
               <div className="btn-stack flex w-full flex-col-reverse gap-3 sm:w-auto sm:flex-row">
                 <Link href={back} className="btn btn-secondary" aria-disabled={busy}>Back</Link>
                 <button type="button" className="btn btn-primary !h-11 !px-6" disabled={!allAck || !ready || now === null || !check.ok || busy || (needsWallet && isConnected)} onClick={create}>
-                  {busy ? (steps.approve !== "done" ? "Approving USDT…" : "Creating position…") : !mock && !isConnected ? "Connect wallet" : mock ? "Run example flow" : steps.approve === "done" ? "Create position" : "Approve and create"}
+                  {busy ? (steps.approve !== "done" ? "Approving USDT…" : "Creating position…") : !mock && !isConnected ? "Connect wallet" : mock ? "Run mock flow" : steps.approve === "done" ? "Create position" : "Approve and create"}
                 </button>
               </div>
             </div>

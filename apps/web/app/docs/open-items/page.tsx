@@ -7,10 +7,10 @@ export const metadata = pageMetadata("/docs/open-items", "Known open items");
 type Item = [item: string, status: string, note: React.ReactNode];
 
 const open: Item[] = [
-  ["Mainnet deployment", "Not done", <>The contracts are not on mainnet yet ({BRAND.contractsStatus.toLowerCase()}). The app is locked until the launch switch is flipped; these docs stay public.</>],
+  ["Mainnet deployment", "Done", <>The contracts are live on BNB Chain mainnet and source-verified on BscScan. Launch caps apply and the owner can change them. See <L href="/docs/live-contracts">Live contracts</L>. There is still no formal human audit.</>],
   ["Human audit", "Not done", "The audit so far is AI-assisted. No human auditor has reviewed the code. This is why launch caps are small."],
-  ["Owner is not a multisig", "Open", "The owner is meant to be a hardware wallet. At launch the guardian is the same address as the owner, so it adds no separation. A multisig is not set up. The team lead has to confirm the setup in writing before mainnet."],
-  ["Written acceptance by the team lead", "Open", "Six audit findings (below) were accepted by the manager on instruction. The team lead has to confirm or reverse them in writing before mainnet."],
+  ["Owner is not a multisig", "Open", "The owner is meant to be a hardware wallet. At launch the guardian is the same address as the owner, so it adds no separation. A multisig is not set up. The setup is not yet confirmed in writing."],
+  ["Written acceptance by the team lead", "Open", "Six audit findings (below) were accepted by the manager on instruction. Written confirmation from the team lead is still open."],
   ["Audit run of 2026-10-05", "Proposed acceptance, not signed", "The latest AI-assisted run (Pashov Audit Group skills, not a formal audit) raised one finding and some unscored leads. The finding: one caller with 5,000 USDT can fill the shared total cap and block new deposits. It costs the caller gas and the use of the money. The owner can raise the cap with setLimits, with no redeploy. We propose to accept it for the hackathon launch with no contract change. The team lead has to confirm in writing."],
   ["b402 payments", "Partly verified live", "b402 (Binance's x402 on BSC) works through a Binance Web3 API key with the B402 Payments permission. The supported and verify calls have been run live and passed. Settle has not been run live yet. Until it is, the demo settles through our own self facilitator, which is the default in the code. We say which one is used."],
   ["Weekend trading cost", "Not measured", "The vault does not trade on weekends and the maths assumes the full weekend gap. The cost of the Monday rebalance is not measured."],

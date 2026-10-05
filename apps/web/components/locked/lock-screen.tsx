@@ -47,9 +47,9 @@ export function LockScreen() {
         <div className="lk-veil" aria-hidden="true" />
         <section className="lk-card" aria-labelledby="lk-title">
           <span className="lk-icon" aria-hidden="true"><Lock size={20} strokeWidth={1.75} /></span>
-          <p className="label">Locked until launch</p>
-          <h1 id="lk-title" className="h2">The {BRAND.name} app opens at mainnet launch</h1>
-          <p className="small">Spot-only protection for tokenized stocks on {BRAND.chain}. A floor that holds unless prices gap, not a guarantee. {BRAND.contractsStatus}.</p>
+          <p className="label">App not open yet</p>
+          <h1 id="lk-title" className="h2">The {BRAND.name} app is not open yet</h1>
+          <p className="small">Spot-only protection for tokenized stocks on {BRAND.chain}. A floor that holds unless prices gap, not a guarantee. {BRAND.contractsStatus}. The app is switched off for now; the docs and simulator are open.</p>
           <div className="lk-actions">
             <Link href="/try" className="btn btn-primary">Try the simulator</Link>
             <Link href="/docs" className="btn btn-secondary">Read the docs</Link>

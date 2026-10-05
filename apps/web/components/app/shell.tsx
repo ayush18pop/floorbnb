@@ -45,7 +45,7 @@ export function AppShell({ active, eyebrow, title, action, children, example, fo
           <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
             <div className="min-w-0 md:flex md:items-baseline md:gap-4">
               <h1 className="h2 !text-[clamp(1.25rem,1rem+0.9vw,1.625rem)]">{title}</h1>
-              <p className="label mt-1 md:mt-0">{eyebrow}{ex && <> · <span className="warn">Example data</span><InfoPopover label="example data">Positions, prices, hashes and activity on this screen are invented to show the layout. No contract is called and no funds move. {BRAND.contractsStatus}.</InfoPopover></>}</p>
+              <p className="label mt-1 md:mt-0">{eyebrow}{ex && <> · <span className="warn">Example data</span><InfoPopover label="example data">Positions, prices, hashes and activity on this screen are invented to show the layout. No contract is called and no funds move. This is the local dev mock source.</InfoPopover></>}</p>
             </div>
             {action}
           </div>

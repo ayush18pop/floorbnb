@@ -1,7 +1,7 @@
 # Floor
 
 Set a floor under your stocks. Floor is a spot-only protection vault for tokenized stocks (bStocks) on BNB Chain,
-built on CPPI: stock held = min(4 × (value − floor), value), the rest in USDT. The floor holds unless prices gap more than about 24% before the vault can rebalance; it is not a guarantee: at a 90% floor, 0.44% of historical one-year windows (95% CI 0.07% to 0.93%) ended more than 1 point below it, and the worst simulated one-week window lost 24%. You keep roughly 4 x (100 - floor)% of a gain (about 40% at a 90% floor). Deposits are USDT only, one vault per position, launch caps 1,000 USDT per position and 5,000 USDT in total across all users (shared, not per user; the owner can change both at any time with `setLimits`, no redeploy). Not yet on mainnet. Built for BNB Hack: Tokenized Stocks Edition.
+built on CPPI: stock held = min(4 × (value − floor), value), the rest in USDT. The floor holds unless prices gap more than about 24% before the vault can rebalance; it is not a guarantee: at a 90% floor, 0.44% of historical one-year windows (95% CI 0.07% to 0.93%) ended more than 1 point below it, and the worst simulated one-week window lost 24%. You keep roughly 4 x (100 - floor)% of a gain (about 40% at a 90% floor). Deposits are USDT only, one vault per position, launch caps 1,000 USDT per position and 5,000 USDT in total across all users (shared, not per user; the owner can change both at any time with `setLimits`, no redeploy). Live on BNB Chain mainnet (see Live contracts below); no formal human audit. Built for BNB Hack: Tokenized Stocks Edition.
 
 | Folder | What |
 |---|---|
@@ -15,6 +15,18 @@ built on CPPI: stock held = min(4 × (value − floor), value), the rest in USDT
 Site: https://floor.ayush.works (domain being set up, not verified live). Fallback: https://floorbnb.vercel.app (not verified live).
 
 Backtests use past prices and do not predict the future. Not financial advice.
+
+## Live contracts
+
+BNB Smart Chain mainnet (56), deployed at block 125815981, all source-verified on BscScan. Details and `cast` checks: `/docs/live-contracts`.
+
+| Contract | Address |
+| --- | --- |
+| FloorFactory | [`0x1147d482fD08DDd7F377838efb610B606B3Ad765`](https://bscscan.com/address/0x1147d482fD08DDd7F377838efb610B606B3Ad765#code) |
+| FloorLens | [`0x63Ae440B9D309959442eaD3E08cBC3A025C67780`](https://bscscan.com/address/0x63Ae440B9D309959442eaD3E08cBC3A025C67780#code) |
+| FloorVault implementation | [`0xEA0603a83BCf28a1D57d8534971149eACD874055`](https://bscscan.com/address/0xEA0603a83BCf28a1D57d8534971149eACD874055#code) |
+
+Owner and guardian: `0x762c9626711BCc882050cBf06Edd610fE8b91F1A`. Keeper: `0x46FD797AeBD0250A2E768022AD992DF21F12e58a`. Payee for paid API calls: `0xF5f349ABe9647278AC3450058bc054886DaF816B`. Launch caps: 1,000 USDT per position, 5,000 USDT in total. Only the direct PancakeSwap v3 router is allowed. AI-assisted reviews only, no formal audit.
 
 ## Trusted roles
 
@@ -31,7 +43,7 @@ Launch caps (1,000 USDT per position, 5,000 total, shared by all users and chang
 
 ## Known open items
 
-Full list with status at `/docs/open-items` (`apps/web/app/docs/open-items/page.tsx`). Short version: not on mainnet; AI-assisted audit only, no human audit; owner is not a multisig; team lead's written confirmation of the batch acceptance is pending; the latest AI-assisted run of the Pashov Audit Group skills (2026-10-05, report `floorbnb-pashov-ai-audit-report-20261005-051324.md`, repo head `84706ee`) raised the cap fill above and some unscored leads, with a proposed acceptance and no contract change in `reviews/acceptances.md`, not signed (AI-assisted audit by Pashov Audit Group skills, not a formal audit); weekend trading cost not measured; backtest uses daily closes with survivorship bias.
+Full list with status at `/docs/open-items` (`apps/web/app/docs/open-items/page.tsx`). Short version: AI-assisted audit only, no human audit; owner is not a multisig; team lead's written confirmation of the batch acceptance is pending; the latest AI-assisted run of the Pashov Audit Group skills (2026-10-05, report `floorbnb-pashov-ai-audit-report-20261005-051324.md`, repo head `84706ee`) raised the cap fill above and some unscored leads, with a proposed acceptance and no contract change in `reviews/acceptances.md`, not signed (AI-assisted audit by Pashov Audit Group skills, not a formal audit); weekend trading cost not measured; backtest uses daily closes with survivorship bias.
 
 ## Launch lock and payments
 

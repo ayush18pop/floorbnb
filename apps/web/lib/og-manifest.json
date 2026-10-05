@@ -62,6 +62,12 @@
     "description": "Vaults, roles, trading rules and exits."
   },
   {
+    "route": "/docs/live-contracts",
+    "file": "live-contracts.png",
+    "headline": "Live on BNB Chain mainnet.",
+    "description": "Addresses, roles, caps and how to verify them."
+  },
+  {
     "route": "/docs/risks",
     "file": "risks.png",
     "headline": "A floor is not a guarantee.",

@@ -18,9 +18,9 @@ export const BRAND = {
   launchCapPerPosition: 1000,
   launchCapTotal: 5000,
   protocolFee: "none in v1",
-  /** Flip to true when the contracts are on BSC mainnet (later: read from @floor/sdk addresses). */
-  deployed: false,
-  contractsStatus: "Contracts: not yet on mainnet",
+  /** Live on BSC mainnet since block 125815981 (see /docs/live-contracts). */
+  deployed: true,
+  contractsStatus: "Contracts: live on BNB Chain mainnet, source verified on BscScan",
   /** Public site URL used for metadata. Override with NEXT_PUBLIC_SITE_URL. */
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "https://floor.ayush.works",
   disclosure:

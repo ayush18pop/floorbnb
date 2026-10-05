@@ -16,6 +16,7 @@ One 1200 x 630 PNG per route. Every page links its own card through `pageMetadat
 | `/docs/spot-only` | `spot-only.png` | Only spot swaps. | placeholder |  |
 | `/docs/agents` | `docs-agents.png` | How agents use Floor. | placeholder |  |
 | `/docs/contracts` | `contracts.png` | The contract design. | placeholder |  |
+| `/docs/live-contracts` | `live-contracts.png` | Live on BNB Chain mainnet. | placeholder |  |
 | `/docs/risks` | `risks.png` | A floor is not a guarantee. | supplied art |  |
 | `/docs/open-items` | `open-items.png` | What is still open. | placeholder |  |
 | `/docs/faq` | `faq.png` | Questions worth asking. | placeholder |  |

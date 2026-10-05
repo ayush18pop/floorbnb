@@ -1,6 +1,7 @@
 import { Hero } from "@/components/landing/hero";
 import { Nav } from "@/components/landing/nav";
 import { Footer } from "@/components/landing/footer";
+import { LiveContracts } from "@/components/landing/live-contracts";
 import { Agents, Cta, Moment, NotAGuarantee, ProofTiles, SpotOnly, Steps } from "@/components/landing/sections";
 import { loadPath, pathSummary } from "@/lib/data";
 import { pageMetadata } from "@/lib/seo";
@@ -20,6 +21,7 @@ export default function Home() {
         <ProofTiles />
         <SpotOnly />
         <Agents />
+        <LiveContracts />
         <NotAGuarantee />
         <Cta />
         <Footer />

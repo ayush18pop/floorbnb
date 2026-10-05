@@ -29,7 +29,7 @@ export function Footer() {
           </nav>
         ))}
         <div className="col-span-4 md:col-span-8 lg:col-span-12 bare">
-          <p className="small mb-2 max-w-[96ch]">{BRAND.deployed ? "Contracts: live on BNB Chain mainnet." : BRAND.contractsStatus + ". Launch caps: " + BRAND.launchCapPerPosition.toLocaleString("en-US") + " USDT per position, " + BRAND.launchCapTotal.toLocaleString("en-US") + " USDT in total."}</p>
+          <p className="small mb-2 max-w-[96ch]">{BRAND.contractsStatus + ". Launch caps: " + BRAND.launchCapPerPosition.toLocaleString("en-US") + " USDT per position, " + BRAND.launchCapTotal.toLocaleString("en-US") + " USDT in total."}</p>
           <p className="small max-w-[96ch]">
             {BRAND.name} is a hackathon project built for BNB Hack: Tokenized Stocks Edition. Backtests use past prices and do not predict the future. Not financial advice. Tokenized stocks and smart contracts carry risk, including loss of the amount deposited. A token issuer can pause or block a token.
           </p>

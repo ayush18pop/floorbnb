@@ -31,7 +31,7 @@ function client(): PublicClient {
 
 function deployment() {
   if (!hasDeployment(APP_CHAIN_ID)) {
-    if (!FACTORY_ADDRESS || !LENS_ADDRESS) throw new Error("Floor is not deployed yet: set NEXT_PUBLIC_FACTORY_ADDRESS and NEXT_PUBLIC_LENS_ADDRESS.");
+    if (!FACTORY_ADDRESS || !LENS_ADDRESS) throw new Error("Floor factory and lens addresses are missing: set NEXT_PUBLIC_FACTORY_ADDRESS and NEXT_PUBLIC_LENS_ADDRESS.");
     setDeployment({ chainId: APP_CHAIN_ID, factory: FACTORY_ADDRESS, lens: LENS_ADDRESS });
   }
   return getDeployment(APP_CHAIN_ID);

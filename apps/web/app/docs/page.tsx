@@ -31,7 +31,7 @@ export default function DocsHome() {
           </li>
         ))}
       </ul>
-      <p className="small">The app is behind a launch lock (default locked) until mainnet; these docs are always public. {BRAND.name} is not on mainnet yet. Backtest numbers anywhere on this site are past data, not a prediction. Not financial advice.</p>
+      <p className="small">The contracts are live on BNB Chain mainnet (<L href="/docs/live-contracts">addresses</L>). These docs are always public. Backtest numbers anywhere on this site are past data, not a prediction. Not financial advice.</p>
     </DocPage>
   );
 }

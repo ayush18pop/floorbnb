@@ -8,7 +8,7 @@ export default function Page() {
   return (
     <DocPage
       slug="contracts"
-      lead={<p>The on-chain design in plain words. Not yet on mainnet. No audit is published yet.</p>}
+      lead={<p>The on-chain design in plain words. Live on BNB Chain mainnet. AI-assisted reviews only, no formal audit.</p>}
       toc={[["vault", "One vault per position"], ["deposit", "Deposits"], ["price", "Price"], ["window", "Trading window"], ["roles", "Roles"], ["exits", "Exits"]]}
     >
       <h2 id="vault" style={{ marginTop: 0 }}>One vault per position</h2>
