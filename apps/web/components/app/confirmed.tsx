@@ -5,7 +5,8 @@ import { Xh } from "@/components/ui/xh";
 import { useChainNow } from "@/lib/adapters/use-chain";
 import { fmt, isAddress, isoDate, nextWindow, stamp, dow } from "@/lib/adapters";
 import { BRAND } from "@/lib/brand";
-import { Addr, ChainDate, ExampleBadge } from "./ui";
+import { ChainDate, ExampleBadge } from "./ui";
+import { AddrLink, TxLink } from "./explorer-link";
 import { termLabel, parseTermDays, termEndText } from "@/lib/floor-config";
 import { FlowRail } from "./review";
 import { InfoPopover } from "@/components/ui/info-popover";
@@ -38,8 +39,8 @@ export function Confirmed() {
             </p>
           </div>
           <dl className="kvc kvc-3">
-            <div><dt>Vault</dt><dd className="flex flex-wrap items-center gap-2">{isAddress(vault) ? <Addr value={vault} /> : "n/a"}<ExampleBadge /></dd></div>
-            <div><dt>Transaction</dt><dd>{tx ? <Addr value={tx} kind="tx" /> : "n/a"}</dd></div>
+            <div><dt>Vault</dt><dd className="flex flex-wrap items-center gap-2">{isAddress(vault) ? <AddrLink address={vault} /> : "n/a"}<ExampleBadge /></dd></div>
+            <div><dt>Transaction</dt><dd>{tx ? <TxLink hash={tx} /> : "n/a"}</dd></div>
             <div><dt>Floor</dt><dd>{fmt(floor)} USDT</dd></div>
             <div><dt>Term</dt><dd>{termLabel(days)}{end ? <>, ends <ChainDate>{end}</ChainDate></> : ""}</dd></div>
             <div><dt>First rebalance</dt><dd>{win ? <ChainDate>{`${dow(win)} ${stamp(win).replace(" ", ", from ")} UTC`}</ChainDate> : "…"}</dd></div>

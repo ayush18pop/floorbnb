@@ -6,7 +6,7 @@ import { Bot, Link2, Wallet, Fingerprint } from "lucide-react";
 import { Dialog, Notice } from "./ui";
 import { REOWN_PROJECT_ID } from "@/lib/app-config";
 import { appChain } from "@/lib/wagmi";
-import { shortAddr } from "@/lib/adapters/format";
+import { AddrLink } from "./explorer-link";
 import { BRAND } from "@/lib/brand";
 
 const LOCAL_DEV = process.env.NEXT_PUBLIC_LOCAL_DEV === "1"; // inlined at build time so production bundles drop every local-dev branch
@@ -32,7 +32,7 @@ export function ConnectButton() {
     return (
       <span className="inline-flex items-center gap-2">
         {LOCAL_DEV && <span className="badge b-neg" title="Local dev mode: an anvil fork, not BNB Chain">LOCAL DEV WALLET</span>}
-        <span className="badge b-pos" title={address}><span aria-hidden="true" className="mr-2 inline-block h-2 w-2 bg-current" />{shortAddr(address)}</span>
+        <span className="badge b-pos" title={address}><span aria-hidden="true" className="mr-2 inline-block h-2 w-2 bg-current" /><AddrLink address={address} example={false} copy={false} /></span>
         <button type="button" className="small underline underline-offset-4 hover:text-ink" onClick={() => disconnect()}>Disconnect</button>
       </span>
     );

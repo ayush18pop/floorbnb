@@ -30,3 +30,4 @@ export const PUBLIC_DELAY_HOURS = 1;
 
 export const txUrl = (h: string) => `${BSCSCAN}/tx/${h}`;
 export const addrUrl = (a: string) => `${BSCSCAN}/address/${a}`;
+export const blockUrl = (n: number | string) => `${BSCSCAN}/block/${n}`;

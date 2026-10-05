@@ -1,9 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { AlertTriangle, Check, Copy, Info, OctagonAlert, X } from "lucide-react";
+import { AlertTriangle, Info, OctagonAlert, X } from "lucide-react";
 import { getSource } from "@/lib/adapters";
-import { BSCSCAN } from "@/lib/app-config";
-import { shortAddr } from "@/lib/adapters/format";
 import { InfoPopover } from "@/components/ui/info-popover";
 import { ExpandRow } from "@/components/ui/expand-row";
 
@@ -43,25 +41,6 @@ export function Notice({ kind = "info", children, action, title }: { kind?: "inf
         {action && <div className="mt-3">{action}</div>}
       </div>
     </div>
-  );
-}
-
-const LOCAL_DEV = process.env.NEXT_PUBLIC_LOCAL_DEV === "1"; // inlined at build time so production bundles drop every local-dev branch
-/** Address or hash with a copy button and optional BscScan link (no link in local-dev mode: the fork is not on BscScan). */
-export function Addr({ value, kind = "address", link = true }: { value: string; kind?: "address" | "tx"; link?: boolean }) {
-  const [ok, setOk] = useState(false);
-  const copy = async () => {
-    try { await navigator.clipboard.writeText(value); setOk(true); setTimeout(() => setOk(false), 1400); } catch { /* clipboard unavailable */ }
-  };
-  const href = `${BSCSCAN}/${kind === "tx" ? "tx" : "address"}/${value}`;
-  return (
-    <span className="inline-flex items-center gap-2 mono">
-      <span title={value}>{shortAddr(value)}</span>
-      <button type="button" onClick={copy} className="inline-flex h-6 w-6 items-center justify-center text-muted hover:text-ink" aria-label={`Copy ${kind}`}>
-        {ok ? <Check size={14} strokeWidth={1.5} /> : <Copy size={14} strokeWidth={1.5} />}
-      </button>
-      {link && !isExample() && !LOCAL_DEV && <a className="prose-link" href={href} target="_blank" rel="noreferrer">BscScan</a>}
-    </span>
   );
 }
 

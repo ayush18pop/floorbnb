@@ -1,6 +1,7 @@
 "use client";
 import { fmt, fmtW, stamp, type VaultEvent } from "@/lib/adapters";
-import { Addr, Dialog, ExampleBadge } from "./ui";
+import { Dialog, ExampleBadge } from "./ui";
+import { AddrLink, TxLink } from "./explorer-link";
 
 type Rb = Extract<VaultEvent, { type: "Rebalanced" }>;
 const SIGNER = { keeper: ["Keeper wallet", "b-pos"], agentic: ["Agentic wallet", "b-warn"], public: ["Public caller", ""] } as const;
@@ -21,8 +22,8 @@ export function RebalanceDetail({ e, onClose }: { e: Rb | null; onClose: () => v
             {e.minOut !== undefined && <div className="contents"><dt>Minimum out</dt><dd>{fmtW(e.minOut, e.buy ? 4 : 2)} {e.buy ? e.symbol : "USDT"}</dd></div>}
             <div className="contents"><dt>Received</dt><dd className="pos">{fmtW(e.amountOut, e.buy ? 4 : 2)} {e.buy ? e.symbol : "USDT"}</dd></div>
             {e.costBps !== undefined && <div className="contents"><dt>Cost</dt><dd>{e.costBps.toFixed(1)} bps (estimate)</dd></div>}
-            <div className="contents"><dt>Caller</dt><dd className="flex flex-wrap items-center gap-3"><Addr value={e.caller} /><span className={`badge ${sig[1]}`}>{sig[0]}</span></dd></div>
-            <div className="contents"><dt>Transaction</dt><dd><Addr value={e.tx} kind="tx" /></dd></div>
+            <div className="contents"><dt>Caller</dt><dd className="flex flex-wrap items-center gap-3"><AddrLink address={e.caller} /><span className={`badge ${sig[1]}`}>{sig[0]}</span></dd></div>
+            <div className="contents"><dt>Transaction</dt><dd><TxLink hash={e.tx} /></dd></div>
           </dl>
           {e.stockPctBefore !== undefined && e.stockPctAfter !== undefined && (
             <div>

@@ -2,7 +2,8 @@
 import { useState } from "react";
 import { getSource, fmt, fmtW, receivedText, type Received, isoDate, phaseOf, num, ASSETS, type ExitKind, type PositionView } from "@/lib/adapters";
 import { BRAND } from "@/lib/brand";
-import { Addr, Dialog, Notice, ExampleBadge } from "./ui";
+import { Dialog, Notice, ExampleBadge } from "./ui";
+import { TxLink } from "./explorer-link";
 import { ExpandRow } from "@/components/ui/expand-row";
 
 /** Close to USDT (requestClose, then closeToUSDT) or Exit in kind (always allowed). */
@@ -38,7 +39,7 @@ export function CloseModal({ p, open, onClose, initial = "usdt", onDone }: { p: 
             {done.kind === "requestClose" ? "The vault sells its stock in the next trading window. When the stock is sold, come back and choose Close to USDT to receive your USDT." : done.kind === "closeToUSDT" ? "Your USDT was sent to your wallet." : "The vault sent you what it held. Tokens the issuer paused were skipped and stay in the vault."}
           </Notice>
           {done.kind !== "requestClose" && <p className="mono text-[14px] leading-6" data-testid="exit-received">{receivedText(p.exit ? { usdt: p.exit.usdtOut, tokens: p.exit.tokens } : done.snap, done.kind)}</p>}
-          <p className="small">Transaction <Addr value={done.tx} kind="tx" /> <ExampleBadge /></p>
+          <p className="small">Transaction <TxLink hash={done.tx} /> <ExampleBadge /></p>
           <button type="button" className="btn btn-secondary" onClick={close}>Close</button>
         </div>
       ) : (

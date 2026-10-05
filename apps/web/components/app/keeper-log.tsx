@@ -6,7 +6,8 @@ import { useAsync } from "@/lib/adapters/use";
 import { PUBLIC_DELAY_HOURS } from "@/lib/app-config";
 import { BRAND } from "@/lib/brand";
 import { Xh } from "@/components/ui/xh";
-import { Addr, ChainDate, ErrorBox, ExampleBadge, Skeleton, Tile } from "./ui";
+import { ChainDate, ErrorBox, ExampleBadge, Skeleton, Tile } from "./ui";
+import { TxLink } from "./explorer-link";
 import { InfoPopover } from "@/components/ui/info-popover";
 
 const SIGNER = { keeper: ["Keeper wallet", "b-pos"], agentic: ["Agentic wallet", "b-warn"], public: ["Public caller", ""] } as const;
@@ -48,7 +49,7 @@ export function KeeperLog() {
                   <td className="r">{fmt(r.received)} {r.receivedUnit}</td>
                   <td className="r">{r.costBps !== undefined ? `${r.costBps.toFixed(1)} bps` : "n/a"}</td>
                   <td><span className={`badge ${SIGNER[r.signer][1]}`}>{SIGNER[r.signer][0]}</span></td>
-                  <td><Addr value={r.tx} kind="tx" link /></td>
+                  <td><TxLink hash={r.tx} /></td>
                 </tr>
               ))}
             </tbody>

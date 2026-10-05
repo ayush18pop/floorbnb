@@ -12,7 +12,8 @@ import { useChainNow } from "@/lib/adapters/use-chain";
 import { getSource, fmt, isoDate, num, type CreateProgress, type CreateStep } from "@/lib/adapters";
 import { BRAND } from "@/lib/brand";
 import { APP_CHAIN_ID } from "@/lib/app-config";
-import { Addr, ChainDate, Notice } from "./ui";
+import { ChainDate, Notice } from "./ui";
+import { TxLink } from "./explorer-link";
 import { useConnectModal, NetworkGuard } from "./wallet";
 import { equalWeights, parseBuilderParams } from "@/lib/builder-params";
 import { acksFor, acksShort } from "@/lib/acks";
@@ -147,7 +148,7 @@ export function Review() {
           <div className="space-y-3 border-t border-grid px-4 py-3 md:px-6">
             {mock && <p className="small">Local dev mock: invented hashes, nothing is sent to BNB Chain.<InfoPopover label="local dev mock" title="Local dev mock"><p>This build uses the mock data source (NEXT_PUBLIC_DATA_SOURCE=mock). It runs the two steps with invented hashes. Nothing is sent to BNB Chain.</p></InfoPopover></p>}
             <NetworkGuard />
-            {tx.approve && <p className="small">Approval <Addr value={tx.approve} kind="tx" />{tx.create && <> · Create <Addr value={tx.create} kind="tx" /></>}</p>}
+            {tx.approve && <p className="small">Approval <TxLink hash={tx.approve} />{tx.create && <> · Create <TxLink hash={tx.create} /></>}</p>}
             {!check.ok && <Notice kind="warn" title="This would be rejected">{check.issues.map((i) => i.message).join(" ")} <Link href={back} className="prose-link">Change settings</Link></Notice>}
             {!ev.backtested && <Notice kind="info" title="Not backtested yet">{ev.note}</Notice>}
             {error && <Notice kind="neg" title="Not created">{error}</Notice>}

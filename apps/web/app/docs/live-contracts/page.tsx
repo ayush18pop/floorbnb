@@ -1,6 +1,8 @@
 import { DocPage, L } from "@/components/docs/doc-page";
 import { BRAND } from "@/lib/brand";
 import { addrUrl, DEPLOY_BLOCK, MAINNET_FACTORY, MAINNET_LENS, MAINNET_VAULT_IMPL } from "@/lib/app-config";
+import { AddrLink, BlockLink, TxLink } from "@/components/app/explorer-link";
+import { DEPLOY_TXS, OWNERSHIP_ACCEPTED_TX } from "@/lib/deployment";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata("/docs/live-contracts", "Live contracts");
@@ -17,7 +19,7 @@ const contracts: [string, string, string][] = [
   ["FloorVault implementation", MAINNET_VAULT_IMPL, "The code every position vault copies. Each position is its own small clone."],
 ];
 
-const A = ({ a }: { a: string }) => <a className="prose-link mono break-all" href={addrUrl(a)} target="_blank" rel="noreferrer">{a}</a>;
+const A = ({ a }: { a: string }) => <AddrLink address={a} example={false} full copy={false} />;
 
 const cast = `export RPC=${RPC}
 export FACTORY=${MAINNET_FACTORY}
@@ -39,9 +41,15 @@ export default function Page() {
       <h2 id="addresses" style={{ marginTop: 0 }}>Addresses</h2>
       <ul className="list">
         {contracts.map(([n, a, d]) => (
-          <li key={n}><strong>{n}.</strong> <A a={a} /> <a className="prose-link" href={`${addrUrl(a)}#code`} target="_blank" rel="noreferrer">Verified on BscScan</a>. {d}</li>
+          <li key={n}><strong>{n}.</strong> <A a={a} /> <a className="prose-link" href={`${addrUrl(a)}#code`} target="_blank" rel="noopener noreferrer">Verified on BscScan</a>. {d}</li>
         ))}
-        <li><strong>Deployed at block</strong> <span className="mono">{DEPLOY_BLOCK}</span>. The deployment file is <code>packages/contracts/deployments/56.json</code>.</li>
+        <li><strong>Deployed at block</strong> <BlockLink block={DEPLOY_BLOCK} example={false} />. The deployment file is <code>packages/contracts/deployments/56.json</code>.</li>
+      </ul>
+
+      <h3>Deployment transactions</h3>
+      <ul className="list">
+        {DEPLOY_TXS.map(([l, h]) => <li key={h}>{l}: <TxLink hash={h} example={false} copy={false} /></li>)}
+        <li>Owner accepted ownership: <TxLink hash={OWNERSHIP_ACCEPTED_TX} example={false} copy={false} /></li>
       </ul>
 
       <h2 id="roles">Roles</h2>

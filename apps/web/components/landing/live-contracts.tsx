@@ -3,7 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Check, Copy } from "lucide-react";
 import { addrUrl, MAINNET_FACTORY, MAINNET_LENS, MAINNET_VAULT_IMPL } from "@/lib/app-config";
-import { shortAddr } from "@/lib/adapters/format";
+import { AddrLink } from "@/components/app/explorer-link";
 import { Section } from "./section";
 
 const ROWS: [name: string, addr: string][] = [
@@ -33,10 +33,10 @@ export function LiveContracts() {
           <div key={name} className="col-span-4 md:col-span-8 lg:col-span-12 !py-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
             <p className="font-medium">{name}</p>
             <p className="inline-flex items-center gap-1 mono">
-              <span title={addr}>{shortAddr(addr)}</span>
+              <AddrLink address={addr} example={false} copy={false} />
               <CopyBtn value={addr} name={name} />
             </p>
-            <a className="prose-link small" href={`${addrUrl(addr)}#code`} target="_blank" rel="noreferrer">Verified on BscScan</a>
+            <a className="prose-link small" href={`${addrUrl(addr)}#code`} target="_blank" rel="noopener noreferrer">Verified on BscScan</a>
           </div>
         ))}
         <div className="col-span-4 md:col-span-8 lg:col-span-12 bare">
