@@ -150,7 +150,7 @@ export function createFloorMcpServer(deps: ToolDeps): McpServer {
     return ok({
       ...f,
       audit: AUDIT_STATEMENT,
-      tools: { free: FREE_TOOLS, paid: PAID_TOOLS.map((n) => ({ name: n, priceUsd: cfg.prices[n], note: 'proposed price' })) },
+      tools: { free: FREE_TOOLS, paid: PAID_TOOLS.map((n) => ({ name: n, priceUsd: cfg.prices[n], unit: 'USD per call' })) },
       howToSign: 'Floor returns unsigned transactions only. Your own wallet signs; Floor never holds keys.',
     });
   });
@@ -220,7 +220,7 @@ export function createFloorMcpServer(deps: ToolDeps): McpServer {
 
   // ---------------- paid tools ----------------
   const paid = <S extends z.ZodRawShape>(name: PaidToolName, title: string, description: string, shape: S, compute: (a: z.infer<z.ZodObject<S>>) => Promise<Record<string, unknown>> | Record<string, unknown>) =>
-    reg(name, title, `${description} PAID: ${cfg.prices[name]} USD per call via x402 (proposed price). The first call without payment returns a payment-required result (isError) listing what to pay; retry with params._meta["x402/payment"].`, shape, async (a, extra) => {
+    reg(name, title, `${description} PAID: ${cfg.prices[name]} USD per call via x402. The first call without payment returns a payment-required result (isError) listing what to pay; retry with params._meta["x402/payment"].`, shape, async (a, extra) => {
       if (!deps.gate) return fail('payments_not_configured', 'paid tools are not enabled on this server (no payee configured)');
       const metaPayment = extra._meta?.['x402/payment'] as PaymentPayload | undefined;
       const payment = metaPayment ?? ctx.headerPayment;

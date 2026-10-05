@@ -258,7 +258,7 @@ MCP tools (source: [`apps/mcp/src/tools.ts`](apps/mcp/src/tools.ts)):
 | `backtest` | paid | Stored historical results for a basket and mode (no live computation) |
 | `simulate_gap` | paid | What an instant fall of X bps does to a new position |
 
-Paid tools default to a proposed price of 0.01 USD per call. Read the live price from `get_floor_info` (`tools.paid[].priceUsd`).
+`quote_protection`, `backtest` and `simulate_gap` each cost 0.01 USD per call (default; `PRICE_QUOTE_PROTECTION_USD`, `PRICE_BACKTEST_USD`, `PRICE_SIMULATE_GAP_USD` override it), paid in USD1 or U on BSC. Read the live price from `get_floor_info` (`tools.paid[].priceUsd`).
 
 API routes ([`apps/api/src/app.ts`](apps/api/src/app.ts)): `GET /healthz`, `/v1/floor`, `/v1/assets`, `/v1/market`, `/v1/positions`, `/v1/positions/:vault`, `/v1/keeper/runs`, `/v1/keeper/runs/:id`; `POST /v1/tx/create-position`, `/v1/tx/exit`, and the paid `POST /v1/paid/quote`.
 

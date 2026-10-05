@@ -2,7 +2,7 @@ import { defineChain, type Chain } from 'viem';
 import { bsc } from 'viem/chains';
 import { MemoryReceiptStore } from '@floor/db/src/x402Receipts';
 import { FLOOR_DISCLOSURE, MAX_ASSETS, MAX_FLOOR_BPS, MAX_TERM_SECONDS, MIN_FLOOR_BPS, MIN_TERM_SECONDS, quoteProtection } from '@floor/sdk';
-import { chainIdOf, createGate, selfFacilitatorFromEnv, B402FacilitatorClient, type FacilitatorClient, type PaidAsset, type ReceiptStore } from '@floor/x402';
+import { chainIdOf, createGate, selfFacilitatorFromEnv, B402FacilitatorClient, DEFAULT_PAID_PRICE_USD, type FacilitatorClient, type PaidAsset, type ReceiptStore } from '@floor/x402';
 import { z } from 'zod';
 import { ser } from './util';
 
@@ -31,9 +31,9 @@ export function paidTokensFromEnv(env: Env): { tokens: { address: `0x${string}`;
   return { tokens: [{ address: a as `0x${string}`, name, version }], assets: [{ address: a, symbol: env.X402_ASSET_SYMBOL?.trim() || 'TOKEN', decimals, method: 'eip3009', name }] };
 }
 
-/** Price per paid quote, USD decimal string (PRICE_QUOTE_USD, default 0.01). */
+/** Price per paid quote, USD decimal string (PRICE_QUOTE_USD, default 0.01 USD per call). */
 export function paidPriceFromEnv(env: Env): string {
-  const v = (env.PRICE_QUOTE_USD ?? '0.01').trim();
+  const v = (env.PRICE_QUOTE_USD ?? DEFAULT_PAID_PRICE_USD).trim();
   if (!/^\d+(\.\d{1,6})?$/.test(v) || Number(v) <= 0) throw new Error(`bad PRICE_QUOTE_USD "${v}": use a positive decimal like 0.01`);
   return v;
 }

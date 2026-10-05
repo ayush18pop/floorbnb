@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { FLOOR_DISCLOSURE } from '@floor/sdk';
+import { DEFAULT_PAID_PRICE_USD } from '@floor/x402';
 
 type Env = Record<string, string | undefined>;
 
@@ -82,9 +83,9 @@ export function loadConfig(env: Env, repoRoot: string): McpConfig {
     allowedOrigins: (env.MCP_ALLOWED_ORIGINS ?? '').split(',').map((s) => s.trim()).filter(Boolean),
     trustProxy: env.TRUST_PROXY === '1',
     prices: {
-      quote_protection: price(env.PRICE_QUOTE_PROTECTION_USD, '0.01'),
-      backtest: price(env.PRICE_BACKTEST_USD, '0.01'),
-      simulate_gap: price(env.PRICE_SIMULATE_GAP_USD, '0.01'),
+      quote_protection: price(env.PRICE_QUOTE_PROTECTION_USD, DEFAULT_PAID_PRICE_USD),
+      backtest: price(env.PRICE_BACKTEST_USD, DEFAULT_PAID_PRICE_USD),
+      simulate_gap: price(env.PRICE_SIMULATE_GAP_USD, DEFAULT_PAID_PRICE_USD),
     },
     http402: env.MCP_HTTP_402 === '1',
     facilitator,

@@ -4,12 +4,12 @@ import { AppShell } from "@/components/app/shell";
 import { Xh } from "@/components/ui/xh";
 import { Tabs } from "@/components/ui/tabs";
 import { BRAND } from "@/lib/brand";
-import { MCP_URL, PUBLIC_DELAY_HOURS } from "@/lib/app-config";
+import { MCP_URL, PAID_TOKENS, PAID_TOOL_PRICE_LABEL, PUBLIC_DELAY_HOURS } from "@/lib/app-config";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata("/agents", "Agents");
 
-/** Names and inputs: docs/EXECUTION_PLAN.md A18 (MCP server). Prices are proposals, not final. */
+/** Names and inputs: docs/EXECUTION_PLAN.md A18 (MCP server). Paid tools share one price (PAID_TOOL_PRICE_LABEL in lib/app-config.ts). */
 const TOOLS = [
   { name: "get_floor_info", what: "Factory address, assets, terms, disclosure. Call this first.", paid: false, state: "No" },
   { name: "list_assets", what: "Supported bStocks with price and market status.", paid: false, state: "No" },
@@ -17,9 +17,9 @@ const TOOLS = [
   { name: "get_rebalance_history", what: "Recent keeper rebalances. Public.", paid: false, state: "No" },
   { name: "build_create_position_tx", what: "Returns the unsigned USDT approve and createPosition transactions.", paid: false, state: "Unsigned tx" },
   { name: "build_exit_tx", what: "Returns an unsigned requestClose, closeToUSDT or exitInKind transaction.", paid: false, state: "Unsigned tx" },
-  { name: "quote_protection", what: "Floor, starting split and backtest results for a basket.", paid: true, state: "No", price: "0.01 USD (proposed)" },
-  { name: "backtest", what: "Stored backtest results for a basket and floor. Past data.", paid: true, state: "No", price: "not set" },
-  { name: "simulate_gap", what: "What a sudden fall of X% before any rebalance does.", paid: true, state: "No", price: "not set" },
+  { name: "quote_protection", what: "Floor, starting split and backtest results for a basket.", paid: true, state: "No" },
+  { name: "backtest", what: "Stored backtest results for a basket and floor. Past data.", paid: true, state: "No" },
+  { name: "simulate_gap", what: "What a sudden fall of X% before any rebalance does.", paid: true, state: "No" },
 ] as const;
 
 const url = MCP_URL || "https://mcp.<domain>/mcp";
@@ -31,7 +31,7 @@ const config = `{
 const PAY = [
   "Agent calls quote_protection",
   "Floor answers 402 Payment Required",
-  "Agent signs a b402 payment (USD1, U, USDT or USDC)",
+  `Agent signs an x402 payment (${PAID_TOKENS})`,
   "Floor verifies, settles and returns the quote",
 ];
 
@@ -46,12 +46,13 @@ export default function AgentsPage() {
             <tr key={t.name}>
               <td className="mono !text-accent whitespace-nowrap">{t.name}</td>
               <td className="min-w-[200px]">{t.what}</td>
-              <td>{t.paid ? <><span className="badge b-neg">Paid · b402</span>{"price" in t && <span className="small ml-2">{t.price}</span>}</> : <span className="badge b-pos">Free</span>}</td>
+              <td>{t.paid ? <><span className="badge b-neg">Paid · x402</span><span className="small ml-2">{PAID_TOOL_PRICE_LABEL}</span></> : <span className="badge b-pos">Free</span>}</td>
               <td className="whitespace-nowrap">{t.state}</td>
             </tr>
           ))}
         </tbody>
       </table>
+      <p className="small px-2 py-3 md:px-2">Paid tools cost {PAID_TOOL_PRICE_LABEL}, paid in {PAID_TOKENS}. Payments settle through {BRAND.name}&apos;s own x402 facilitator today. b402, Binance&apos;s facilitator, is wired and verified for supported and verify only; settle has not run live.</p>
     </div>
   );
   const connect = (
@@ -71,7 +72,7 @@ export default function AgentsPage() {
   );
   const notes = (
     <div className="space-y-3 p-4 md:p-6">
-      <div className="notice info"><Info size={18} strokeWidth={1.5} aria-hidden="true" /><p>Gas for b402 payments is sponsored. {BRAND.name} never signs for users. b402 supported and verify have been run live; settle has not, so the demo uses our own self facilitator until it has. b402 pays for calls to {BRAND.name}&apos;s API, not for LLM inference.</p></div>
+      <div className="notice info"><Info size={18} strokeWidth={1.5} aria-hidden="true" /><p>Paid calls cost {PAID_TOOL_PRICE_LABEL} and settle through {BRAND.name}&apos;s own x402 facilitator today. {BRAND.name} never signs for users. b402 (Binance&apos;s x402 facilitator, gas sponsored) supported and verify have been run live; settle has not, so it is not the live path yet. Payments cover calls to {BRAND.name}&apos;s API, not LLM inference.</p></div>
       <div className="notice warn"><Info size={18} strokeWidth={1.5} aria-hidden="true" /><p><b>Agentic Wallet keeper.</b> A plain keeper wallet is the main keeper. A Binance Agentic Wallet holds the same role as a supervised second keeper. It depends on Developer Mode, whose confirmation and risk-check behaviour for a new contract is still being tested. The vault does not rely on it, and after {PUBLIC_DELAY_HOURS} hours idle anyone can call <span className="mono">rebalancePublic</span>.</p></div>
     </div>
   );

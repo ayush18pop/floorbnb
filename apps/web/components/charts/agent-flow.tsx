@@ -42,13 +42,13 @@ function Link({ dir, label, back = false, className = "" }: { dir: "h" | "v"; la
 export function AgentFlow() {
   const agent = <Node title="Your agent" sub="Any MCP client" lines={["Claude, ChatGPT, OpenClaw", "its own wallet signs"]} />;
   const mcp = <Node title={`${BRAND.name} MCP server`} sub="Streamable HTTP" lines={["quote_protection", "build_create_position_tx", "get_status, backtest"]} />;
-  const b402 = <Node title="b402 facilitator" sub="Binance x402 on BSC" lines={["verifies the signed payment", "settles on BSC", "gas sponsored"]} />;
+  const b402 = <Node title="x402 facilitator" sub="Floor self facilitator (b402 optional)" lines={["verifies the signed payment", "settles on BSC", "b402: supported + verify live"]} />;
   const keeper = <Node title="Keeper" sub="EOA; Agentic Wallet optional" lines={["rebalance(swap)", "cannot withdraw", "cannot set prices"]} />;
   const vault = <Node accent title={`${BRAND.name} vault`} sub="One contract per position" lines={["holds user funds", "CPPI, m = 4", "owner can always exit"]} />;
   const dex = <Node title="PancakeSwap" sub="BSC tokenized-stock liquidity" lines={["spot swaps only", "stock for USDT and back"]} />;
 
   return (
-    <div role="group" aria-label="How an agent uses Floor. The agent calls the MCP server and pays through b402. A keeper calls rebalance on the vault. The vault swaps on PancakeSwap.">
+    <div role="group" aria-label="How an agent uses Floor. The agent calls the MCP server and pays through x402. A keeper calls rebalance on the vault. The vault swaps on PancakeSwap.">
       {/* tablet and up: 3 columns with connectors */}
       <div className="hidden lg:grid items-stretch" style={{ gridTemplateColumns: "minmax(0,1fr) 64px minmax(0,1fr) 64px minmax(0,1fr)", rowGap: 0 }}>
         <div>{agent}</div>
@@ -85,7 +85,7 @@ export function AgentFlow() {
         {dex}
       </div>
       <p className="label mt-6" style={{ textTransform: "none", letterSpacing: "0.02em" }}>
-        User funds stay in the vault contract, never in the keeper wallet. b402 pays for Floor API calls. It does not pay for LLM inference.
+        User funds stay in the vault contract, never in the keeper wallet. x402 payments cover Floor API calls. It does not pay for LLM inference.
       </p>
     </div>
   );

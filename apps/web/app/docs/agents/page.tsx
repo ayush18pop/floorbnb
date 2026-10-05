@@ -1,6 +1,7 @@
 import { AgentFlow } from "@/components/charts/agent-flow";
 import { Callout, DocPage, L } from "@/components/docs/doc-page";
 import { BRAND } from "@/lib/brand";
+import { PAID_TOKENS, PAID_TOOL_PRICE_LABEL } from "@/lib/app-config";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata("/docs/agents", "Agents");
@@ -27,7 +28,7 @@ export default function Page() {
     <DocPage
       slug="agents"
       lead={<p>More money is now managed by AI agents. {BRAND.name} lets an agent buy protection for the person it works for.</p>}
-      toc={[["flow", "How an agent uses Floor"], ["keeper", "Keeper"], ["mcp", "MCP server"], ["b402", "Pay per call with b402"], ["skill", "Agent skill"]]}
+      toc={[["flow", "How an agent uses Floor"], ["keeper", "Keeper"], ["mcp", "MCP server"], ["pay", "Pay per call with x402"], ["skill", "Agent skill"]]}
     >
       <h2 id="flow" style={{ marginTop: 0 }}>How an agent uses {BRAND.name}</h2>
       <div className="block border border-grid bg-surface p-4 md:p-6">
@@ -52,8 +53,9 @@ export default function Page() {
         <pre className="code !border-0 !bg-transparent !p-4 md:!p-6" tabIndex={0} aria-label="Example MCP call to quote_protection">{snippet}</pre>
       </div>
 
-      <h2 id="b402">Pay per call with b402 <span className="badge b-pos align-middle">verified live: supported + verify</span></h2>
-      <p>The agent pays a small fee for each paid call in stablecoins, through b402, Binance&apos;s x402 facilitator on BSC. Buyers need no account. Our server calls b402 with a Binance Web3 API key that has the B402 Payments permission. Gas is sponsored. b402 does not pay for LLM inference. The supported and verify calls have been run live and passed. Settle has not been run live yet, so the demo settles through our own self facilitator: our server verifies the signed payment and sends the transfer itself. That path is tested end to end on a local fork with a test token. More on the <L href="/agents#b402">reference page</L>.</p>
+      <h2 id="pay">Pay per call with x402 <span className="badge b-pos align-middle">live: own facilitator</span></h2>
+      <p>quote_protection, backtest and simulate_gap each cost {PAID_TOOL_PRICE_LABEL}, paid in {PAID_TOKENS}. The free tools stay free. Buyers need no account. Payments settle through {BRAND.name}&apos;s own x402 facilitator today: our server verifies the signed payment and sends the transfer itself. That path is tested end to end on a local fork with a test token.</p>
+      <p>b402 is Binance&apos;s x402 facilitator on BSC (gas sponsored). It is wired in, and our server calls it with a Binance Web3 API key that has the B402 Payments permission. Its supported and verify calls have been run live and passed. Settle has not been run live yet, so b402 is not the live path. Payments cover calls to {BRAND.name}&apos;s API, not LLM inference. More on the <L href="/agents">reference page</L>.</p>
 
       <h2 id="skill">Agent skill <span className="badge b-warn align-middle">building</span></h2>
       <p>A {BRAND.name} skill so a user&apos;s own agent can deposit and withdraw with the user&apos;s own wallet. It tells the agent to read the factory address from get_floor_info and check every unsigned transaction against it before signing.</p>

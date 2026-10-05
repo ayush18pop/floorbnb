@@ -118,3 +118,6 @@ export interface ReceiptStore {
   release(key: ReceiptKey): void | Promise<void>;
   get(key: ReceiptKey): X402Receipt | undefined | Promise<X402Receipt | undefined>;
 }
+
+/** Default price of every paid Floor call (API route and MCP tool), USD per call. PRICE_* env vars override it. */
+export const DEFAULT_PAID_PRICE_USD = '0.01';

@@ -15,7 +15,7 @@ Source: `apps/mcp/src/tools.ts`, `apps/mcp/src/config.ts`. All inputs are strict
   - Returns `txs[2]` (approve to the factory, then createPosition) each with `simulation` (createPosition's is null until the allowance is on chain), `checks` {usdtBalance, allowance, sufficientBalance, createSimulated}, `instructions`.
 - `build_exit_tx {vault, kind: requestClose|closeToUSDT|exitInKind, to?}`: returns ONE `tx` with `simulation` run as the owner. The server refuses if `tx.to` is not the vault.
 
-## Paid (x402, proposed price per `get_floor_info`; default 0.01 USD)
+## Paid (x402; 0.01 USD per call by default, live value in `get_floor_info`)
 
 - `quote_protection {depositUsdt, floorBps, termSeconds?=31536000, weightsBps?}`: `depositUsdt` is a decimal string ("1000", "250.5", max 18 places). Returns `quote` (floorValue, cushion, startingExposure, startingCash, gapToleranceBps, ...), `asUsdt` {floor, cushion, startingExposure, startingCash}, `reference` long-history study.
 - `backtest {basket, mode?="close_only"}`: stored results only; `basket` is one of NVDA, TSLA, QQQ, SPY, AAPL, NVDA+AAPL+QQQ, NVDA+TSLA+QQQ (underlyings, not bStock symbols; there is no AAPL bStock); `mode` is close_only or open_close (`apps/mcp/src/data.ts`). Returns a data-unavailable error instead of inventing numbers. Caveats: underlying stocks and indices not bStocks, full weekend gaps assumed, 0% stablecoin yield, past data.

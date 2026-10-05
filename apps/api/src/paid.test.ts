@@ -37,6 +37,7 @@ describe('/v1/paid/quote behind the x402 gate', () => {
     expect(r1.status).toBe(402);
     const pr = b64decode<PaymentRequired>(r1.headers.get('PAYMENT-REQUIRED')!);
     expect(pr.accepts[0]).toMatchObject({ amount: '10000000000000000', payTo: PAYEE, extra: { assetTransferMethod: 'eip3009' } });
+    expect(pr.accepts.every((a) => a.amount === '10000000000000000')).toBe(true); // 0.01 USD at 18 decimals, default env
     const payment = await signPayment(privateKeyToAccount(generatePrivateKey()), pr.accepts[0]!, TOKEN);
     const r2 = await post(app, body, { 'PAYMENT-SIGNATURE': header(payment) });
     expect(r2.status).toBe(200);
@@ -73,6 +74,7 @@ describe('/v1/paid/quote behind the x402 gate', () => {
 
 describe('paid route configuration', () => {
   it('price and asset come from env; bad values are rejected', () => {
+    expect(paidPriceFromEnv({})).toBe('0.01');
     expect(paidPriceFromEnv({})).toBe('0.01');
     expect(paidPriceFromEnv({ PRICE_QUOTE_USD: '0.5' })).toBe('0.5');
     expect(() => paidPriceFromEnv({ PRICE_QUOTE_USD: '-1' })).toThrow(/PRICE_QUOTE_USD/);

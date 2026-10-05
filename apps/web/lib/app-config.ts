@@ -31,3 +31,12 @@ export const PUBLIC_DELAY_HOURS = 1;
 export const txUrl = (h: string) => `${BSCSCAN}/tx/${h}`;
 export const addrUrl = (a: string) => `${BSCSCAN}/address/${a}`;
 export const blockUrl = (n: number | string) => `${BSCSCAN}/block/${n}`;
+
+/**
+ * Paid agent tools: ONE source of truth for the web copy. Mirrors the API and MCP default (DEFAULT_PAID_PRICE_USD in
+ * packages/x402, overridden by PRICE_QUOTE_PROTECTION_USD, PRICE_BACKTEST_USD, PRICE_SIMULATE_GAP_USD).
+ */
+export const PAID_TOOL_PRICE_USD = "0.01";
+export const PAID_TOOL_PRICE_LABEL = `${PAID_TOOL_PRICE_USD} USD per call`;
+/** Tokens the server accepts (EIP-3009 on BSC), apps/api/src/paid.ts and apps/mcp/src/payments.ts. */
+export const PAID_TOKENS = "USD1 or U on BSC";

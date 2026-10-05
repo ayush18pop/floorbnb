@@ -39,7 +39,7 @@ Server: the Floor MCP endpoint (Streamable HTTP, `POST /mcp`, URL from the user'
 | `backtest` | paid | stored historical results for a basket and mode |
 | `simulate_gap` | paid | what an instant fall of X bps does to a new position |
 
-Paid prices come from `get_floor_info` (`tools.paid[].priceUsd`; the server default is 0.01 USD each, labelled "proposed"). Quote the price you read, not one from memory. Inputs are strict: unknown keys are rejected. Amount units differ: paid tools take `depositUsdt` as a decimal string ("1000"); `build_create_position_tx` takes `amount` as an integer string in wei (18 decimals, "1000000000000000000000" = 1000 USDT).
+Paid prices come from `get_floor_info` (`tools.paid[].priceUsd`; the default is 0.01 USD per call for each paid tool). Quote the price you read, not one from memory. Inputs are strict: unknown keys are rejected. Amount units differ: paid tools take `depositUsdt` as a decimal string ("1000"); `build_create_position_tx` takes `amount` as an integer string in wei (18 decimals, "1000000000000000000000" = 1000 USDT).
 
 ## Paying for paid tools (x402 v2)
 

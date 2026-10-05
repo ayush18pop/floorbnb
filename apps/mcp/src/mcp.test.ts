@@ -34,7 +34,7 @@ describe('tool list', () => {
       expect(t.annotations?.readOnlyHint).toBe(true);
       expect(t.outputSchema).toBeDefined();
     }
-    for (const n of PAID_TOOLS) expect(tools.find((t) => t.name === n)!.description).toMatch(/PAID: 0\.01 USD.*proposed/);
+    for (const n of PAID_TOOLS) expect(tools.find((t) => t.name === n)!.description).toMatch(/PAID: 0\.01 USD per call via x402\./);
     for (const n of FREE_TOOLS) expect(tools.find((t) => t.name === n)!.description).not.toMatch(/PAID/);
     expect(client.getInstructions()).toMatch(/never signs/i);
   });
@@ -243,6 +243,17 @@ describe('paid tools: x402 over MCP (real signature verification, mocked chain)'
     const first = await client.callTool({ name: 'simulate_gap', arguments: { ...quoteArgs, gapBps: 1000 } });
     expect(structured(first).payment).toMatchObject({ tool: 'simulate_gap', priceUsd: '0.01', network: 'eip155:56', payTo: PAYEE });
     expect(structured(first).payment.options[0]).toMatchObject({ symbol: expect.stringMatching(/USD1|U/), amountAtomic: '10000000000000000', method: 'eip3009' });
+  });
+
+  it('with the default env every paid tool asks 0.01 USD per call: 10000000000000000 atomic units for USD1 and U (18 decimals)', async () => {
+    const client = await connect(buildApp().app);
+    const args: Record<string, Record<string, unknown>> = { quote_protection: quoteArgs, simulate_gap: { ...quoteArgs, gapBps: 1000 }, backtest: { basket: 'NVDA' } };
+    for (const name of PAID_TOOLS) {
+      const s = structured(await client.callTool({ name, arguments: args[name]! }));
+      expect(s.payment).toMatchObject({ tool: name, priceUsd: '0.01' });
+      expect(s.accepts.length).toBeGreaterThan(0);
+      for (const a of s.accepts) expect(a.amount).toBe('10000000000000000');
+    }
   });
 
   it('price, asset, decimals, network and payTo come from configuration (custom 6-decimal token)', async () => {

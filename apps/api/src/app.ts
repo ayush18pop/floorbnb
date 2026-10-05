@@ -4,6 +4,7 @@ import { bodyLimit } from 'hono/body-limit';
 import { getConnInfo } from '@hono/node-server/conninfo';
 import { getAddress, type Address, type PublicClient } from 'viem';
 import { erc20Abi } from 'viem';
+import { DEFAULT_PAID_PRICE_USD } from '@floor/x402';
 import { z } from 'zod';
 import {
   FLOOR_DISCLOSURE,
@@ -349,7 +350,7 @@ export function createApp(deps: AppDeps): Hono {
 
   app.post('/v1/paid/quote', async (c) => {
     if (!deps.paidGate) throw new ApiError(501, 'not_implemented', 'paid endpoints are not enabled yet (x402 gate not installed)');
-    const early = await deps.paidGate(c.req.raw.clone(), deps.paidQuotePriceUsd ?? '0.01');
+    const early = await deps.paidGate(c.req.raw.clone(), deps.paidQuotePriceUsd ?? DEFAULT_PAID_PRICE_USD);
     if (early) return early;
     const b = await body(c, paidQuoteSchema);
     const deposit = BigInt(b.deposit);
