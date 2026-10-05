@@ -47,7 +47,7 @@ Caps 1,000 and 5,000 USDT (`FloorFactory.sol` 44 to 45, `56.json`); `setLimits` 
 
 - The 15.1M gas, 0.00076 BNB and the demo wallet `0x05BD…E685`: given by the team lead. Not re-run here (no forge, anvil or RPC in this session). No per-step breakdown exists for the new run.
 - The `payTo` address `0xF5f3…816B` appears in the repo only as a comment in the Render files and the task; it is not set in code.
-- That `floor.ayush.works`, `mcp.floor.ayush.works` or the Vercel URL are live. The MCP host name comes from a literal replacement of `REPLACE_DOMAIN`.
+- That the MCP endpoint (the Render onebox /mcp) completes a full MCP handshake. `floor.ayush.works` was checked live on 2026-10-05 (200).
 - Settle on b402 (not run live). The live supported and verify runs are from the team's notes, not re-run here.
 - That the keeper sell-skip (K-1) is fixed on a fork. The code compares by USDT value; no fork run.
 - The `_reportClosed` gas claim rejected in the audit gate (reasoned by four agents, not tested).

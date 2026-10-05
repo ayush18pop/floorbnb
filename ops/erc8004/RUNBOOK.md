@@ -28,5 +28,5 @@ Claim to use: "Floor's MCP server is discoverable through the ERC-8004 registry"
 ## Unverified
 - Exact `agentRegistry` string format and MCP `version` value come from the spec text read via fetch; recheck against the EIP before step 4.
 - The script was dry-run only; no transaction has been sent.
-- `mcp.floor.ayush.works` comes from the literal replacement of `REPLACE_DOMAIN`. Check that this is the real MCP host before you register. Not verified.
+- The MCP endpoint in the registration file is the Render onebox (`https://floor-server-wb4i.onrender.com/mcp`, GET answers 405). A full MCP handshake against it is not verified.
 - The path `/.well-known/agent-registration.json` is in `ALLOW_EXACT` in `apps/web/lib/launch.ts` (checked 2026-10-05), so it is served while the app routes stay locked.
