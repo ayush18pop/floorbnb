@@ -299,7 +299,7 @@ Floor is non-custodial in the sense that no role can move a depositor's funds. I
 
 What this means in practice:
 
-- Owner and guardian are the same address (disclosed), so the guardian adds no separation of duties. The owner is meant to be a hardware wallet. There is no multisig.
+- Owner and guardian are the same address (disclosed), so the guardian adds no separation of duties. The owner is a single wallet. There is no multisig.
 - A compromised keeper can only trigger rule-valid rebalances at bad timing. Per swap the loss is capped by the tolerance times the trade size, once per `minInterval` (design: [`docs/CONTRACTS.md`](docs/CONTRACTS.md) section 7).
 - A halt or pause stops de-risking sells. It never stops `exitInKind`.
 - The owner can raise the launch caps at any time. That is a trust point.
