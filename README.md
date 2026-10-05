@@ -239,7 +239,7 @@ Floor is built to be used by agents as well as people. State-changing tools only
 
 | Surface | Where | Notes |
 | --- | --- | --- |
-| MCP server | [`apps/mcp`](apps/mcp), `POST /mcp` (Streamable HTTP, stateless), default port 8788 | 9 tools, below |
+| MCP server | [`apps/mcp`](apps/mcp), `POST /mcp` (Streamable HTTP, stateless), default port 8788. Hosted: `https://floor-server-wb4i.onrender.com/mcp` | 9 tools, below |
 | REST API | [`apps/api`](apps/api), default port 8787 | Reads, unsigned tx builders, one paid route |
 | Agent skill | [`skills/floor/SKILL.md`](skills/floor/SKILL.md) | Confirm-then-sign workflow and honest-claim rules |
 | Payments | [`packages/x402`](packages/x402) | x402 v2 on `eip155:56`. Own facilitator is the demo path. |
@@ -476,7 +476,7 @@ Names only. Values are secrets or deployment-specific and never belong in git. T
 - **Holiday table** ends 2028-12-31. A 365-day term cannot be created after about 18 Dec 2027 unless the guardian extends it.
 - **b402:** `supported` and `verify` run live, `settle` not run live. Paid calls settle through our own facilitator.
 - **Not done:** Agent Studio listing, ERC-8004 registration (prepared, not broadcast), Agentic Wallet keeper (optional, not set up).
-- **Site status.** The live URL is `https://floor.ayush.works`. The app routes are locked by default until the launch flag is set ([`docs/BRANCHING.md`](docs/BRANCHING.md)).
+- **Site status.** The live URL is `https://floor.ayush.works` and the app is unlocked on production. The code still locks the app routes by default unless `NEXT_PUBLIC_APP_LOCKED=0` is set ([`docs/BRANCHING.md`](docs/BRANCHING.md)). The hosted API and MCP server run on a free Render instance at `https://floor-server-wb4i.onrender.com` (`/healthz`, `/mcp`); it can sleep if idle.
 
 Full list: [`apps/web/app/docs/open-items/page.tsx`](apps/web/app/docs/open-items/page.tsx) and [`apps/web/app/docs/risks/page.tsx`](apps/web/app/docs/risks/page.tsx).
 
