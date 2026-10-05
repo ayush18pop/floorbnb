@@ -11,7 +11,7 @@ export type CreateLimits = {
   /** USDT WAD, defaults.minTrade */
   minTrade: bigint;
   buyBandBps: number;
-  /** USDT WAD, factory MIN_DEPOSIT (1 USDT) */
+  /** USDT WAD, product minimum, 5 USDT (factory MIN_DEPOSIT is 1 USDT) */
   minDeposit: bigint;
   /** USDT WAD */
   maxDeposit: bigint;
@@ -25,8 +25,8 @@ export type CreateLimits = {
 };
 
 const E18 = 10n ** 18n;
-/** CONTRACTS.md defaults: minTrade 20 USDT, buy band 2%, deposit 1 to 1000 USDT. Used by the mock source. */
-export const DEFAULT_LIMITS: CreateLimits = { minTrade: 20n * E18, buyBandBps: 200, minDeposit: E18, maxDeposit: 1000n * E18, tvlRoom: null, paused: false, from: "default" };
+/** Mainnet launch values: minTrade 1 USDT (owner setDefaults 2026-10-05), buy band 2%, deposit 5 to 1000 USDT (5 is the product minimum; the factory's hard floor is 1). Used by the mock source. */
+export const DEFAULT_LIMITS: CreateLimits = { minTrade: E18, buyBandBps: 200, minDeposit: 5n * E18, maxDeposit: 1000n * E18, tvlRoom: null, paused: false, from: "default" };
 
 export type Issue = { code: "amount" | "min-deposit" | "max-deposit" | "tvl" | "floor" | "floor-high" | "term" | "term-horizon" | "assets" | "paused"; message: string };
 

@@ -85,6 +85,8 @@ function addr(raw: string, what: string): Address {
   }
 }
 
+const MIN_POSITION_WEI = 5n * 10n ** 18n;
+
 export function createApp(deps: AppDeps): Hono {
   const { client, deployment, chainId } = deps;
   const now = deps.now ?? Date.now;
@@ -309,6 +311,8 @@ export function createApp(deps: AppDeps): Hono {
     const assets = b.assets.map((a) => addr(a, 'asset'));
     const amount = BigInt(b.amount);
     if (amount <= 0n || amount > MAX_AMOUNT) throw new ApiError(400, 'bad_request', 'amount out of range');
+    // Product minimum (the contract's own hard floor is 1 USDT; the basket rule can require more).
+    if (amount < MIN_POSITION_WEI) throw new ApiError(400, 'bad_request', 'minimum position is 5 USDT');
     const active = new Set((await readAssets()).filter((a) => a.active).map((a) => a.address.toLowerCase()));
     for (const a of assets) if (!active.has(a.toLowerCase())) throw new ApiError(400, 'bad_request', `asset ${a} is not enabled on the factory`);
     const maxDeposit = (await client.readContract({ address: deployment.factory, abi: floorFactoryAbi, functionName: 'maxDeposit' })) as bigint;

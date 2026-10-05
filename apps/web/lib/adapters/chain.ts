@@ -208,8 +208,8 @@ export function chainSource(): PositionSource {
         // The factory's public getter (FloorFactory.holidayHorizonDay; not in the SDK ABI, so a one-line ABI here). Unreadable: keep the constant.
         c.readContract({ address: d.factory, abi: horizonAbi, functionName: "holidayHorizonDay" }).then(Number).catch(() => null),
       ]);
-      // defaults() returns [sellBand, buyBand, minInterval, publicDelay, twapWindow, maxTickDev, tolAgg, tolDirect, minTrade, dust]
-      return { minTrade: df[8] as bigint, buyBandBps: Number(df[1]), minDeposit: 10n ** 18n, maxDeposit, tvlRoom: maxTvl > tvl ? maxTvl - tvl : 0n, paused: paused || halted, holidayHorizonDay: horizon === null ? null : horizon === 0 ? NO_HORIZON_DAY : horizon, from: "chain" };
+      // defaults() returns [sellBand, buyBand, minInterval, publicDelay, twapWindow, maxTickDev, tolAgg, tolDirect, minTrade, dust]. minDeposit 5 is the product minimum; the factory's hard floor is 1 USDT.
+      return { minTrade: df[8] as bigint, buyBandBps: Number(df[1]), minDeposit: 5n * 10n ** 18n, maxDeposit, tvlRoom: maxTvl > tvl ? maxTvl - tvl : 0n, paused: paused || halted, holidayHorizonDay: horizon === null ? null : horizon === 0 ? NO_HORIZON_DAY : horizon, from: "chain" };
     },
     createPosition: async (p: CreateParams, onProgress: (e: CreateProgress) => void): Promise<CreateResult> => {
       const d = deployment();

@@ -5,7 +5,8 @@ import { equalWeights } from "@/lib/builder-params";
 
 const E = 10n ** 18n;
 const usd = (n: number) => BigInt(Math.round(n * 100)) * 10n ** 16n;
-const L = DEFAULT_LIMITS;
+// The contract-mirror tests use the original 20 USDT minTrade and the factory 1 USDT floor; DEFAULT_LIMITS is the mainnet launch fallback.
+const L = { ...DEFAULT_LIMITS, minTrade: 20n * 10n ** 18n, minDeposit: 10n ** 18n };
 const base = { floorBps: 9000, termSeconds: 365 * 86400, weightsBps: [10_000], limits: L };
 
 describe("checkCreate", () => {
@@ -107,7 +108,7 @@ describe("one source for the minimum deposit", () => {
   const E18 = 10n ** 18n;
   it("hint and message agree for the chain minTrade (6 USDT) and the default (20)", () => {
     for (const minTrade of [6n * E18, 20n * E18]) {
-      const l = { ...DEFAULT_LIMITS, minTrade };
+      const l = { ...L, minTrade };
       const min = minAcceptedDeposit(9000, [10_000], l)!;
       const below = min - 10n ** 16n;
       expect(checkCreate({ amount: min, floorBps: 9000, termSeconds: 30 * 86400, weightsBps: [10_000], limits: l, nowSec: 1_790_000_000 }).ok).toBe(true);
@@ -115,12 +116,19 @@ describe("one source for the minimum deposit", () => {
       expect(r.ok).toBe(false);
       expect(r.issues[0].message).toContain(`${minTrade / E18} USDT minimum trade`);
     }
-    expect(minAcceptedDeposit(9000, [10_000], { ...DEFAULT_LIMITS, minTrade: 6n * E18 })).toBeLessThan(minAcceptedDeposit(9000, [10_000], DEFAULT_LIMITS)!);
+    expect(minAcceptedDeposit(9000, [10_000], { ...L, minTrade: 6n * E18 })).toBeLessThan(minAcceptedDeposit(9000, [10_000], L)!);
   });
   it("uses the chain's holiday horizon when given, else the constant", () => {
     const now = 1_790_000_000, day = Math.floor(now / 86400);
     const base = { amount: 100n * E18, floorBps: 9000, termSeconds: 60 * 86400, weightsBps: [10_000], nowSec: now };
-    expect(checkCreate({ ...base, limits: { ...DEFAULT_LIMITS, holidayHorizonDay: day + 30 } }).issues.some((i) => i.code === "term-horizon")).toBe(true);
-    expect(checkCreate({ ...base, limits: { ...DEFAULT_LIMITS, holidayHorizonDay: day + 400 } }).issues.some((i) => i.code === "term-horizon")).toBe(false);
+    expect(checkCreate({ ...base, limits: { ...L, holidayHorizonDay: day + 30 } }).issues.some((i) => i.code === "term-horizon")).toBe(true);
+    expect(checkCreate({ ...base, limits: { ...L, holidayHorizonDay: day + 400 } }).issues.some((i) => i.code === "term-horizon")).toBe(false);
+  });
+});
+
+describe("launch fallback limits", () => {
+  it("product minimum is 5 USDT, minTrade 1 USDT", () => {
+    expect(DEFAULT_LIMITS.minDeposit).toBe(5n * 10n ** 18n);
+    expect(DEFAULT_LIMITS.minTrade).toBe(10n ** 18n);
   });
 });
