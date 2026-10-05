@@ -34,6 +34,15 @@ function describe(e: VaultEvent): { title: string; sub: string } {
   }
 }
 
+/** Why the window is 15:30 to 19:30 UTC (docs/CONTRACTS.md): one fixed window that is valid in US summer and winter time. */
+function WindowWhy() {
+  return (
+    <span className="block mt-2 small">
+      <b>Why this window?</b> The US market opens at 13:30 UTC in summer and 14:30 UTC in winter. The vault uses one fixed window, 15:30 to 19:30 UTC, so it never needs clock-change logic. It starts at least an hour after the open so the 10-minute average price never includes the opening auction, and it stops 30 minutes before the close. The cost is four trading hours a day. See <a className="underline" href="/docs/risks">Risks</a>.
+    </span>
+  );
+}
+
 export function PositionScreen() {
   const sp = useSearchParams();
   const { address } = useAccount();
@@ -93,8 +102,8 @@ export function PositionScreen() {
       {ph === "cashLock" && <Banner kind="neg" title="Cash lock." more={<>Your value reached the floor{lockEv ? ` on ${isoDate(lockEv.time)}` : ""}. The vault sold all stock and holds USDT until the term ends on {isoDate(p.maturity)}. You keep {fmtW(p.status.V)} USDT. You will not gain from a recovery during this term.</>}>Value reached the floor; the vault holds USDT until {isoDate(p.maturity)}.</Banner>}
       {ph === "closing" && <Banner kind="warn" title="Close requested." more="When the stock is sold, choose Close to USDT to receive your USDT.">The vault sells its stock in the next trading window.</Banner>}
       {ph === "closed" && <Banner kind="info" title="This position is closed." more="The floor no longer applies.">{closedText}</Banner>}
-      {waiting && <Banner kind="info" title="Waiting for the first rebalance." more={<>Nothing is bought at deposit. The vault buys your basket in the first trading window ({BRAND.tradingWindow}); until then it holds {fmtW(p.usdtBalance)} USDT, which is normal. Your floor already applies.</>}>{p.status.tradingOpen ? "The window is open: the keeper runs about once a minute." : <>Next trading window: <ChainDate>{dow(nw)} {stamp(nw).replace(" ", ", ")} UTC</ChainDate>.</>}</Banner>}
-      {ph === "active" && !p.status.tradingOpen && !waiting && <Banner kind="warn" title="Market closed." more={<>{weekend ? "The vault does not trade on weekends." : "The vault trades only inside its window, and not on exchange holidays."} The floor maths already assumes the full weekend gap.</>}>Next trading window: <ChainDate>{dow(nw)} {stamp(nw).replace(" ", ", ")} UTC</ChainDate>.</Banner>}
+      {waiting && <Banner kind="info" title="Waiting for the first rebalance." more={<>Nothing is bought at deposit. The vault buys your basket in the first trading window ({BRAND.tradingWindow}); until then it holds {fmtW(p.usdtBalance)} USDT, which is normal. Your floor already applies.<WindowWhy /></>}>{p.status.tradingOpen ? "The window is open: the keeper runs about once a minute." : <>Next trading window: <ChainDate>{dow(nw)} {stamp(nw).replace(" ", ", ")} UTC</ChainDate>.</>}</Banner>}
+      {ph === "active" && !p.status.tradingOpen && !waiting && <Banner kind="warn" title="Market closed." more={<>{weekend ? "The vault does not trade on weekends." : "The vault trades only inside its window, and not on exchange holidays."} The floor maths already assumes the full weekend gap.<WindowWhy /></>}>Next trading window: <ChainDate>{dow(nw)} {stamp(nw).replace(" ", ", ")} UTC</ChainDate>.</Banner>}
     </>
   );
   const alertsOn = ph !== "active" || !p.status.tradingOpen || waiting;
