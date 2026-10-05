@@ -68,7 +68,20 @@ export function createMcpApp(deps: McpAppDeps): Hono {
 
   // Stateless server: no sessions, no SSE stream to open. Streamable HTTP lets a server answer 405 here.
   const notAllowed = () => new Response(null, { status: 405, headers: { Allow: 'POST' } });
-  app.get('/mcp', notAllowed);
+  // A person who opens the URL in a browser gets a short explanation. The status stays 405 with Allow: POST (spec-compliant).
+  const infoJson = {
+    name: 'floor-mcp',
+    message: 'This is the Floor MCP endpoint. It accepts JSON-RPC over POST (Streamable HTTP). It is not a web page.',
+    howToConnect: 'Add this URL as a custom MCP connector in your MCP client, or POST an initialize request.',
+    docs: 'https://floor.ayush.works/agents',
+  };
+  const infoHtml = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Floor MCP endpoint</title><style>body{margin:0;background:#0a0b0d;color:#f2f2ee;font:16px/1.5 system-ui,sans-serif;display:grid;place-items:center;min-height:100vh}main{max-width:34rem;padding:2rem}code{background:#111215;border:1px solid #2c2e31;padding:.1rem .35rem}a{color:#7c93ff}h1{font-size:1.25rem}</style></head><body><main><h1>Floor MCP endpoint</h1><p>This URL is for MCP clients and agents. It accepts <code>POST</code> requests (JSON-RPC over Streamable HTTP), so opening it in a browser shows this note.</p><p>To use it, add this URL as a custom MCP connector in your client. Tool list, prices and examples: <a href="https://floor.ayush.works/agents">floor.ayush.works/agents</a>.</p></main></body></html>`;
+  app.get('/mcp', (c) => {
+    const accept = c.req.header('accept') ?? '';
+    const headers = { Allow: 'POST', 'Cache-Control': 'no-store' };
+    if (accept.includes('text/html')) return new Response(infoHtml, { status: 405, headers: { ...headers, 'Content-Type': 'text/html; charset=utf-8' } });
+    return new Response(JSON.stringify(infoJson), { status: 405, headers: { ...headers, 'Content-Type': 'application/json' } });
+  });
   app.delete('/mcp', notAllowed);
 
   app.post(

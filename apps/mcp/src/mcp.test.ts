@@ -286,7 +286,14 @@ describe('HTTP guards', () => {
 
   it('GET and DELETE /mcp answer 405 (stateless, no sessions)', async () => {
     const { app } = buildApp();
-    expect((await app.fetch(new Request('http://mcp.test/mcp'))).status).toBe(405);
+    const g = await app.fetch(new Request('http://mcp.test/mcp'));
+    expect(g.status).toBe(405);
+    expect(g.headers.get('allow')).toBe('POST');
+    expect(((await g.json()) as { name: string }).name).toBe('floor-mcp');
+    const h = await app.fetch(new Request('http://mcp.test/mcp', { headers: { accept: 'text/html' } }));
+    expect(h.status).toBe(405);
+    expect(h.headers.get('content-type')).toContain('text/html');
+    expect(await h.text()).toContain('MCP');
     expect((await app.fetch(new Request('http://mcp.test/mcp', { method: 'DELETE' }))).status).toBe(405);
   });
   it('rejects a foreign Origin (403) but allows a listed one and no Origin', async () => {
