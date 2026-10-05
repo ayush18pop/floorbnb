@@ -17,7 +17,7 @@ Decided by the manager on the team lead's instruction "do it yourself" in the Cl
 3. **Permanent cash lock:** accepted. Guard: lock needs all guards, market open and value below floor by `tolDirectBps`; the owner can always `exitInKind`/withdraw USDT. Disclose: once locked, a position stays in USDT until the term ends and cannot re-enter stocks.
 4. **Public delay counts from the last trade and counts pause time:** accepted as is. Disclose in docs only.
 5. **Disabled token's weight stays in USDT:** accepted. Guard: `exitInKind`. Disclose in docs only.
-6. **Trusted roles keeper / guardian / owner:** accepted. Guard: separate guardian and owner wallets (owner hardware wallet), 24 h `ROUTER_DELAY`, guardian can only halt. **Required disclosure:** the risks page and README must name these roles and what each can do.
+6. **Trusted roles keeper / guardian / owner:** accepted. Guard: 24 h `ROUTER_DELAY`, guardian can only halt. (Correction 2026-10-05: at launch the owner and guardian are the SAME address, 0x762c9626711BCc882050cBf06Edd610fE8b91F1A, so there is no separation between them; see #7 and the G3 confirmation below.) **Required disclosure:** the risks page and README must name these roles and what each can do.
 Also recorded: **#8** keep the no-de-risking-sell rule when a held stock has no TWAP (fails closed; owner `exitInKind`). **#11** demo `publicDelay` = 3600 s (`script/params/56.json`). **H1** router allowlist = Pancake only (direct-only variant).
 
 ## Pashov run 05 (2026-10-04, contracts ec6e6d6): one new acceptance
@@ -31,3 +31,9 @@ Report: `floorbnb-pashov-ai-audit-report-20261005-051324.md` (on `main`). AI-ass
 3. **Raised by one agent and rejected at the gate:** a tight gas limit on `closeToUSDT` makes the report to the factory fail, so a closed position keeps its deposit in `totalTvl`. Four other agents traced it and found that the 63/64 gas rule leaves too little gas for the rest of the call, so the whole call reverts. Not tested here; no test was run in this docs pass.
 Also noted: the owner can change the launch caps at any time (README, `/docs/contracts`, `/docs/risks`). That is a trust point beside "owner and guardian are the same address".
 Status: **PROPOSED. Not signed by the team lead.**
+
+
+## G3 team lead confirmation, 2026-10-05
+Recorded by the manager in the Claude Code session. The manager showed the team lead a plain-language list of what is being confirmed: the six batch acceptances above (TVL cap can be filled, public rebalance can be sandwiched, permanent cash lock, public delay timing, disabled-token weight stays in USDT, trusted keeper/guardian/owner roles), the Pashov run 06 proposal (1 finding, 19 unscored leads, no contract change), and the corrections that owner and guardian are the same address at launch and that the owner can change the launch caps at any time. The team lead replied: "Oh yeah sure do that" (2026-10-05).
+This is recorded as the team lead's confirmation of that list. The AI-assisted reviews are not a formal human audit. If the team lead wants to reverse or change any item, say so in writing and this section is amended.
+Status: **CONFIRMED by the team lead in chat, 2026-10-05.** The contracts were deployed before this was recorded (2026-10-05, block about 125815981), so G3 was closed after the fact.
