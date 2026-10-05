@@ -3,6 +3,9 @@ import { Nav } from "@/components/landing/nav";
 import { Footer } from "@/components/landing/footer";
 import { Agents, Cta, Moment, NotAGuarantee, ProofTiles, SpotOnly, Steps } from "@/components/landing/sections";
 import { loadPath, pathSummary } from "@/lib/data";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata = pageMetadata("/");
 
 export default function Home() {
   const worst = loadPath("nvda_worst");

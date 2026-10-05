@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
 import { Suspense } from "react";
 import { AppShell } from "@/components/app/shell";
 import { Review } from "@/components/app/review";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Review your floor" };
+export const metadata = pageMetadata("/app/review", "Review your floor");
 
 export default function ReviewPage() {
   return (

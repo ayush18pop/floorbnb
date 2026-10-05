@@ -1,7 +1,8 @@
 import { DocPage, L } from "@/components/docs/doc-page";
 import { BRAND } from "@/lib/brand";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Known open items" };
+export const metadata = pageMetadata("/docs/open-items", "Known open items");
 
 type Item = [item: string, status: string, note: React.ReactNode];
 

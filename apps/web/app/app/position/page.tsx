@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
 import { Suspense } from "react";
 import { AppShell } from "@/components/app/shell";
 import { PositionScreen } from "@/components/app/position-view";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Position" };
+export const metadata = pageMetadata("/app/position", "Position");
 
 export default function PositionPage() {
   return (

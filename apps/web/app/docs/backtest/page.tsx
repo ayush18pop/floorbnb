@@ -4,8 +4,9 @@ import { DocPage, L } from "@/components/docs/doc-page";
 import { proofData } from "@/lib/docs-data";
 import { BadYearsPanel, BreachTable, CostsPanel, GapsPanel, UpsidePanel, WindowsStat } from "@/components/docs/proof-panels";
 import { BRAND } from "@/lib/brand";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Backtest" };
+export const metadata = pageMetadata("/docs/backtest", "Backtest");
 
 export default function Page() {
   const { bad, upside, breach, ms, worst, w } = proofData();

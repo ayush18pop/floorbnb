@@ -1,8 +1,9 @@
 import { ArrowRight } from "lucide-react";
 import { DocPage, L } from "@/components/docs/doc-page";
 import { BRAND } from "@/lib/brand";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Spot only" };
+export const metadata = pageMetadata("/docs/spot-only", "Spot only");
 
 const nots = [
   { t: "No perps.", b: "No bets on future prices." },

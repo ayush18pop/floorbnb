@@ -3,8 +3,9 @@ import { ArrowRight } from "lucide-react";
 import { DocPage, L } from "@/components/docs/doc-page";
 import { DOCS } from "@/lib/docs-nav";
 import { BRAND } from "@/lib/brand";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Overview" };
+export const metadata = pageMetadata("/docs", "Overview");
 
 export default function DocsHome() {
   return (

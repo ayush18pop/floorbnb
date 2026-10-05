@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
 import { AppShell } from "@/components/app/shell";
 import { EmptyPositions, NotEnoughUsdt, OutsideWindow, PriceCheckFailed, TokenPaused, WrongNetwork } from "@/components/app/states";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "States" };
+export const metadata = pageMetadata("/app/states", "States");
 
 const cells: [string, React.ReactNode][] = [
   ["01 / Wrong network", <WrongNetwork key="a" />],

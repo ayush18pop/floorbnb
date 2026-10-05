@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
 import { AppShell } from "@/components/app/shell";
 import { KeeperLog } from "@/components/app/keeper-log";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Keeper log" };
+export const metadata = pageMetadata("/app/keeper", "Keeper log");
 
 export default function KeeperPage() {
   return (

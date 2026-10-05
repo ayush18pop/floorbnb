@@ -1,8 +1,9 @@
 import { AgentFlow } from "@/components/charts/agent-flow";
 import { Callout, DocPage, L } from "@/components/docs/doc-page";
 import { BRAND } from "@/lib/brand";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Agents" };
+export const metadata = pageMetadata("/docs/agents", "Agents");
 
 const snippet = `// Example only. The endpoint is a placeholder until the server is live.
 POST https://mcp.<domain>/mcp

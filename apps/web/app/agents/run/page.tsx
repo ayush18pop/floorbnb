@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
 import { AppShell } from "@/components/app/shell";
 import { AgentRun } from "@/components/app/agent-run";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Agent run" };
+export const metadata = pageMetadata("/agents/run", "Agent run");
 
 export default function AgentRunPage() {
   return (

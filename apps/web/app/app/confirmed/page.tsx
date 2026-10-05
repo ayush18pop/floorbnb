@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
 import { Suspense } from "react";
 import { AppShell } from "@/components/app/shell";
 import { Confirmed } from "@/components/app/confirmed";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Floor set" };
+export const metadata = pageMetadata("/app/confirmed", "Floor set");
 
 export default function ConfirmedPage() {
   return (
