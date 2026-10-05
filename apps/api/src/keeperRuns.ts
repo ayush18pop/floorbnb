@@ -24,6 +24,7 @@ export interface KeeperRunStore {
 }
 
 export class InMemoryKeeperRunStore implements KeeperRunStore {
+  declare readonly source?: 'chain';
   constructor(private runs: KeeperRun[] = []) {}
   add(r: KeeperRun): void {
     this.runs.push(r);
