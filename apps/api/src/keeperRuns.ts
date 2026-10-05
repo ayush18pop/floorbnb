@@ -17,6 +17,8 @@ export interface KeeperRun {
 export interface KeeperRunStore {
   list(q: { limit: number; vault?: string }): Promise<KeeperRun[]>;
   get(id: string): Promise<KeeperRun | null>;
+  /** 'chain' when the list is read from on-chain events (an empty list is then real). Absent: an in-memory store. */
+  readonly source?: 'chain';
   /** Unix seconds of the newest run or heartbeat; null when none is known. */
   lastHeartbeat(): Promise<number | null>;
 }
@@ -44,43 +46,40 @@ export class InMemoryKeeperRunStore implements KeeperRunStore {
 }
 
 import { readFileSync } from 'node:fs';
-import { parseEventLogs, type Address, type PublicClient } from 'viem';
-import { floorFactoryAbi, floorVaultAbi } from '@floor/sdk';
+import type { Address, PublicClient } from 'viem';
+import { ChainLogReader, type ChainLogReaderOpts } from './chainLogs';
 
 /**
  * Keeper runs read from the chain: one run per vault `Rebalanced` event. The keeper does not write to an API run store yet,
  * so without this `/v1/keeper/runs` (and the MCP `get_rebalance_history` tool) are always empty. Enabled with
- * FLOOR_RUNS_FROM_BLOCK=<deploy block> (a bounded `getLogs` range; public RPCs reject open-ended ranges).
+ * FLOOR_RUNS_FROM_BLOCK=<deploy block>. Logs come from a cached incremental ChainLogReader (chunked RPC, optionally Etherscan),
+ * so no request ever scans an unbounded range.
  * `lastHeartbeat` stays null: an old rebalance does not prove the keeper is down, and a heartbeat needs the keeper to report it.
  */
 export class ChainKeeperRunStore implements KeeperRunStore {
-  constructor(private client: PublicClient, private factory: Address, private fromBlock: bigint) {}
-
-  private async vaults(): Promise<Address[]> {
-    const n = await this.client.readContract({ address: this.factory, abi: floorFactoryAbi, functionName: 'positionsCount' });
-    return Promise.all(
-      Array.from({ length: Number(n) }, (_, i) => this.client.readContract({ address: this.factory, abi: floorFactoryAbi, functionName: 'positions', args: [BigInt(i)] }) as Promise<Address>),
-    );
+  readonly source = 'chain' as const;
+  readonly reader: ChainLogReader;
+  constructor(client: PublicClient, factory: Address, fromBlock: bigint, opts: ChainLogReaderOpts | ChainLogReader = {}) {
+    this.reader = opts instanceof ChainLogReader ? opts : new ChainLogReader(client, factory, fromBlock, opts);
   }
 
   private async all(vault?: string): Promise<KeeperRun[]> {
-    const vaults = vault ? [vault as Address] : await this.vaults();
-    if (!vaults.length) return [];
-    const logs = parseEventLogs({ abi: floorVaultAbi, eventName: 'Rebalanced', logs: await this.client.getLogs({ address: vaults, fromBlock: this.fromBlock, toBlock: 'latest' }) });
-    const times = new Map<bigint, number>();
+    const vaults = vault ? [vault as Address] : await this.reader.vaults();
     const out: KeeperRun[] = [];
-    for (const l of logs) {
-      if (!times.has(l.blockNumber)) times.set(l.blockNumber, Number((await this.client.getBlock({ blockNumber: l.blockNumber })).timestamp));
-      const t = times.get(l.blockNumber)!;
-      out.push({
-        id: `${l.transactionHash}:${l.logIndex}`,
-        vault: l.address,
-        startedAt: t,
-        finishedAt: t,
-        outcome: 'rebalanced',
-        txHash: l.transactionHash,
-        detail: { assetIdx: l.args.assetIdx, buy: l.args.buy, amountIn: l.args.amountIn, amountOut: l.args.amountOut, V: l.args.V, exposureTarget: l.args.exposureTarget, caller: l.args.caller },
-      });
+    for (const v of vaults) {
+      for (const e of await this.reader.activity(v)) {
+        if (e.eventName !== 'Rebalanced') continue;
+        const a = e.args;
+        out.push({
+          id: `${e.txHash}:${e.logIndex}`,
+          vault: v,
+          startedAt: e.timestamp,
+          finishedAt: e.timestamp,
+          outcome: 'rebalanced',
+          txHash: e.txHash,
+          detail: { assetIdx: a.assetIdx, buy: a.buy, amountIn: a.amountIn, amountOut: a.amountOut, V: a.V, exposureTarget: a.exposureTarget, caller: a.caller },
+        });
+      }
     }
     return out.sort((a, b) => b.startedAt - a.startedAt);
   }

@@ -35,6 +35,7 @@ import {
   type Deployment,
   type UnsignedTx,
 } from '@floor/sdk';
+import type { ActivityEvent } from './chainLogs';
 import { InMemoryKeeperRunStore, type KeeperRunStore } from './keeperRuns';
 import { ApiError, RateLimiter, TtlCache, ser } from './util';
 
@@ -51,6 +52,8 @@ export interface AppDeps {
   /** Absent when BW3 keys are not configured: /v1/market then answers 503, never made-up prices. */
   bw3?: { rwaPrice(addresses: string[]): Promise<Record<string, unknown>[]> };
   runs?: KeeperRunStore;
+  /** Decoded vault events (cached, incremental). Absent: /v1/positions/:vault/activity answers 501. */
+  activity?: (vault: Address) => Promise<ActivityEvent[]>;
   /** Unix seconds of the keeper's last scan (read-only). Absent: only the run log is used. Newest of the two wins. */
   keeperHeartbeat?: () => Promise<number | null>;
   /**
@@ -290,12 +293,24 @@ export function createApp(deps: AppDeps): Hono {
     return c.json(ser(p));
   });
 
+  app.get('/v1/positions/:vault/activity', async (c) => {
+    const vault = addr(c.req.param('vault'), 'vault');
+    if (!deps.activity) throw new ApiError(501, 'not_implemented', 'activity is not enabled on this server');
+    if (!(await isKnownVault(vault))) throw new ApiError(404, 'not_found', 'not a Floor position');
+    try {
+      return c.json(ser({ vault, events: await deps.activity(vault) }));
+    } catch (e) {
+      console.error('[api] activity failed', e instanceof Error ? e.message : e);
+      throw new ApiError(502, 'upstream_error', 'could not read chain logs right now');
+    }
+  });
+
   app.get('/v1/keeper/runs', async (c) => {
     const limit = limitSchema.safeParse(c.req.query('limit') ?? '20');
     if (!limit.success) throw new ApiError(400, 'bad_request', 'limit must be 1 to 100');
     const vaultQ = c.req.query('vault');
     const list = await runs.list({ limit: limit.data, vault: vaultQ ? addr(vaultQ, 'vault') : undefined });
-    return c.json(ser({ runs: list }));
+    return c.json(ser({ runs: list, source: runs.source ?? 'memory' }));
   });
 
   app.get('/v1/keeper/runs/:id', async (c) => {

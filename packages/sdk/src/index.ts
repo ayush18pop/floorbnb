@@ -7,3 +7,4 @@ export * from './quote';
 export * from './tx';
 export * from './read';
 export * from './schemas';
+export * from './logs';

@@ -2,11 +2,12 @@ import { erc20Abi, parseAbi, parseEventLogs, type PublicClient } from "viem";
 import { getPublicClient, sendTransaction, waitForTransactionReceipt } from "wagmi/actions";
 import {
   buildCloseToUSDT, buildExitInKind, buildCreatePosition, buildRequestClose, floorFactoryAbi, floorVaultAbi,
-  getDeployment, hasDeployment, readPosition, readPositionsOf, readIsTradingOpen, setDeployment, type UnsignedTx,
+  getDeployment, getLogsChunked, hasDeployment, readPosition, readPositionsOf, readIsTradingOpen, setDeployment, type UnsignedTx,
 } from "@floor/sdk";
-import { API_URL, APP_CHAIN_ID, FACTORY_ADDRESS, LENS_ADDRESS } from "../app-config";
+import { API_URL, APP_CHAIN_ID, DEPLOY_BLOCK, FACTORY_ADDRESS, LENS_ADDRESS } from "../app-config";
 import { wagmiConfig } from "../wagmi";
 import { ASSETS, assetBySymbol, symbolOf } from "./assets";
+import { boundedFrom } from "./log-range";
 import { toKeeperRun, toKeeperStatus, type RebalanceLog } from "./keeper-runs";
 import type {
   Address, AssetSymbol, CreateLimits, CreateParams, CreateProgress, CreateResult, ExitKind, Hex, Holding, KeeperRun, KeeperStatus,
@@ -42,19 +43,90 @@ async function send(tx: UnsignedTx): Promise<Hex> {
   return hash;
 }
 
+const LOAD_KEEPER_ERROR = "Could not load the keeper log. Try again in a moment.";
+const LOAD_ACTIVITY_ERROR = "Could not load the activity. Try again in a moment.";
+
+/** One decoded vault event, from the API or from the chunked RPC fallback. Amounts may be bigint or decimal strings. */
+export type NormEvent = { eventName: string; tx: Hex; blockNumber: bigint; time: number; args: Record<string, unknown> };
+type RawRebalance = { vault: Address; assetIdx: number; buy: boolean; amountIn: bigint; amountOut: bigint; caller: Address; tx: Hex; time: number };
+
+const BLOCK_SECONDS = 0.4; // BSC is under 1 s per block: assuming faster makes the estimated start earlier, which is the safe side
+const MAX_VAULT_SPAN = 500_000n;
+const MAX_RUNS_SPAN = 200_000n;
+const deployBlock = () => (process.env.NEXT_PUBLIC_DEPLOY_BLOCK ? BigInt(process.env.NEXT_PUBLIC_DEPLOY_BLOCK) : BigInt(DEPLOY_BLOCK));
+
+async function apiJson<T>(path: string): Promise<T> {
+  const r = await fetch(`${API_URL}${path}`, { signal: AbortSignal.timeout(15_000) });
+  if (!r.ok) throw new Error(`API ${r.status}`);
+  return (await r.json()) as T;
+}
+
+/** A vault's events: the API first (it caches and scans only new blocks); the chunked RPC only when the API cannot be reached. */
+async function activityFor(vault: Address): Promise<NormEvent[]> {
+  if (API_URL) {
+    try {
+      const j = await apiJson<{ events: { eventName: string; txHash: Hex; blockNumber: string; timestamp: number; args: Record<string, unknown> }[] }>(`/v1/positions/${vault}/activity`);
+      return j.events.map((e) => ({ eventName: e.eventName, tx: e.txHash, blockNumber: BigInt(e.blockNumber), time: e.timestamp, args: e.args }));
+    } catch (e) {
+      console.warn("[floor] activity API unavailable, reading the chain directly", e);
+    }
+  }
+  const c = client();
+  const head = await c.getBlockNumber();
+  const start = await c.readContract({ address: vault, abi: floorVaultAbi, functionName: "start" }).then(Number).catch(() => null);
+  const age = start ? Math.max(0, Math.floor(Date.now() / 1000) - start) : null;
+  const estimate = age === null ? undefined : head - BigInt(Math.ceil(age / BLOCK_SECONDS)) - 5_000n;
+  const from = boundedFrom(head, deployBlock(), MAX_VAULT_SPAN, estimate);
+  const logs = parseEventLogs({ abi: floorVaultAbi, logs: await getLogsChunked<never>(c, { address: vault, fromBlock: from, toBlock: head }) });
+  const times = new Map<bigint, number>();
+  const out: NormEvent[] = [];
+  for (const l of logs) {
+    let t = times.get(l.blockNumber);
+    if (t === undefined) { t = Number((await c.getBlock({ blockNumber: l.blockNumber })).timestamp); times.set(l.blockNumber, t); }
+    out.push({ eventName: l.eventName, tx: l.transactionHash, blockNumber: l.blockNumber, time: t, args: l.args as Record<string, unknown> });
+  }
+  return out;
+}
+
+/** Rebalanced events of all vaults: API run log when it is chain backed, else a bounded chunked RPC scan. */
+async function rebalanceEvents(c: PublicClient, vaults: Address[]): Promise<RawRebalance[]> {
+  if (API_URL) {
+    try {
+      const j = await apiJson<{ source?: string; runs: { vault: Address | null; startedAt: number; txHash: Hex | null; detail: Record<string, unknown> | null }[] }>("/v1/keeper/runs?limit=100");
+      if (j.source === "chain") {
+        return j.runs.filter((r) => r.vault && r.txHash && r.detail).map((r) => ({
+          vault: r.vault as Address, assetIdx: Number(r.detail!.assetIdx), buy: Boolean(r.detail!.buy), amountIn: BigInt(r.detail!.amountIn as string),
+          amountOut: BigInt(r.detail!.amountOut as string), caller: r.detail!.caller as Address, tx: r.txHash as Hex, time: r.startedAt,
+        }));
+      }
+    } catch (e) {
+      console.warn("[floor] keeper API unavailable, reading the chain directly", e);
+    }
+  }
+  const head = await c.getBlockNumber();
+  const from = boundedFrom(head, deployBlock(), MAX_RUNS_SPAN);
+  const logs = parseEventLogs({ abi: floorVaultAbi, eventName: "Rebalanced", logs: await getLogsChunked<never>(c, { address: vaults, fromBlock: from, toBlock: head }) });
+  const times = new Map<bigint, number>();
+  const out: RawRebalance[] = [];
+  for (const l of logs) {
+    if (!times.has(l.blockNumber)) times.set(l.blockNumber, Number((await c.getBlock({ blockNumber: l.blockNumber })).timestamp));
+    out.push({ vault: l.address, assetIdx: Number(l.args.assetIdx), buy: l.args.buy, amountIn: l.args.amountIn, amountOut: l.args.amountOut, caller: l.args.caller, tx: l.transactionHash, time: times.get(l.blockNumber)! });
+  }
+  return out;
+}
+
 /**
  * What a closed vault paid out. Close to USDT: the Closed event's usdtOut. Exit in kind: the USDT plus each token sent (ERC-20 Transfers
  * out of the vault in the same transaction), each valued at the vault's 10-minute average price one block before the exit.
  */
 async function readExit(c: PublicClient, vault: Address, tokens: readonly Address[]): Promise<ExitSummary | null> {
-  const from = process.env.NEXT_PUBLIC_DEPLOY_BLOCK ? BigInt(process.env.NEXT_PUBLIC_DEPLOY_BLOCK) : 0n;
-  const logs = parseEventLogs({ abi: floorVaultAbi, logs: await c.getLogs({ address: vault, fromBlock: from, toBlock: "latest" }).catch(() => []) });
-  const e = logs.find((l) => l.eventName === "Closed" || l.eventName === "ExitInKind");
+  const logs = (await activityFor(vault).catch(() => [])).filter((l) => l.eventName === "Closed" || l.eventName === "ExitInKind");
+  const e = logs[0];
   if (!e) return null;
-  const usdtOut = (e.args as { usdtOut: bigint }).usdtOut;
-  const time = Number((await c.getBlock({ blockNumber: e.blockNumber })).timestamp);
-  if (e.eventName === "Closed") return { kind: "closeToUSDT", time, tx: e.transactionHash, usdtOut, tokens: [], total: usdtOut };
-  const rc = await c.getTransactionReceipt({ hash: e.transactionHash });
+  const usdtOut = BigInt(e.args.usdtOut as bigint | string);
+  const time = e.time;
+  if (e.eventName === "Closed") return { kind: "closeToUSDT", time, tx: e.tx, usdtOut, tokens: [], total: usdtOut };
+  const rc = await c.getTransactionReceipt({ hash: e.tx });
   const sent = parseEventLogs({ abi: erc20Abi, eventName: "Transfer", logs: rc.logs }).filter((t) => t.args.from.toLowerCase() === vault.toLowerCase());
   const val = await c.readContract({ address: vault, abi: floorVaultAbi, functionName: "valuation", blockNumber: e.blockNumber - 1n } as never).catch(() => null) as readonly [bigint, bigint, readonly bigint[]] | null;
   const out: ExitSummary["tokens"] = [];
@@ -62,7 +134,7 @@ async function readExit(c: PublicClient, vault: Address, tokens: readonly Addres
     const amount = sent.filter((x) => x.address.toLowerCase() === t.toLowerCase()).reduce((a, x) => a + x.args.value, 0n);
     if (amount > 0n) out.push({ symbol: (symbolOf(t) ?? "NVDAB") as AssetSymbol, amount, value: val ? val[2][i] : 0n });
   });
-  return { kind: "exitInKind", time, tx: e.transactionHash, usdtOut, tokens: out, total: usdtOut + out.reduce((a, x) => a + x.value, 0n) };
+  return { kind: "exitInKind", time, tx: e.tx, usdtOut, tokens: out, total: usdtOut + out.reduce((a, x) => a + x.value, 0n) };
 }
 
 async function load(vault: Address): Promise<PositionView | null> {
@@ -97,32 +169,32 @@ async function load(vault: Address): Promise<PositionView | null> {
 }
 
 async function events(vault: Address): Promise<VaultEvent[]> {
-  const from = process.env.NEXT_PUBLIC_DEPLOY_BLOCK;
-  if (!from) throw new Error("Set NEXT_PUBLIC_DEPLOY_BLOCK to read activity.");
-  const c = client();
-  const logs = await c.getLogs({ address: vault, fromBlock: BigInt(from), toBlock: "latest" });
-  const parsed = parseEventLogs({ abi: floorVaultAbi, logs });
-  const blocks = new Map<bigint, number>();
-  const keepers = await keeperSet(parsed.filter((l) => l.eventName === "Rebalanced").map((l) => (l.args as { caller: Address }).caller));
+  let parsed: NormEvent[];
+  try {
+    parsed = await activityFor(vault);
+  } catch (e) {
+    console.error("[floor] could not load activity", e);
+    throw new Error(LOAD_ACTIVITY_ERROR);
+  }
+  const keepers = await keeperSet(parsed.filter((l) => l.eventName === "Rebalanced").map((l) => l.args.caller as Address));
   const out: VaultEvent[] = [];
   let n = 0;
   const pos = parsed.some((l) => l.eventName === "Rebalanced" || l.eventName === "ExitInKind") ? await load(vault) : null; // once, not per event (this runs on every refresh)
   for (const l of parsed) {
-    let t = blocks.get(l.blockNumber);
-    if (t === undefined) { t = Number((await c.getBlock({ blockNumber: l.blockNumber })).timestamp); blocks.set(l.blockNumber, t); }
-    const tx = l.transactionHash;
+    const t = l.time;
+    const tx = l.tx;
     const a = l.args as Record<string, unknown>;
     switch (l.eventName) {
       case "Rebalanced": {
         const idx = Number(a.assetIdx);
         const symbol = (pos?.holdings[idx]?.symbol ?? "NVDAB") as AssetSymbol;
-        out.push({ type: "Rebalanced", time: t, tx, id: ++n, symbol, buy: Boolean(a.buy), amountIn: a.amountIn as bigint, amountOut: a.amountOut as bigint, V: a.V as bigint, exposureTarget: a.exposureTarget as bigint, caller: a.caller as Address, signer: (keepers.has((a.caller as Address).toLowerCase()) ? "keeper" : "public") as SignerKind });
+        out.push({ type: "Rebalanced", time: t, tx, id: ++n, symbol, buy: Boolean(a.buy), amountIn: BigInt(a.amountIn as bigint), amountOut: BigInt(a.amountOut as bigint), V: BigInt(a.V as bigint), exposureTarget: BigInt(a.exposureTarget as bigint), caller: a.caller as Address, signer: (keepers.has((a.caller as Address).toLowerCase()) ? "keeper" : "public") as SignerKind });
         break;
       }
       case "CloseRequested": out.push({ type: "CloseRequested", time: t, tx }); break;
-      case "Closed": out.push({ type: "Closed", time: t, tx, usdtOut: a.usdtOut as bigint }); break;
-      case "ExitInKind": out.push({ type: "ExitInKind", time: t, tx, usdtOut: a.usdtOut as bigint, skipped: [...(a.skipped as Address[])], tokens: pos?.exit?.tx === tx ? pos.exit.tokens : undefined }); break;
-      case "Initialized": out.push({ type: "PositionCreated", time: t, tx, deposit: a.deposit as bigint, floor: a.floor as bigint, maturity: Number(a.maturity), assets: [] }); break;
+      case "Closed": out.push({ type: "Closed", time: t, tx, usdtOut: BigInt(a.usdtOut as bigint) }); break;
+      case "ExitInKind": out.push({ type: "ExitInKind", time: t, tx, usdtOut: BigInt(a.usdtOut as bigint), skipped: [...(a.skipped as Address[])], tokens: pos?.exit?.tx === tx ? pos.exit.tokens : undefined }); break;
+      case "Initialized": out.push({ type: "PositionCreated", time: t, tx, deposit: BigInt(a.deposit as bigint), floor: BigInt(a.floor as bigint), maturity: Number(a.maturity), assets: [] }); break;
     }
   }
   return out.sort((x, y) => y.time - x.time);
@@ -139,16 +211,14 @@ async function rebalanceLogs(): Promise<RebalanceLog[]> {
   const n = total === null ? 0n : total;
   for (let i = 0n; i < n; i++) vaults.push(await c.readContract({ address: d.factory, abi: floorFactoryAbi, functionName: "positions", args: [i] }) as Address);
   if (!vaults.length) return [];
-  const from = process.env.NEXT_PUBLIC_DEPLOY_BLOCK ? BigInt(process.env.NEXT_PUBLIC_DEPLOY_BLOCK) : 0n;
-  const logs = parseEventLogs({ abi: floorVaultAbi, eventName: "Rebalanced", logs: await c.getLogs({ address: vaults, fromBlock: from, toBlock: "latest" }) });
+  const raw = await rebalanceEvents(c, vaults);
   const tokens = new Map<string, Address[]>();
-  const times = new Map<bigint, number>();
   const out: RebalanceLog[] = [];
-  for (const l of logs) {
-    if (!tokens.has(l.address)) tokens.set(l.address, (await readPosition(c, d.lens, l.address)).assets.map((a) => a.token));
-    if (!times.has(l.blockNumber)) times.set(l.blockNumber, Number((await c.getBlock({ blockNumber: l.blockNumber })).timestamp));
-    const tok = tokens.get(l.address)![Number(l.args.assetIdx)];
-    out.push({ vault: l.address, symbol: (symbolOf(tok) ?? "NVDAB") as AssetSymbol, buy: l.args.buy, amountIn: l.args.amountIn, amountOut: l.args.amountOut, caller: l.args.caller, tx: l.transactionHash, time: times.get(l.blockNumber)! });
+  for (const l of raw) {
+    const key = l.vault.toLowerCase();
+    if (!tokens.has(key)) tokens.set(key, (await readPosition(c, d.lens, l.vault)).assets.map((a) => a.token));
+    const tok = tokens.get(key)![l.assetIdx];
+    out.push({ vault: l.vault, symbol: (symbolOf(tok) ?? "NVDAB") as AssetSymbol, buy: l.buy, amountIn: l.amountIn, amountOut: l.amountOut, caller: l.caller, tx: l.tx, time: l.time });
   }
   return out;
 }
@@ -159,7 +229,13 @@ async function keeperSet(callers: Address[]): Promise<Set<string>> {
   return new Set(uniq.filter((_, i) => flags[i]));
 }
 async function chainKeeperRuns(): Promise<KeeperRun[]> {
-  const logs = await rebalanceLogs();
+  let logs: RebalanceLog[];
+  try {
+    logs = await rebalanceLogs();
+  } catch (e) {
+    console.error("[floor] could not load the keeper log", e);
+    throw new Error(LOAD_KEEPER_ERROR);
+  }
   const keepers = await keeperSet(logs.map((l) => l.caller));
   return logs.map((l) => toKeeperRun(l, keepers)).sort((a, b) => b.time - a.time);
 }

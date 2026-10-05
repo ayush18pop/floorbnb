@@ -133,6 +133,15 @@ describe('reads', () => {
     expect((await app.request('/v1/positions?owner=nope')).status).toBe(400);
   });
 
+  it('activity serialises bigints as strings, 404 for unknown vaults, 501 when off', async () => {
+    const ev = { eventName: 'Closed', txHash: '0xabc', blockNumber: 7n, logIndex: 1, timestamp: 5, args: { usdtOut: 9n } };
+    const on = mk({ activity: async () => [ev as never] }).app;
+    const j = await (await on.request(`/v1/positions/${VAULT}/activity`)).json();
+    expect(j.events[0]).toMatchObject({ eventName: 'Closed', blockNumber: '7', args: { usdtOut: '9' } });
+    expect((await on.request(`/v1/positions/${FAKE}/activity`)).status).toBe(404);
+    expect((await mk().app.request(`/v1/positions/${VAULT}/activity`)).status).toBe(501);
+  });
+
   it('keeper runs list, filter and get', async () => {
     const { app, runs } = mk();
     runs.add({ id: 'a', vault: VAULT, startedAt: 10, finishedAt: 11, outcome: 'rebalanced', txHash: '0xabc', detail: { n: 1n as unknown as number } });

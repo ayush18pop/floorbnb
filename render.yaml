@@ -28,6 +28,7 @@ services:
       - { key: WEB_ORIGIN, value: "https://floor.ayush.works,https://floorbnb.vercel.app" }   # CORS; add your final domain, comma separated
       - { key: BW3_API_KEY, sync: false }
       - { key: BW3_API_SECRET, sync: false }
+      - { key: ETHERSCAN_API_KEY, sync: false }      # optional: Etherscan v2 key; logs are read through it first, chunked RPC is the fallback
       - { key: FLOOR_RUNS_FROM_BLOCK, sync: false }  # block of the factory deploy; serves the keeper log from on-chain events
       # --- MCP (agents, x402-paid tools). API_BASE_URL is not needed: it defaults to this same process ---
       - { key: MCP_PUBLIC_URL, value: "https://floor-server.onrender.com/mcp" }   # change if the service name differs
