@@ -1,4 +1,4 @@
-import { decodeEventLog, getAddress, type Abi, type Address, type Hex, type Log, type PublicClient } from 'viem';
+import { createPublicClient, decodeEventLog, getAddress, http, type Abi, type Address, type Hex, type Log, type PublicClient } from 'viem';
 import { floorFactoryAbi, floorVaultAbi, getLogsChunked } from '@floor/sdk';
 
 /** A raw log with the fields the readers need. */
@@ -20,8 +20,10 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
  */
 export function etherscanProvider(apiKey: string, fetchFn: typeof fetch = fetch, minGapMs = 250): LogProvider {
   let last = 0;
+  let unsupported = false; // the free Etherscan plan does not cover BSC: stop calling it after the first such answer
   const PAGE = 1000;
   return async (address, from, to) => {
+    if (unsupported) throw new Error('etherscan disabled: plan does not cover this chain');
     const out: RawLog[] = [];
     for (let page = 1; ; page++) {
       const wait = last + minGapMs - Date.now();
@@ -38,6 +40,7 @@ export function etherscanProvider(apiKey: string, fetchFn: typeof fetch = fetch,
       }
       if (body.status !== '1') {
         if (/no records found/i.test(String(body.message))) break;
+        if (/free api access|upgrade your api plan/i.test(String(body.result))) unsupported = true;
         throw new Error(`etherscan error: ${String(body.message ?? 'unknown')} ${typeof body.result === 'string' ? body.result.replaceAll(apiKey, '***') : ''}`.trim());
       }
       const rows = Array.isArray(body.result) ? (body.result as Record<string, string | string[]>[]) : [];
@@ -178,11 +181,22 @@ export class ChainLogReader {
 }
 
 /**
- * The reader both servers use. ETHERSCAN_API_KEY (env only, never logged) makes Etherscan v2 the primary log source,
- * with the chunked RPC as the fallback. `fromBlock` is the factory deploy block (FLOOR_RUNS_FROM_BLOCK).
+ * Public RPCs that accept eth_getLogs over wide ranges (up to 5,000 blocks per call; the chunked reader halves on
+ * rejection anyway). The main RPC (FLOOR_RPC_URL, often a free Alchemy plan) only allows 10-block ranges and rate-limits,
+ * and bsc-dataseed refuses getLogs entirely, so logs use their own endpoints. Override with LOGS_RPC_URL (comma separated).
+ */
+export const DEFAULT_LOGS_RPCS = ['https://rpc-bsc.48.club', 'https://bsc.rpc.blxrbdn.com'];
+
+/**
+ * The reader both servers use. Log sources, in order: Etherscan v2 if ETHERSCAN_API_KEY is set and its plan covers BSC
+ * (the key is env only and never logged), then the log RPCs above one after another. `fromBlock` is the factory deploy
+ * block (FLOOR_RUNS_FROM_BLOCK).
  */
 export function chainLogReaderFromEnv(client: PublicClient, factory: Address, fromBlock: bigint, env: Record<string, string | undefined>): ChainLogReader {
+  const urls = (env.LOGS_RPC_URL ?? '').split(',').map((u) => u.trim()).filter(Boolean);
+  const rpcs = (urls.length ? urls : DEFAULT_LOGS_RPCS).map((u) => rpcProvider(createPublicClient({ transport: http(u, { timeout: 20_000 }) }) as PublicClient));
+  let provider: LogProvider = rpcs.reduceRight((fb, p) => withFallback(p, fb));
   const key = env.ETHERSCAN_API_KEY?.trim();
-  const provider = key ? withFallback(etherscanProvider(key), rpcProvider(client)) : undefined;
-  return new ChainLogReader(client, factory, fromBlock, provider ? { provider } : {});
+  if (key) provider = withFallback(etherscanProvider(key), provider);
+  return new ChainLogReader(client, factory, fromBlock, { provider });
 }
