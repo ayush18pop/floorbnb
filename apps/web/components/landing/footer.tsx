@@ -4,9 +4,9 @@ import { BRAND } from "@/lib/brand";
 
 /* ---------- footer ---------- */
 const cols: { h: string; links: [string, string][] }[] = [
-  { h: "Product", links: [["How it works", "/docs/how-it-works"], ["Trade-off", "/docs/trade-off"], ["Backtest", "/docs/backtest"], ["Evidence", "/docs/evidence"], ["Prototype", "/app"]] },
+  { h: "Product", links: [["How it works", "/docs/how-it-works"], ["Trade-off", "/docs/trade-off"], ["Backtest", "/docs/backtest"], ["Evidence", "/docs/evidence"], ["App", "/app"]] },
   { h: "Docs", links: [["Overview", "/docs"], ["Agents", "/docs/agents"], ["Contracts", "/docs/contracts"], ["FAQ", "/docs/faq"]] },
-  { h: "Code", links: [["Contracts on BscScan (soon)", "#"], ["GitHub (soon)", "#"], ["Backtest scripts (soon)", "#"]] },
+  { h: "Code", links: [["Contracts on BscScan", "https://bscscan.com/address/0x1147d482fD08DDd7F377838efb610B606B3Ad765"], ["GitHub", "https://github.com/ayush18pop/floorbnb"], ["Backtest scripts", "https://github.com/ayush18pop/floorbnb/tree/main/research/m_study"]] },
   { h: "Legal", links: [["Risks", "/docs/risks"], ["Terms (soon)", "#"], ["Privacy (soon)", "#"]] },
 ];
 export function Footer() {

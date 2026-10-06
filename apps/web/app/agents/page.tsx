@@ -77,7 +77,7 @@ export default function AgentsPage() {
     </div>
   );
   return (
-    <AppShell active="agents" eyebrow="For agents · building" title={`Use ${BRAND.name} from any agent.`} example={false}>
+    <AppShell active="agents" eyebrow="For agents · live on mainnet" title={`Use ${BRAND.name} from any agent.`} example={false}>
       <div className="fill flex flex-col">
         <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1 border-b border-grid px-4 py-2 md:px-6">
           <p className="body !max-w-none">{BRAND.name}&apos;s actions are MCP tools. The agent&apos;s own wallet signs; {BRAND.name} never signs for users.</p>
