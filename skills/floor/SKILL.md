@@ -84,7 +84,7 @@ Plain-language template: "Your position is worth X USDT. The floor is Y USDT, so
 - Spot only: no perps, no options, no leverage, no borrowing.
 - The audit is "AI-assisted audit by Pashov Audit Group skills, not a formal audit." Never shorten to "audited".
 - Launch caps: 1,000 USDT per position, 5,000 USDT total. If `get_floor_info` shows different caps, use those.
-- BSC mainnet (chain 56) only after launch. Before launch, check `state` from `get_floor_info`; if the deployment is not live, say it is not live and do not build transactions for other networks.
+- Floor is live on BSC mainnet (chain 56) only. Check `state` from `get_floor_info` first; if it does not report a live deployment, say so and do not build transactions for other networks.
 - Prices for paid tools are proposals.
 
 ## Refusal checklist
