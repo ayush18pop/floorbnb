@@ -34,7 +34,7 @@ export default function Page() {
 
       <h2 id="exits">Exits</h2>
       <p>You can always leave. <code>exitInKind</code> is always allowed and sends you your USDT and any tokens that can still move, with no keeper, no factory and no market hours. It skips a token the issuer has paused. Or you can request a close, and the vault swaps everything to USDT and sends it to you. See <L href="/docs/risks">Risks</L> for issuer pause and blocklist cases.</p>
-      <p>{BRAND.name} supports bStocks only in v1: NVDAB, SPCXB and QQQB, with SPYB optional. Next: <L href="/docs/risks">Risks</L>.</p>
+      <p>{BRAND.name} supports bStocks only in v1: NVDAB, SPCXB and QQQB. Next: <L href="/docs/risks">Risks</L>.</p>
     </DocPage>
   );
 }

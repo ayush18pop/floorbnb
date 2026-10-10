@@ -8,7 +8,7 @@ const STEPS = [
   ["02", "Quote", "It asks for a 90% floor on 500 USDT."],
   ["03", "Pay", "Floor answers 402. The agent pays with x402."],
   ["04", "Build", "build_create_position_tx returns two unsigned transactions."],
-  ["05", "Sign", "The user's own Agentic Wallet signs both."],
+  ["05", "Sign", "The user's own wallet signs both (Agentic Wallet via Developer Mode: documented, not run live yet)."],
   ["06", "Done", "A new vault exists on BNB Chain."],
 ] as const;
 
