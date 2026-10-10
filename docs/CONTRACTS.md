@@ -128,7 +128,7 @@ now. The pool moves. Use a live number at deploy.)
 | SPCXB | 0.05% | `0x626301d37c135a6f368aDC6a12FE1462B14ef03a` | 4.8e21 | 4000 | ~$30k |
 | **QQQB** | 0.01% | `0xe531fcb1F5a195de7608B9F4f9518544C2cdB693` | 6.0e23 | 5000 | ~$1.1M |
 | QQQB | 0.05% | `0x7C84F9943Ec82cf2233c97A7Ee417f18bD2eC295` | 8.4e21 | 150 | ~$20k |
-| SPYB (optional) | 0.01% | `0x7aA6d92Fc369A8C1EDc631A3aAc44eFB0808ddbF` | 6.1e23 | 500 | ~$0.25M |
+| SPYB (not enabled in Floor; web and API do not offer it) | 0.01% | `0x7aA6d92Fc369A8C1EDc631A3aAc44eFB0808ddbF` | 6.1e23 | 500 | ~$0.25M |
 
 Reproduce: `cast call 0x0BFb...1865 "getPool(address,address,uint24)(address)" <token> <USDT> <fee>`, then
 `cast call <pool> "liquidity()(uint128)"` and `"slot0()(uint160,int24,uint16,uint16,uint16,uint32,bool)"`.

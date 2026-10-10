@@ -53,3 +53,18 @@ Caps 1,000 and 5,000 USDT (`FloorFactory.sol` 44 to 45, `56.json`); `setLimits` 
 - The `_reportClosed` gas claim rejected in the audit gate (reasoned by four agents, not tested).
 - The holiday list against nyse.com (no network use in this pass).
 - The deployed state of Vercel, Render and the `.well-known` file.
+
+## Resolved 2026-10-10 (W7, branch of `dev` at c5dcc66)
+
+Docs only; no code, `dx/**` or images touched.
+
+| Item | Resolution |
+|---|---|
+| Stale X-Tesla / RSA / merchant `clientId` lines in `docs/ARCHITECTURE.md` (risk 4 at line 16, the `B402FacilitatorClient` "RSA signing" sentence, the "merchant account" fallback heading) | Marked superseded or corrected to HMAC with a Web3 API key (B402 Payments permission). The fallback heading now states that the self facilitator is what runs. Dated working logs (mismatch 10) were left as written. |
+| `README.md` b402 wording | Checked: already says no merchant application, HMAC key, `supported`/`verify` live 2026-10-05, `settle` not run. Added the b402 row to the new Binance table and the known-limits entry with the date. |
+| Cost claim in README "Backtest evidence" | Was: aggregator quotes first (0.7 to 6.0 bps at $10k), direct 49 bps for NVDAB only. Now: live route is direct PancakeSwap v3, about 49 bps NVDAB and SPCXB and about 1 bp QQQB at 100 USDT on a fork 2026-10-02; aggregator numbers labelled a best case, not the live route. Same correction added to `docs/RESEARCH_RESULTS.md`. |
+| SPYB shown as usable or optional | `docs/RESEARCH_RESULTS.md` and `docs/CONTRACTS.md` now say SPYB is not enabled in Floor (matches `apps/web/lib/adapters/assets.ts`). |
+| Keeper description | README Keeper section and config table, and `docs/DEPLOY_RENDER.md`, now cover the Binance price guard, gas price and shadow simulation with `KEEPER_BW3_PRICE_GUARD_BPS`, `KEEPER_BW3_GAS`, `KEEPER_BW3_SHADOW_SIM`; BW3 keys noted as used by the keeper too. |
+| New | README "For judges" and "Binance Web3 integration" sections; known-limits additions (Render sleep, Agentic Wallet not executed, Binance checks advisory, cost measured on a fork only). |
+
+Still open from the 2026-10-05 list: mismatches 1 to 9 and 11 to 12 (not in scope of W7). The test counts in the README "For judges" section are the 2026-10-10 counts supplied by the team lead, not re-run here.
