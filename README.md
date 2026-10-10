@@ -458,7 +458,7 @@ pnpm typecheck
 pnpm test           # pnpm -r test (vitest)
 ```
 
-Test counts (run 2026-10-06 on `main`): contracts 270 Foundry tests (269 passed, 1 invariant replay failed: `invariant_keeperHandlerNoViolations`); TypeScript 622 vitest tests passed (web 155, sdk 310, x402 32, api 33, mcp 25, keeper 39 of 40, bw3 19, onebox 8, db 1) plus 4 skipped (fork or RPC needed) and 1 failed in `apps/keeper`. Fork tests need a BSC RPC.
+Test counts (run 2026-10-10 on `dev`): TypeScript 686 vitest tests passed, 9 skipped (fork or RPC needed), 0 failed (web 164, sdk 310, keeper 59, api 42, x402 32, bw3 32, mcp 27, onebox 11, local 8, db 1). Contracts: `forge test --offline` 270 passed, 0 failed, 2 skipped. An earlier run on 2026-10-06 had one invariant failure (`invariant_keeperHandlerNoViolations`) that did not reproduce on 2026-10-10. Fork tests need a BSC RPC.
 
 Contracts:
 
