@@ -23,12 +23,15 @@ POST https://floor-server-wb4i.onrender.com/mcp
 // First reply: HTTP 402 with the price.
 // Sign it with your wallet, retry, get the quote.`;
 
+const agenticSnippet = `baw contract-call preview --binanceChainId 56 --from <agent wallet> --to <to> --value <wei> --inputData <data> --json
+baw contract-call execute --requestId <id> --json`;
+
 export default function Page() {
   return (
     <DocPage
       slug="agents"
       lead={<p>More money is now managed by AI agents. {BRAND.name} lets an agent buy protection for the person it works for.</p>}
-      toc={[["flow", "How an agent uses Floor"], ["keeper", "Keeper"], ["mcp", "MCP server"], ["pay", "Pay per call with x402"], ["skill", "Agent skill"]]}
+      toc={[["flow", "How an agent uses Floor"], ["keeper", "Keeper"], ["mcp", "MCP server"], ["pay", "Pay per call with x402"], ["skill", "Agent skill"], ["agentic-wallet", "With Binance Agentic Wallet"]]}
     >
       <h2 id="flow" style={{ marginTop: 0 }}>How an agent uses {BRAND.name}</h2>
       <div className="block border border-grid bg-surface p-4 md:p-6">
@@ -59,6 +62,11 @@ export default function Page() {
 
       <h2 id="skill">Agent skill <span className="badge align-middle">in the repo</span></h2>
       <p>A {BRAND.name} skill so a user&apos;s own agent can deposit and withdraw with the user&apos;s own wallet. It tells the agent to read the factory address from get_floor_info and check every unsigned transaction against it before signing.</p>
+      <h2 id="agentic-wallet">With Binance Agentic Wallet <span className="badge align-middle">documented, not run live</span></h2>
+      <p>An AI agent can use {BRAND.name} by calling the MCP tools build_create_position_tx and build_exit_tx, which return unsigned transactions, and executing them with Binance Agentic Wallet Developer Mode:</p>
+      <pre className="code" tabIndex={0} aria-label="Agentic Wallet Developer Mode commands">{agenticSnippet}</pre>
+      <p>Developer Mode is enabled in the Binance app and has its own daily limit and expiry. It does not support x402 payments, so paid {BRAND.name} tools need a different payer. A browser page cannot connect an Agentic Wallet, which is why the {BRAND.name} app does not offer it as a connect option. This flow follows Binance&apos;s <a href="https://web3.binance.com/en/dev-docs/products/agentic-wallet/use-cases/developer-mode.md" className="prose-link">Developer Mode guide</a>; we have not run it live yet. Install the Binance skill with <code>npx skills add binance/binance-skills-hub/skills/binance-web3/binance-agentic-wallet</code>. See also <L href="/docs/binance">Binance</L>.</p>
+
       <p>Next: <L href="/docs/contracts">Contracts</L>.</p>
     </DocPage>
   );

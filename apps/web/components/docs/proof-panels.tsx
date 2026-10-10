@@ -14,11 +14,12 @@ const GAPS = [
   { name: "QQQ", value: 9.5 },
 ];
 
+/** Aggregator quotes, 2026-10-02. SPYB is not enabled in Floor; kept as a historical comparison row. */
 const COSTS = [
   { t: "QQQB", k1: "~0", k10: "0.7", k50: "no quote" },
   { t: "NVDAB", k1: "2.8", k10: "5.9", k50: "10.1" },
   { t: "SPCXB", k1: "3.1", k10: "6.0", k50: "7.7" },
-  { t: "SPYB", k1: "1.1", k10: "6.6", k50: "13.6" },
+  { t: "SPYB (not enabled in Floor)", k1: "1.1", k10: "6.6", k50: "13.6" },
 ];
 
 export function WindowsStat() {
@@ -92,16 +93,16 @@ export function BreachTable({ breach, ms }: { breach: BreachRow[]; ms: number[] 
 
 export function CostsPanel() {
   return (
-    <ChartPanel fig="FIG. 09 / WHAT EACH REBALANCE COSTS" title="Round trip, basis points" caption={null} source="Live aggregator quotes, Thu 2026-10-02 12:06 UTC (US pre-market)" note="1 bp = 0.01%. Weekend and crash-time costs are not yet measured.">
+    <ChartPanel fig="FIG. 09 / WHAT EACH REBALANCE COSTS" title="Round trip, basis points" caption={null} source="Binance aggregator quotes, Thu 2026-10-02 12:06 UTC (US pre-market). Best case: the aggregator is built and fork-tested, not the live route." note="1 bp = 0.01%. The live route is direct PancakeSwap v3, measured on a fork at 100 USDT on 2026-10-02: NVDAB 49 bps, SPCXB 49 bps, QQQB 1 bp. Direct cost at $10k, weekend cost and crash-time cost are not measured.">
             <div className="grid gap-6 lg:grid-cols-12">
               <div className="lg:col-span-5">
                 <SingleBars rows={[
                   { name: "QQQB", value: 0.7, kind: "vault", text: "0.7 bps" },
                   { name: "NVDAB", value: 5.9, kind: "vault", text: "5.9 bps" },
                   { name: "SPCXB", value: 6.0, kind: "vault", text: "6.0 bps" },
-                  { name: "SPYB", value: 6.6, kind: "vault", text: "6.6 bps" },
+                  { name: "SPYB (not enabled)", value: 6.6, kind: "vault", text: "6.6 bps" },
                 ]} max={8} />
-                <p className="label mt-4" style={{ textTransform: "none", letterSpacing: "0.02em" }}>$10k round trip.</p>
+                <p className="label mt-4" style={{ textTransform: "none", letterSpacing: "0.02em" }}>$10k round trip, aggregator quotes (not the live route).</p>
               </div>
               <div className="tbl-wrap lg:col-span-7">
                 <table className="tbl">

@@ -26,7 +26,7 @@ const tx = (s: string) => `0x${hex(`tx${s}`, 64)}` as Hex;
 const addr = (prefix: string, s: string) => `0x${prefix}${hex(`a${s}`, 40 - prefix.length)}` as Address;
 
 /** Example prices in USDT per token. Invented. */
-const PX: Record<AssetSymbol, number> = { NVDAB: 200, SPCXB: 100, QQQB: 500, SPYB: 650 };
+const PX: Record<AssetSymbol, number> = { NVDAB: 200, SPCXB: 100, QQQB: 500 };
 const utc = (s: string) => Math.floor(Date.parse(s + "Z") / 1000);
 const YEAR = 365 * 86_400;
 

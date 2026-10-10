@@ -29,7 +29,7 @@ describe("episodes", () => {
     }
   });
   it("floor holds in the COVID crash for the basket at 90%", () => {
-    const run = runEpisode(TRY_ASSETS[3].symbols, 90, EPISODES[0])!;
+    const run = runEpisode(TRY_ASSETS.find((a) => a.id === "basket")!.symbols, 90, EPISODES[0])!;
     expect(run.vaultPct).toBeGreaterThan(run.holdPct);
   });
 });

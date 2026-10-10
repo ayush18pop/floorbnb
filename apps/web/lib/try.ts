@@ -6,12 +6,11 @@ import { SERIES, basketReturns, buildChart, simulate, stepsForDays, type ChartRu
 import type { PathPoint } from "@/lib/data";
 
 export type TryAsset = { id: string; label: string; symbols: string[] };
-/** SPCXB is not offered: it has no price history. */
+/** SPCXB has no price history, so it is not here. SPYB has history in data/closes.json but is not enabled in Floor, so it is not offered. */
 export const TRY_ASSETS: readonly TryAsset[] = [
   { id: "nvda", label: "NVDA", symbols: ["NVDAB"] },
   { id: "qqq", label: "QQQ", symbols: ["QQQB"] },
-  { id: "spy", label: "SPY", symbols: ["SPYB"] },
-  { id: "basket", label: "All three", symbols: ["NVDAB", "QQQB", "SPYB"] },
+  { id: "basket", label: "NVDA + QQQ", symbols: ["NVDAB", "QQQB"] },
 ];
 
 export type Episode = { id: string; label: string; from: string; to: string; blurb: string };

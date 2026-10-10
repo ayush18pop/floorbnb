@@ -119,7 +119,7 @@ export type ChartRun = {
   missing: string[];
 };
 
-const NAME: Record<string, string> = { NVDAB: "NVDA", QQQB: "QQQ", SPYB: "SPY", SPCXB: "SPCX" };
+const NAME: Record<string, string> = { NVDAB: "NVDA", QQQB: "QQQ", SPYB: "SPY", /* history only; SPYB is not enabled in Floor and is not selectable */ SPCXB: "SPCX" };
 
 /** Everything the chart and its caption show, from one computation. Returns null if no selected asset has history. */
 export function buildChart(i: { assets: string[]; floorPct: number; termDays: number; mode: Mode }, s: Series = SERIES): ChartRun | null {
