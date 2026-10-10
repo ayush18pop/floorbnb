@@ -8,6 +8,7 @@ export const DOCS: DocLink[] = [
   { slug: "evidence", href: "/docs/evidence", title: "Evidence", blurb: "How we tested the multiplier: 98 years, 1,581 one-year periods, and where it fails." },
   { slug: "spot-only", href: "/docs/spot-only", title: "Spot only", blurb: "No perps, options, leverage or borrowing. How swaps work." },
   { slug: "agents", href: "/docs/agents", title: "Agents", blurb: "Keeper, MCP tools, b402 and the agent skill." },
+  { slug: "binance", href: "/docs/binance", title: "Binance Web3 integration", blurb: "Which Binance Web3 APIs Floor calls, live call counts, and what it does not use." },
   { slug: "contracts", href: "/docs/contracts", title: "Contracts", blurb: "The on-chain design in plain words." },
   { slug: "live-contracts", href: "/docs/live-contracts", title: "Live contracts", blurb: "Addresses, roles, caps and how to verify them yourself." },
   { slug: "risks", href: "/docs/risks", title: "Risks", blurb: "What we do not claim." },

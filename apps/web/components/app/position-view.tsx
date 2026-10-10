@@ -16,6 +16,7 @@ import { PhaseBadges } from "./phase";
 import { PositionChart, type Band } from "./position-chart";
 import { CloseModal } from "./close-modal";
 import { RebalanceDetail } from "./rebalance-detail";
+import { BinanceInsights } from "@/components/binance/insights";
 
 /** Position data is re-read about this often while the tab is visible (a keeper rebalance changes it with no click). */
 const REFRESH_MS = 10_000;
@@ -174,6 +175,8 @@ export function PositionScreen() {
           ]} />
         </section>
       </div>
+
+      <BinanceInsights holdings={p.holdings.map((h) => ({ symbol: h.symbol, token: h.token }))} />
 
       {modal && <CloseModal key={modal} p={p} open initial={modal} onClose={() => setModal(null)} onDone={() => setRev((r) => r + 1)} />}
       <RebalanceDetail e={sel} onClose={() => setSel(null)} />

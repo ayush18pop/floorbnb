@@ -50,6 +50,12 @@
     "description": "No perps. No options. No leverage. No borrowing."
   },
   {
+    "route": "/docs/binance",
+    "file": "docs-binance.png",
+    "headline": "Which Binance data Floor uses.",
+    "description": "Live Binance call counts, and what Floor does not use."
+  },
+  {
     "route": "/docs/agents",
     "file": "docs-agents.png",
     "headline": "How agents use Floor.",
