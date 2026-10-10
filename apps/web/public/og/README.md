@@ -15,6 +15,7 @@ One 1200 x 630 PNG per route. Every page links its own card through `pageMetadat
 | `/docs/evidence` | `evidence.png` | Test the rule. Show the limits. | placeholder | BACKTEST · Past data, not a prediction |
 | `/docs/spot-only` | `spot-only.png` | Only spot swaps. | placeholder |  |
 | `/docs/agents` | `docs-agents.png` | How agents use Floor. | placeholder |  |
+| `/docs/binance` | `docs-binance.png` | Which Binance data Floor uses. | placeholder |  |
 | `/docs/contracts` | `contracts.png` | The contract design. | placeholder |  |
 | `/docs/live-contracts` | `live-contracts.png` | Live on BNB Chain mainnet. | placeholder |  |
 | `/docs/risks` | `risks.png` | A floor is not a guarantee. | supplied art |  |
