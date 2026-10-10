@@ -17,7 +17,8 @@ Scripts: `slippage_probe.py` (live quotes, appends `slippage_runs.jsonl`), `gap_
 | MUB | 137 | 406 | 2,124 |
 | AAPLon / NVDAon / SPCXon | 2,354 / 214 / 624 | no quote / 8,689 / 8,442 | — |
 
-- Usable for a vault: **NVDAB, SPCXB, QQQB, SPYB**. TSLAB is borderline. MUB/CRCLB are not.
+- Usable for a vault by these aggregator quotes: **NVDAB, SPCXB, QQQB, SPYB**. Floor enables only NVDAB, SPCXB and QQQB (SPYB is not offered, `apps/web/lib/adapters/assets.ts`).
+- These are aggregator quotes, a best case. The live route is direct PancakeSwap v3, measured on a fork 2026-10-02 at 100 USDT: about 49 bps round trip for NVDAB and SPCXB, about 1 bp for QQQB (`ops/spikes/RESULTS-taker.md`, `reviews/claims-01.md`). TSLAB is borderline. MUB/CRCLB are not.
 - **Ondo tokens are unusable through the aggregator right now**: the issuer RFQ never quoted. No AAPL bStock exists.
 
 ## 2. Did a 90% floor hold? 93 one-year windows, 2018 → 2026-10, real daily prices

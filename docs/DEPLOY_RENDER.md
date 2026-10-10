@@ -22,7 +22,7 @@ Render dashboard > New > Blueprint > pick this repo and branch (`main`). It read
 | `FLOOR_FACTORY`, `FLOOR_LENS` | printed by the deploy script; also `packages/contracts/deployments/56.json` |
 | `FLOOR_RUNS_FROM_BLOCK` | block of the factory deploy (same deployments file or the BscScan creation tx) |
 | `FLOOR_RPC_URL` | a keyed BSC mainnet RPC (Alchemy, QuickNode, ...). Used by the API, the keeper and x402. Optional overrides: `BSC_RPC_URL`, `X402_RPC_URL` |
-| `BW3_API_KEY`, `BW3_API_SECRET` | Binance Web3 API (market data). Optional: without them market routes are off |
+| `BW3_API_KEY`, `BW3_API_SECRET` | Binance Web3 API. Used by the API (market routes), MCP and, since 2026-10-10, the keeper (price guard, gas price, shadow simulation). Optional: without them market routes are off and the keeper skips its Binance checks. b402 would need a key with the B402 Payments permission |
 | `FLOOR_ASSETS` | comma-separated bStock token addresses the keeper pokes each cycle |
 | `KEEPER_PRIVATE_KEY` | key of `0x46FD797AeBD0250A2E768022AD992DF21F12e58a`, about 0.03 BNB on it. Secret, dashboard only. **If unset the keeper runs dry-run** (simulates, signs nothing) and `/healthz` says so |
 | `X402_PAYTO` | receive-only payout wallet: the project payee address `0xF5f349ABe9647278AC3450058bc054886DaF816B` |
@@ -30,6 +30,14 @@ Render dashboard > New > Blueprint > pick this repo and branch (`main`). It read
 | `X402_ASSET_NAME`, `X402_ASSET_VERSION` | the token's EIP-712 domain, read on-chain (below) |
 | `SELF_FACILITATOR_KEY` | a small gas EOA (about 0.005 BNB); not the keeper key, not the payout wallet |
 | `ALERT_WEBHOOK_URL` | optional Discord/Slack webhook for keeper failures |
+
+Keeper Binance settings (fixed in `render.yaml`; they only take effect when the BW3 keys are set, and any Binance failure fails open):
+
+| Variable | Value | Meaning |
+|---|---|---|
+| `KEEPER_BW3_PRICE_GUARD_BPS` | `500` | Skip a rebalance that BUYS a bStock when the Binance token price and the underlying reference price differ by more than this many bps. Sells are never blocked. `0` disables |
+| `KEEPER_BW3_GAS` | `1` | Use the Binance Transaction API gas price when it is within 0.5x to 3x of the RPC price, else the RPC price |
+| `KEEPER_BW3_SHADOW_SIM` | `1` | Log-only second simulation through the Binance Transaction API |
 
 Fixed in the file: `KEEPER_ADDRESS`, `KEEPER_ROUTE=direct`, `KEEPER_INTERVAL_SEC=60`, `X402_*` network and prices, `WEB_ORIGIN`, `MCP_ALLOWED_ORIGINS`. `MCP_PUBLIC_URL` is `https://floor-server.onrender.com/mcp`: change it if Render gives the service another name. `API_BASE_URL` is not needed (MCP calls the API inside the process).
 

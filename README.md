@@ -14,7 +14,7 @@
 [![Audit: AI-assisted only](https://img.shields.io/badge/audit-AI--assisted%20only%2C%20no%20human%20audit-B8312A?style=flat-square)](docs/AUDIT.md)
 [![License: none declared](https://img.shields.io/badge/license-not%20declared-lightgrey?style=flat-square)](#license)
 
-[Live site](https://floor.ayush.works) · [Contracts on BscScan](#live-on-mainnet) · [How it works](#how-it-works) · [Trust model](#trust-model) · [Status and limits](#status-and-known-limitations)
+[Live site](https://floor.ayush.works) · [For judges](#for-judges) · [Binance integration](#binance-web3-integration) · [Contracts on BscScan](#live-on-mainnet) · [How it works](#how-it-works) · [Trust model](#trust-model) · [Status and limits](#status-and-known-limitations)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/hero-banner-dark.png">
@@ -22,6 +22,23 @@
 </picture>
 
 </div>
+
+---
+
+## For judges
+
+- **Web:** <https://floor.ayush.works> (Vercel fallback `https://floorbnb.vercel.app`, per `render.yaml` CORS list). **API and MCP:** `https://floor-server-wb4i.onrender.com` (`/healthz`, `/v1/*`, `/mcp`), from [`apps/web/lib/app-config.ts`](apps/web/lib/app-config.ts). It runs on a Render free instance that sleeps after 15 minutes idle; the first request can take 30 to 60 seconds ([`docs/DEPLOY_RENDER.md`](docs/DEPLOY_RENDER.md)).
+- **Three-minute tour**
+  1. `/try`: pick a basket and a floor and run the backtest simulator. No wallet needed ([`apps/web/app/try/page.tsx`](apps/web/app/try/page.tsx)).
+  2. `/app/position?v=<vault>` (reached from `/app/positions`): on a position, look at the Binance price check, company card and candles. They read `GET /v1/market`, `/v1/market/:symbol/candles` ([`apps/api/src/app.ts`](apps/api/src/app.ts)).
+  3. `/docs/binance`: live table of every Binance Web3 module, with call counts from `GET /v1/binance/status`.
+  4. `/docs/agents`: how an agent uses the MCP server, the skill and the keeper.
+- **Point an MCP client at Floor:** Streamable HTTP, stateless, URL `https://floor-server-wb4i.onrender.com/mcp`. Check it with `curl -s -X POST <url> -H 'content-type: application/json' -H 'accept: application/json, text/event-stream' -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`. Tools return unsigned transactions only ([tool list](#agents-mcp-api-x402-and-b402)).
+- **Contracts on BscScan (chain 56):** [FloorFactory](https://bscscan.com/address/0x1147d482fD08DDd7F377838efb610B606B3Ad765#code), [FloorLens](https://bscscan.com/address/0x63Ae440B9D309959442eaD3E08cBC3A025C67780#code), [FloorVault implementation](https://bscscan.com/address/0xEA0603a83BCf28a1D57d8534971149eACD874055#code). Source: [`packages/contracts/deployments/56.json`](packages/contracts/deployments/56.json).
+- **Binance Web3 integration depth:** see [the table below](#binance-web3-integration).
+- **DX report:** [`dx/human/`](dx/human/) (written by the team).
+- **Tests (2026-10-10, merged `dev`, run by the team):** bw3 32, api 42, web 164, keeper 59 (+5 fork tests skipped), onebox 11, mcp 27 (+2 skipped), sdk 310, x402 32 (+2 skipped); `forge test --offline` 270 passed, 0 failed, 2 skipped.
+- **Limits you should know:** launch caps of 1,000 USDT per position and 5,000 USDT total; AI-assisted review only, no human audit; see [Status and known limitations](#status-and-known-limitations).
 
 ---
 
@@ -224,6 +241,14 @@ Exit paths:
 
 The keeper ([`apps/keeper`](apps/keeper)) scans positions through `FloorLens` and sends one-swap `rebalance` calls inside the trading window. The vault re-validates everything the keeper chooses: direction, size, router allowlist, `minOut`, window and `minInterval`. A keeper cannot withdraw, set prices or pick a recipient. An EOA keeper is primary. A Binance Agentic Wallet as an optional second keeper is not set up.
 
+When the keeper has Binance Web3 keys (`BW3_API_KEY`, `BW3_API_SECRET`, the same ones the API uses), it adds three Binance checks ([`apps/keeper/src/bw3.ts`](apps/keeper/src/bw3.ts)). They can never block a sell, and any Binance failure fails open (the rebalance proceeds as before):
+
+- **Price guard** (`KEEPER_BW3_PRICE_GUARD_BPS`, default 500, `0` disables): a rebalance that BUYS a bStock is skipped when the RWA Data API token price and the underlying reference price differ by more than this many bps. Sells are never skipped.
+- **Gas price** (`KEEPER_BW3_GAS`, default on): the Transaction API `gas-price` is used only when it is within 0.5x to 3x of the RPC's own price; otherwise the RPC price is used.
+- **Shadow simulation** (`KEEPER_BW3_SHADOW_SIM`, default on): the Transaction API `simulate` runs as a second opinion and is only logged; it does not change what is sent.
+
+The keeper still routes through direct PancakeSwap v3 (`KEEPER_ROUTE=direct`).
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/readme/keeper-timeline-dark.png">
   <img src="docs/assets/readme/keeper-timeline-light.png" alt="Weekly timeline in UTC: trading is allowed Monday to Friday between 15:30 and 19:30, closed otherwise and on holidays" width="100%">
@@ -232,6 +257,24 @@ The keeper ([`apps/keeper`](apps/keeper)) scans positions through `FloorLens` an
 ```bash
 pnpm --filter @floor/keeper start once --dry-run   # one scan, no transaction sent
 ```
+
+## Binance Web3 integration
+
+One row per Binance module. Status follows the `inProduction` flag in [`apps/api/src/binanceStatus.ts`](apps/api/src/binanceStatus.ts), which also feeds `GET /v1/binance/status` and the `/docs/binance` page. Client: [`packages/bw3`](packages/bw3) (HMAC-signed, schema-checked, per-path call stats in `src/stats.ts`). Live responses recorded on 2026-10-10 are in [`packages/bw3/fixtures/live-2026-10-10/`](packages/bw3/fixtures/live-2026-10-10).
+
+| Module | What Floor uses it for | Files | Status | Evidence |
+| --- | --- | --- | --- | --- |
+| RWA Data API `rwa/price` | Token price against the underlying reference price: shown on `/v1/market` and the position page, and used by the keeper price guard | `packages/bw3/src/client.ts`, `apps/api/src/app.ts`, `apps/keeper/src/bw3.ts`, `apps/web/components/binance/price-check.tsx` | Live in production | `binanceStatus.ts` `market.rwa.price`. 2026-10-10: NVDAB token price 230.62 vs reference 230.44 |
+| RWA Data API `rwa/underlying-market` | Underlying quote fields on `/v1/market`. bStocks return null `marketStatus` and price fields; Floor passes the null through | `packages/bw3/src/client.ts`, `apps/api/src/app.ts` | Live in production | `binanceStatus.ts` `market.rwa.underlying-market`; fixtures `underlying-market-*.json` |
+| RWA Data API `rwa/underlying-profile` | Company card on the position page | `packages/bw3/src/client.ts`, `apps/api/src/app.ts`, `apps/web/components/binance/company-card.tsx` | Live in production | `binanceStatus.ts` `market.rwa.underlying-profile`; fixtures `underlying-profile-*.json` |
+| RWA Data API `rwa/tokens`, `rwa/search`, `rwa/platforms` | Client methods and recorded fixtures only. Used by the probe script `packages/bw3/scripts/probe-rwa.ts`; no API route, page or keeper path calls them | `packages/bw3/src/client.ts` | Built, not live | Not in the `binanceStatus.ts` table. Fixtures `tokens-bstock.json`, `search-*.json`, `platforms.json` |
+| Market API `candles` | Price chart on the position page, `GET /v1/market/:symbol/candles`. The query parameter is `bar` (not `interval`), `limit` max 300 | `packages/bw3/src/client.ts`, `apps/api/src/app.ts`, `apps/web/components/binance/candles.tsx` | Live in production | `binanceStatus.ts` `market.candles` (history on BSC is short, about 120 daily candles at last probe); fixtures `candles-*.json` |
+| Transaction API `gas-price` | Keeper gas price, with a 0.5x to 3x sanity band against the RPC price and an RPC fallback | `apps/keeper/src/bw3.ts` | Live in production (keeper, when BW3 keys are set) | `binanceStatus.ts` `tx.gas-price`; keeper tests. The API process cannot see keeper call counts |
+| Transaction API `simulate` | Log-only shadow check of each rebalance transaction | `apps/keeper/src/bw3.ts` | Live in production (keeper, when BW3 keys are set) | `binanceStatus.ts` `tx.simulate` |
+| Trading API `quote` / `swap` | Aggregator route for rebalances | `apps/keeper/src/agg.ts`, `packages/bw3/src/client.ts` | Built, not live | `binanceStatus.ts` `trading.quote` (`inProduction: false`): `KEEPER_ROUTE=direct`, so the live route is PancakeSwap v3. Aggregator route stays off until its router is allowlisted |
+| b402 Payments | Facilitator for paid API/MCP calls (`supported`, `verify`, `settle`) | `packages/x402/src/b402.ts`, `ops/b402/settle-once.ts` | Built, not live | `binanceStatus.ts` `b402` (`inProduction: false`): `X402_FACILITATOR=self`. `supported` and `verify` were run live 2026-10-05; `settle` was not run |
+| Agentic Wallet / Wallet Skills | Documented flow via Developer Mode contract calls plus MCP `bawCommands` in `build_create_position_tx` and `build_exit_tx`; not executed live | `skills/floor/references/agentic-wallet.md`, `apps/mcp/src/tools.ts`, `apps/web/components/app/agent-run.tsx` | Built, not live | Not in `binanceStatus.ts`. No Agentic Wallet is set up as a keeper or sender |
+| BNB Agent Studio | Not used. No listing was made and the Agent Studio side prize is skipped ([`docs/DECISIONS.md`](docs/DECISIONS.md) decision 7) | none | Not used | ERC-8004 registration JSON is `"active": false` ([`apps/web/public/.well-known/agent-registration.json`](apps/web/public/.well-known/agent-registration.json)), prepared, not broadcast |
 
 ## Agents: MCP, API, x402 and b402
 
@@ -373,7 +416,7 @@ Reading the numbers:
 - Worst real NVDA one-year window (4 Jan 2022 to 4 Jan 2023): holding -51.0%, Floor -10.0% ([`docs/data/`](docs/data)).
 - Ended below the floor by any amount (costs and the cash lock included): 2.85% of one-year windows at a 90% floor (T2).
 - The short 2018 to 2026 sample (93 windows, no breach at m = 4) is one market regime. It is not a safety claim.
-- Rebalance costs, live quotes on a $10k round trip (2026-10-02): QQQB 0.7 bps, NVDAB 5.9, SPCXB 6.0. Direct-route cost was about 49 bps for NVDAB at 100 USDT. Weekend cost is not measured ([`docs/RESEARCH_RESULTS.md`](docs/RESEARCH_RESULTS.md)).
+- Rebalance cost on the live route (direct PancakeSwap v3), measured on a mainnet fork on 2026-10-02 at 100 USDT round trip: about 49 bps for NVDAB and SPCXB, about 1 bp for QQQB ([`ops/spikes/RESULTS-taker.md`](ops/spikes/RESULTS-taker.md), [`reviews/claims-01.md`](reviews/claims-01.md)). Aggregator quotes on a $10k round trip (QQQB 0.7 bps, NVDAB 5.9, SPCXB 6.0) are a best case, not the live route, because the keeper does not use the aggregator ([`docs/RESEARCH_RESULTS.md`](docs/RESEARCH_RESULTS.md)). Weekend cost is not measured.
 
 ## Repository layout
 
@@ -454,8 +497,9 @@ Names only. Values are secrets or deployment-specific and never belong in git. T
 | Area | Variables |
 | --- | --- |
 | Chain | `FLOOR_CHAIN_ID`, `FLOOR_RPC_URL`, `BSC_RPC_URL`, `FLOOR_FACTORY`, `FLOOR_LENS`, `FLOOR_RUNS_FROM_BLOCK`, `FLOOR_ASSETS` |
-| Keeper | `KEEPER_ADDRESS`, `KEEPER_PRIVATE_KEY`, `KEEPER_ROUTE`, `KEEPER_INTERVAL_SEC`, `KEEPER_HEARTBEAT_FILE`, `ALERT_WEBHOOK_URL` |
-| x402 and b402 | `X402_FACILITATOR`, `X402_NETWORK`, `X402_PAYTO`, `X402_ASSET`, `X402_ASSET_SYMBOL`, `X402_ASSET_DECIMALS`, `SELF_FACILITATOR_KEY`, `BW3_API_KEY`, `BW3_API_SECRET` |
+| Keeper | `KEEPER_ADDRESS`, `KEEPER_PRIVATE_KEY`, `KEEPER_ROUTE`, `KEEPER_INTERVAL_SEC`, `KEEPER_HEARTBEAT_FILE`, `ALERT_WEBHOOK_URL`, `KEEPER_BW3_PRICE_GUARD_BPS`, `KEEPER_BW3_GAS`, `KEEPER_BW3_SHADOW_SIM` |
+| x402 and b402 | `X402_FACILITATOR`, `X402_NETWORK`, `X402_PAYTO`, `X402_ASSET`, `X402_ASSET_SYMBOL`, `X402_ASSET_DECIMALS`, `SELF_FACILITATOR_KEY` |
+| Binance Web3 (API, MCP, keeper) | `BW3_API_KEY`, `BW3_API_SECRET` (b402 needs a key with the B402 Payments permission) |
 | Prices | `PRICE_QUOTE_PROTECTION_USD`, `PRICE_BACKTEST_USD`, `PRICE_SIMULATE_GAP_USD` |
 | Servers | `MCP_PORT`, `MCP_PUBLIC_URL`, `MCP_ALLOWED_ORIGINS`, `API_BASE_URL`, `WEB_ORIGIN`, `TRUST_PROXY` |
 | Web | `NEXT_PUBLIC_APP_LOCKED`, `APP_LOCKED`, `NEXT_PUBLIC_SITE_URL` |
@@ -474,7 +518,11 @@ Names only. Values are secrets or deployment-specific and never belong in git. T
 - **Shared launch cap.** One caller can fill it. The owner can raise it.
 - **Weekends.** The vault does not trade on weekends. Weekend trading cost is not measured. The backtest rebalances once a day at the close, not in the contract's 4-hour window.
 - **Holiday table** ends 2028-12-31. A 365-day term cannot be created after about 18 Dec 2027 unless the guardian extends it.
-- **b402:** `supported` and `verify` run live, `settle` not run live. Paid calls settle through our own facilitator.
+- **b402:** `supported` and `verify` run live (2026-10-05), `settle` not run live. Paid calls settle through our own facilitator.
+- **Hosted API sleeps.** The Render free instance sleeps after 15 minutes idle (cold start 30 to 60 seconds). While it sleeps the keeper does not run ([`docs/DEPLOY_RENDER.md`](docs/DEPLOY_RENDER.md)).
+- **Agentic Wallet flow not executed live.** It is documented and exposed as MCP `bawCommands`; nobody has run it against Binance's wallet.
+- **Binance checks are advisory.** The price guard only skips BUYS and fails open; shadow simulation is log-only; bStocks return null `marketStatus`.
+- **Live cost on the direct route** was measured on a fork at 100 USDT only (2026-10-02). Not measured on mainnet, on weekends, or at larger sizes.
 - **Not done:** Agent Studio listing, ERC-8004 registration (prepared, not broadcast), Agentic Wallet keeper (optional, not set up).
 - **Site status.** The live URL is `https://floor.ayush.works` and the app is unlocked on production. The code still locks the app routes by default unless `NEXT_PUBLIC_APP_LOCKED=0` is set ([`docs/BRANCHING.md`](docs/BRANCHING.md)). The hosted API and MCP server run on a free Render instance at `https://floor-server-wb4i.onrender.com` (`/healthz`, `/mcp`); it can sleep if idle.
 
@@ -490,7 +538,7 @@ Only items that appear in the docs:
 - Hourly backtest to match the contract's trading window (only about two years of hourly data exist).
 - Measure weekend and crash-time rebalance cost.
 - Extend the holiday table beyond 2028-12-31.
-- Run b402 `settle` live.
+- Run b402 `settle` live (`ops/b402/settle-once.ts`, human-run, not executed).
 - Optional: Agentic Wallet as a second keeper, ERC-8004 registration.
 - Optional, not in v1: supply idle USDT to Venus for yield ([`CONTEXT.md`](CONTEXT.md)).
 
