@@ -73,7 +73,9 @@ export async function main(argv: string[], env: Env = process.env, out: (l: stri
   const agg = route === 'agg' && cfg.bw3 ? new Bw3Client({ apiKey: cfg.bw3.apiKey, apiSecret: cfg.bw3.apiSecret }) : undefined;
   let sender: Sender | undefined;
   if (key && !args.dryRun) sender = makeEoaSender(cfg.rpcUrl, client, key, cfg.txTimeoutMs);
-  const base = { dryRun: args.dryRun, vault: args.vault, route, sender, agg, inFlight: new Set<string>() };
+  // Binance checks (price guard on buys, gas price, shadow simulate) need keys but not the agg route; agg stays gated on route === 'agg'
+  const bw3 = cfg.bw3 ? new Bw3Client({ apiKey: cfg.bw3.apiKey, apiSecret: cfg.bw3.apiSecret }) : undefined;
+  const base = { dryRun: args.dryRun, vault: args.vault, route, sender, agg, bw3, inFlight: new Set<string>() };
   log.log('info', 'start', { cmd: args.cmd, dryRun: args.dryRun, route, aggEnabled: !!agg, factory: cfg.factory, signer: sender?.address ?? cfg.keeperAddress ?? null });
 
   if (args.cmd === 'once') {

@@ -14,6 +14,8 @@ export interface Config {
   /** bStock tokens whose multiplier the keeper pokes every cycle (FLOOR_ASSETS, comma separated); tokens seen in vault previews are added */
   assets: Address[];
   bw3?: { apiKey: string; apiSecret: string };
+  /** Binance Web3 checks (price guard, gas, shadow simulate); only effective when `bw3` keys are set. Defaults applied by loadConfig. */
+  bw3Guard?: { priceGuardBps: number; gas: boolean; shadowSim: boolean };
   alertWebhook?: string;
   intervalSec: number;
   txTimeoutMs: number;
@@ -26,6 +28,20 @@ function addr(env: Env, name: string): Address | undefined {
   if (!v) return undefined;
   if (!isAddress(v)) throw new Error(`${name} is not an address`);
   return v;
+}
+
+function flag(env: Env, name: string): boolean {
+  const v = env[name]?.trim();
+  if (v === undefined || v === '' || v === '1') return true;
+  if (v === '0') return false;
+  throw new Error(`${name} must be 0 or 1`);
+}
+
+function bps(env: Env, name: string, dflt: number): number {
+  const v = env[name]?.trim();
+  if (v === undefined || v === '') return dflt;
+  if (!/^\d+$/.test(v)) throw new Error(`${name} must be a non-negative integer`);
+  return Number(v);
 }
 
 /** Reads names only; never touches KEEPER_PRIVATE_KEY (see secret.ts / cli.ts). */
@@ -61,6 +77,7 @@ export function loadConfig(env: Env, overrides: { rpc?: string; route?: Route; d
       return x as Address;
     }),
     bw3: key && secret ? { apiKey: key, apiSecret: secret } : undefined,
+    bw3Guard: { priceGuardBps: bps(env, 'KEEPER_BW3_PRICE_GUARD_BPS', 500), gas: flag(env, 'KEEPER_BW3_GAS'), shadowSim: flag(env, 'KEEPER_BW3_SHADOW_SIM') },
     alertWebhook: env.ALERT_WEBHOOK_URL?.trim() || undefined,
     intervalSec: Number(env.KEEPER_INTERVAL_SEC ?? 300),
     txTimeoutMs: 90_000,

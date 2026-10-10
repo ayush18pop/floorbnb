@@ -39,11 +39,14 @@ export function setupKeeper(env: Env, out: (l: string) => void = (l) => console.
   }
   const log = jsonLogger(out, key ? [key] : []);
   const { chain, client } = makeChain(cfg.rpcUrl);
-  const agg = cfg.route === 'agg' && cfg.bw3 ? new Bw3Client({ apiKey: cfg.bw3.apiKey, apiSecret: cfg.bw3.apiSecret }) : undefined;
+  // One client for the Binance checks (price guard on buys, gas, shadow simulate) whenever keys exist, any route.
+  // The agg route stays gated exactly as before: route === 'agg' AND keys.
+  const bw3 = cfg.bw3 ? new Bw3Client({ apiKey: cfg.bw3.apiKey, apiSecret: cfg.bw3.apiSecret, chainId: '56' }) : undefined;
+  const agg = cfg.route === 'agg' ? bw3 : undefined;
   const dryRun = !key;
   const sender: Sender | undefined = key ? makeEoaSender(cfg.rpcUrl, client, key, cfg.txTimeoutMs) : undefined;
-  const base = { dryRun, route: cfg.route, sender, agg, inFlight: new Set<string>() };
-  log.log('info', 'start', { cmd: 'onebox', dryRun, route: cfg.route, aggEnabled: !!agg, factory: cfg.factory, signer: sender?.address ?? cfg.keeperAddress ?? null });
+  const base = { dryRun, route: cfg.route, sender, agg, bw3, inFlight: new Set<string>() };
+  log.log('info', 'start', { cmd: 'onebox', dryRun, route: cfg.route, aggEnabled: !!agg, bw3Enabled: !!bw3, factory: cfg.factory, signer: sender?.address ?? cfg.keeperAddress ?? null });
   return {
     mode: dryRun ? 'dry-run' : 'live',
     note: dryRun ? 'KEEPER_PRIVATE_KEY is not set: simulating only, nothing is signed or sent' : undefined,

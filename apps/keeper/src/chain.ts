@@ -26,6 +26,8 @@ export interface Chain {
   status(lens: Address, vault: Address): Promise<LensStatus>;
   /** Simulates `vault.rebalance(swap)` with eth_call from `from`; returns the gas estimate. Throws SimError. */
   simulate(vault: Address, swap: Swap, from: Address): Promise<bigint>;
+  /** the node's own gas price in wei; optional so existing fakes stay valid */
+  gasPrice?(): Promise<bigint>;
 }
 
 export class SimError extends Error {
@@ -48,7 +50,8 @@ export interface Sender {
   address: Address;
   /** factory.pokeMultiplier(token): permissionless, arms the multiplier guard (A12 F-05 follow-up) */
   poke?(factory: Address, token: Address): Promise<{ hash: Hex; success: boolean }>;
-  send(vault: Address, swap: Swap, gas: bigint): Promise<{ hash: Hex; success: boolean; blockNumber: bigint; rebalanced?: RebalancedEvent }>;
+  /** `gasPrice` (wei, legacy tx) overrides the node's default when given */
+  send(vault: Address, swap: Swap, gas: bigint, gasPrice?: bigint): Promise<{ hash: Hex; success: boolean; blockNumber: bigint; rebalanced?: RebalancedEvent }>;
 }
 
 export function revertName(e: unknown): string {
@@ -71,6 +74,7 @@ export function makeChain(rpcUrl: string): { chain: Chain; client: PublicClient 
     read(address, abi, functionName, args = []) {
       return client.readContract({ address, abi, functionName, args } as never) as never;
     },
+    gasPrice: () => client.getGasPrice(),
     scan: (lens, from, to) => scanVaults(client, lens, from, to),
     status: (lens, vault) => readLensStatus(client, lens, vault),
     async simulate(vault, swap, from) {
@@ -115,7 +119,7 @@ export function makeEoaSender(rpcUrl: string, client: PublicClient, key: Hex, ti
       const receipt = await waitMined(hash);
       return { hash, success: receipt.status === 'success' };
     },
-    async send(vault, swap, gas) {
+    async send(vault, swap, gas, gasPrice) {
       if (nonce === undefined) nonce = await client.getTransactionCount({ address: account.address, blockTag: 'pending' });
       let hash: Hex;
       try {
@@ -126,6 +130,7 @@ export function makeEoaSender(rpcUrl: string, client: PublicClient, key: Hex, ti
           functionName: 'rebalance',
           args: [swap],
           gas: (gas * 13n) / 10n,
+          ...(gasPrice !== undefined ? { gasPrice } : {}),
           nonce,
         });
         nonce += 1;

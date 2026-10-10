@@ -335,14 +335,17 @@ describe('secrets', () => {
     expect(code).toBe(3);
     expect(printed).toContain('refusing to start');
     expect(printed).not.toContain(k.slice(2));
-  });
+  }, 60_000); // walks the whole repo for the key (slow in a worktree with many files)
   it('run mode without a key exits 2; dry-run needs no key', async () => {
     const err = vi.spyOn(console, 'error').mockImplementation(() => {});
     expect(await main(['run'], {}, () => {})).toBe(2);
     err.mockRestore();
     const lines: string[] = [];
-    expect(await main(['once', '--dry-run'], { FLOOR_FACTORY: undefined }, (l) => lines.push(l))).toBe(0);
-    expect(lines.join()).toContain('no_factory_configured');
+    // packages/contracts/deployments/56.json supplies a factory, so with no RPC configured the dry-run stops at no_rpc (exit 2);
+    // with no deployment it stops at no_factory_configured (exit 0). Either way it never asks for a key.
+    const code = await main(['once', '--dry-run'], { FLOOR_FACTORY: undefined }, (l) => lines.push(l));
+    expect([0, 2]).toContain(code);
+    expect(lines.join().includes('no_factory_configured') || lines.join().includes('no_rpc')).toBe(true);
   });
 });
 
@@ -354,5 +357,134 @@ describe('config and args', () => {
   it('enables aggregator creds only when both BW3 keys are present', () => {
     expect(loadConfig({ BW3_API_KEY: 'a' }).bw3).toBeUndefined();
     expect(loadConfig({ BW3_API_KEY: 'a', BW3_API_SECRET: 'b' }).bw3).toEqual({ apiKey: 'a', apiSecret: 'b' });
+  });
+});
+
+
+describe('binance checks (price guard, gas, shadow simulate)', () => {
+  const TOKEN = NVDAB.toLowerCase();
+  const buyPreview = [true, 0, true, USDT, NVDAB, 400n * WAD, 399n * WAD, 396n * WAD];
+  const sellPreview = [true, 0, false, NVDAB, USDT, WAD, 49n * WAD, 49n * WAD];
+  const row = (tokenPrice: string, referencePrice: string) => ({ tokenContractAddress: TOKEN, tokenPrice, referencePrice });
+  const bw3Fake = (o: { rows?: Record<string, unknown>[]; price?: () => Promise<Record<string, unknown>[]>; gas?: string | (() => Promise<unknown>); sim?: () => Promise<{ status: string; failReason?: string }> } = {}) => ({
+    rwaPrice: vi.fn(o.price ?? (async () => o.rows ?? [row('100', '100')])),
+    gasPrice: vi.fn(typeof o.gas === 'function' ? o.gas : async () => ({ evmLegacyGasPrice: { mediumGasPrice: o.gas ?? '5000000' } })),
+    simulate: vi.fn(o.sim ?? (async () => ({ status: 'SUCCESS' }))),
+  });
+  const chainWithGas = (w: World, gp = 5_000_000n): Chain => ({ ...fakeChain(w), gasPrice: async () => gp });
+  const go = async (w: World, bw3: ReturnType<typeof bw3Fake>, o: { dryRun?: boolean; cfgOver?: Partial<Config>; gp?: bigint } = {}) => {
+    const s = sender();
+    const r = await runOnce({ ...cfg, ...o.cfgOver }, chainWithGas(w, o.gp), quiet(), { dryRun: o.dryRun ?? false, route: 'direct', sender: s, bw3: bw3 as never });
+    return { r, s };
+  };
+
+  it('skips a buy when the token trades more than the threshold from the reference', async () => {
+    const b = bw3Fake({ rows: [row('110', '100')] }); // 1000 bps
+    const { r, s } = await go({ preview: buyPreview }, b);
+    expect(r.outcomes[0]).toMatchObject({ status: 'skipped' });
+    expect(r.outcomes[0]!.reason).toContain('binance price guard: token trades 1000 bps from reference');
+    expect(s.send).not.toHaveBeenCalled();
+  });
+  it('sends a buy at or under the threshold', async () => {
+    const { r } = await go({ preview: buyPreview }, bw3Fake({ rows: [row('105', '100')] })); // exactly 500 bps
+    expect(r.outcomes[0]).toMatchObject({ status: 'sent' });
+  });
+  it('never skips a sell, even at a huge deviation, and logs it', async () => {
+    const b = bw3Fake({ rows: [row('300', '100')] });
+    const { r, s } = await go({ preview: sellPreview }, b);
+    expect(r.outcomes[0]).toMatchObject({ status: 'sent' });
+    expect(s.send).toHaveBeenCalled();
+    expect(logs.join()).toContain('bw3_price_check');
+    expect(logs.join()).toContain('"deviationBps":20000');
+  });
+  it('fails open on a throw, a missing row and a zero price, and logs bw3_price_unavailable', async () => {
+    for (const b of [
+      bw3Fake({ price: async () => { throw new Error('boom'); } }),
+      bw3Fake({ rows: [] }),
+      bw3Fake({ rows: [row('0', '100')] }),
+      bw3Fake({ rows: [row('100', '0')] }),
+    ]) {
+      const { r } = await go({ preview: buyPreview }, b);
+      expect(r.outcomes[0]).toMatchObject({ status: 'sent' });
+      expect(logs.join()).toContain('bw3_price_unavailable');
+    }
+  });
+  it('threshold 0 disables the guard and does not even call rwaPrice', async () => {
+    const b = bw3Fake({ rows: [row('300', '100')] });
+    const { r } = await go({ preview: buyPreview }, b, { cfgOver: { bw3Guard: { priceGuardBps: 0, gas: true, shadowSim: true } } });
+    expect(r.outcomes[0]).toMatchObject({ status: 'sent' });
+    expect(b.rwaPrice).not.toHaveBeenCalled();
+  });
+  it('batches rwaPrice once per run', async () => {
+    const b = bw3Fake();
+    await go({ preview: buyPreview }, b);
+    expect(b.rwaPrice).toHaveBeenCalledTimes(1);
+  });
+
+  it('uses the Binance gas price when it is sane', async () => {
+    const b = bw3Fake({ gas: '6000000' });
+    const { s } = await go({ preview: buyPreview }, b, { gp: 5_000_000n });
+    expect(s.send.mock.calls[0]![3]).toBe(6_000_000n);
+    expect(logs.join()).toContain('"source":"binance"');
+  });
+  it('uses the RPC price when the Binance value is insane (too high, too low, zero, unparsable) or errors', async () => {
+    for (const g of ['16000000', '2000000', '0', 'abc', async () => { throw new Error('down'); }]) {
+      const { s, r } = await go({ preview: buyPreview }, bw3Fake({ gas: g as never }), { gp: 5_000_000n });
+      expect(r.outcomes[0]).toMatchObject({ status: 'sent' });
+      expect(s.send.mock.calls[0]).toHaveLength(3); // no gasPrice override, node default
+      expect(logs.join()).toContain('"source":"rpc"');
+    }
+  });
+  it('does not call gasPrice in dry-run, nor when KEEPER_BW3_GAS is off', async () => {
+    const b = bw3Fake();
+    await go({ preview: buyPreview }, b, { dryRun: true });
+    expect(b.gasPrice).not.toHaveBeenCalled();
+    await go({ preview: buyPreview }, b, { cfgOver: { bw3Guard: { priceGuardBps: 500, gas: false, shadowSim: true } } });
+    expect(b.gasPrice).not.toHaveBeenCalled();
+  });
+
+  it('shadow simulate is logged and never changes the outcome, even when it fails or throws', async () => {
+    const ok = bw3Fake();
+    expect((await go({ preview: buyPreview }, ok)).r.outcomes[0]).toMatchObject({ status: 'sent' });
+    expect(ok.simulate).toHaveBeenCalledTimes(1);
+    expect((ok.simulate.mock.calls[0] as unknown[])[0]).toMatchObject({ from: KEEPER, to: VAULT });
+    expect(logs.join()).toContain('"result":"ok"');
+    const failed = bw3Fake({ sim: async () => ({ status: 'FAILED', failReason: 'execution reverted' }) });
+    expect((await go({ preview: buyPreview }, failed)).r.outcomes[0]).toMatchObject({ status: 'sent' });
+    expect(logs.join()).toContain('fail execution reverted');
+    const thrown = bw3Fake({ sim: async () => { throw new Error('timeout'); } });
+    const t = await go({ preview: buyPreview }, thrown);
+    expect(t.r.outcomes[0]).toMatchObject({ status: 'sent' });
+    expect(t.r.ok).toBe(true);
+    expect(logs.join()).toContain('fail timeout');
+  });
+  it('shadow simulate is skipped when off, and never runs after a failed eth_call simulate', async () => {
+    const b = bw3Fake();
+    await go({ preview: buyPreview }, b, { cfgOver: { bw3Guard: { priceGuardBps: 500, gas: true, shadowSim: false } } });
+    expect(b.simulate).not.toHaveBeenCalled();
+    await go({ preview: buyPreview, simulate: async () => { throw new SimError('TooSoon()'); } }, b);
+    expect(b.simulate).not.toHaveBeenCalled();
+  });
+  it('without a bw3 client nothing changes', async () => {
+    const s = sender();
+    const r = await runOnce(cfg, fakeChain({}), quiet(), { dryRun: false, route: 'direct', sender: s });
+    expect(r.outcomes[0]).toMatchObject({ status: 'sent' });
+    expect(s.send.mock.calls[0]).toHaveLength(3);
+  });
+});
+
+describe('binance config', () => {
+  it('defaults: guard 500 bps, gas on, shadow sim on', () => {
+    expect(loadConfig({}).bw3Guard).toEqual({ priceGuardBps: 500, gas: true, shadowSim: true });
+  });
+  it('parses overrides', () => {
+    expect(loadConfig({ KEEPER_BW3_PRICE_GUARD_BPS: '0', KEEPER_BW3_GAS: '0', KEEPER_BW3_SHADOW_SIM: '0' }).bw3Guard).toEqual({ priceGuardBps: 0, gas: false, shadowSim: false });
+    expect(loadConfig({ KEEPER_BW3_PRICE_GUARD_BPS: '250' }).bw3Guard?.priceGuardBps).toBe(250);
+  });
+  it('rejects invalid values', () => {
+    expect(() => loadConfig({ KEEPER_BW3_PRICE_GUARD_BPS: '-1' })).toThrow(/KEEPER_BW3_PRICE_GUARD_BPS/);
+    expect(() => loadConfig({ KEEPER_BW3_PRICE_GUARD_BPS: '5.5' })).toThrow();
+    expect(() => loadConfig({ KEEPER_BW3_GAS: 'yes' })).toThrow(/KEEPER_BW3_GAS/);
+    expect(() => loadConfig({ KEEPER_BW3_SHADOW_SIM: '2' })).toThrow(/KEEPER_BW3_SHADOW_SIM/);
   });
 });

@@ -2,6 +2,7 @@ import type { Address, Hex } from 'viem';
 import { cppi } from '@floor/sdk';
 import { factoryAbi, pauseManagerAbi, tokenAbi, vaultAbi } from './abi.js';
 import { buildAggSwap, AggRejected, type AggClient } from './agg.js';
+import { chooseGasPrice, makePriceGuard, shadowSimulate, DEFAULT_BW3_SETTINGS, type Bw3Like } from './bw3.js';
 import { SimError, type Chain, type Sender } from './chain.js';
 import type { Config, Route } from './config.js';
 import { buildDirectCalldata } from './direct.js';
@@ -33,6 +34,8 @@ export interface RunOpts {
   route: Route;
   sender?: Sender;
   agg?: AggClient;
+  /** Binance Web3 client for the price guard, gas price and shadow simulate. Independent of the route; absent = behave as before. */
+  bw3?: Bw3Like;
   /** pending-vault guard shared across ticks (idempotency inside one process) */
   inFlight?: Set<string>;
   fetchImpl?: typeof fetch;
@@ -132,6 +135,8 @@ export async function runOnce(cfg: Config, chain: Chain, log: Logger, o: RunOpts
   }
 
   const from = o.sender?.address ?? cfg.keeperAddress;
+  const bw3s = { ...DEFAULT_BW3_SETTINGS, ...cfg.bw3Guard };
+  const priceDeviation = o.bw3 && bw3s.priceGuardBps > 0 ? makePriceGuard(o.bw3, log, cfg.assets ?? []) : undefined;
   let allOk = true;
   const out = (x: VaultOutcome, level: 'info' | 'warn' | 'error' = 'info') => {
     outcomes.push(x);
@@ -181,6 +186,18 @@ export async function runOnce(cfg: Config, chain: Chain, log: Logger, o: RunOpts
       if (Number(last) + Number(minInterval) > now) { skip(vault, 'too_soon', { last: Number(last), minInterval: Number(minInterval) }); continue; }
 
       if (await isTokenPaused(rd, token)) { skip(vault, 'token_paused', { token }); continue; }
+
+      // 3b. Binance price guard. Only a BUY can be blocked; a sell protects the floor and is never skipped. Fails open.
+      if (priceDeviation) {
+        const dev = await priceDeviation(token);
+        if (dev !== undefined) {
+          if (buy && dev > bw3s.priceGuardBps) {
+            out({ vault, status: 'skipped', reason: `binance price guard: token trades ${dev} bps from reference (limit ${bw3s.priceGuardBps}); buy skipped` });
+            continue;
+          }
+          log.log('info', 'bw3_price_check', { vault, token, buy, deviationBps: dev, limitBps: bw3s.priceGuardBps, blocked: false });
+        }
+      }
 
       const asset = await rd<readonly [Address, number, boolean, bigint, bigint, boolean]>(factory, factoryAbi as never, 'assets', [token]);
       const v3Router = await rd<Address>(factory, factoryAbi as never, 'v3SwapRouter');
@@ -239,6 +256,7 @@ export async function runOnce(cfg: Config, chain: Chain, log: Logger, o: RunOpts
         continue;
       }
       gas = sim;
+      if (o.bw3 && bw3s.shadowSim) await shadowSimulate(o.bw3, log, vault, swap, from);
       if (o.dryRun || !o.sender) {
         out({ vault, status: 'simulated', route });
         log.log('info', 'dry_run_plan', { ...plan(vault, swap, token, route), gas });
@@ -255,10 +273,13 @@ export async function runOnce(cfg: Config, chain: Chain, log: Logger, o: RunOpts
         gas = again;
       }
 
+      // 5c. gas price: Binance when sane, else the node's own (fail open)
+      const gasPrice = o.bw3 && bw3s.gas ? await chooseGasPrice(o.bw3, chain.gasPrice?.bind(chain), log) : undefined;
+
       // 6. send, wait, decode
       o.inFlight?.add(vault.toLowerCase());
       try {
-        const r = await o.sender.send(vault, swap, gas);
+        const r = await (gasPrice === undefined ? o.sender.send(vault, swap, gas) : o.sender.send(vault, swap, gas, gasPrice));
         if (!r.success) {
           allOk = false;
           out({ vault, status: 'failed', reason: 'tx reverted', hash: r.hash, route }, 'error');
