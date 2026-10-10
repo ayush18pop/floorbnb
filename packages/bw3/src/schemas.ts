@@ -50,5 +50,62 @@ export const broadcastData = loose({ orderId: z.string().optional(), txHash: z.s
 export const rwaPriceRow = loose({}).and(z.record(z.string(), z.unknown()));
 export const rwaPriceData = z.array(z.record(z.string(), z.unknown()));
 
+const str = z.string().nullish();
+
+/** Shapes below come from live recordings on 2026-10-10 (fixtures/live-2026-10-10). Everything optional: bStocks return many nulls. */
+export const rwaUnderlyingMarketData = loose({
+  binanceChainId: str,
+  tokenContractAddress: str,
+  platformId: str,
+  assetType: z.number().nullish(),
+  statusInfo: loose({ openState: z.boolean().nullish(), marketStatus: str, reasonCode: str, reasonMsg: str, nextOpenTime: z.union([z.string(), z.number()]).nullish(), nextCloseTime: z.union([z.string(), z.number()]).nullish() }).nullish(),
+  marketData: loose({ referencePrice: str, high52W: str, low52W: str, volumeShares24H: str, marketCap: str, dividendYield: str, peRatioTTM: str, pbRatio: str }).nullish(),
+});
+
+export const rwaUnderlyingProfileData = loose({
+  binanceChainId: str,
+  tokenContractAddress: str,
+  platformId: str,
+  underlyingTicker: str,
+  underlyingFullName: str,
+  assetType: z.number().nullish(),
+  tokenToShareRatio: str,
+  companyInfo: loose({ ceo: str, website: str, industry: str, description: str }).nullish(),
+});
+
+export const rwaTokenRow = loose({
+  binanceChainId: str,
+  tokenContractAddress: z.string(),
+  platformId: str,
+  assetType: z.number().nullish(),
+  tokenName: str,
+  tokenSymbol: str,
+  tokenLogoUrl: str,
+  decimals: str,
+  underlyingTicker: str,
+  underlyingName: str,
+  tokenToShareRatio: str,
+});
+export const rwaTokensData = z.array(rwaTokenRow);
+
+export const rwaSearchData = z.array(loose({
+  ticker: str,
+  companyName: str,
+  assets: z.array(loose({ platformId: str, binanceChainId: str, tokenContractAddress: str, tokenSymbol: str, assetType: z.number().nullish() })).nullish(),
+}));
+
+export const rwaPlatformsData = z.array(loose({
+  platformId: z.string(),
+  tickerCount: z.number().nullish(),
+  chainDistribution: z.array(loose({ binanceChainId: str, tokenCount: z.number().nullish() })).nullish(),
+  website: str,
+  logoUrl: str,
+}));
+
+/** Row: [open, high, low, close, volume, openTimeMs, trades]; numbers (strings tolerated). Order inferred from data (undocumented). */
+export const candleRow = z.array(z.union([z.number(), z.string()])).min(6);
+export const candlesData = z.array(candleRow);
+export type Candle = z.infer<typeof candleRow>;
+
 export interface EvmTx { from: string; to: string; value?: string; data: string }
 export interface SwapResult { to: string; data: string; minReceiveAmount: string; approveTarget: string; executionMode: string }

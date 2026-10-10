@@ -37,6 +37,8 @@ import {
 } from '@floor/sdk';
 import type { ActivityEvent } from './chainLogs';
 import { InMemoryKeeperRunStore, type KeeperRunStore } from './keeperRuns';
+import { bw3Stats } from '@floor/bw3';
+import { P as BW3_PATH, mergeModuleStats } from './binanceStatus';
 import { ApiError, RateLimiter, TtlCache, ser } from './util';
 
 /** Max uint of any token amount we accept: 10^30 wei (1e12 tokens at 18 decimals). */
@@ -44,13 +46,28 @@ const MAX_AMOUNT = 10n ** 30n;
 const MAX_POSITIONS_PER_OWNER = 50;
 const CACHE_MS = 10_000;
 const MARKET_CACHE_MS = 15_000;
+const PROFILE_CACHE_MS = 6 * 3600_000;
+const CANDLES_CACHE_MS = 5 * 60_000;
+/** Optional enrichments must not stall /v1/market (the bw3 client retries 5xx for up to 14 s). */
+const SOFT_TIMEOUT_MS = 4_000;
+const SOFT_FAIL_CACHE_MS = 30_000;
+const CANDLE_INTERVALS = ['1h', '4h', '1d'] as const;
+/** Upstream rejects limit > 300 ("invalid limit range", probed 2026-10-10) and holds ~120 daily candles on BSC. */
+const UPSTREAM_MAX_CANDLES = 300;
 
 export interface AppDeps {
   chainId: number;
   deployment: Deployment;
   client: PublicClient;
   /** Absent when BW3 keys are not configured: /v1/market then answers 503, never made-up prices. */
-  bw3?: { rwaPrice(addresses: string[]): Promise<Record<string, unknown>[]> };
+  bw3?: {
+    rwaPrice(addresses: string[]): Promise<Record<string, unknown>[]>;
+    /** Optional enrichments: when a method is absent or throws, the matching /v1/market fields are null. */
+    rwaUnderlyingMarket?(address: string): Promise<Record<string, unknown>>;
+    rwaUnderlyingProfile?(address: string): Promise<Record<string, unknown>>;
+    /** Rows: [open, high, low, close, volume, openTimeMs, trades]. */
+    candles?(p: { address: string; interval: string; limit?: number }): Promise<(number | string)[][]>;
+  };
   runs?: KeeperRunStore;
   /** Decoded vault events (cached, incremental). Absent: /v1/positions/:vault/activity answers 501. */
   activity?: (vault: Address) => Promise<ActivityEvent[]>;
@@ -96,6 +113,27 @@ export function createApp(deps: AppDeps): Hono {
   const now = deps.now ?? Date.now;
   const runs = deps.runs ?? new InMemoryKeeperRunStore();
   const cache = new TtlCache(now);
+  const soft = new Map<string, { at: number; ttl: number; v: Promise<unknown> }>();
+  /** Cached best-effort fetch: resolves null on failure or timeout (failure cached 30 s), never rejects. */
+  function softGet<T>(key: string, ttlMs: number, load: (() => Promise<T>) | undefined): Promise<T | null> {
+    if (!load) return Promise.resolve(null);
+    const hit = soft.get(key);
+    if (hit && now() - hit.at < hit.ttl) return hit.v as Promise<T | null>;
+    const entry = { at: now(), ttl: ttlMs, v: undefined as unknown as Promise<unknown> };
+    entry.v = (async () => {
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      try {
+        return await Promise.race([load(), new Promise<never>((_, rej) => { timer = setTimeout(() => rej(new Error('timeout')), SOFT_TIMEOUT_MS); })]);
+      } catch {
+        entry.ttl = SOFT_FAIL_CACHE_MS;
+        return null;
+      } finally {
+        clearTimeout(timer);
+      }
+    })();
+    soft.set(key, entry);
+    return entry.v as Promise<T | null>;
+  }
   const limiter = new RateLimiter(now);
   const limits = deps.limits ?? { free: 60, tx: 10 };
   const knownVaults = new Set<string>();
@@ -248,34 +286,105 @@ export function createApp(deps: AppDeps): Hono {
 
   app.get('/v1/market', async (c) => {
     if (!deps.bw3) throw new ApiError(503, 'bw3_not_configured', 'Binance Web3 price source is not configured on this server');
+    const bw3 = deps.bw3;
     const toks = Object.values(TOKENS);
-    const rows = await cache.get('market', MARKET_CACHE_MS, () => deps.bw3!.rwaPrice(toks.map((t) => t.address)));
+    const rows = await cache.get('market', MARKET_CACHE_MS, () => bw3.rwaPrice(toks.map((t) => t.address)));
     const byAddr = new Map(rows.map((r) => [String(r.tokenContractAddress ?? '').toLowerCase(), r]));
     const t = Math.floor(now() / 1000);
     const str = (v: unknown): string | null => (typeof v === 'string' || typeof v === 'number' ? String(v) : null);
-    const items = toks.map((tok) => {
+    const obj = (v: unknown): Record<string, unknown> | null => (v && typeof v === 'object' && !Array.isArray(v) ? (v as Record<string, unknown>) : null);
+    const cut = (v: unknown, n: number): string | null => {
+      const s = str(v);
+      return s === null || s === '' ? null : s.length > n ? s.slice(0, n) : s;
+    };
+    const fetched = await Promise.all(toks.map(async (tok) => {
+      const [um, up] = await Promise.all([
+        softGet(`um:${tok.address}`, MARKET_CACHE_MS, bw3.rwaUnderlyingMarket ? () => bw3.rwaUnderlyingMarket!(tok.address) : undefined),
+        softGet(`up:${tok.address}`, PROFILE_CACHE_MS, bw3.rwaUnderlyingProfile ? () => bw3.rwaUnderlyingProfile!(tok.address) : undefined),
+      ]);
+      return { um: obj(um), up: obj(up) };
+    }));
+    const items = toks.map((tok, i) => {
       const r = byAddr.get(tok.address.toLowerCase());
       const si = (r?.statusInfo ?? null) as Record<string, unknown> | null;
+      const price = str(r?.tokenPrice);
+      const referencePrice = str(r?.referencePrice);
+      const p = price === null ? NaN : Number(price);
+      const ref = referencePrice === null ? NaN : Number(referencePrice);
+      const { um, up } = fetched[i]!;
+      // Underlying fields are filled only from what Binance returns. In the 2026-10-10 probe bStocks gave no
+      // price, 24 h change or update time (only marketData.referencePrice, itself null), so those stay null.
+      const umStatus = obj(um?.statusInfo);
+      const umData = obj(um?.marketData);
+      const company = obj(up?.companyInfo);
       return {
         symbol: tok.symbol,
         address: tok.address,
-        price: str(r?.tokenPrice),
-        referencePrice: str(r?.referencePrice),
+        price,
+        referencePrice,
         priceUpdatedAt: typeof r?.tokenPriceUpdatedAt === 'number' ? r.tokenPriceUpdatedAt : null,
         // bStocks return null marketStatus/nextOpenTime upstream (DX_LOG); we pass null through, never fill it in.
         marketStatus: str(si?.marketStatus),
         nextOpenTime: str(si?.nextOpenTime),
         reasonCode: str(si?.reasonCode),
         statusInfo: si,
+        deviationBps: Number.isFinite(p) && Number.isFinite(ref) && ref !== 0 ? Math.round((p / ref - 1) * 10000) : null,
+        underlying: um
+          ? {
+              marketStatus: str(umStatus?.marketStatus),
+              price: str(umData?.price ?? umData?.referencePrice),
+              change24hPct: str(umData?.change24hPct ?? umData?.priceChangePercent24h),
+              updatedAt: typeof umData?.updatedAt === 'number' ? Math.floor(umData.updatedAt > 1e11 ? umData.updatedAt / 1000 : umData.updatedAt) : null,
+              raw: um,
+            }
+          : null,
+        profile: up
+          ? {
+              companyName: str(up.underlyingFullName),
+              ticker: str(up.underlyingTicker),
+              sector: str(company?.industry),
+              description: cut(company?.description, 400),
+              logoUrl: null, // the profile response has no logo field (probed 2026-10-10)
+              issuer: str(up.platformId),
+            }
+          : null,
       };
     });
     return c.json(ser({
       source: 'binance-web3-rwa-price',
+      sources: [BW3_PATH.rwaPrice, BW3_PATH.rwaUnderlyingMarket, BW3_PATH.rwaUnderlyingProfile],
       cachedForSeconds: MARKET_CACHE_MS / 1000,
       vaultWindow: { open: isMarketOpen(t), nextOpen: nextWindowOpen(t), note: 'Vault trading window (Mon-Fri 15:30-19:30 UTC, minus holidays), computed here, not from Binance' },
       assets: items,
     }));
   });
+
+  app.get('/v1/market/:symbol/candles', async (c) => {
+    const sym = c.req.param('symbol').toUpperCase();
+    const tok = Object.values(TOKENS).find((x) => x.symbol === sym);
+    if (!tok) throw new ApiError(404, 'unknown_symbol', 'unknown symbol');
+    if (!deps.bw3?.candles) throw new ApiError(503, 'bw3_not_configured', 'Binance Web3 market data is not configured on this server');
+    const interval = c.req.query('interval') ?? '1d';
+    if (!(CANDLE_INTERVALS as readonly string[]).includes(interval)) throw new ApiError(400, 'bad_request', `interval must be one of ${CANDLE_INTERVALS.join(', ')}`);
+    const lr = c.req.query('limit');
+    const limit = lr === undefined ? 90 : Number(lr);
+    if (!Number.isInteger(limit) || limit < 1 || limit > 365) throw new ApiError(400, 'bad_request', 'limit must be an integer 1..365');
+    const fetchCandles = deps.bw3.candles.bind(deps.bw3);
+    const rows = await cache.get(`candles:${tok.address}:${interval}:${limit}`, CANDLES_CACHE_MS, () => fetchCandles({ address: tok.address, interval, limit: Math.min(limit, UPSTREAM_MAX_CANDLES) }));
+    // Row layout [open, high, low, close, volume, openTimeMs, trades] was inferred from live data (undocumented).
+    const candles = rows
+      .filter((r) => r.length >= 6 && Number.isFinite(Number(r[5])))
+      .map((r) => ({ t: Math.floor(Number(r[5]) / 1000), o: String(r[0]), h: String(r[1]), l: String(r[2]), c: String(r[3]), v: String(r[4]) }))
+      .sort((a, b) => a.t - b.t)
+      .slice(-limit);
+    return c.json(ser({ symbol: tok.symbol, address: tok.address, interval, source: 'binance-web3-market-candles', candles }));
+  });
+
+  app.get('/v1/binance/status', (c) => c.json(ser({
+    configured: !!deps.bw3,
+    generatedAt: Math.floor(now() / 1000),
+    modules: mergeModuleStats(bw3Stats.snapshot()),
+  })));
 
   app.get('/v1/positions', async (c) => {
     const owner = addr(c.req.query('owner') ?? '', 'owner');

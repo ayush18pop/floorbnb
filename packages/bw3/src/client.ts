@@ -1,7 +1,8 @@
 import type { z } from 'zod';
 import { Bw3Error, Bw3HttpError, Bw3TimeoutError, classifyApiError } from './errors.js';
-import { broadcastData, envelope, gasPriceData, quoteData, rwaPriceData, simulateData, swapData } from './schemas.js';
-import type { EvmTx, QuoteRoute, SwapResult } from './schemas.js';
+import { broadcastData, candlesData, envelope, gasPriceData, quoteData, rwaPlatformsData, rwaPriceData, rwaSearchData, rwaTokensData, rwaUnderlyingMarketData, rwaUnderlyingProfileData, simulateData, swapData } from './schemas.js';
+import type { Candle, EvmTx, QuoteRoute, SwapResult } from './schemas.js';
+import { bw3Stats } from './stats.js';
 import { isoTimestamp, sign, type SignEncoding } from './sign.js';
 
 export interface Bw3Options {
@@ -35,8 +36,22 @@ export class Bw3Client {
     };
   }
 
-  /** Never logs or returns headers or keys. */
+  /** Never logs or returns headers or keys. Records one process-global stat per final outcome (after retries). */
   async request(method: 'GET' | 'POST', path: string, args: { query?: Record<string, string | undefined>; body?: unknown } = {}): Promise<unknown> {
+    try {
+      const data = await this.requestInner(method, path, args);
+      bw3Stats.record(path, true);
+      return data;
+    } catch (e) {
+      // class name and API code only: never the message (may echo upstream text), headers or keys
+      const cls = e instanceof Error ? e.name : 'Error';
+      const code = e instanceof Bw3Error && e.code ? ` ${e.code}` : '';
+      bw3Stats.record(path, false, `${cls}${code}`);
+      throw e;
+    }
+  }
+
+  private async requestInner(method: 'GET' | 'POST', path: string, args: { query?: Record<string, string | undefined>; body?: unknown }): Promise<unknown> {
     const q = new URLSearchParams();
     for (const [k, v] of Object.entries(args.query ?? {})) if (v !== undefined) q.set(k, v);
     const qs = q.toString();
@@ -152,5 +167,55 @@ export class Bw3Client {
       body: { binanceChainId: this.o.chainId, signedTransaction: signedTx, address: o.address, enableMevProtection: o.mev ?? false },
     });
     return this.parse(broadcastData, data, 'broadcast');
+  }
+
+  // ---- RWA / Market data endpoints. Param names verified live 2026-10-10 (docs summary lists none). ----
+
+  /** Param `tokenContractAddress` (singular, required: error 40001 otherwise). */
+  async rwaUnderlyingMarket(address: string): Promise<z.infer<typeof rwaUnderlyingMarketData>> {
+    const data = await this.request('GET', '/api/v1/dex/market/rwa/underlying-market', {
+      query: { binanceChainId: this.o.chainId, tokenContractAddress: address },
+    });
+    return this.parse(rwaUnderlyingMarketData, data, 'rwaUnderlyingMarket');
+  }
+
+  /** Param `tokenContractAddress` (singular, required). */
+  async rwaUnderlyingProfile(address: string): Promise<z.infer<typeof rwaUnderlyingProfileData>> {
+    const data = await this.request('GET', '/api/v1/dex/market/rwa/underlying-profile', {
+      query: { binanceChainId: this.o.chainId, tokenContractAddress: address },
+    });
+    return this.parse(rwaUnderlyingProfileData, data, 'rwaUnderlyingProfile');
+  }
+
+  /** `platformId` (e.g. "bstock") filters. The sector-tab param name is unknown: `sector` and `tab` were accepted but ignored (unverified). All params optional. */
+  async rwaTokens(p: { platformId?: string; chainId?: string } = {}): Promise<z.infer<typeof rwaTokensData>> {
+    const data = await this.request('GET', '/api/v1/dex/market/rwa/tokens', {
+      query: { binanceChainId: p.chainId ?? this.o.chainId, platformId: p.platformId },
+    });
+    return this.parse(rwaTokensData, data, 'rwaTokens');
+  }
+
+  /** Param `keyword`: a ticker/name or a contract address. Rows group tokens by underlying ticker. */
+  async rwaSearch(keyword: string): Promise<z.infer<typeof rwaSearchData>> {
+    const data = await this.request('GET', '/api/v1/dex/market/rwa/search', { query: { keyword } });
+    return this.parse(rwaSearchData, data, 'rwaSearch');
+  }
+
+  /** No params needed. */
+  async rwaPlatforms(): Promise<z.infer<typeof rwaPlatformsData>> {
+    const data = await this.request('GET', '/api/v1/dex/market/rwa/platforms');
+    return this.parse(rwaPlatformsData, data, 'rwaPlatforms');
+  }
+
+  /**
+   * Param is `bar` (NOT `interval`: `interval` is silently ignored and 1-minute candles come back). Valid bars:
+   * 1s 5s 30s 1m 3m 5m 15m 30m 1h 2h 4h 6h 8h 12h 1d 3d 1w 1M. `limit` max 300 (365 and 1000 are rejected: "invalid limit range"), default 100.
+   * Rows are arrays [open, high, low, close, volume, openTimeMs, trades], ascending by time (inferred from data, undocumented).
+   */
+  async candles(p: { address: string; interval: string; limit?: number }): Promise<Candle[]> {
+    const data = await this.request('GET', '/api/v1/dex/market/candles', {
+      query: { binanceChainId: this.o.chainId, tokenContractAddress: p.address, bar: p.interval, limit: p.limit === undefined ? undefined : String(p.limit) },
+    });
+    return this.parse(candlesData, data, 'candles');
   }
 }

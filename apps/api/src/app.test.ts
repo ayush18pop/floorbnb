@@ -7,6 +7,10 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { loadConfig } from './config';
+import { readFileSync } from 'node:fs';
+import { bw3Stats } from '@floor/bw3';
+
+const live = (n: string) => JSON.parse(readFileSync(new URL(`../../../packages/bw3/fixtures/live-2026-10-10/${n}.json`, import.meta.url), 'utf8')).data;
 
 const FACTORY = '0x4d90a1F73C96d0bAcfB6BC901A98420F279e4189' as const;
 const LENS = '0x237efF8729B8F24816719B18760fB21fd552A69F' as const;
@@ -116,6 +120,134 @@ describe('reads', () => {
     expect(j.assets.find((a: { symbol: string }) => a.symbol === 'QQQB').price).toBeNull();
     await app.request('/v1/market');
     expect(n).toBe(1);
+  });
+
+  const priceRow = (price: string | null, ref: string | null) => [{ tokenContractAddress: TOKENS.NVDAB.address, tokenPrice: price, referencePrice: ref, tokenPriceUpdatedAt: 1791043636632, platformId: 'bstock' }];
+  const richBw3 = (over: Record<string, unknown> = {}) => ({
+    async rwaPrice() { return priceRow('234.5', '234.3'); },
+    async rwaUnderlyingMarket() { return live('underlying-market-NVDAB'); },
+    async rwaUnderlyingProfile() { return live('underlying-profile-NVDAB'); },
+    ...over,
+  });
+
+  it('/v1/market adds deviationBps, underlying, profile and sources without changing existing fields', async () => {
+    const { app } = mk({ bw3: richBw3() });
+    const j = await (await app.request('/v1/market')).json();
+    expect(j.source).toBe('binance-web3-rwa-price');
+    expect(j.cachedForSeconds).toBe(15);
+    expect(j.vaultWindow).toBeDefined();
+    expect(j.sources).toContain('/api/v1/dex/market/rwa/price');
+    expect(j.sources).toContain('/api/v1/dex/market/rwa/underlying-market');
+    expect(j.sources).toContain('/api/v1/dex/market/rwa/underlying-profile');
+    const n = j.assets.find((a: { symbol: string }) => a.symbol === 'NVDAB');
+    expect(n.price).toBe('234.5');
+    expect(n.deviationBps).toBe(9); // round((234.5 / 234.3 - 1) * 10000) = 8.54 -> 9
+    expect(n.underlying.marketStatus).toBeNull();
+    expect(n.underlying.price).toBeNull();
+    expect(n.underlying.change24hPct).toBeNull();
+    expect(n.underlying.updatedAt).toBeNull();
+    expect(n.underlying.raw.statusInfo.reasonCode).toBe('TRADING');
+    expect(n.profile).toMatchObject({ companyName: 'NVIDIA (bStocks)', ticker: 'NVDA', sector: 'Technology', logoUrl: null, issuer: 'bstock' });
+    expect(n.profile.description.length).toBeLessThanOrEqual(400);
+    expect(n.profile.description.startsWith('Nvidia is a leading')).toBe(true);
+    // assets without a price row: nulls, never invented
+    const q = j.assets.find((a: { symbol: string }) => a.symbol === 'QQQB');
+    expect(q.deviationBps).toBeNull();
+  });
+
+  it('/v1/market deviationBps is null when referencePrice is null or 0, negative when below', async () => {
+    for (const [price, ref, want] of [['100', null, null], ['100', '0', null], [null, '100', null], ['99', '100', -100]] as const) {
+      const { app } = mk({ bw3: richBw3({ async rwaPrice() { return priceRow(price, ref); } }) });
+      const n = (await (await app.request('/v1/market')).json()).assets.find((a: { symbol: string }) => a.symbol === 'NVDAB');
+      expect(n.deviationBps).toBe(want);
+    }
+  });
+
+  it('/v1/market nulls underlying and profile when those calls fail, and still answers', async () => {
+    const { app } = mk({ bw3: richBw3({ async rwaUnderlyingMarket() { throw new Error('boom'); }, async rwaUnderlyingProfile() { throw new Error('boom'); } }) });
+    const res = await app.request('/v1/market');
+    expect(res.status).toBe(200);
+    const n = (await res.json()).assets.find((a: { symbol: string }) => a.symbol === 'NVDAB');
+    expect(n.price).toBe('234.5');
+    expect(n.underlying).toBeNull();
+    expect(n.profile).toBeNull();
+    expect(n.deviationBps).toBe(9);
+  });
+
+  it('/v1/market caches profile separately and fails only when rwa/price fails', async () => {
+    let up = 0;
+    const { app } = mk({ bw3: richBw3({ async rwaUnderlyingProfile() { up++; return live('underlying-profile-NVDAB'); } }) });
+    await app.request('/v1/market');
+    await app.request('/v1/market');
+    expect(up).toBe(5); // one per token, then cached
+    const bad = mk({ bw3: richBw3({ async rwaPrice() { throw new Error('down'); } }) });
+    expect((await bad.app.request('/v1/market')).status).toBe(502);
+  });
+
+  it('candles: happy path is ascending, strings, unix seconds, cached', async () => {
+    let n = 0;
+    const rows = live('candles-1d') as (number | string)[][];
+    const bw3 = { ...richBw3(), async candles(p: { address: string; interval: string; limit?: number }) { n++; expect(p).toEqual({ address: TOKENS.NVDAB.address, interval: '1d', limit: 90 }); return [...rows].reverse(); } };
+    const { app } = mk({ bw3 });
+    const j = await (await app.request('/v1/market/nvdab/candles')).json();
+    expect(j).toMatchObject({ symbol: 'NVDAB', address: TOKENS.NVDAB.address, interval: '1d', source: 'binance-web3-market-candles' });
+    expect(j.candles).toHaveLength(5);
+    expect(j.candles[0].t).toBe(Math.floor(Number(rows[0]![5]) / 1000));
+    expect(j.candles[1].t).toBeGreaterThan(j.candles[0].t);
+    expect(Object.keys(j.candles[0])).toEqual(['t', 'o', 'h', 'l', 'c', 'v']);
+    expect(typeof j.candles[0].o).toBe('string');
+    await app.request('/v1/market/NVDAB/candles');
+    expect(n).toBe(1);
+  });
+
+  it('candles: limit clamps upstream to 300, validates interval and limit', async () => {
+    const seen: number[] = [];
+    const bw3 = { ...richBw3(), async candles(p: { limit?: number }) { seen.push(p.limit!); return []; } };
+    const { app } = mk({ bw3 });
+    expect((await app.request('/v1/market/NVDAB/candles?limit=365&interval=4h')).status).toBe(200);
+    expect(seen).toEqual([300]);
+    expect((await app.request('/v1/market/NVDAB/candles?interval=1m')).status).toBe(400);
+    expect((await app.request('/v1/market/NVDAB/candles?limit=0')).status).toBe(400);
+    expect((await app.request('/v1/market/NVDAB/candles?limit=366')).status).toBe(400);
+  });
+
+  it('candles: 404 unknown symbol, 503 without keys', async () => {
+    const { app } = mk({ bw3: { ...richBw3(), async candles() { return []; } } });
+    const r = await app.request('/v1/market/DOGE/candles');
+    expect(r.status).toBe(404);
+    expect((await r.json()).error.code).toBe('unknown_symbol');
+    const none = await mk().app.request('/v1/market/NVDAB/candles');
+    expect(none.status).toBe(503);
+    expect((await none.json()).error.code).toBe('bw3_not_configured');
+  });
+
+  it('/v1/binance/status works without keys, lists all modules, never 503, no secrets', async () => {
+    bw3Stats.reset();
+    const res = await mk().app.request('/v1/binance/status');
+    expect(res.status).toBe(200);
+    const j = await res.json();
+    expect(j.configured).toBe(false);
+    expect(typeof j.generatedAt).toBe('number');
+    expect(j.modules.map((m: { id: string }) => m.id)).toEqual(['market.rwa.price', 'market.rwa.underlying-market', 'market.rwa.underlying-profile', 'market.candles', 'tx.gas-price', 'tx.simulate', 'trading.quote', 'b402']);
+    const by = Object.fromEntries(j.modules.map((m: { id: string }) => [m.id, m]));
+    expect(by['trading.quote'].inProduction).toBe(false);
+    expect(by['b402'].inProduction).toBe(false);
+    expect(by['tx.gas-price']).toMatchObject({ inProduction: true, usedBy: ['keeper'], note: 'keeper, when BW3 keys are set', calls: 0, okCalls: 0, lastOkAt: null, lastError: null });
+    expect(by['market.rwa.price'].usedBy).toContain('keeper price guard');
+    expect(by['market.candles'].api).toBe('Market API');
+    expect((await mk({ bw3: richBw3() }).app.request('/v1/binance/status').then((r) => r.json())).configured).toBe(true);
+  });
+
+  it('/v1/binance/status merges live stats from the bw3 registry', async () => {
+    bw3Stats.reset();
+    bw3Stats.record('/api/v1/dex/market/candles?x=secret', true);
+    bw3Stats.record('/api/v1/dex/market/candles', false, 'Bw3Error 40001');
+    const j = await (await mk().app.request('/v1/binance/status')).json();
+    const m = j.modules.find((x: { id: string }) => x.id === 'market.candles');
+    expect(m).toMatchObject({ calls: 2, okCalls: 1, lastError: 'Bw3Error 40001' });
+    expect(m.lastOkAt).toBeGreaterThan(0);
+    expect(JSON.stringify(j)).not.toContain('secret');
+    bw3Stats.reset();
   });
 
   it('/v1/market is 503 without BW3 keys', async () => {
