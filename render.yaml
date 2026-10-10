@@ -26,7 +26,7 @@ services:
       - { key: FLOOR_LENS, sync: false }
       - { key: FLOOR_RPC_URL, sync: false }          # BSC mainnet RPC (a paid/keyed one; not the public dataseed). Also used by the keeper and x402 unless BSC_RPC_URL / X402_RPC_URL are set
       - { key: WEB_ORIGIN, value: "https://floor.ayush.works,https://floorbnb.vercel.app" }   # CORS; add your final domain, comma separated
-      - { key: BW3_API_KEY, sync: false }
+      - { key: BW3_API_KEY, sync: false }            # Binance Web3 API key; used by the API, MCP and keeper
       - { key: BW3_API_SECRET, sync: false }
       - { key: ETHERSCAN_API_KEY, sync: false }      # optional: Etherscan v2 key; logs are read through it first, chunked RPC is the fallback
       - { key: FLOOR_RUNS_FROM_BLOCK, sync: false }  # block of the factory deploy; serves the keeper log from on-chain events
@@ -34,7 +34,7 @@ services:
       - { key: MCP_PUBLIC_URL, value: "https://floor-server.onrender.com/mcp" }   # change if the service name differs
       - { key: MCP_ALLOWED_ORIGINS, value: "https://floor.ayush.works,https://floorbnb.vercel.app" }
       - { key: X402_NETWORK, value: "eip155:56" }
-      - { key: X402_FACILITATOR, value: "self" }     # "b402" only once Binance grants credentials
+      - { key: X402_FACILITATOR, value: "self" }     # "self" = Floor's own facilitator (live). "b402" = Binance-hosted, via the Web3 API key (supported/verify tested live 2026-10-05; settle not yet run live)
       - { key: X402_PAYTO, sync: false }             # receive-only payout wallet (0xF5f3...816B)
       - { key: X402_ASSET, sync: false }             # payment token address (USD1 or U on BSC; EIP-3009)
       - { key: X402_ASSET_SYMBOL, sync: false }
@@ -50,5 +50,8 @@ services:
       - { key: KEEPER_PRIVATE_KEY, sync: false }     # secret; env only; ~0.03 BNB on this address. Unset = dry-run (simulate only)
       - { key: KEEPER_ROUTE, value: "direct" }       # Pancake only (decided); "agg" needs addRouter + 24 h first
       - { key: KEEPER_INTERVAL_SEC, value: "60" }
+      - { key: KEEPER_BW3_PRICE_GUARD_BPS, value: "500" }   # skip rebalances that BUY a bStock when Binance token price and the underlying reference price differ by more than this many bps; sells never blocked; 0 disables; fails open if Binance is unavailable
+      - { key: KEEPER_BW3_GAS, value: "1" }          # gas price from the Binance Transaction API with sanity bounds, RPC fallback
+      - { key: KEEPER_BW3_SHADOW_SIM, value: "1" }   # log-only second simulation via the Binance Transaction API
       - { key: FLOOR_ASSETS, sync: false }           # comma-separated bStock token addresses
       - { key: ALERT_WEBHOOK_URL, sync: false }      # optional Discord/Slack webhook for failures

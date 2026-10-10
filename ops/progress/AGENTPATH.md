@@ -1,3 +1,5 @@
+> Superseded 2026-10-05 (commit 20485eb): b402 uses the Web3 API key with HMAC headers; see packages/x402/src/b402.ts.
+
 # AGENTPATH: the agent payment path, proven on a local fork
 
 ## Status
