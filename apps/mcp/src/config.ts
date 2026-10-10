@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { FLOOR_DISCLOSURE } from '@floor/sdk';
 import { DEFAULT_PAID_PRICE_USD } from '@floor/x402';
 
@@ -95,9 +94,4 @@ export function loadConfig(env: Env, repoRoot: string): McpConfig {
     rpcUrl: env.X402_RPC_URL ?? env.BSC_RPC_URL,
     dataRoot: env.FLOOR_REPO_ROOT ?? repoRoot,
   };
-}
-
-/** RSA key for b402: a path to a PKCS#8 file (never an inline env value, never logged). */
-export function readKeyFile(path: string): string {
-  return readFileSync(path, 'utf8');
 }

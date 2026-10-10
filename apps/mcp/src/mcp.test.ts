@@ -95,6 +95,27 @@ describe('free tools (mocked API)', () => {
     expect(structured(r2).error.code).toBe('guard');
   });
 
+  it('build_create_position_tx adds baw preview commands matching the txs, in order, with decimal wei', async () => {
+    const txs = [{ to: USDT_ADDR, data: '0x095ea7b3aa', value: '0' }, { to: FACTORY, data: '0xbeef01', value: '0x10' }];
+    const r = await (await connect(buildApp({ api: fakeApi({ 'GET /v1/floor': floorInfo, 'POST /v1/tx/create-position': { txs, checks: {} } }) }).app)).callTool({ name: 'build_create_position_tx', arguments: createArgs });
+    expect(structured(r).bawCommands).toEqual([
+      `baw contract-call preview --binanceChainId 56 --from ${PAYEE} --to ${USDT_ADDR} --value 0 --inputData 0x095ea7b3aa --json`,
+      `baw contract-call preview --binanceChainId 56 --from ${PAYEE} --to ${FACTORY} --value 16 --inputData 0xbeef01 --json`,
+    ]);
+    const bad = { txs: [{ to: '0x00000000000000000000000000000000000000bd', data: '0x', value: '0' }] };
+    const r2 = await (await connect(buildApp({ api: fakeApi({ 'GET /v1/floor': floorInfo, 'POST /v1/tx/create-position': bad }) }).app)).callTool({ name: 'build_create_position_tx', arguments: createArgs });
+    expect(structured(r2).bawCommands).toBeUndefined();
+  });
+
+  it('build_exit_tx adds one baw preview command using the owner from the API', async () => {
+    const api = fakeApi({ 'POST /v1/tx/exit': { mode: 'requestClose', owner: PAYEE, tx: { to: VAULT, data: '0xabcd', value: '0' } } });
+    const r = await (await connect(buildApp({ api }).app)).callTool({ name: 'build_exit_tx', arguments: { vault: VAULT, kind: 'requestClose' } });
+    expect(structured(r).bawCommands).toEqual([`baw contract-call preview --binanceChainId 56 --from ${PAYEE} --to ${VAULT} --value 0 --inputData 0xabcd --json`]);
+    const evil = fakeApi({ 'POST /v1/tx/exit': { tx: { to: PAYEE, data: '0x', value: '0' } } });
+    const r2 = await (await connect(buildApp({ api: evil }).app)).callTool({ name: 'build_exit_tx', arguments: { vault: VAULT, kind: 'closeToUSDT' } });
+    expect(structured(r2).bawCommands).toBeUndefined();
+  });
+
   it('build_exit_tx passes the kind as mode and refuses a tx aimed anywhere but the vault', async () => {
     let seen: unknown;
     const api = fakeApi({ 'POST /v1/tx/exit': (b?: unknown) => ((seen = b), { mode: 'requestClose', tx: { to: VAULT, simulation: { ok: true } } }) });

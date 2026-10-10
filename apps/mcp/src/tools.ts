@@ -97,6 +97,22 @@ function protection(a: { depositUsdt: string; floorBps: number; termSeconds: num
 }
 const usdt = (x: bigint) => formatUnits(x, 18);
 
+/** Wei as a decimal integer string; accepts a decimal string or 0x hex, anything else becomes "0". */
+function weiDecimal(v: unknown): string {
+  if (typeof v === 'string' && /^\d+$/.test(v)) return v;
+  if (typeof v === 'string' && /^0x[0-9a-fA-F]+$/.test(v)) return BigInt(v).toString();
+  if (typeof v === 'bigint' || typeof v === 'number') return BigInt(v).toString();
+  return '0';
+}
+
+/**
+ * One Binance Agentic Wallet `baw contract-call preview` command per unsigned tx, in order. Preview only:
+ * nothing is sent until the user confirms and runs `baw contract-call execute`.
+ */
+export function bawPreviewCommands(from: string, txs: { to: string; data?: string; value?: unknown }[]): string[] {
+  return txs.map((t) => `baw contract-call preview --binanceChainId 56 --from ${from} --to ${t.to} --value ${weiDecimal(t.value)} --inputData ${t.data ?? '0x'} --json`);
+}
+
 /** Pure arithmetic from the SDK's CPPI maths. A what-if, not a forecast. */
 function gapWhatIf(a: { depositUsdt: string; floorBps: number; termSeconds: number; weightsBps?: number[]; gapBps: number }) {
   const { deposit, q } = protection(a);
@@ -194,27 +210,27 @@ export function createFloorMcpServer(deps: ToolDeps): McpServer {
     'build_create_position_tx',
     'Build create-position transactions',
     'Returns UNSIGNED transactions: a USDT approve to the factory, then createPosition, each with a simulation result from the API (createPosition is simulated only once the allowance is on chain, else simulation is null). ' +
-      'Nothing is signed or sent. The owner wallet signs. Free.',
+      'Nothing is signed or sent. The owner wallet signs. Also returns bawCommands (Binance Agentic Wallet preview commands, in order). Free.',
     createShape,
     async (a) => {
       const [r, info] = await Promise.all([api.post('/v1/tx/create-position', a), api.get('/v1/floor')]);
-      const txs = (r as { txs?: { to: string }[] }).txs ?? [];
+      const txs = (r as { txs?: { to: string; data?: string; value?: unknown }[] }).txs ?? [];
       const f = info as { factory: string; usdt: string };
       const allowed = new Set([f.factory.toLowerCase(), f.usdt.toLowerCase()]);
       if (txs.length === 0 || txs.some((t) => !allowed.has(t.to.toLowerCase()))) return fail('guard', 'refusing to return a transaction to an unexpected address');
-      return ok({ ...(r as object), instructions: 'Show the user both calls. They sign the approve first, then createPosition. Verify each `to` equals the factory or USDT from get_floor_info.' });
+      return ok({ ...(r as object), bawCommands: bawPreviewCommands(a.owner, txs), instructions: 'Show the user both calls. They sign the approve first, then createPosition. Verify each `to` equals the factory or USDT from get_floor_info.' });
     },
   );
 
   reg(
     'build_exit_tx',
     'Build exit transaction',
-    'Returns ONE UNSIGNED transaction to leave a position: requestClose (ask for a close), closeToUSDT (settle to USDT) or exitInKind (take the held tokens; `to` defaults to the owner). Includes a simulation run as the owner. Only the owner can send it. Free.',
+    'Returns ONE UNSIGNED transaction to leave a position: requestClose (ask for a close), closeToUSDT (settle to USDT) or exitInKind (take the held tokens; `to` defaults to the owner). Includes a simulation run as the owner. Only the owner can send it. Also returns bawCommands (a Binance Agentic Wallet preview command). Free.',
     { vault: addressSchema, kind: z.enum(['requestClose', 'closeToUSDT', 'exitInKind']), to: addressSchema.optional() },
     async (a) => {
-      const r = (await api.post('/v1/tx/exit', { vault: a.vault, mode: a.kind, ...(a.to ? { to: a.to } : {}) })) as { tx?: { to: string } };
+      const r = (await api.post('/v1/tx/exit', { vault: a.vault, mode: a.kind, ...(a.to ? { to: a.to } : {}) })) as { tx?: { to: string; data?: string; value?: unknown }; owner?: string };
       if (!r.tx || r.tx.to.toLowerCase() !== a.vault.toLowerCase()) return fail('guard', 'refusing to return a transaction whose target is not the requested vault');
-      return ok({ ...r, instructions: 'Show the user the decoded call. They sign with the owner wallet.' });
+      return ok({ ...r, bawCommands: bawPreviewCommands(r.owner ?? '<AGENT_WALLET>', [r.tx]), instructions: 'Show the user the decoded call. They sign with the owner wallet.' });
     },
   );
 
