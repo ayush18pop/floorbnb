@@ -1,5 +1,6 @@
 export * from './abi.js';
 export * from './agg.js';
+export * from './bw3.js';
 export * from './chain.js';
 export * from './config.js';
 export * from './direct.js';

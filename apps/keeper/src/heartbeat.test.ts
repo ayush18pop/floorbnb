@@ -1,4 +1,4 @@
-import { mkdtempSync, readFileSync, existsSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -12,7 +12,9 @@ describe('writeHeartbeat', () => {
   });
   it('does nothing without a file and never throws on a bad path', () => {
     expect(() => writeHeartbeat(undefined)).not.toThrow();
-    expect(() => writeHeartbeat('/proc/nope/hb.json')).not.toThrow();
-    expect(existsSync('/proc/nope')).toBe(false);
+    // a regular file as the parent folder makes mkdir fail (ENOTDIR). The old path /proc/nope/hb.json hung mkdirSync({recursive}) on Linux 6.18.
+    const blocker = join(mkdtempSync(join(tmpdir(), 'kb-')), 'file');
+    writeFileSync(blocker, 'x');
+    expect(() => writeHeartbeat(join(blocker, 'sub', 'hb.json'))).not.toThrow();
   });
 });
