@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "viem": ["../../packages/x402/node_modules/viem"],
+      "viem/*": ["../../packages/x402/node_modules/viem/*"]
+    }
+  },
+  "include": ["*.ts"]
+}

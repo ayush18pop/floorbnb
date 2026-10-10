@@ -1,6 +1,6 @@
 ---
 name: floor
-description: Use Floor to protect tokenized stocks (bStocks such as NVDAB, SPCXB, QQQB) on BNB Chain. Trigger when a user holds or wants tokenized stocks and asks about downside protection, a floor, hedging without derivatives, "protect my portfolio", quoting, backtesting, gap risk, or exiting a Floor position. Covers the Floor MCP tools, x402 payment for paid tools, a safe confirm-then-sign workflow, honest-claim rules, refusal cases and worked examples. The agent never signs or holds keys.
+description: Use Floor to protect tokenized stocks (bStocks such as NVDAB, SPCXB, QQQB) on BNB Chain. Trigger when a user holds or wants tokenized stocks and asks about downside protection, a floor, hedging without derivatives, "protect my portfolio", quoting, backtesting, gap risk, or exiting a Floor position. Covers the Floor MCP tools, x402 payment for paid tools, a safe confirm-then-sign workflow, honest-claim rules, refusal cases and worked examples. The agent never signs or holds keys; with a Binance Agentic Wallet the user's wallet signs only after the user confirms each preview.
 ---
 
 # Floor: portfolio protection for tokenized stocks
@@ -64,6 +64,12 @@ If no x402 signer is available, say so, skip the paid step, and offer the free t
 
 If a build call returns error code `guard`, stop. Do not work around it.
 
+## Signing with Binance Agentic Wallet
+
+If the user's wallet is a Binance Agentic Wallet (the `baw` CLI), the unsigned transactions from `build_create_position_tx` and `build_exit_tx` can be sent through `baw contract-call preview` then `execute` (Developer Mode required). The tools return ready `bawCommands`. The Floor agent still never holds keys: the user's Binance MPC wallet signs only after the user has seen each preview and said yes, one transaction at a time. Exact steps, failures and an experimental x402 payment path: `references/agentic-wallet.md`. Not yet executed live by the team (documented from Binance's official docs, 2026-10-10).
+
+Optional market check: if the user also has Binance's `binance-tokenized-securities-info` skill, use it for ticker to contract, market status and halts before recommending. Floor's own `list_assets` and `get_floor_info` stay the source for what Floor accepts.
+
 ## Reading and explaining a position
 
 `get_status` returns fields from the Lens: `V` (current value), `floor`, `cushion` (V minus floor), `exposure` (stock held), `target`, `needsRebalance`, `tradingOpen`, plus `status` Active, Closing or Closed, `deposit`, `maturity`, `cashLocked`. Values are wei strings with 18 decimals; convert before showing.
@@ -114,5 +120,6 @@ Short versions. Full transcripts: `references/examples.md`.
 
 - `references/tools.md`: schemas, errors, units.
 - `references/x402.md`: payment details and behaviour of `apps/mcp` and `packages/x402`.
+- `references/agentic-wallet.md`: signing with the Binance Agentic Wallet (`baw`).
 - `references/examples.md`: three full conversations.
 - Source of truth if anything here disagrees with the server: the server (`apps/mcp/src/tools.ts`, `apps/mcp/src/config.ts`). Trust `get_floor_info` over this file.

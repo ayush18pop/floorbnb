@@ -12,8 +12,8 @@ Source: `apps/mcp/src/tools.ts`, `apps/mcp/src/config.ts`. All inputs are strict
   - `amount`: integer string, wei (18 decimals). 1000 USDT = "1000000000000000000000".
   - `floorBps` 5000 to 9800. `termSeconds` 604800 (7 d) to 34560000 (400 d); launch default 31536000 (required here, no default).
   - `assets`: 1 to 3 enabled bStock addresses from `get_floor_info`. `weightsBps`: same length, positive integers, sum 10000. Both required here, unlike the paid tools where weights are optional.
-  - Returns `txs[2]` (approve to the factory, then createPosition) each with `simulation` (createPosition's is null until the allowance is on chain), `checks` {usdtBalance, allowance, sufficientBalance, createSimulated}, `instructions`.
-- `build_exit_tx {vault, kind: requestClose|closeToUSDT|exitInKind, to?}`: returns ONE `tx` with `simulation` run as the owner. The server refuses if `tx.to` is not the vault.
+  - Returns `txs[2]` (approve to the factory, then createPosition) each with `simulation` (createPosition's is null until the allowance is on chain), `checks` {usdtBalance, allowance, sufficientBalance, createSimulated}, `instructions`, and `bawCommands: string[]`: one `baw contract-call preview ...` command per tx, same order (approve, then createPosition), `--from` = the `owner` you passed, `--value` decimal wei. Absent when the server refuses (`guard`). Preview only; see `agentic-wallet.md`.
+- `build_exit_tx {vault, kind: requestClose|closeToUSDT|exitInKind, to?}`: returns ONE `tx` with `simulation` run as the owner. The server refuses if `tx.to` is not the vault. Also returns `bawCommands` with one `baw contract-call preview ...` command (`--from` = the vault owner from the API).
 
 ## Paid (x402; 0.01 USD per call by default, live value in `get_floor_info`)
 
