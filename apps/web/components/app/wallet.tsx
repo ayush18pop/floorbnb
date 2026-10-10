@@ -90,8 +90,11 @@ function ConnectModal({ open, onClose }: { open: boolean; onClose: () => void })
         ))}
         {agentInfo && (
           <div className="border-t border-grid px-6 py-4">
-            <Notice kind="info" title="An Agentic Wallet does not connect to this page.">
-              It is a keyless wallet that an AI agent drives from a terminal, so there is no browser prompt to approve. Your agent calls {BRAND.name}&apos;s tools and signs with its own wallet. <Link href="/agents" className="prose-link" onClick={onClose}>See how agents use {BRAND.name}</Link>.
+            <Notice kind="info" title="A browser page cannot connect an Agentic Wallet.">
+              <p>An AI agent can use {BRAND.name} through its MCP tools (<code>build_create_position_tx</code>, <code>build_exit_tx</code> return unsigned transactions) and execute them with Binance Agentic Wallet Developer Mode:</p>
+              <pre className="code mt-2 overflow-x-auto" tabIndex={0}>{`baw contract-call preview --binanceChainId 56 --from <agent wallet> --to <to> --value <wei> --inputData <data> --json
+baw contract-call execute --requestId <id> --json`}</pre>
+              <p className="mt-2">Developer Mode is enabled in the Binance app and has its own daily limit and expiry. It does not support x402 payments. This flow is documented by Binance; we have not run it live yet. See <Link href="/docs/agents#agentic-wallet" className="prose-link" onClick={onClose}>Agents</Link> and <Link href="/docs/binance" className="prose-link" onClick={onClose}>Binance</Link>.</p>
             </Notice>
           </div>
         )}

@@ -67,6 +67,7 @@ export function Builder() {
   });
 
   const cost = assets.reduce((acc, s, i) => acc + (ASSETS.find((a) => a.symbol === s)!.roundTripBps * weights[i]) / 10_000, 0);
+  const costAgg = assets.reduce((acc, s, i) => acc + (ASSETS.find((a) => a.symbol === s)!.aggregatorBps * weights[i]) / 10_000, 0);
   const floorValue = q ? num(q.floorValue) : 0;
   const stock = q ? num(q.startingExposure) : 0;
   const stockPct = q ? q.startingExposureBps / 100 : 0;
@@ -166,12 +167,12 @@ export function Builder() {
                 {cap(run.mode)} {termWord(run.termDays)} window of {run.windows} (starting monthly since 2018): {run.startDate} to {run.endDate}, chosen by the lowest holding return. Holding ended {sgnPct(run.holdPct)}, the vault {sgnPct(run.vaultPct)} with a {run.floorPct}% floor (lowest value {sgnPct(run.floorPct - 100)}) and m = {BRAND.multiplier}.
                 {run.lockedDays > 0 ? ` The vault sat in USDT (cash lock) for ${run.lockedDays} of ${run.steps} trading days.` : ""}
                 {run.missing.length ? ` No price history for ${run.missing.join(", ")}: it is left out of this chart.` : ""}
-                {run.symbols.length > 1 ? " Basket: equal weight, rebalanced daily." : ""} Simplified: daily closes, one trade a day, 6 bps per trade, 0% on USDT, token assumed to track its stock; the real vault trades only in its window. {BRAND.backtestCaption}
+                {run.symbols.length > 1 ? " Basket: equal weight, rebalanced daily." : ""} Simplified: daily closes, one trade a day, an assumed 6 bps per trade (about the 2026-10-02 aggregator quote for NVDAB and SPCXB; the live direct route measured about 49 bps at 100 USDT, so real costs for those would be higher), 0% on USDT, token assumed to track its stock; the real vault trades only in its window. {BRAND.backtestCaption}
               </p>
             </InfoPopover>
           </div>
           </>) : (
-            <div className="p-3 md:p-4"><Notice kind="info" title="No price history">{assets.join(", ")} has no price history here (SPCXB listed in June 2026). Add NVDAB, QQQB or SPYB to see a backtest. Your floor and term still work.</Notice></div>
+            <div className="p-3 md:p-4"><Notice kind="info" title="No price history">{assets.join(", ")} has no price history here (SPCXB listed in June 2026). Add NVDAB or QQQB to see a backtest. Your floor and term still work.</Notice></div>
           )}
         </div>
 
@@ -187,8 +188,9 @@ export function Builder() {
             <MiniMeter pct={upsideKeptPct(floor)} kind="upside" label={`About ${upsideKeptPct(floor)} percent of a rise kept`} />
           </div>
           <div className="tile tile-s">
-            <p className="stat-label !text-[11px]">Cost per rebalance<InfoPopover label="cost per rebalance" title="Cost per rebalance"><p>Per $10k round trip, live quotes Thu 2026-10-02. Weekend cost not measured.</p></InfoPopover></p>
+            <p className="stat-label !text-[11px]">Cost per rebalance<InfoPopover label="cost per rebalance" title="Cost per rebalance"><p>Estimate on the live route, direct PancakeSwap v3: measured on a fork at 100 USDT, 2026-10-02 (NVDAB 49 bps, SPCXB 49 bps, QQQB 1 bp), weighted by your basket. Cost at larger sizes is not measured.</p><p className="small">Best case via the Binance aggregator, which is built and fork-tested but not the live route: about {costAgg.toFixed(1)} bps (quotes on a $10k round trip, 2026-10-02). Weekend cost is not measured.</p></InfoPopover></p>
             <p className="v">~{cost.toFixed(1)} bps</p>
+            <p className="small !text-[11px]">Live route (direct), at 100 USDT, 2026-10-02. Aggregator best case, not live: ~{costAgg.toFixed(1)} bps.</p>
           </div>
         </div>
         <div className="mx-3 mb-3 md:mx-4">

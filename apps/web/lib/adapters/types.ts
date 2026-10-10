@@ -8,7 +8,7 @@ import type { LensStatus, VaultStatusCode } from "@floor/sdk";
 export type { Address, Hex, LensStatus };
 export type VaultStatus = VaultStatusCode;
 
-export type AssetSymbol = "NVDAB" | "SPCXB" | "QQQB" | "SPYB";
+export type AssetSymbol = "NVDAB" | "SPCXB" | "QQQB";
 
 export type Holding = {
   symbol: AssetSymbol;
@@ -115,8 +115,10 @@ export type AssetInfo = {
   symbol: AssetSymbol;
   name: string;
   token: Address;
-  /** Round-trip cost per $10k in bps from live quotes (CONTEXT.md, Thu 2026-10-02 12:06 UTC). */
+  /** Direct PancakeSwap v3 round trip in bps, fork at 100 USDT, 2026-10-02. The live route. Not measured at $10k. */
   roundTripBps: number;
+  /** Binance aggregator quote, $10k round trip, 2026-10-02. Best case via the aggregator, which is not the live route. */
+  aggregatorBps: number;
   optional?: boolean;
 };
 

@@ -11,7 +11,7 @@ export const metadata = pageMetadata("/docs/trade-off", "The trade-off");
 const rows: [string, string][] = [
   ["About 58% of the gain in an up year. At a 90% floor the vault kept about 42% of a three-stock basket's gain (roughly 4 × (100 − floor)%).", "Bad years cut to −8.6% where holding lost 17.2% (NVDA + TSLA + QQQ basket, typical bad year)."],
   ["NVDA: kept about 45% of the gain. QQQ: about 32%.", "NVDA: −9.9% where holding lost 36.5% (typical bad year). QQQ: −7.4% where holding lost 19.4%."],
-  ["Trading costs on each rebalance. Live aggregator quotes on a $10k round trip were 0.7 to 6.6 basis points for QQQB, NVDAB, SPCXB and SPYB (Thursday, 2026-10-02), if the vault uses the aggregator route.", "A floor you chose, written in a public contract you can read."],
+  ["Trading costs on each rebalance. Live rebalances use direct PancakeSwap v3: about 49 bps round trip for NVDAB and SPCXB and 1 bp for QQQB, measured on a fork at 100 USDT (2026-10-02; larger sizes not measured). Binance aggregator quotes on a $10k round trip were 0.7 to 6.0 bps (2026-10-02), a best case if that route is switched on; it is not live.", "A floor you chose, written in a public contract you can read."],
 ];
 
 export default function Page() {
@@ -59,7 +59,7 @@ export default function Page() {
       </Callout>
 
       <h2 id="costs">Costs</h2>
-      <p>There is no protocol fee in v1. The cost is the upside you give up, plus small trading costs on each rebalance. 1 basis point (bp) = 0.01%. So 0.7 bps = 0.007%, and 100 bps = 1%. The full cost table is on the <L href="/docs/backtest#costs">backtest page</L>. The vault may route directly through PancakeSwap, where we measured about 49 bps for NVDAB and SPCXB at 100 USDT. Weekend and crash-time costs are not yet measured.</p>
+      <p>There is no protocol fee in v1. The cost is the upside you give up, plus small trading costs on each rebalance. 1 basis point (bp) = 0.01%. So 1 bps = 0.01%, and 100 bps = 1%. Live rebalances route directly through PancakeSwap v3, where we measured about 49 bps for NVDAB and SPCXB and 1 bp for QQQB on a fork at 100 USDT (2026-10-02). The Binance aggregator route quoted 0.7 to 6.0 bps on a $10k round trip (2026-10-02) but is built and fork-tested only, not live. The quote table is on the <L href="/docs/backtest#costs">backtest page</L>. Direct cost at $10k, weekend cost and crash-time cost are not measured.</p>
       <p>Next: how we tested it, on <L href="/docs/backtest">Backtest</L>.</p>
     </DocPage>
   );
