@@ -66,7 +66,7 @@ export interface AppDeps {
     rwaUnderlyingMarket?(address: string): Promise<Record<string, unknown>>;
     rwaUnderlyingProfile?(address: string): Promise<Record<string, unknown>>;
     /** Rows: [open, high, low, close, volume, openTimeMs, trades]. */
-    candles?(p: { address: string; interval: string; limit?: number }): Promise<(number | string)[][]>;
+    candles?(p: { address: string; interval: string; limit?: number }): Promise<(number | string | null)[][]>;
   };
   runs?: KeeperRunStore;
   /** Decoded vault events (cached, incremental). Absent: /v1/positions/:vault/activity answers 501. */

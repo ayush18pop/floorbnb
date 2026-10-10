@@ -102,8 +102,11 @@ export const rwaPlatformsData = z.array(loose({
   logoUrl: str,
 }));
 
-/** Row: [open, high, low, close, volume, openTimeMs, trades]; numbers (strings tolerated). Order inferred from data (undocumented). */
-export const candleRow = z.array(z.union([z.number(), z.string()])).min(6);
+/**
+ * Row: [open, high, low, close, volume, openTimeMs, trades]; numbers (strings tolerated). Order inferred from data (undocumented).
+ * Older rows carry null in trailing fields (seen live 2026-10-11 on 1d limit>=30 and 4h limit>=120), so nulls are allowed.
+ */
+export const candleRow = z.array(z.union([z.number(), z.string(), z.null()])).min(6);
 export const candlesData = z.array(candleRow);
 export type Candle = z.infer<typeof candleRow>;
 
