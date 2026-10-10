@@ -1,0 +1,96 @@
+{
+  "code": "000000",
+  "msg": "success",
+  "data": [
+    {
+      "binanceChainId": "56",
+      "tokenContractAddress": "0x7c26a12f20507e2cee22ceebed9e88fda47f866c",
+      "platformId": "bstock",
+      "assetType": 3,
+      "tokenName": "GraniteShares 2X Long MRVL ETF (bStocks)",
+      "tokenSymbol": "MVLLB",
+      "tokenLogoUrl": "https://onchainos.bnbstatic.com/images/web3-data/public/token/logos/bd5e5584140045ccaf50e75fab3af8f6.png",
+      "decimals": "18",
+      "underlyingTicker": "MVLL",
+      "underlyingName": "2x Long Marvell Daily ETF - GraniteShares",
+      "tokenToShareRatio": "1.000000000000000000",
+      "underlyingNameZh": "每日2倍做多迈威尔科技ETF-GraniteShares",
+      "tags": [
+        "alpha"
+      ],
+      "statusInfo": {
+        "openState": true,
+        "marketStatus": null,
+        "reasonCode": "TRADING",
+        "reasonMsg": null,
+        "nextOpenTime": null,
+        "nextCloseTime": null
+      },
+      "tokenPrice": "39.04",
+      "referencePrice": "39.04",
+      "volume24H": "59467861",
+      "marketCap": null,
+      "peRatioTTM": null
+    },
+    {
+      "binanceChainId": "56",
+      "tokenContractAddress": "0x16cd4fe7e8880ecc3ba222795229e20489fc2c76",
+      "platformId": "bstock",
+      "assetType": 1,
+      "tokenName": "Marvell Technology (bStocks)",
+      "tokenSymbol": "MRVLB",
+      "tokenLogoUrl": "https://onchainos.bnbstatic.com/images/web3-data/public/token/logos/ad1c5119a4e64a328c34819038371657.png",
+      "decimals": "18",
+      "underlyingTicker": "MRVL",
+      "underlyingName": "Marvell Technology, Inc.",
+      "tokenToShareRatio": "1.000153284671603306",
+      "underlyingNameZh": "迈威尔科技",
+      "tags": [
+        "alpha"
+      ],
+      "statusInfo": {
+        "openState": true,
+        "marketStatus": null,
+        "reasonCode": "TRADING",
+        "reasonMsg": null,
+        "nextOpenTime": null,
+        "nextCloseTime": null
+      },
+      "tokenPrice": "277.46252423359618915052",
+      "referencePrice": "277.42",
+      "volume24H": "3841043809",
+      "marketCap": "247395405867",
+      "peRatioTTM": "93.71"
+    },
+    {
+      "binanceChainId": "56",
+      "tokenContractAddress": "0x0ca5d51d0277bd006fd9607d3e560785ebad8222",
+      "platformId": "bstock",
+      "assetType": 1,
+      "tokenName": "Palantir (bStocks)",
+      "tokenSymbol": "PLTRB",
+      "tokenLogoUrl": "https://onchainos.bnbstatic.com/images/web3-data/public/token/logos/4a9f57d0ecb34ee4b81e340173a48d2c.png",
+      "decimals": "18",
+      "underlyingTicker": "PLTR",
+      "underlyingName": "Palantir Technologies Inc.",
+      "tokenToShareRatio": "1.000000000000000000",
+      "underlyingNameZh": "Palantir Technologies Inc.",
+      "tags": [
+        "alpha"
+      ],
+      "statusInfo": {
+        "openState": true,
+        "marketStatus": null,
+        "reasonCode": "TRADING",
+        "reasonMsg": null,
+        "nextOpenTime": null,
+        "nextCloseTime": null
+      },
+      "tokenPrice": "209.71",
+      "referencePrice": "209.71",
+      "volume24H": "6936031325",
+      "marketCap": "502359375244",
+      "peRatioTTM": "166.53"
+    }
+  ]
+}

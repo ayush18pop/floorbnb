@@ -1,0 +1,29 @@
+{
+  "code": "000000",
+  "msg": "success",
+  "data": {
+    "binanceChainId": "56",
+    "tokenContractAddress": "0xbe9d156892e55e7154bcd3cb0fea677f9d3103e1",
+    "platformId": "bstock",
+    "underlyingTicker": "SPCX",
+    "underlyingFullName": "SpaceX (bStocks)",
+    "assetType": 1,
+    "tokenToShareRatio": "1.000000000000000000",
+    "companyInfo": {
+      "ceo": "Elon Musk",
+      "website": "https://www.spacex.com",
+      "industry": "Industrials",
+      "description": "An American aerospace and technology company focused on the development and operation of rockets, spacecraft, satellite internet, and AI infrastructure. Its businesses include satellite launches, human spaceflight, global broadband communications, and next-generation space technologies. Its core products include the Falcon rocket family, the Starship spacecraft, and the Starlink satellite network. It is one of the world's largest commercial space companies and a leader in the orbital launch market.",
+      "conceptsEn": [],
+      "conceptsCn": [],
+      "descriptionZh": "美国航天与科技公司，成立于 2002 年，由 Elon Musk 创立。公司专注于火箭、航天器、卫星互联网和人工智能基础设施的研发与运营，业务涵盖卫星发射、载人航天、全球宽带通信以及下一代太空技术。其核心产品包括 Falcon 系列火箭、Starship 飞船以及 Starlink 卫星网络。SpaceX 目前是全球最大的商业航天企业之一，并在全球轨道发射市场占据领先地位。"
+    },
+    "protections": {
+      "collateralReport": {
+        "supported": true,
+        "description": null,
+        "url": null
+      }
+    }
+  }
+}

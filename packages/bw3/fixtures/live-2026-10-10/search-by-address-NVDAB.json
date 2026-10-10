@@ -1,0 +1,19 @@
+{
+  "code": "000000",
+  "msg": "success",
+  "data": [
+    {
+      "ticker": "NVDA",
+      "companyName": "Nvidia Corp",
+      "assets": [
+        {
+          "platformId": "bstock",
+          "binanceChainId": "56",
+          "tokenContractAddress": "0x02fca66c1d1afb4e2a7884261eb00f63598a7436",
+          "tokenSymbol": "NVDAB",
+          "assetType": 1
+        }
+      ]
+    }
+  ]
+}

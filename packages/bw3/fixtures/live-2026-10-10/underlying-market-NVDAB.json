@@ -1,0 +1,33 @@
+{
+  "code": "000000",
+  "msg": "success",
+  "data": {
+    "binanceChainId": "56",
+    "tokenContractAddress": "0x02fca66c1d1afb4e2a7884261eb00f63598a7436",
+    "platformId": "bstock",
+    "assetType": 1,
+    "statusInfo": {
+      "openState": true,
+      "marketStatus": null,
+      "reasonCode": "TRADING",
+      "reasonMsg": null,
+      "nextOpenTime": null,
+      "nextCloseTime": null
+    },
+    "marketData": {
+      "referencePrice": null,
+      "high52W": "243.3700",
+      "low52W": "164.2700",
+      "volumeShares24H": "74466833",
+      "marketCap": "5536424160000.00",
+      "dividendYield": "0.00120000",
+      "peRatioTTM": "28.7000",
+      "pbRatio": "24.1800",
+      "avgDailyVolume1Y": null,
+      "totalShares": null,
+      "turnoverRate": null,
+      "amplitude": null,
+      "latestDividend": "0.250000"
+    }
+  }
+}

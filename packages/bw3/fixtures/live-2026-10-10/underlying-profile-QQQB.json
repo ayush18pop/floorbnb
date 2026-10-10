@@ -1,0 +1,29 @@
+{
+  "code": "000000",
+  "msg": "success",
+  "data": {
+    "binanceChainId": "56",
+    "tokenContractAddress": "0x205812cdbed920aff76c6580abd681a46d11efc7",
+    "platformId": "bstock",
+    "underlyingTicker": "QQQ",
+    "underlyingFullName": "Invesco QQQ Trust (bStocks)",
+    "assetType": 3,
+    "tokenToShareRatio": "1.000724838657573033",
+    "companyInfo": {
+      "ceo": "",
+      "website": "https://invesco.com",
+      "industry": "ETF",
+      "description": "QQQ tracks the Nasdaq-100 Index, representing the top 100 non-financial tech and growth giants. As a global synonym for tech innovation, it is a core tool for investors capturing growth in tech, biotech, and consumer services.",
+      "conceptsEn": [],
+      "conceptsCn": [],
+      "descriptionZh": "QQQ是一只追踪纳斯达克100指数的明星基金。它包含了纳斯达克市值最大的100家非金融公司（主要是科技、生物医药和消费巨头）。作为全球科技创新的代名词，QQQ是投资者捕捉科技巨头成长红利、进行流动性管理的核心工具。"
+    },
+    "protections": {
+      "collateralReport": {
+        "supported": true,
+        "description": null,
+        "url": null
+      }
+    }
+  }
+}
