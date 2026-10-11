@@ -142,7 +142,7 @@ export function createFloorMcpServer(deps: ToolDeps): McpServer {
         'Floor sets a floor under tokenized stocks (bStocks) on BNB Chain with spot trades only. Call get_floor_info first and use the addresses it returns. ' +
         'Tools that change state only RETURN UNSIGNED transactions; Floor never signs. Check every returned `to` against get_floor_info (factory, USDT) or the vault, ' +
         'show the user the decoded call, and let the user confirm before signing with their own wallet. ' +
-        `Paid tools (${PAID_TOOLS.join(', ')}) use x402: the first call returns a payment-required result; pay and retry with params._meta["x402/payment"]. ` +
+        `Paid tools (${PAID_TOOLS.join(', ')}) settle over b402 (x402 wire format): the first call returns a payment-required result; pay and retry with params._meta["x402/payment"]. ` +
         `${DISCLOSURE}`,
     },
   );
@@ -236,7 +236,7 @@ export function createFloorMcpServer(deps: ToolDeps): McpServer {
 
   // ---------------- paid tools ----------------
   const paid = <S extends z.ZodRawShape>(name: PaidToolName, title: string, description: string, shape: S, compute: (a: z.infer<z.ZodObject<S>>) => Promise<Record<string, unknown>> | Record<string, unknown>) =>
-    reg(name, title, `${description} PAID: ${cfg.prices[name]} USD per call via x402. The first call without payment returns a payment-required result (isError) listing what to pay; retry with params._meta["x402/payment"].`, shape, async (a, extra) => {
+    reg(name, title, `${description} PAID: ${cfg.prices[name]} USD per call over b402 (x402 wire format). The first call without payment returns a payment-required result (isError) listing what to pay; retry with params._meta["x402/payment"].`, shape, async (a, extra) => {
       if (!deps.gate) return fail('payments_not_configured', 'paid tools are not enabled on this server (no payee configured)');
       const metaPayment = extra._meta?.['x402/payment'] as PaymentPayload | undefined;
       const payment = metaPayment ?? ctx.headerPayment;

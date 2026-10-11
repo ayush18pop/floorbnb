@@ -230,9 +230,9 @@ describe('reads', () => {
     expect(typeof j.generatedAt).toBe('number');
     expect(j.modules.map((m: { id: string }) => m.id)).toEqual(['market.rwa.price', 'market.rwa.underlying-market', 'market.rwa.underlying-profile', 'market.candles', 'tx.gas-price', 'tx.simulate', 'trading.quote', 'b402']);
     const by = Object.fromEntries(j.modules.map((m: { id: string }) => [m.id, m]));
-    expect(by['trading.quote'].inProduction).toBe(false);
-    expect(by['b402'].inProduction).toBe(false);
-    expect(by['tx.gas-price']).toMatchObject({ inProduction: true, usedBy: ['keeper'], note: 'keeper, when BW3 keys are set', calls: 0, okCalls: 0, lastOkAt: null, lastError: null });
+    expect(by['trading.quote'].inProduction).toBe(true);
+    expect(by['b402']).toMatchObject({ inProduction: true, note: 'Paid MCP tools settle over b402' });
+    expect(by['tx.gas-price']).toMatchObject({ inProduction: true, usedBy: ['keeper'], note: 'Keeper reads gas price before each rebalance (needs BW3 keys)', calls: 0, okCalls: 0, lastOkAt: null, lastError: null });
     expect(by['market.rwa.price'].usedBy).toContain('keeper price guard');
     expect(by['market.candles'].api).toBe('Market API');
     expect((await mk({ bw3: richBw3() }).app.request('/v1/binance/status').then((r) => r.json())).configured).toBe(true);

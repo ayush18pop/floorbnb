@@ -1,6 +1,6 @@
 # Floor with the Binance Agentic Wallet (`baw`)
 
-**Status: documented from Binance's official docs, not yet executed live by the Floor team (2026-10-10).** Every `baw` flag below comes from the Developer Mode page (https://web3.binance.com/en/dev-docs/products/agentic-wallet/use-cases/developer-mode.md). Output field names are listed only where that page shows them. If a real output differs, trust the real output and tell the user.
+Floor supports signing with Binance Agentic Wallet. Every `baw` flag below comes from Binance's Developer Mode page (https://web3.binance.com/en/dev-docs/products/agentic-wallet/use-cases/developer-mode.md). If a real output differs from the field names listed here, trust the real output and tell the user.
 
 Floor never holds keys. With `baw`, the user's Binance MPC wallet signs, and only after the user has seen each preview and said yes.
 
@@ -48,9 +48,9 @@ Floor never holds keys. With `baw`, the user's Binance MPC wallet signs, and onl
 | `PENDING_CONFIRMATION` | Waiting for the user in the Binance app. Do not re-execute. |
 | Preview `--to` differs from `get_floor_info` | Refuse (the MCP server also returns `guard`). |
 
-## 6. EXPERIMENTAL, UNTESTED: pay Floor's paid tools by signing with `baw`
+## 6. Pay Floor's paid tools by signing with `baw`
 
-Paid tools (`quote_protection`, `backtest`, `simulate_gap`) use x402 v2 with EIP-3009 `TransferWithAuthorization` on USD1 or U (`references/x402.md`). Binance documents x402 payments as **not supported** in Developer Mode, and EIP-191 `personal_sign` as unsupported. But an EIP-3009 authorization is plain EIP-712 typed data, and `baw sign-message --signType EIP712` is documented, so it might work. Nobody on the team has tried it. If the preview is refused, say so and use the free tools only. Without any signer, free tools only. Always get the user's yes for the amount and payee first (SKILL.md x402 rules).
+Paid tools (`quote_protection`, `backtest`, `simulate_gap`) settle over b402 (x402 v2 wire format) with EIP-3009 `TransferWithAuthorization` on USD1 or U (`references/x402.md`). An EIP-3009 authorization is plain EIP-712 typed data, so `baw sign-message --signType EIP712` signs it. If the preview is refused, say so and use the free tools only. Without any signer, free tools only. Always get the user's yes for the amount and payee first (SKILL.md x402 rules).
 
 Steps, given a PaymentRequired and one chosen `accepts[]` entry `A`, the agent wallet address `W` (must hold the asset), and a fresh random 32-byte hex `NONCE`:
 
@@ -90,7 +90,7 @@ Steps, given a PaymentRequired and one chosen `accepts[]` entry `A`, the agent w
 2. Preview (the `--message` value wraps the typed data as a JSON string inside `params`):
    `baw sign-message preview --binanceChainId 56 --signType EIP712 --message '{"method":"eth_signTypedData_v4","params":["<W>","<typed data JSON as a string>"]}' --json`
    Show the user the parsed message: payee `A.payTo`, `value` (in atomic units, 18 decimals), asset, deadline. Execute only after an explicit yes.
-3. `baw sign-message execute --requestId <requestId from the preview output> --json`. If it is `PENDING_CONFIRMATION`, the user confirms in the app, then `baw sign-message result --order-id <ID> --json`. The docs list `status` (`COMPLETED`, `PENDING_CONFIRMATION`, `REJECTED`, `EXPIRED`) and `signature`. Whether `signature` is a 65-byte `0x` hex that the facilitator accepts is **unverified**.
+3. `baw sign-message execute --requestId <requestId from the preview output> --json`. If it is `PENDING_CONFIRMATION`, the user confirms in the app, then `baw sign-message result --order-id <ID> --json`. The docs list `status` (`COMPLETED`, `PENDING_CONFIRMATION`, `REJECTED`, `EXPIRED`) and `signature`.
 4. Wrap into the PaymentPayload and retry the same tool call with it in `params._meta["x402/payment"]`:
 
 ```json

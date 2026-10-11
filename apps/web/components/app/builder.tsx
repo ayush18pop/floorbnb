@@ -190,7 +190,7 @@ export function Builder() {
           <div className="tile tile-s">
             <p className="stat-label !text-[11px]">Cost per rebalance<InfoPopover label="cost per rebalance" title="Cost per rebalance"><p>Estimate on the live route, direct PancakeSwap v3: measured on a fork at 100 USDT, 2026-10-02 (NVDAB 49 bps, SPCXB 49 bps, QQQB 1 bp), weighted by your basket. Cost at larger sizes is not measured.</p><p className="small">Best case via the Binance aggregator, which is built and fork-tested but not the live route: about {costAgg.toFixed(1)} bps (quotes on a $10k round trip, 2026-10-02). Weekend cost is not measured.</p></InfoPopover></p>
             <p className="v">~{cost.toFixed(1)} bps</p>
-            <p className="small !text-[11px]">Live route (direct), at 100 USDT, 2026-10-02. Aggregator best case, not live: ~{costAgg.toFixed(1)} bps.</p>
+            <p className="small !text-[11px]">Live route (direct), at 100 USDT, 2026-10-02. Aggregator quote: ~{costAgg.toFixed(1)} bps.</p>
           </div>
         </div>
         <div className="mx-3 mb-3 md:mx-4">

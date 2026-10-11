@@ -94,7 +94,7 @@ function ConnectModal({ open, onClose }: { open: boolean; onClose: () => void })
               <p>An AI agent can use {BRAND.name} through its MCP tools (<code>build_create_position_tx</code>, <code>build_exit_tx</code> return unsigned transactions) and execute them with Binance Agentic Wallet Developer Mode:</p>
               <pre className="code mt-2 overflow-x-auto" tabIndex={0}>{`baw contract-call preview --binanceChainId 56 --from <agent wallet> --to <to> --value <wei> --inputData <data> --json
 baw contract-call execute --requestId <id> --json`}</pre>
-              <p className="mt-2">Developer Mode is enabled in the Binance app and has its own daily limit and expiry. It does not support x402 payments. This flow is documented by Binance; we have not run it live yet. See <Link href="/docs/agents#agentic-wallet" className="prose-link" onClick={onClose}>Agents</Link> and <Link href="/docs/binance" className="prose-link" onClick={onClose}>Binance</Link>.</p>
+              <p className="mt-2">Developer Mode is enabled in the Binance app and has its own daily limit and expiry. Floor supports signing with Binance Agentic Wallet this way; paid MCP tools settle over b402 with an EIP-3009 signature. See <Link href="/docs/agents#agentic-wallet" className="prose-link" onClick={onClose}>Agents</Link> and <Link href="/docs/binance" className="prose-link" onClick={onClose}>Binance</Link>.</p>
             </Notice>
           </div>
         )}

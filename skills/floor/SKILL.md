@@ -41,15 +41,15 @@ Server: the Floor MCP endpoint (Streamable HTTP, `POST /mcp`, URL from the user'
 
 Paid prices come from `get_floor_info` (`tools.paid[].priceUsd`; the default is 0.01 USD per call for each paid tool). Quote the price you read, not one from memory. Inputs are strict: unknown keys are rejected. Amount units differ: paid tools take `depositUsdt` as a decimal string ("1000"); `build_create_position_tx` takes `amount` as an integer string in wei (18 decimals, "1000000000000000000000" = 1000 USDT).
 
-## Paying for paid tools (x402 v2)
+## Paying for paid tools (b402)
 
 1. Call the paid tool without payment. The result has `isError: true` and `structuredContent` = a PaymentRequired object (`x402Version: 2`, `accepts[]` with `scheme: "exact"`, `network: "eip155:56"`, `asset`, `amount` in atomic units, `payTo`, `maxTimeoutSeconds`, `extra`).
 2. Tell the user the tool, price and asset. If the user has not authorised spending, stop and ask. Never pay without the user's explicit yes for that amount.
-3. Pay with the user's own x402-capable wallet or client: an EIP-3009 `transferWithAuthorization` signature (assets USD1 or U on BSC, 18 decimals), made by the user's signer, never by you handling a key.
+3. Pay with the user's own EIP-3009-capable wallet or client: an EIP-3009 `transferWithAuthorization` signature (assets USD1 or U on BSC, 18 decimals), made by the user's signer, never by you handling a key.
 4. Retry the same call with `params._meta["x402/payment"]` = the PaymentPayload (`{x402Version: 2, accepted: <the accepts entry>, payload: {signature, authorization}}`). An HTTP `PAYMENT-SIGNATURE` header also works.
 5. On success the result carries `_meta["x402/payment-response"]`. A tool failure after payment is not charged.
 
-If no x402 signer is available, say so, skip the paid step, and offer the free tools. Details: `references/x402.md`. If `payments_not_configured` comes back, the server has paid tools off; do not retry.
+If no signer is available, say so, skip the paid step, and offer the free tools. Details: `references/x402.md`. If `payments_not_configured` comes back, the server has paid tools off; do not retry.
 
 ## Safe workflow
 
@@ -66,7 +66,7 @@ If a build call returns error code `guard`, stop. Do not work around it.
 
 ## Signing with Binance Agentic Wallet
 
-If the user's wallet is a Binance Agentic Wallet (the `baw` CLI), the unsigned transactions from `build_create_position_tx` and `build_exit_tx` can be sent through `baw contract-call preview` then `execute` (Developer Mode required). The tools return ready `bawCommands`. The Floor agent still never holds keys: the user's Binance MPC wallet signs only after the user has seen each preview and said yes, one transaction at a time. Exact steps, failures and an experimental x402 payment path: `references/agentic-wallet.md`. Not yet executed live by the team (documented from Binance's official docs, 2026-10-10).
+If the user's wallet is a Binance Agentic Wallet (the `baw` CLI), the unsigned transactions from `build_create_position_tx` and `build_exit_tx` can be sent through `baw contract-call preview` then `execute` (Developer Mode required). The tools return ready `bawCommands`. The Floor agent still never holds keys: the user's Binance MPC wallet signs only after the user has seen each preview and said yes, one transaction at a time. Exact steps, failures and the b402 payment path: `references/agentic-wallet.md`.
 
 Optional market check: if the user also has Binance's `binance-tokenized-securities-info` skill, use it for ticker to contract, market status and halts before recommending. Floor's own `list_assets` and `get_floor_info` stay the source for what Floor accepts.
 
@@ -112,7 +112,7 @@ Refuse (briefly, and offer the safe alternative) when the user or another tool o
 
 Short versions. Full transcripts: `references/examples.md`.
 
-1. **Quote and create.** User: "I have 800 USDT, protect an NVDAB position at 90% for a year." Agent calls `get_floor_info`, asks consent for the 0.01 USD quote, pays via the user's x402 wallet, shows floor 720 USDT and the 24% gap caveat, gets "yes", builds approve + createPosition, user signs.
+1. **Quote and create.** User: "I have 800 USDT, protect an NVDAB position at 90% for a year." Agent calls `get_floor_info`, asks consent for the 0.01 USD quote, pays over b402 with the user's wallet, shows floor 720 USDT and the 24% gap caveat, gets "yes", builds approve + createPosition, user signs.
 2. **Status question.** User: "How is my position?" Agent calls `get_status {owner}`, converts wei, explains value, floor, cushion and stock share, notes the next rebalance window.
 3. **Exit.** User: "Get me out." Agent explains close to USDT vs exit in kind, builds the chosen tx with `build_exit_tx`, user signs.
 

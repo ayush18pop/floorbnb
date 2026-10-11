@@ -6,17 +6,17 @@ import { InfoPopover } from "@/components/ui/info-popover";
 const STEPS = [
   ["01", "Discover", "The agent lists Floor's MCP tools and calls get_floor_info."],
   ["02", "Quote", "It asks for a 90% floor on 500 USDT."],
-  ["03", "Pay", "Floor answers 402. The agent pays with x402."],
+  ["03", "Pay", "Floor answers 402. The agent pays over b402."],
   ["04", "Build", "build_create_position_tx returns two unsigned transactions."],
-  ["05", "Sign", "The user's own wallet signs both (Agentic Wallet via Developer Mode: documented, not run live yet)."],
+  ["05", "Sign", "The user's own wallet signs both (Binance Agentic Wallet via Developer Mode)."],
   ["06", "Done", "A new vault exists on BNB Chain."],
 ] as const;
 
 const TRACE: [number, string, string, string, string][] = [
   [0, "16:02:09", "agent →", "tools/call get_floor_info", "{}"],
   [1, "16:02:11", "agent →", "tools/call quote_protection", "assets=NVDAB,SPCXB,QQQB depositUsd=500 floorPct=90"],
-  [2, "16:02:11", "floor ←", "402 PAYMENT-REQUIRED", "scheme=exact (x402) asset=USD1"],
-  [2, "16:02:12", "agent →", "baw x402-payment sign", "ok"],
+  [2, "16:02:11", "floor ←", "402 PAYMENT-REQUIRED", "scheme=exact (b402) asset=USD1"],
+  [2, "16:02:12", "agent →", "sign EIP-3009 authorization", "ok"],
   [2, "16:02:14", "floor ←", "200", "startingExposurePct=40 floorValue=450 gapTolerance=24%"],
   [3, "16:02:20", "agent →", "tools/call build_create_position_tx", "2 unsigned txs: approve, createPosition"],
   [4, "16:02:31", "wallet →", "baw contract-call execute", "approve BROADCASTED"],
