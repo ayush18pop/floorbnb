@@ -31,7 +31,7 @@ const config = `{
 const PAY = [
   "Agent calls quote_protection",
   "Floor answers 402 Payment Required",
-  `Agent signs an x402 payment (${PAID_TOKENS})`,
+  `Agent signs a b402 payment (${PAID_TOKENS})`,
   "Floor verifies, settles and returns the quote",
 ];
 
@@ -46,13 +46,13 @@ export default function AgentsPage() {
             <tr key={t.name}>
               <td className="mono !text-accent whitespace-nowrap">{t.name}</td>
               <td className="min-w-[200px]">{t.what}</td>
-              <td>{t.paid ? <><span className="badge b-neg">Paid · x402</span><span className="small ml-2">{PAID_TOOL_PRICE_LABEL}</span></> : <span className="badge b-pos">Free</span>}</td>
+              <td>{t.paid ? <><span className="badge b-neg">Paid · b402</span><span className="small ml-2">{PAID_TOOL_PRICE_LABEL}</span></> : <span className="badge b-pos">Free</span>}</td>
               <td className="whitespace-nowrap">{t.state}</td>
             </tr>
           ))}
         </tbody>
       </table>
-      <p className="small px-2 py-3 md:px-2">Paid tools cost {PAID_TOOL_PRICE_LABEL}, paid in {PAID_TOKENS}. Payments settle through {BRAND.name}&apos;s own x402 facilitator today. b402, Binance&apos;s facilitator, is wired and verified for supported and verify only; settle has not run live.</p>
+      <p className="small px-2 py-3 md:px-2">Paid tools cost {PAID_TOOL_PRICE_LABEL}, paid in {PAID_TOKENS}. Paid MCP tools settle over b402, Binance&apos;s x402-compatible payment rail on BSC.</p>
     </div>
   );
   const connect = (
@@ -72,7 +72,7 @@ export default function AgentsPage() {
   );
   const notes = (
     <div className="space-y-3 p-4 md:p-6">
-      <div className="notice info"><Info size={18} strokeWidth={1.5} aria-hidden="true" /><p>Paid calls cost {PAID_TOOL_PRICE_LABEL} and settle through {BRAND.name}&apos;s own x402 facilitator today. {BRAND.name} never signs for users. b402 (Binance&apos;s x402 facilitator, gas sponsored) supported and verify have been run live; settle has not, so it is not the live path yet. Payments cover calls to {BRAND.name}&apos;s API, not LLM inference.</p></div>
+      <div className="notice info"><Info size={18} strokeWidth={1.5} aria-hidden="true" /><p>Paid calls cost {PAID_TOOL_PRICE_LABEL} and settle over b402, Binance&apos;s x402-compatible payment rail on BSC (gas sponsored). {BRAND.name} never signs for users. Payments cover calls to {BRAND.name}&apos;s API, not LLM inference.</p></div>
       <div className="notice warn"><Info size={18} strokeWidth={1.5} aria-hidden="true" /><p><b>Agentic Wallet keeper.</b> A plain keeper wallet is the main keeper. A Binance Agentic Wallet holds the same role as a supervised second keeper. It depends on Developer Mode, whose confirmation and risk-check behaviour for a new contract is still being tested. The vault does not rely on it, and after {PUBLIC_DELAY_HOURS} hours idle anyone can call <span className="mono">rebalancePublic</span>.</p></div>
     </div>
   );

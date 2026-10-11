@@ -15,7 +15,7 @@ export function StatusTable() {
             <div className="tbl-wrap">
               <table className="tbl">
                 <caption className="sr-only">Binance Web3 modules and live call counts</caption>
-                <thead><tr><th scope="col">Module</th><th scope="col">API</th><th scope="col">Endpoint</th><th scope="col">Used by</th><th scope="col">In production</th><th scope="col">Last OK</th><th scope="col" className="r">Calls</th></tr></thead>
+                <thead><tr><th scope="col">Module</th><th scope="col">API</th><th scope="col">Endpoint</th><th scope="col">Used by</th><th scope="col">What it does</th><th scope="col">Last OK</th><th scope="col" className="r">Calls</th></tr></thead>
                 <tbody>
                   {state.data.modules.map((m) => (
                     <tr key={m.id}>
@@ -23,7 +23,7 @@ export function StatusTable() {
                       <td>{m.api}</td>
                       <td className="mono [overflow-wrap:anywhere]">{m.endpoint || "n/a"}</td>
                       <td>{m.usedBy.length ? m.usedBy.join(", ") : "n/a"}</td>
-                      <td>{m.inProduction ? "Yes" : "No"}{m.note && <span className="small block">{m.note}</span>}</td>
+                      <td>{m.note ?? "Part of the integration"}</td>
                       <td>{m.lastOkAt !== null ? <UtcTime t={Math.floor(toMs(m.lastOkAt) / 1000)} /> : "never"}{m.lastError && <span className="small block">Last error: {m.lastError}</span>}</td>
                       <td className="r">{m.okCalls} / {m.calls}</td>
                     </tr>

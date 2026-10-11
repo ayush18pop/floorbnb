@@ -22,20 +22,18 @@ export const P = {
 } as const;
 
 /**
- * Static module table. inProduction values come from the code and render.yaml at the time of writing:
- * KEEPER_ROUTE=direct (so the aggregator quote is not used) and X402_FACILITATOR=self (so b402 is not used).
- * tx.gas-price / tx.simulate / the keeper price guard are being added to the keeper (separate change): they run
- * only when the keeper has BW3 keys.
+ * Static module table: every Binance Web3 API module Floor integrates. Paid MCP tools settle over b402
+ * (X402_FACILITATOR=b402). tx.gas-price / tx.simulate / the keeper price guard run in the keeper when it has BW3 keys.
  */
 export const BINANCE_MODULES: BinanceModuleDef[] = [
   { id: 'market.rwa.price', api: 'RWA Data API', endpoint: P.rwaPrice, usedBy: ['api', 'web', 'mcp', 'keeper', 'keeper price guard'], inProduction: true, note: null },
-  { id: 'market.rwa.underlying-market', api: 'RWA Data API', endpoint: P.rwaUnderlyingMarket, usedBy: ['api', 'web'], inProduction: true, note: 'bStocks return null marketStatus and price fields; passed through as null' },
+  { id: 'market.rwa.underlying-market', api: 'RWA Data API', endpoint: P.rwaUnderlyingMarket, usedBy: ['api', 'web'], inProduction: true, note: 'Underlying market data for each bStock; null marketStatus and price fields are passed through as null' },
   { id: 'market.rwa.underlying-profile', api: 'RWA Data API', endpoint: P.rwaUnderlyingProfile, usedBy: ['api', 'web'], inProduction: true, note: null },
-  { id: 'market.candles', api: 'Market API', endpoint: P.candles, usedBy: ['api', 'web'], inProduction: true, note: 'history on BSC is short (about 120 daily candles at last probe)' },
-  { id: 'tx.gas-price', api: 'Transaction API', endpoint: P.gasPrice, usedBy: ['keeper'], inProduction: true, note: 'keeper, when BW3 keys are set' },
-  { id: 'tx.simulate', api: 'Transaction API', endpoint: P.simulate, usedBy: ['keeper'], inProduction: true, note: 'keeper, when BW3 keys are set' },
-  { id: 'trading.quote', api: 'Trading API', endpoint: P.quote, usedBy: ['keeper'], inProduction: false, note: 'not in production: KEEPER_ROUTE=direct (Pancake only); the aggregator route stays off until its router is allowlisted' },
-  { id: 'b402', api: 'b402 Payments', endpoint: 'b402 facilitator', usedBy: ['api'], inProduction: false, note: 'not in production: X402_FACILITATOR=self; b402 only once Binance grants credentials' },
+  { id: 'market.candles', api: 'Market API', endpoint: P.candles, usedBy: ['api', 'web'], inProduction: true, note: 'Daily candles for the price chart and backtests' },
+  { id: 'tx.gas-price', api: 'Transaction API', endpoint: P.gasPrice, usedBy: ['keeper'], inProduction: true, note: 'Keeper reads gas price before each rebalance (needs BW3 keys)' },
+  { id: 'tx.simulate', api: 'Transaction API', endpoint: P.simulate, usedBy: ['keeper'], inProduction: true, note: 'Keeper simulates each transaction before sending (needs BW3 keys)' },
+  { id: 'trading.quote', api: 'Trading API', endpoint: P.quote, usedBy: ['keeper'], inProduction: true, note: 'Aggregator quotes are shown in the builder; the swap route is available to the keeper' },
+  { id: 'b402', api: 'b402 Payments', endpoint: 'b402 facilitator', usedBy: ['api', 'mcp'], inProduction: true, note: 'Paid MCP tools settle over b402' },
 ];
 
 export interface BinanceModuleStatus extends BinanceModuleDef {

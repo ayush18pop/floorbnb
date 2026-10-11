@@ -2,7 +2,7 @@
 
 One Render web service, `floor-server`, runs three things in one Node process (`apps/onebox`): the API (`/v1/*`), the MCP server (`/mcp`) and the keeper loop. The web app stays on Vercel. Cost: **$0** on the free plan.
 
-## Read this first (honest limits)
+## Read this first (free-plan limits)
 
 - A free web service **spins down after 15 minutes without inbound traffic**. While it is asleep the **keeper is not running**: no rebalances are signed. The public `rebalancePublic` path and `exitInKind` still work on-chain, but nobody automates them.
 - The built-in keep-alive (the service pings its own `RENDER_EXTERNAL_URL/healthz` every 10 minutes) **may not be enough on its own**: Render can count only traffic from outside its network. Use a free external pinger as the primary keep-alive (step 5).
@@ -21,14 +21,15 @@ Render dashboard > New > Blueprint > pick this repo and branch (`main`). It read
 |---|---|
 | `FLOOR_FACTORY`, `FLOOR_LENS` | printed by the deploy script; also `packages/contracts/deployments/56.json` |
 | `FLOOR_RUNS_FROM_BLOCK` | block of the factory deploy (same deployments file or the BscScan creation tx) |
-| `FLOOR_RPC_URL` | a keyed BSC mainnet RPC (Alchemy, QuickNode, ...). Used by the API, the keeper and x402. Optional overrides: `BSC_RPC_URL`, `X402_RPC_URL` |
+| `FLOOR_RPC_URL` | a keyed BSC mainnet RPC (Alchemy, QuickNode, ...). Used by the API, the keeper and b402. Optional overrides: `BSC_RPC_URL`, `X402_RPC_URL` |
 | `BW3_API_KEY`, `BW3_API_SECRET` | Binance Web3 API. Used by the API (market routes), MCP and, since 2026-10-10, the keeper (price guard, gas price, shadow simulation). Optional: without them market routes are off and the keeper skips its Binance checks. b402 would need a key with the B402 Payments permission |
 | `FLOOR_ASSETS` | comma-separated bStock token addresses the keeper pokes each cycle |
 | `KEEPER_PRIVATE_KEY` | key of `0x46FD797AeBD0250A2E768022AD992DF21F12e58a`, about 0.03 BNB on it. Secret, dashboard only. **If unset the keeper runs dry-run** (simulates, signs nothing) and `/healthz` says so |
 | `X402_PAYTO` | receive-only payout wallet: the project payee address `0xF5f349ABe9647278AC3450058bc054886DaF816B` |
 | `X402_ASSET`, `X402_ASSET_SYMBOL` | the payment token (USD1 or U on BSC; must support EIP-3009) |
 | `X402_ASSET_NAME`, `X402_ASSET_VERSION` | the token's EIP-712 domain, read on-chain (below) |
-| `SELF_FACILITATOR_KEY` | a small gas EOA (about 0.005 BNB); not the keeper key, not the payout wallet |
+| `X402_FACILITATOR` | `b402`: paid MCP tools settle over Binance b402 (needs `BW3_API_KEY` and `BW3_API_SECRET` with the B402 Payments permission) |
+| `SELF_FACILITATOR_KEY` | only for `X402_FACILITATOR=self`: a small gas EOA (about 0.005 BNB); not the keeper key, not the payout wallet |
 | `ALERT_WEBHOOK_URL` | optional Discord/Slack webhook for keeper failures |
 
 Keeper Binance settings (fixed in `render.yaml`; they only take effect when the BW3 keys are set, and any Binance failure fails open):

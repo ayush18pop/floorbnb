@@ -34,7 +34,7 @@ describe('tool list', () => {
       expect(t.annotations?.readOnlyHint).toBe(true);
       expect(t.outputSchema).toBeDefined();
     }
-    for (const n of PAID_TOOLS) expect(tools.find((t) => t.name === n)!.description).toMatch(/PAID: 0\.01 USD per call via x402\./);
+    for (const n of PAID_TOOLS) expect(tools.find((t) => t.name === n)!.description).toMatch(/PAID: 0\.01 USD per call over b402/);
     for (const n of FREE_TOOLS) expect(tools.find((t) => t.name === n)!.description).not.toMatch(/PAID/);
     expect(client.getInstructions()).toMatch(/never signs/i);
   });
