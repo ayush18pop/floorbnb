@@ -1,5 +1,7 @@
 # CEO memo: Floor vs cppi-vault, and how we win the next 6 days
 
+> **Historical memo from 2026-10-04.** Superseded: b402 is the production payment facilitator, and chain data is served by a Postgres indexer. See `README.md` and `docs/ARCHITECTURE.md` for the current system.
+
 Date: 2026-10-04. Deadline Sun 2026-10-11 12:00 UTC; we submit Sat 10 Oct.
 Sources: Floor docs listed in the brief; cppi-vault cloned from https://github.com/jayeshy14/cppi-vault (all line refs below are to that clone at HEAD, last push 2026-09-24).
 Things I could not verify are marked **unverified**. Contract-touching ideas are marked **[CONTRACT]** and default to NO.
