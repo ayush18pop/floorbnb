@@ -12,8 +12,8 @@ Labels: **[verified]** = read in a primary source or run read-only. **unverified
 
 1. **Keeper = a plain EOA Node process, not the Agentic Wallet.** The Agentic Wallet (AW) session expires and needs a human QR scan to renew [S2, S4]. A one-year vault needs a keeper that never needs a human. AW is kept in three roles where a human is present anyway: (a) pays b402 for the agent demo, (b) signs a *user's* deposit and withdraw through `contract-call`, (c) a second, supervised keeper address used live in the demo window. Section 5.1 has the evidence.
 2. **Floor never signs for anyone but itself.** The keeper key can only call `rebalance()` (and the market flag). Every user-facing state change is an unsigned transaction that the user's own wallet or the user's own AW signs.
-3. **One backend codebase, three small processes on one VM:** `api` (REST), `mcp` (Streamable HTTP), `keeper`. Shared logic lives in packages. One SQLite file for run logs and payment receipts. The web app is on Vercel.
-4. **SUPERSEDED 2026-10-10: no merchant account is needed; a Web3 API key with the B402 Payments permission is enough (see the 2026-10-05 correction in section 3.2). b402 `supported` and `verify` ran live 2026-10-05, `settle` has not, and live paid calls use Floor's own facilitator.** Original note: b402 needs a merchant account that Binance grants on request [S12, S14, S19]. This is the biggest schedule risk. Apply today. Build the paywall behind a `FacilitatorClient` interface so a self-run x402 facilitator can stand in (section 3.2).
+3. **One backend codebase, three small processes on one VM:** `api` (REST), `mcp` (Streamable HTTP), `keeper`. Shared logic lives in packages. A Postgres indexer (`packages/db`) stores chain logs and serves positions, activity and the keeper log. The web app is on Vercel.
+4. **b402 is the production payment facilitator.** No merchant account is needed: a Web3 API key with the B402 Payments permission is enough (see the 2026-10-05 correction in section 3.2). `X402_FACILITATOR=b402` on Render, and `supported` and `verify` ran live 2026-10-05. Floor's own facilitator (`self`) remains in the code as a fallback.
 5. **The calendar is a hard constraint.** US markets are closed on Sat 3, Sun 4, Sat 10 and Sun 11 Oct. The submission deadline is Sun 11 Oct 12:00 UTC [S33]. Every live mainnet rebalance recording has to happen Mon 5 to Fri 9 Oct, between 13:30 and 20:00 UTC (US cash session, EDT). The contract must be on mainnet by Monday morning (section 9).
 
 ---
@@ -92,7 +92,7 @@ flowchart LR
 | Component | Job | Tech | Must never |
 |---|---|---|---|
 | **apps/web** | Landing page and app. Connect wallet, pick assets / floor / term, run the CPPI maths client-side from `packages/sdk`, build the deposit with viem, show positions and the public keeper log. | Next.js (App Router), Tailwind, Magic UI, wagmi + viem, WalletConnect (Reown AppKit) | Hold keys. Show "guaranteed", "safe" or "can't lose". Show a number not in `RESEARCH_RESULTS.md` without a "simulated" label. |
-| **apps/api** | REST: asset list, market data with status, position reads, keeper log, unsigned tx builders (deposit, withdraw), paid endpoints for agents. | Node 22, Hono (or Fastify), zod, viem, better-sqlite3 | Hold any user or vault key. Sign anything. Call a state-changing function of the vault. Return a tx whose `to` is not the vault or an approved token. |
+| **apps/api** | REST: asset list, market data with status, position reads, keeper log, unsigned tx builders (deposit, withdraw), paid endpoints for agents. | Node 22, Hono (or Fastify), zod, viem, postgres.js | Hold any user or vault key. Sign anything. Call a state-changing function of the vault. Return a tx whose `to` is not the vault or an approved token. |
 | **apps/mcp** | Same capabilities as MCP tools. Free tools plus b402-gated paid tools. Streamable HTTP, stateless. | `@modelcontextprotocol/sdk`, Hono, `packages/x402` | Sign for users. Return a tool result that makes the agent call an address other than the vault. Settle a payment before verify. Run a paid tool before verify. |
 | **apps/keeper** | The only writer to the vault. Price check, drift, market-open check, quote, simulate, sign, broadcast, confirm, record. Sets the market-open flag. | Node 22, viem, `packages/cppi`, `Signer` interface (`EoaSigner`, `BawSigner`) | Withdraw, change floors, change the router list, touch the admin role. Trade when status is not `TRADING`. Retry a submitted tx blindly. Put the key in logs. |
 | **Keeper EOA** | Primary signer. Has only the `KEEPER` role. | One key in the VM secret store, a few dollars of BNB | Hold user funds. Hold the admin role. Be the same key as the b402 payee. |
@@ -200,9 +200,9 @@ Answers research item 2.
 - x402 daily limit is its own quota (default 20 USD in the docs). A paid call at 0.01 to 0.05 USD fits many times over. [S4, S9]
 - The same pattern already works against MCP: CMC's MCP endpoint returns HTTP 402 with a `payment-required` header on `tools/call`, the agent runs `preview` then `sign`, replays with `PAYMENT-SIGNATURE`, and gets 200 with `payment-response` [S7]. Floor copies that.
 
-**Fallback if b402 credentials do not arrive in time (status 2026-10-10: the fallback is what runs; `X402_FACILITATOR=self`).** Keep the paywall code, swap the facilitator:
+**Fallback facilitator (production runs `X402_FACILITATOR=b402`).** If b402 is unavailable, keep the paywall code and swap the facilitator:
 - Implement `SelfFacilitatorClient` using the same `FacilitatorClient` interface. `verify` checks the EIP-3009 `transferWithAuthorization` signature locally (viem `verifyTypedData`). `settle` submits `transferWithAuthorization` from a small gas-paying EOA, on U or USD1 (the EIP-3009 tokens). USDT and USDC would need Permit2 and are not offered in fallback mode. Whether U's EIP-3009 domain is what AW signs for: **unverified**, test with one cent.
-- This is honestly **x402 on BSC with our own facilitator, not b402**. In the submission say so. It still shows the whole agent-pays flow on mainnet.
+- This fallback is x402 on BSC with Floor's own facilitator. It shows the same agent-pays flow on mainnet.
 - Decide on day 2 (Sun 4 Oct) evening: if no sandbox credentials by then, ship fallback for the demo and keep b402 as "integration written, waiting for credentials".
 
 ### 3.3 MCP server practice
@@ -291,7 +291,7 @@ sequenceDiagram
   participant B as Binance Web3 API
   participant S as Signer EOA or baw
   participant V as Vault
-  participant D as SQLite
+  participant D as Postgres
 
   loop every 60 s in market hours
     K->>B: GET /api/v1/dex/market/rwa/price
@@ -687,7 +687,7 @@ floor/
     cppi/           Pure CPPI maths, drift, gap tests. Used by web, keeper, mcp, backtest.
     x402/           B402FacilitatorClient, SelfFacilitatorClient, gate(), receipts store
     bw3/            Binance Web3 API client (HMAC), RWA price, quote, swap, simulate, broadcast
-    db/             Drizzle schema + migrations for SQLite
+    db/             SQL migrations for Postgres (the indexer)
   skills/
     floor-protection/   SKILL.md + references/ (the skill we publish)
   data/
@@ -708,7 +708,7 @@ Dates: submission is Sun 2026-10-11 12:00 UTC. "Day 1" is today. Market hours (M
 |---|---|---|---|
 | 1 | Fri 10-02 (evening) | **Apply for b402 sandbox and production** today [S13, S19]. (No RSA key is needed after the 2026-10-05 correction.) Pin the contract interface with the contracts agent (section 2.1). Create the monorepo skeleton. `packages/cppi` with tests. | Application submitted. `pnpm test` green on cppi. |
 | 2 | Sat 10-03 | `packages/bw3` (price, quote, swap, simulate) read-only against production. Keeper dry-run against live prices (no tx). API read endpoints. Human runs the AW spike (5.1). ABIs from CONTRACTS.md into `sdk`. | `GET /v1/market` live. Dry-run keeper prints decisions for a fake position. AW spike notes written. |
-| 3 | Sun 10-04 | Contracts to anvil fork of BSC. Keeper full loop on the fork with a fake position, both signers. Web: connect wallet and deposit flow on fork. **Decision point (evening):** b402 credentials or self-facilitator fallback. | A rebalance executes on the fork. Deposit works in the UI. |
+| 3 | Sun 10-04 | Contracts to anvil fork of BSC. Keeper full loop on the fork with a fake position, both signers. Web: connect wallet and deposit flow on fork. **Decision point (evening):** b402 (chosen) or the self-facilitator fallback. | A rebalance executes on the fork. Deposit works in the UI. |
 | 4 | Mon 10-05 | **Contracts on mainnet by 13:00 UTC** with caps (tiny deposit cap). Verify source. Fund keepers with BNB. First real small position and a **first live rebalance in market hours** (use the demo-mode settings in section 10). Soak test starts. | Real tx hash from the keeper EOA. |
 | 5 | Tue 10-06 | `apps/mcp` and `packages/x402` (gate, receipts). Free tools. Paid tool with sandbox or fallback facilitator. Register ERC-8004 entry. Public activity page. | `quote_protection` returns 402 then result for a test payer. |
 | 6 | Wed 10-07 | Agentic Wallet paths: pay the 402 with `x402-payment`, `contract-call` deposit with Developer Mode. Skill text (`skills/floor-protection`). Open the skills-hub PR. Landing page polish, honest copy. | Recorded clip of agent pays, deposits. |
