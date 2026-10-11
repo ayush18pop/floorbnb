@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import type { KeeperState } from './keeperLoop';
 
 export interface ComposeDeps {
@@ -7,6 +8,8 @@ export interface ComposeDeps {
   keeper: () => KeeperState;
   startedAt?: number;
   now?: () => number;
+  /** Browser origins allowed to read /healthz (the web keeper page polls it). Same list the API uses. */
+  corsOrigins?: string[];
 }
 
 async function probe(app: Hono): Promise<{ ok: boolean; body: unknown }> {
@@ -27,6 +30,7 @@ export function composeApp(d: ComposeDeps): Hono {
   const now = d.now ?? Date.now;
   const startedAt = d.startedAt ?? now();
   const root = new Hono();
+  if (d.corsOrigins?.length) root.use('/healthz', cors({ origin: d.corsOrigins, allowMethods: ['GET', 'OPTIONS'], maxAge: 600 }));
 
   root.get('/healthz', async (c) => {
     const [api, mcp] = await Promise.all([probe(d.api), probe(d.mcp)]);

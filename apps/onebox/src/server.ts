@@ -55,7 +55,7 @@ try { mcpCfg = loadMcpConfig(env, repoRoot); } catch (e) { fail('mcp config erro
 try { gate = gateFromConfig(mcpCfg!, env); } catch (e) { fail('mcp payment setup error', e); }
 const mcp = createMcpApp({ cfg: mcpCfg!, api: createApi(mcpCfg!.apiBaseUrl), gate });
 
-const app = composeApp({ api, mcp, keeper: loop.state });
+const app = composeApp({ api, mcp, keeper: loop.state, corsOrigins: ac.corsOrigins });
 const server = serve({ fetch: app.fetch, port, hostname: '0.0.0.0' }, (i) => {
   console.log(`[onebox] listening on 0.0.0.0:${i.port} chain ${ac.chainId} factory ${ac.deployment.factory} mcp=/mcp paid=${gate ? 'on' : 'off'} keeper=${ks.mode}`);
   loop.start();

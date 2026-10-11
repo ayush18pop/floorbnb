@@ -29,6 +29,13 @@ describe('composeApp', () => {
     expect(r.status).toBe(200);
     expect(await r.json()).toEqual({ ok: true, api: { ok: true, name: 'api' }, mcp: { ok: true, name: 'mcp' }, keeper: state(), uptimeSec: 5 });
   });
+  it('lets the listed web origins read /healthz', async () => {
+    const c = composeApp({ api: innerApp('api'), mcp: innerApp('mcp'), keeper: state, corsOrigins: ['https://floor.ayush.works'] });
+    const r = await c.request('/healthz', { headers: { origin: 'https://floor.ayush.works' } });
+    expect(r.headers.get('access-control-allow-origin')).toBe('https://floor.ayush.works');
+    const other = await c.request('/healthz', { headers: { origin: 'https://evil.example' } });
+    expect(other.headers.get('access-control-allow-origin')).toBeNull();
+  });
   it('is 503 when a part is unhealthy, but a keeper error alone is not', async () => {
     const bad = composeApp({ api: innerApp('api', false), mcp: innerApp('mcp'), keeper: state });
     expect((await bad.request('/healthz')).status).toBe(503);
