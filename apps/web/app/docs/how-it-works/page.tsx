@@ -66,6 +66,12 @@ export default function Page() {
       <h2 id="cash-lock">What if value reaches the floor?</h2>
       <p>The vault moves fully into USDT and stays there until the term ends. This protects your floor. It also means you miss any recovery during that term. We call this the cash lock. The one-year term resets it.</p>
 
+            <h2 id="stop-loss">Why not just a stop-loss?</h2>
+      <p>A stop-loss is an exit. It sells everything at the trigger and you stay out. {BRAND.name} trims as the cushion shrinks and buys back as prices recover, so you keep the rebound. On NVDA from 12 Feb to 30 Jun 2020, a 20% stop-loss from the start ended at 79.4 (start = 100). A 85% floor ended at 94.6. Past prices, not a prediction.</p>
+
+      <h2 id="indexer">How the app reads the chain</h2>
+      <p>On-chain events are permanent, so {BRAND.name} stores them once. A Postgres indexer syncs the factory and every vault to the chain head every minute. Position pages, activity and the keeper log load from it, and a Refresh button on the position and keeper pages syncs to the latest block on demand.</p>
+
       <h2 id="origin">Where the rule comes from</h2>
       <p>CPPI is not new. André Perold described the idea in 1986. Fischer Black and Robert Jones published it as &ldquo;Simplifying Portfolio Insurance&rdquo; in 1987 (from memory, not yet checked against the paper). Banks have used it for decades inside principal-protected notes. {BRAND.name} runs the same rule with public contracts and plain spot swaps.</p>
       <p>Next: what it costs you, on <L href="/docs/trade-off">The trade-off</L>.</p>
