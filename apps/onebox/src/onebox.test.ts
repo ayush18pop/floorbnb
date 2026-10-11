@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import { describe, expect, it, vi } from 'vitest';
 import { composeApp } from './app';
 import { createKeeperLoop } from './keeperLoop';
+import { createIndexerLoop } from './indexerLoop';
 import { installShutdown, startKeepAlive } from './lifecycle';
 
 const innerApp = (name: string, ok = true) => {
@@ -27,7 +28,7 @@ describe('composeApp', () => {
   it('answers one combined /healthz and does not forward it', async () => {
     const r = await app.request('/healthz');
     expect(r.status).toBe(200);
-    expect(await r.json()).toEqual({ ok: true, api: { ok: true, name: 'api' }, mcp: { ok: true, name: 'mcp' }, keeper: state(), uptimeSec: 5 });
+    expect(await r.json()).toEqual({ ok: true, api: { ok: true, name: 'api' }, mcp: { ok: true, name: 'mcp' }, keeper: state(), indexer: { enabled: false, lastSyncAt: null, headLag: null, lastError: null }, uptimeSec: 5 });
   });
   it('lets the listed web origins read /healthz', async () => {
     const c = composeApp({ api: innerApp('api'), mcp: innerApp('mcp'), keeper: state, corsOrigins: ['https://floor.ayush.works'] });
@@ -112,5 +113,32 @@ describe('lifecycle', () => {
     expect(logs[0]).toContain('-> 200');
     expect(logs[1]).toContain('failed: timeout');
     vi.useRealTimers();
+  });
+});
+
+describe('indexer', () => {
+  it('/healthz carries the indexer status', async () => {
+    const ix = { enabled: true, lastSyncAt: 9, headLag: 2, lastError: null };
+    const app = composeApp({ api: innerApp('api'), mcp: innerApp('mcp'), keeper: state, indexer: () => ix });
+    expect(((await (await app.request("/healthz")).json()) as { indexer: unknown }).indexer).toEqual(ix);
+  });
+  it('loop runs passes on its interval, survives a failing pass, and stops', async () => {
+    vi.useFakeTimers();
+    try {
+      let n = 0;
+      const log = vi.fn();
+      const loop = createIndexerLoop({ intervalSec: 60, log, sync: async () => { n++; if (n === 1) throw new Error('boom\nstack'); } });
+      loop.start();
+      await vi.advanceTimersByTimeAsync(0);
+      expect(n).toBe(1);
+      expect(log).toHaveBeenCalledWith('[indexer] pass failed: boom');
+      await vi.advanceTimersByTimeAsync(60_000);
+      expect(n).toBe(2);
+      loop.stop();
+      await vi.advanceTimersByTimeAsync(120_000);
+      expect(n).toBe(2);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

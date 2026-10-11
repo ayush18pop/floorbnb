@@ -6,6 +6,8 @@ export interface ComposeDeps {
   api: Hono;
   mcp: Hono;
   keeper: () => KeeperState;
+  /** Indexer status for /healthz (same shape the API reports). Absent: disabled. */
+  indexer?: () => { enabled: boolean; lastSyncAt: number | null; headLag: number | null; lastError: string | null };
   startedAt?: number;
   now?: () => number;
   /** Browser origins allowed to read /healthz (the web keeper page polls it). Same list the API uses. */
@@ -37,7 +39,7 @@ export function composeApp(d: ComposeDeps): Hono {
     const ok = api.ok && mcp.ok;
     const k = d.keeper();
     return c.json(
-      { ok, api: api.body, mcp: mcp.body, keeper: k, uptimeSec: Math.floor((now() - startedAt) / 1000) },
+      { ok, api: api.body, mcp: mcp.body, keeper: k, indexer: d.indexer?.() ?? { enabled: false, lastSyncAt: null, headLag: null, lastError: null }, uptimeSec: Math.floor((now() - startedAt) / 1000) },
       ok ? 200 : 503,
     );
   });

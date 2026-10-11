@@ -35,7 +35,7 @@ import {
   type Deployment,
   type UnsignedTx,
 } from '@floor/sdk';
-import type { ActivityEvent } from './chainLogs';
+import type { ActivityEvent, IndexerStatus, SyncResult } from './chainLogs';
 import { InMemoryKeeperRunStore, type KeeperRunStore } from './keeperRuns';
 import { bw3Stats } from '@floor/bw3';
 import { P as BW3_PATH, mergeModuleStats } from './binanceStatus';
@@ -71,6 +71,13 @@ export interface AppDeps {
   runs?: KeeperRunStore;
   /** Decoded vault events (cached, incremental). Absent: /v1/positions/:vault/activity answers 501. */
   activity?: (vault: Address) => Promise<ActivityEvent[]>;
+  /**
+   * Sync one vault (or the factory when undefined) to head now. The implementation rate limits (1 per target per 15 s,
+   * then the last result). Absent: the refresh routes answer 501.
+   */
+  refresh?: (vault?: Address) => Promise<SyncResult>;
+  /** Indexer status for /healthz. Absent: reported as disabled. */
+  indexer?: () => IndexerStatus;
   /** Unix seconds of the keeper's last scan (read-only). Absent: only the run log is used. Newest of the two wins. */
   keeperHeartbeat?: () => Promise<number | null>;
   /**
@@ -241,6 +248,7 @@ export function createApp(deps: AppDeps): Hono {
       product: PRODUCT_NAME,
       chainId,
       factory: deployment.factory,
+      indexer: deps.indexer?.() ?? { enabled: false, lastSyncAt: null, headLag: null, lastError: null },
       keeper: { lastHeartbeat: last, heartbeatAgeSeconds: last === null ? null : Math.max(0, t - last), source: 'keeper heartbeat file or run log; null means none recorded' },
     });
   });
@@ -413,6 +421,25 @@ export function createApp(deps: AppDeps): Hono {
       throw new ApiError(502, 'upstream_error', 'could not read chain logs right now');
     }
   });
+
+  async function doRefresh(vault?: Address) {
+    if (!deps.refresh) throw new ApiError(501, 'not_implemented', 'indexer refresh is not enabled on this server');
+    try {
+      const r = await deps.refresh(vault);
+      return { ...(vault ? { vault } : {}), syncedToBlock: r.syncedToBlock, newLogs: r.newLogs };
+    } catch (e) {
+      console.error('[api] refresh failed', e instanceof Error ? e.message.split('\n')[0] : e);
+      throw new ApiError(502, 'upstream_error', 'could not sync chain logs right now');
+    }
+  }
+
+  app.post('/v1/positions/:vault/refresh', async (c) => {
+    const vault = addr(c.req.param('vault'), 'vault');
+    if (!(await isKnownVault(vault))) throw new ApiError(404, 'not_found', 'not a Floor position');
+    return c.json(ser(await doRefresh(vault)));
+  });
+
+  app.post('/v1/index/refresh', async (c) => c.json(ser(await doRefresh())));
 
   app.get('/v1/keeper/runs', async (c) => {
     const limit = limitSchema.safeParse(c.req.query('limit') ?? '20');

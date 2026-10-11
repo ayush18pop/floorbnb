@@ -7,11 +7,13 @@
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run --passWithNoTests",
-    "start": "tsx src/server.ts"
+    "start": "tsx src/server.ts",
+    "backfill": "tsx scripts/backfill.ts"
   },
   "dependencies": {
     "@floor/api": "workspace:*",
     "@floor/bw3": "workspace:*",
+    "@floor/db": "workspace:*",
     "@floor/keeper": "workspace:*",
     "@floor/mcp": "workspace:*",
     "@floor/sdk": "workspace:*",
