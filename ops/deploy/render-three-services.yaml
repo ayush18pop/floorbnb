@@ -44,7 +44,7 @@ services:
       - { key: MCP_PUBLIC_URL, sync: false }         # https://<this service>.onrender.com/mcp
       - { key: MCP_ALLOWED_ORIGINS, value: "https://floor.ayush.works,https://floorbnb.vercel.app" }
       - { key: X402_NETWORK, value: "eip155:56" }
-      - { key: X402_FACILITATOR, value: "self" }     # "self" = Floor's own facilitator (live). "b402" = Binance-hosted, via the Web3 API key (supported/verify tested live 2026-10-05; settle not yet run live)
+      - { key: X402_FACILITATOR, value: "b402" }     # Binance b402 settles paid MCP tool calls (uses the BW3 Web3 API key). "self" = Floor's own facilitator, kept as a fallback
       - { key: X402_PAYTO, sync: false }             # receive-only payout wallet (0xF5f3...816B)
       - { key: X402_RPC_URL, sync: false }
       - { key: X402_ASSET, sync: false }             # payment token address (USD1 or U on BSC; EIP-3009)
