@@ -8,7 +8,7 @@ import { API_URL, APP_CHAIN_ID, DEPLOY_BLOCK, FACTORY_ADDRESS, LENS_ADDRESS } fr
 import { wagmiConfig } from "../wagmi";
 import { ASSETS, assetBySymbol, symbolOf } from "./assets";
 import { boundedFrom } from "./log-range";
-import { toKeeperRun, toKeeperStatus, type RebalanceLog } from "./keeper-runs";
+import { heartbeatAge, toKeeperRun, toKeeperStatus, type RebalanceLog } from "./keeper-runs";
 import type {
   Address, AssetSymbol, CreateLimits, CreateParams, CreateProgress, CreateResult, ExitKind, Hex, Holding, KeeperRun, KeeperStatus,
   ExitSummary, PositionSource, PositionView, SignerKind, ValuePoint, VaultEvent,
@@ -55,21 +55,33 @@ const MAX_VAULT_SPAN = 500_000n;
 const MAX_RUNS_SPAN = 200_000n;
 const deployBlock = () => (process.env.NEXT_PUBLIC_DEPLOY_BLOCK ? BigInt(process.env.NEXT_PUBLIC_DEPLOY_BLOCK) : BigInt(DEPLOY_BLOCK));
 
-async function apiJson<T>(path: string): Promise<T> {
-  const r = await fetch(`${API_URL}${path}`, { signal: AbortSignal.timeout(15_000) });
-  if (!r.ok) throw new Error(`API ${r.status}`);
-  return (await r.json()) as T;
+/**
+ * GET from the Floor API. The API serves event data from its Postgres index; a cold server (Render free plan) can take a
+ * while to wake, so one retry and a 30 s budget are used instead of falling back to a browser eth_getLogs scan.
+ */
+async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
+  let err: unknown;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const r = await fetch(`${API_URL}${path}`, { ...init, signal: AbortSignal.timeout(30_000) });
+      if (!r.ok) throw new Error(`API ${r.status}`);
+      return (await r.json()) as T;
+    } catch (e) {
+      err = e;
+      if (init?.method === "POST") break;
+    }
+  }
+  throw err;
 }
 
-/** A vault's events: the API first (it caches and scans only new blocks); the chunked RPC only when the API cannot be reached. */
+/**
+ * A vault's events from the API's indexed endpoint. The browser scans the chain itself only when no API is configured
+ * (local dev): with an API a failure is an error, never a fan-out of thousands of eth_getLogs calls at a public RPC.
+ */
 async function activityFor(vault: Address): Promise<NormEvent[]> {
   if (API_URL) {
-    try {
-      const j = await apiJson<{ events: { eventName: string; txHash: Hex; blockNumber: string; timestamp: number; args: Record<string, unknown> }[] }>(`/v1/positions/${vault}/activity`);
-      return j.events.map((e) => ({ eventName: e.eventName, tx: e.txHash, blockNumber: BigInt(e.blockNumber), time: e.timestamp, args: e.args }));
-    } catch (e) {
-      console.warn("[floor] activity API unavailable, reading the chain directly", e);
-    }
+    const j = await apiJson<{ events: { eventName: string; txHash: Hex; blockNumber: string; timestamp: number; args: Record<string, unknown> }[] }>(`/v1/positions/${vault}/activity`);
+    return j.events.map((e) => ({ eventName: e.eventName, tx: e.txHash, blockNumber: BigInt(e.blockNumber), time: e.timestamp, args: e.args }));
   }
   const c = client();
   const head = await c.getBlockNumber();
@@ -91,18 +103,15 @@ async function activityFor(vault: Address): Promise<NormEvent[]> {
 /** Rebalanced events of all vaults: API run log when it is chain backed, else a bounded chunked RPC scan. */
 async function rebalanceEvents(c: PublicClient, vaults: Address[]): Promise<RawRebalance[]> {
   if (API_URL) {
-    try {
-      const j = await apiJson<{ source?: string; runs: { vault: Address | null; startedAt: number; txHash: Hex | null; detail: Record<string, unknown> | null }[] }>("/v1/keeper/runs?limit=100");
-      if (j.source === "chain") {
-        return j.runs.filter((r) => r.vault && r.txHash && r.detail).map((r) => ({
-          vault: r.vault as Address, assetIdx: Number(r.detail!.assetIdx), buy: Boolean(r.detail!.buy), amountIn: BigInt(r.detail!.amountIn as string),
-          amountOut: BigInt(r.detail!.amountOut as string), caller: r.detail!.caller as Address, tx: r.txHash as Hex, time: r.startedAt,
-        }));
-      }
-    } catch (e) {
-      console.warn("[floor] keeper API unavailable, reading the chain directly", e);
+    const j = await apiJson<{ source?: string; runs: { vault: Address | null; startedAt: number; txHash: Hex | null; detail: Record<string, unknown> | null }[] }>("/v1/keeper/runs?limit=100");
+    if (j.source === "chain") {
+      return j.runs.filter((r) => r.vault && r.txHash && r.detail).map((r) => ({
+        vault: r.vault as Address, assetIdx: Number(r.detail!.assetIdx), buy: Boolean(r.detail!.buy), amountIn: BigInt(r.detail!.amountIn as string),
+        amountOut: BigInt(r.detail!.amountOut as string), caller: r.detail!.caller as Address, tx: r.txHash as Hex, time: r.startedAt,
+      }));
     }
   }
+  // Only reached without an API, or when the API run log is not chain backed (then the scan is bounded by MAX_RUNS_SPAN).
   const head = await c.getBlockNumber();
   const from = boundedFrom(head, deployBlock(), MAX_RUNS_SPAN);
   const logs = parseEventLogs({ abi: floorVaultAbi, eventName: "Rebalanced", logs: await getLogsChunked<never>(c, { address: vaults, fromBlock: from, toBlock: head }) });
@@ -270,9 +279,14 @@ export function chainSource(): PositionSource {
       const [runs, open, hb] = await Promise.all([
         chainKeeperRuns(),
         readIsTradingOpen(c, d.factory, block.timestamp),
-        API_URL ? fetch(`${API_URL}/healthz`).then((r) => r.json() as Promise<{ keeper?: { heartbeatAgeSeconds: number | null } }>).then((j) => j.keeper?.heartbeatAgeSeconds ?? null).catch(() => null) : Promise.resolve(null),
+        API_URL ? fetch(`${API_URL}/healthz`).then((r) => r.json() as Promise<unknown>).then(heartbeatAge).catch(() => null) : Promise.resolve(null),
       ]);
       return toKeeperStatus(runs, Number(block.timestamp), open, hb);
+    },
+    refresh: async (vault?: Address) => {
+      if (!API_URL) return null;
+      const j = await apiJson<{ syncedToBlock: string; newLogs: number }>(vault ? `/v1/positions/${vault}/refresh` : "/v1/index/refresh", { method: "POST" });
+      return { syncedToBlock: BigInt(j.syncedToBlock), newLogs: j.newLogs };
     },
     keeperRuns: async (limit = 20): Promise<KeeperRun[]> => (await chainKeeperRuns()).slice(0, limit),
     chainTime: async () => Number((await client().getBlock()).timestamp),

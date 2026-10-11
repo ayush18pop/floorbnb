@@ -8,14 +8,16 @@ import { BRAND } from "@/lib/brand";
 import { Xh } from "@/components/ui/xh";
 import { ErrorBox, ExampleBadge, Skeleton, Tile, UtcTime } from "./ui";
 import { TxLink } from "./explorer-link";
+import { RefreshButton } from "./refresh-button";
 import { InfoPopover } from "@/components/ui/info-popover";
 
 const SIGNER = { keeper: ["Keeper wallet", "b-pos"], agentic: ["Agentic wallet", "b-warn"], public: ["Public caller", ""] } as const;
 
 export function KeeperLog() {
   const s = getSource();
-  const st = useAsync(() => s.keeperStatus(), "st", undefined, 15_000);
-  const runs = useAsync(() => s.keeperRuns(30), "runs", undefined, 15_000);
+  const [rev, setRev] = useState(0);
+  const st = useAsync(() => s.keeperStatus(), `st${rev}`, "st", 15_000);
+  const runs = useAsync(() => s.keeperRuns(30), `runs${rev}`, "runs", 15_000);
   const [all, setAll] = useState(false);
   const SHOWN = 6;
   const rows = runs.data ? (all ? runs.data : runs.data.slice(0, SHOWN)) : [];
@@ -57,6 +59,7 @@ export function KeeperLog() {
         </div>
       )}
       <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-grid px-4 py-2 md:px-6">
+        <RefreshButton onDone={() => setRev((n) => n + 1)} />
         <p className="small">{s.kind === "mock" && <ExampleBadge className="mr-2" />}{rows.length} of {runs.data?.length ?? 0} rebalances
           <InfoPopover label="this log" title="About this log"><p>Keepers can only trigger trades the vault&apos;s rules allow. No keeper can withdraw user funds. Cost is an estimate from {BRAND.name}&apos;s quotes; the on-chain event does not log it. Amounts are stock units for a sell and USDT for a buy.</p></InfoPopover>
         </p>

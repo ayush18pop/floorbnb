@@ -15,7 +15,7 @@ function log(address: Address, block: bigint, idx: number): RawLog {
     [{ type: 'bool' }, { type: 'uint256' }, { type: 'uint256' }, { type: 'uint256' }, { type: 'uint256' }, { type: 'address' }],
     [true, 22n, 5n, 55n, 22n, CALLER],
   );
-  return { address, topics, data, blockNumber: block, transactionHash: ('0x' + block.toString(16).padStart(64, '0')) as Hex, logIndex: idx };
+  return { address, data, topics: topics as RawLog["topics"], blockNumber: block, transactionHash: ('0x' + block.toString(16).padStart(64, '0')) as Hex, logIndex: idx };
 }
 
 function setup(all: RawLog[], head = { n: 100n }) {
