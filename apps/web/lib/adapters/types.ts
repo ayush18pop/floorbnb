@@ -136,6 +136,11 @@ export interface PositionSource {
   getHistory(vault: Address): Promise<ValuePoint[]>;
   keeperStatus(): Promise<KeeperStatus>;
   keeperRuns(limit?: number): Promise<KeeperRun[]>;
+  /**
+   * Ask the API to sync its chain-log index to head now (one vault, or the factory and runs when omitted). Resolves null when
+   * there is nothing to sync (mock, or no API configured). The API rate limits and then returns the last result.
+   */
+  refresh?(vault?: Address): Promise<{ syncedToBlock: bigint; newLogs: number } | null>;
   /** What createPosition enforces right now (minTrade, buy band, caps). Mock returns the documented defaults. */
   createLimits(): Promise<CreateLimits>;
   /** Unix seconds: the chain's latest block time (chain source) or the browser clock (mock). */

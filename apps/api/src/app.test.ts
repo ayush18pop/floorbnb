@@ -265,6 +265,16 @@ describe('reads', () => {
     expect((await app.request('/v1/positions?owner=nope')).status).toBe(400);
   });
 
+  it('refresh routes: 501 off, vault and factory sync results when on, 404 unknown vault, healthz indexer', async () => {
+    expect((await post(mk().app, `/v1/positions/${VAULT}/refresh`, {})).status).toBe(501);
+    const on = mk({ refresh: async () => ({ syncedToBlock: 123n, newLogs: 2 }), indexer: () => ({ enabled: true, lastSyncAt: 5, headLag: 1, lastError: null }) }).app;
+    expect(await (await post(on, `/v1/positions/${VAULT}/refresh`, {})).json()).toEqual({ vault: VAULT, syncedToBlock: '123', newLogs: 2 });
+    expect(await (await post(on, '/v1/index/refresh', {})).json()).toEqual({ syncedToBlock: '123', newLogs: 2 });
+    expect((await post(on, `/v1/positions/${FAKE}/refresh`, {})).status).toBe(404);
+    expect((await (await on.request('/healthz')).json()).indexer).toEqual({ enabled: true, lastSyncAt: 5, headLag: 1, lastError: null });
+    expect((await (await mk().app.request('/healthz')).json()).indexer.enabled).toBe(false);
+  });
+
   it('activity serialises bigints as strings, 404 for unknown vaults, 501 when off', async () => {
     const ev = { eventName: 'Closed', txHash: '0xabc', blockNumber: 7n, logIndex: 1, timestamp: 5, args: { usdtOut: 9n } };
     const on = mk({ activity: async () => [ev as never] }).app;

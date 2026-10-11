@@ -2,10 +2,12 @@ import { serve } from '@hono/node-server';
 import { createPublicClient, http } from 'viem';
 import { Bw3Client } from '@floor/bw3';
 import { setDeployment } from '@floor/sdk';
+import { chainLogStoreFromEnv } from '@floor/db';
 import { createApp, loadConfig as loadApiConfig, ChainKeeperRunStore, chainLogReaderFromEnv, paidGateFromEnv, paidPriceFromEnv } from '@floor/api';
 import { createApi, createMcpApp, gateFromConfig, loadConfig as loadMcpConfig } from '@floor/mcp';
 import { composeApp } from './app';
 import { createKeeperLoop } from './keeperLoop';
+import { createIndexerLoop } from './indexerLoop';
 import { setupKeeper } from './keeperSetup';
 import { installShutdown, startKeepAlive } from './lifecycle';
 
@@ -39,11 +41,16 @@ const bw3 = ac.bw3 ? new Bw3Client({ ...ac.bw3, chainId: String(56) }) : undefin
 let paidGate: ReturnType<typeof paidGateFromEnv>;
 let paidQuotePriceUsd: string | undefined;
 try { paidGate = paidGateFromEnv(env); paidQuotePriceUsd = paidPriceFromEnv(env); } catch (e) { fail('api paid gate error', e); }
-const logReader = env.FLOOR_RUNS_FROM_BLOCK ? chainLogReaderFromEnv(client, ac.deployment.factory, BigInt(env.FLOOR_RUNS_FROM_BLOCK), env) : undefined;
+// DATABASE_URL: logs persist in Postgres and a background loop keeps them at head. Unset or unreachable: in-memory reader as before.
+const pg = env.FLOOR_RUNS_FROM_BLOCK ? await chainLogStoreFromEnv(env).catch((e) => { console.error(`[onebox] database unavailable, using memory: ${e instanceof Error ? e.message.split('\n')[0] : 'error'}`); return null; }) : null;
+const logReader = env.FLOOR_RUNS_FROM_BLOCK ? chainLogReaderFromEnv(client, ac.deployment.factory, BigInt(env.FLOOR_RUNS_FROM_BLOCK), env, pg?.store) : undefined;
+const indexerLoop = logReader && pg ? createIndexerLoop({ sync: () => logReader.syncAll(), intervalSec: Number(env.INDEXER_INTERVAL_SEC ?? 60) || 60 }) : undefined;
 const runs = logReader ? new ChainKeeperRunStore(client, ac.deployment.factory, BigInt(env.FLOOR_RUNS_FROM_BLOCK!), logReader) : undefined;
 const api = createApp({
   chainId: ac.chainId, deployment: ac.deployment, client, bw3, paidGate, paidQuotePriceUsd, runs,
   activity: logReader ? (v) => logReader.activity(v) : undefined,
+  refresh: logReader ? (v) => logReader.refresh(v) : undefined,
+  indexer: logReader ? () => logReader.indexerStatus() : undefined,
   keeperHeartbeat: async () => loop.state().lastScan,
   corsOrigins: ac.corsOrigins, trustProxy: ac.trustProxy,
 });
@@ -55,12 +62,13 @@ try { mcpCfg = loadMcpConfig(env, repoRoot); } catch (e) { fail('mcp config erro
 try { gate = gateFromConfig(mcpCfg!, env); } catch (e) { fail('mcp payment setup error', e); }
 const mcp = createMcpApp({ cfg: mcpCfg!, api: createApi(mcpCfg!.apiBaseUrl), gate });
 
-const app = composeApp({ api, mcp, keeper: loop.state, corsOrigins: ac.corsOrigins });
+const app = composeApp({ api, mcp, keeper: loop.state, indexer: logReader ? () => logReader.indexerStatus() : undefined, corsOrigins: ac.corsOrigins });
 const server = serve({ fetch: app.fetch, port, hostname: '0.0.0.0' }, (i) => {
   console.log(`[onebox] listening on 0.0.0.0:${i.port} chain ${ac.chainId} factory ${ac.deployment.factory} mcp=/mcp paid=${gate ? 'on' : 'off'} keeper=${ks.mode}`);
   loop.start();
+  indexerLoop?.start();
 });
 
 const stopKeepAlive = env.RENDER_EXTERNAL_URL ? startKeepAlive(env.RENDER_EXTERNAL_URL) : undefined;
-installShutdown({ server, loop, extraStop: stopKeepAlive });
+installShutdown({ server, loop, extraStop: () => { stopKeepAlive?.(); indexerLoop?.stop(); } });
 process.on('unhandledRejection', (e) => console.error(`[onebox] unhandledRejection: ${e instanceof Error ? e.message.split('\n')[0] : String(e)}`));

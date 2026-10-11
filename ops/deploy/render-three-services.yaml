@@ -24,6 +24,8 @@ services:
       - { key: BW3_API_KEY, sync: false }            # Binance Web3 API key; used by the API, MCP and keeper
       - { key: BW3_API_SECRET, sync: false }
       - { key: FLOOR_RUNS_FROM_BLOCK, sync: false }  # block of the factory deploy; serves the keeper log from on-chain events
+      - { key: DATABASE_URL, sync: false }           # Postgres (Render internal connection string): persists chain logs; unset = in-memory reader
+      - { key: INDEXER_INTERVAL_SEC, value: "60" }   # background log sync period, seconds
 
   # ---------- MCP server (agents, x402-paid tools) ----------
   - type: web

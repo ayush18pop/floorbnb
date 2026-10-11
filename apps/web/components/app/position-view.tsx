@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useAccount } from "wagmi";
 import { getSource, isAddress, fmt, fmtW, num, pct, phaseOf, stockPct, daysLeft, isoDate, dow, nextWindow, type VaultEvent, type PositionView } from "@/lib/adapters";
 import { useAsync } from "@/lib/adapters/use";
+import { RefreshButton } from "./refresh-button";
 import { useAgeSeconds } from "@/lib/adapters/use-chain";
 import { Xh } from "@/components/ui/xh";
 import { AddrLink, TxLink } from "./explorer-link";
@@ -143,6 +144,7 @@ export function PositionScreen() {
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-6">
         <div className="min-w-0">
           <p className="label">{basket} · <AddrLink address={p.status.vault} /> <ExampleBadge className="ml-1" />{age !== null && <span className="ml-2 !text-muted" data-testid="updated-ago" aria-live="off">· updated {age < 5 ? "just now" : `${age}s ago`}</span>}</p>
+          <div className="mt-1"><RefreshButton vault={p.status.vault} onDone={() => setRev((n) => n + 1)} /></div>
           <p className="mt-1 flex flex-wrap items-baseline gap-x-4 gap-y-1"><span className="num-xl !text-[clamp(1.75rem,1.2rem+2vw,2.5rem)]">{fmt(V)} <span className="text-[0.5em] text-muted">USDT</span></span><span className={`mono text-[clamp(1rem,0.9rem+0.6vw,1.375rem)] ${chg >= 0 ? "pos" : "neg"}`}>{pct(chg)}</span><PhaseBadges p={p} /></p>
         </div>
         {ph !== "closed" && (

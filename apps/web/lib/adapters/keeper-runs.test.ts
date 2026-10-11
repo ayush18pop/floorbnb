@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { toKeeperRun, toKeeperStatus } from "./keeper-runs";
+import { heartbeatAge, toKeeperRun, toKeeperStatus } from "./keeper-runs";
 
 const base = { vault: "0x00000000000000000000000000000000000000aa", symbol: "NVDAB", tx: "0x01", time: 1000 } as const;
 const KEEPER = "0x90f79bf6eb2c4f870365e785982e1f101e93b906";
@@ -39,5 +39,21 @@ describe("wiring text", () => {
     const w = (n: number) => BigInt(n) * 10n ** 18n;
     expect(receivedText({ usdt: w(5), tokens: [{ symbol: "NVDAB", amount: 12_345_600_000_000_000_000n, value: w(50) }] }, "exitInKind")).toBe("You received 12.3456 NVDAB (≈ 50.00 USDT at the 10-minute average) + 5.00 USDT. Total ≈ 55.00 USDT.");
     expect(receivedText({ usdt: w(52), tokens: [] }, "closeToUSDT")).toBe("You received 52.00 USDT.");
+  });
+});
+
+describe("heartbeatAge", () => {
+  it("reads the API-only /healthz shape", () => {
+    expect(heartbeatAge({ ok: true, keeper: { lastHeartbeat: 1, heartbeatAgeSeconds: 42 } })).toBe(42);
+  });
+  it("reads the one-box shape: keeper is the loop state, the age is under api.keeper", () => {
+    const body = { ok: true, api: { ok: true, keeper: { lastHeartbeat: 9, heartbeatAgeSeconds: 17 } }, keeper: { mode: "live", running: true, lastScan: 5, lastError: null } };
+    expect(heartbeatAge(body)).toBe(17);
+  });
+  it("is null when no age is known, never guessed", () => {
+    expect(heartbeatAge({ keeper: { heartbeatAgeSeconds: null } })).toBeNull();
+    expect(heartbeatAge({ api: { keeper: {} }, keeper: { mode: "live" } })).toBeNull();
+    expect(heartbeatAge(null)).toBeNull();
+    expect(heartbeatAge("x")).toBeNull();
   });
 });

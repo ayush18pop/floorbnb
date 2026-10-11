@@ -16,6 +16,18 @@ export function toKeeperRun(l: RebalanceLog, keepers: ReadonlySet<string>): Keep
   };
 }
 
+/**
+ * Heartbeat age from a /healthz body. The API alone reports it as `keeper.heartbeatAgeSeconds`; the one-box server puts its
+ * keeper loop state at `keeper` and nests the API's body at `api`, so the age is at `api.keeper.heartbeatAgeSeconds`.
+ */
+export function heartbeatAge(body: unknown): number | null {
+  const age = (o: unknown): number | null => {
+    const v = (o as { keeper?: { heartbeatAgeSeconds?: unknown } } | null | undefined)?.keeper?.heartbeatAgeSeconds;
+    return typeof v === "number" && Number.isFinite(v) ? v : null;
+  };
+  return age(body) ?? age((body as { api?: unknown } | null | undefined)?.api);
+}
+
 /** Status tiles from chain facts. `online` needs a heartbeat: null (none known) is reported as offline, never guessed. */
 export function toKeeperStatus(runs: KeeperRun[], now: number, tradingOpen: boolean, heartbeatAgeSeconds: number | null): KeeperStatus {
   const last = runs.reduce((m, r) => Math.max(m, r.time), 0);
