@@ -52,7 +52,7 @@ export function L({ href, children }: { href: string; children: ReactNode }) {
   return <Link href={href} className="prose-link">{children}</Link>;
 }
 
-export function Callout({ label = "Honest note", children }: { label?: string; children: ReactNode }) {
+export function Callout({ label = "Note", children }: { label?: string; children: ReactNode }) {
   return (
     <div className="callout">
       <p className="label warn" style={{ marginTop: 0 }}>{label}</p>
