@@ -38,7 +38,7 @@ flowchart LR
     API["apps/api<br/>REST, read-only + tx builders"]
     MCP["apps/mcp<br/>MCP server, Streamable HTTP"]
     KEEP["apps/keeper<br/>rebalance loop"]
-    DB[("SQLite<br/>runs, receipts")]
+    DB[("Postgres indexer<br/>chain logs, cursors, block times")]
   end
 
   subgraph Keys["Keeper signers"]
@@ -100,9 +100,9 @@ flowchart LR
 | **Binance Web3 API** | External. Prices and market status, aggregated quotes, calldata, simulation, broadcast with MEV protection [S32]. | HMAC-signed HTTP | n/a. We must treat every response as untrusted input and re-check on-chain (`minOut`, simulation, `eth_call`). |
 | **B402 Facilitator** | External. Verifies the buyer's EIP-712 authorization, sponsors gas, settles on BSC [S12, S17, S18]. | HMAC-signed HTTP with a Web3 API key (corrected 2026-10-05; earlier notes said RSA) | n/a. Our `payTo` wallet must be receive-only. |
 | **Vault contracts** | Custody and rules (CONTRACTS.md). | Solidity, Foundry | n/a. See 2.1 for what we need from them. |
-| **SQLite** | `keeper_runs`, `x402_receipts`, `price_cache`. | better-sqlite3 + Drizzle, WAL mode, one volume | Be the source of truth for balances. Chain state is. It is a log. |
+| **Postgres indexer** | `chain_logs` (raw factory and vault logs), `index_cursor` (last synced block per address), `block_times`. A background loop in `apps/onebox` syncs every vault to head each `INDEXER_INTERVAL_SEC`; refresh endpoints sync on demand. Activity, keeper runs and positions are served from it. | `packages/db` (postgres.js, SQL migrations on boot), Render Postgres | Be the source of truth for balances. Chain state is. It is an index of chain logs. |
 
-Why SQLite: three processes on one VM, one writer per table (keeper writes runs, mcp/api write receipts). If the team prefers serverless hosting for api/mcp, swap for Neon Postgres. Nothing else changes.
+Why Postgres: on-chain events are permanent, so they are fetched once and stored. A cold server answers from the index in about a second instead of rescanning from the factory deploy block through range-capped RPCs. Without `DATABASE_URL` the same reader runs in memory.
 
 ---
 
@@ -123,7 +123,7 @@ This is the minimum surface the off-chain parts need. If CONTRACTS.md differs, c
 | A7 | Market-closed pause: a flag `marketOpen` plus `validUntil`, settable by the keeper (or a guardian). `rebalance` reverts when it is not set or has expired. `deposit` and `withdraw` are not blocked by it. If the contracts agent chooses an on-chain trading calendar instead, the keeper only reads it. | Keeper step "market-open check". |
 | A8 | Cash-lock: when position value <= floor, the next `rebalance` must sell the position's stock to USDT and mark it `cashLocked`. It stays that way until `termEnd`. | Flow 2c. |
 | A9 | Views the API reads in one multicall: `positions(id)`, `valueOf(id)` (in USDT at a documented price rule), `exposureOf(id)`, `cashLocked(id)`, `positionsOf(owner)`, `rebalanceNonce()`, `marketOpen()`, `assets()`. | Status tool, web, keeper. |
-| A10 | Events: `Deposited(positionId, owner, asset, amount, floorBps, termEnd)`, `Withdrawn(positionId, owner, ...)`, `Rebalanced(nonce, keeper, positionIds, ...)`, `CashLocked(positionId, value, floor)`, `FloorMissed(positionId, value, floor)`, `MarketFlagSet(open, validUntil)`. We index with `getLogs`. No subgraph. | Keeper log, UI history, demo. |
+| A10 | Events: `Deposited(positionId, owner, asset, amount, floorBps, termEnd)`, `Withdrawn(positionId, owner, ...)`, `Rebalanced(nonce, keeper, positionIds, ...)`, `CashLocked(positionId, value, floor)`, `FloorMissed(positionId, value, floor)`, `MarketFlagSet(open, validUntil)`. A Postgres indexer stores the logs (section 1.2); no subgraph. | Keeper log, UI history, demo. |
 | A11 | Rate limits on-chain: minimum seconds between rebalances and a maximum turnover per call, so a stolen keeper key cannot churn the vault. | Section 7. |
 | A12 | Optional: `depositFor(address owner, ...)`. Not needed if the agent's wallet is the owner. | Only if a bot deposits for a third party. Skip in v1. |
 
@@ -611,7 +611,9 @@ Base `https://api.<domain>`. JSON. All reads are cached for 5 to 15 s. IP rate l
 | `GET /v1/market` | Prices and `statusInfo` per asset (proxies BW3 RWA price, adds cache) | none |
 | `GET /v1/positions?owner=0x..` | Positions of an owner (chain reads) | none, public data |
 | `GET /v1/positions/:id` | One position: value, floor, cushion, exposure, cash-lock, term end | none |
-| `GET /v1/keeper/runs?limit=&positionId=` | Public keeper log | none |
+| `GET /v1/keeper/runs?limit=&positionId=` | Public keeper log (from the indexer) | none |
+| `POST /v1/positions/:vault/refresh` | Sync one vault's logs to head now (one forced sync per 15 s) | none |
+| `POST /v1/index/refresh` | Sync the factory and keeper runs to head now | none |
 | `GET /v1/keeper/runs/:cycleKey` | One run in full | none |
 | `POST /v1/tx/deposit` | Unsigned approve and deposit | none, rate limited |
 | `POST /v1/tx/withdraw` | Unsigned withdraw | none, rate limited |

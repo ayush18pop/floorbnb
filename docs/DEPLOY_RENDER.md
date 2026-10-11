@@ -23,6 +23,8 @@ Render dashboard > New > Blueprint > pick this repo and branch (`main`). It read
 | `FLOOR_RUNS_FROM_BLOCK` | block of the factory deploy (same deployments file or the BscScan creation tx) |
 | `FLOOR_RPC_URL` | a keyed BSC mainnet RPC (Alchemy, QuickNode, ...). Used by the API, the keeper and b402. Optional overrides: `BSC_RPC_URL`, `X402_RPC_URL` |
 | `BW3_API_KEY`, `BW3_API_SECRET` | Binance Web3 API. Used by the API (market routes), MCP and, since 2026-10-10, the keeper (price guard, gas price, shadow simulation). Optional: without them market routes are off and the keeper skips its Binance checks. b402 would need a key with the B402 Payments permission |
+| `DATABASE_URL` | the Render Postgres internal connection string (`floor-db`). Enables the indexer; without it the server reads logs in memory |
+| `INDEXER_INTERVAL_SEC` | indexer sync period, default `60` |
 | `FLOOR_ASSETS` | comma-separated bStock token addresses the keeper pokes each cycle |
 | `KEEPER_PRIVATE_KEY` | key of `0x46FD797AeBD0250A2E768022AD992DF21F12e58a`, about 0.03 BNB on it. Secret, dashboard only. **If unset the keeper runs dry-run** (simulates, signs nothing) and `/healthz` says so |
 | `X402_PAYTO` | receive-only payout wallet: the project payee address `0xF5f349ABe9647278AC3450058bc054886DaF816B` |

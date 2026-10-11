@@ -38,7 +38,7 @@
 - **Binance Web3 integration depth:** see [the table below](#binance-web3-integration).
 - **DX report:** [`dx/human/`](dx/human/) (written by the team).
 - **Tests (2026-10-10, merged `dev`, run by the team):** bw3 32, api 42, web 164, keeper 59 (+5 fork tests skipped), onebox 11, mcp 27 (+2 skipped), sdk 310, x402 32 (+2 skipped); `forge test --offline` 270 passed, 0 failed, 2 skipped.
-- **Limits you should know:** launch caps of 1,000 USDT per position and 5,000 USDT total; AI-assisted review only, no human audit; see [Status and known limitations](#status-and-known-limitations).
+- **Limits you should know:** launch caps of 1,000 USDT per position and 5,000 USDT total; AI-assisted review only, no human audit; see [Risks](#risks).
 
 ---
 
@@ -76,7 +76,7 @@ cast call $FACTORY "maxTotalTvl()(uint256)" --rpc-url $RPC    # 5000000000000000
 
 Floor is a protection vault for tokenized stocks on BNB Chain. You deposit USDT into your own vault, pick a floor (the lowest value you want to hold) and a term. The vault holds a mix of bStocks and USDT. It sells stock as prices fall and buys it back as they rise, using the CPPI rule (constant proportion portfolio insurance). Every trade is a plain spot swap on PancakeSwap v3. There is no leverage, no borrowing, no derivatives and no protocol fee in v1.
 
-Floor reduces downside. It does not remove it. If a price gaps by more than about 24% before the vault can rebalance, the value can end below the floor. See [Status and known limitations](#status-and-known-limitations).
+Floor reduces downside. It does not remove it. If a price gaps by more than about 24% before the vault can rebalance, the value can end below the floor. See [Risks](#risks).
 
 ## Why
 
@@ -162,6 +162,17 @@ Key design points (full design in [`docs/CONTRACTS.md`](docs/CONTRACTS.md), off-
 - One vault clone per position. No shared balance, no shared price, no shared share supply. One user's gap loss cannot touch another's.
 - The vault reads its own price from a 10-minute Pancake v3 TWAP. The keeper supplies no price.
 - Economic parameters (floor, term, weights, multiplier, bands, tolerances) are copied into the position at creation and cannot be changed.
+
+### Indexer
+
+Chain events are permanent, so Floor reads them once and keeps them. The server (`apps/onebox`) runs a Postgres-backed indexer next to the keeper:
+
+- **Store.** `packages/db` holds three tables: `chain_logs` (raw factory and vault logs, keyed by tx hash and log index), `index_cursor` (the last synced block per address) and `block_times`. Migrations apply on boot.
+- **Sync.** Every `INDEXER_INTERVAL_SEC` (default 60 s) the indexer brings the factory and every vault up to the chain head. Each pass reads only the new blocks since the cursor (plus a 12-block reorg margin) through wide-range log RPCs.
+- **Reads.** `/v1/positions/:vault/activity`, `/v1/keeper/runs`, `/v1/positions?owner=` and `/v1/floor` are served from the database. A cold start answers in about a second instead of rescanning history.
+- **Refresh.** `POST /v1/positions/:vault/refresh` and `POST /v1/index/refresh` sync to head on demand and return `{ syncedToBlock, newLogs }`. The position and keeper pages have a **Refresh** button that calls them and reloads.
+- **Web.** The browser reads positions and activity through the API, not through its own `eth_getLogs` calls.
+- **Health.** `/healthz` reports `indexer: { enabled, lastSyncAt, headLag, lastError }`.
 
 ### User flow
 
@@ -498,35 +509,25 @@ Names only. Values are secrets or deployment-specific and never belong in git. T
 
 | Area | Variables |
 | --- | --- |
+| Indexer | `DATABASE_URL`, `INDEXER_INTERVAL_SEC` |
 | Chain | `FLOOR_CHAIN_ID`, `FLOOR_RPC_URL`, `BSC_RPC_URL`, `FLOOR_FACTORY`, `FLOOR_LENS`, `FLOOR_RUNS_FROM_BLOCK`, `FLOOR_ASSETS` |
 | Keeper | `KEEPER_ADDRESS`, `KEEPER_PRIVATE_KEY`, `KEEPER_ROUTE`, `KEEPER_INTERVAL_SEC`, `KEEPER_HEARTBEAT_FILE`, `ALERT_WEBHOOK_URL`, `KEEPER_BW3_PRICE_GUARD_BPS`, `KEEPER_BW3_GAS`, `KEEPER_BW3_SHADOW_SIM` |
-| x402 and b402 | `X402_FACILITATOR`, `X402_NETWORK`, `X402_PAYTO`, `X402_ASSET`, `X402_ASSET_SYMBOL`, `X402_ASSET_DECIMALS`, `SELF_FACILITATOR_KEY` |
+| b402 | `X402_FACILITATOR` (`b402`), `X402_NETWORK`, `X402_PAYTO`, `X402_ASSET`, `X402_ASSET_SYMBOL`, `X402_ASSET_DECIMALS`, `SELF_FACILITATOR_KEY` |
 | Binance Web3 (API, MCP, keeper) | `BW3_API_KEY`, `BW3_API_SECRET` (b402 needs a key with the B402 Payments permission) |
 | Prices | `PRICE_QUOTE_PROTECTION_USD`, `PRICE_BACKTEST_USD`, `PRICE_SIMULATE_GAP_USD` |
 | Servers | `MCP_PORT`, `MCP_PUBLIC_URL`, `MCP_ALLOWED_ORIGINS`, `API_BASE_URL`, `WEB_ORIGIN`, `TRUST_PROXY` |
 | Web | `NEXT_PUBLIC_APP_LOCKED`, `APP_LOCKED`, `NEXT_PUBLIC_SITE_URL` |
 | Local stack | `BSC_FORK_RPC_URL`, `LOCAL_PORT_OFFSET` |
 
-## Status and known limitations
+## Risks
 
-- **No formal human audit.** Reviews are AI-assisted only (Pashov Audit Group skills). See [`docs/AUDIT.md`](docs/AUDIT.md) and [`reviews/`](reviews/). That is why the launch caps are small.
-- **The floor can be breached.** A gap bigger than about 24% before a rebalance can take value below the floor. Single stocks have had bigger one-day drops. A fraud or bankruptcy can take a stock down 80% to 100% in a day.
-- **Acceptances are not all signed.** The batch acceptance of 2026-10-04 awaits the team lead's written confirmation. The 2026-10-05 run raised one finding (a caller with 5,000 USDT can fill the shared cap and block new deposits). Its acceptance is proposed and not signed. 19 unscored leads from that run are neither accepted nor rejected ([`reviews/acceptances.md`](reviews/acceptances.md)).
-- **Owner and guardian are one address.** No multisig.
-- **Cash lock.** Once value reaches the floor the vault stays in USDT until the term ends and cannot buy stocks again.
-- **Delayed sells.** A sell reverts while spot and the 10-minute average disagree by more than the tolerance (finding F-04, accepted). In a fast crash this can let value fall below the floor.
-- **Public rebalance can be sandwiched** within its 1% slippage bound. The keeper acts first.
-- **No de-risking sell** when a held stock has no price history. Use `exitInKind`.
-- **Shared launch cap.** One caller can fill it. The owner can raise it.
-- **Weekends.** The vault does not trade on weekends. Weekend trading cost is not measured. The backtest rebalances once a day at the close, not in the contract's 4-hour window.
-- **Holiday table** ends 2028-12-31. A 365-day term cannot be created after about 18 Dec 2027 unless the guardian extends it.
-- **Hosted API sleeps.** The Render free instance sleeps after 15 minutes idle (cold start 30 to 60 seconds). While it sleeps the keeper does not run ([`docs/DEPLOY_RENDER.md`](docs/DEPLOY_RENDER.md)).
-- **Binance checks are advisory.** The price guard only skips BUYS and fails open; shadow simulation is log-only; bStocks return null `marketStatus`.
-- **Live cost on the direct route** was measured on a fork at 100 USDT only (2026-10-02). Not measured on mainnet, on weekends, or at larger sizes.
-- **Not done:** Agent Studio listing, ERC-8004 registration (prepared, not broadcast), Agentic Wallet keeper (optional).
-- **Site status.** The live URL is `https://floor.ayush.works` and the app is unlocked on production. The code still locks the app routes by default unless `NEXT_PUBLIC_APP_LOCKED=0` is set ([`docs/BRANCHING.md`](docs/BRANCHING.md)). The hosted API and MCP server run on a free Render instance at `https://floor-server-wb4i.onrender.com` (`/healthz`, `/mcp`); it can sleep if idle.
+- **No formal human audit.** Reviews are AI-assisted (Pashov Audit Group skills). See [`docs/AUDIT.md`](docs/AUDIT.md) and [`reviews/`](reviews/). Launch caps are small for that reason.
+- **A floor is not a guarantee.** A gap bigger than about 24% before a rebalance can take value below the floor, and single stocks have had bigger one-day drops.
+- **Cash lock.** Once value reaches the floor the vault stays in USDT until the term ends.
+- **Owner and guardian are one address** at launch.
+- **Weekends.** The vault trades only while US markets are open.
 
-Full list: [`apps/web/app/docs/open-items/page.tsx`](apps/web/app/docs/open-items/page.tsx) and [`apps/web/app/docs/risks/page.tsx`](apps/web/app/docs/risks/page.tsx).
+Full list: [`apps/web/app/docs/risks/page.tsx`](apps/web/app/docs/risks/page.tsx).
 
 ## Roadmap
 
