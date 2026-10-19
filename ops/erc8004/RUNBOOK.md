@@ -16,7 +16,7 @@ Claim to use: "Floor's MCP server is discoverable through the ERC-8004 registry"
 
 ## Human provides
 1. Owner address (receives the agent NFT; use the hardware wallet or fund-less-then-funded EOA).
-2. Final public domain: `floor.ayush.works` for the web app. The web host is live (200, 2026-10-05). The registration file names the Render onebox for the MCP endpoint, `https://floor-server-wb4i.onrender.com/mcp` (GET answers 405, so it is up; a full MCP handshake is not verified). Fallback web host: `floorbnb.vercel.app`; the file would then need its URLs changed.
+2. Final public domain: `floor.ayush.works` for the web app. The web host is live (200, 2026-10-05). The registration file names the Render onebox for the MCP endpoint, `https://floor-server-tfc6.onrender.com/mcp` (GET answers 405, so it is up; a full MCP handshake is not verified). Fallback web host: `floorbnb.vercel.app`; the file would then need its URLs changed.
 3. Approval at gate G7 (external publication).
 
 ## Steps
@@ -28,5 +28,5 @@ Claim to use: "Floor's MCP server is discoverable through the ERC-8004 registry"
 ## Unverified
 - Exact `agentRegistry` string format and MCP `version` value come from the spec text read via fetch; recheck against the EIP before step 4.
 - The script was dry-run only; no transaction has been sent.
-- The MCP endpoint in the registration file is the Render onebox (`https://floor-server-wb4i.onrender.com/mcp`, GET answers 405). A full MCP handshake against it is not verified.
+- The MCP endpoint in the registration file is the Render onebox (`https://floor-server-tfc6.onrender.com/mcp`, GET answers 405). A full MCP handshake against it is not verified.
 - The path `/.well-known/agent-registration.json` is in `ALLOW_EXACT` in `apps/web/lib/launch.ts` (checked 2026-10-05), so it is served while the app routes stay locked.

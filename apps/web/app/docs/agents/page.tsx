@@ -8,7 +8,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata("/docs/agents", "Agents");
 
 const snippet = `// Example request to the hosted MCP server (Streamable HTTP).
-POST https://floor-server-wb4i.onrender.com/mcp
+POST https://floor-server-tfc6.onrender.com/mcp
 {
   "method": "tools/call",
   "params": {

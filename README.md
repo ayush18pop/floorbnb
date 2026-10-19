@@ -27,13 +27,13 @@
 
 ## For judges
 
-- **Web:** <https://floor.ayush.works> (Vercel fallback `https://floorbnb.vercel.app`, per `render.yaml` CORS list). **API and MCP:** `https://floor-server-wb4i.onrender.com` (`/healthz`, `/v1/*`, `/mcp`), from [`apps/web/lib/app-config.ts`](apps/web/lib/app-config.ts). It runs on a Render free instance that sleeps after 15 minutes idle; the first request can take 30 to 60 seconds ([`docs/DEPLOY_RENDER.md`](docs/DEPLOY_RENDER.md)).
+- **Web:** <https://floor.ayush.works> (Vercel fallback `https://floorbnb.vercel.app`, per `render.yaml` CORS list). **API and MCP:** `https://floor-server-tfc6.onrender.com` (`/healthz`, `/v1/*`, `/mcp`), from [`apps/web/lib/app-config.ts`](apps/web/lib/app-config.ts). It runs on a Render free instance that sleeps after 15 minutes idle; the first request can take 30 to 60 seconds ([`docs/DEPLOY_RENDER.md`](docs/DEPLOY_RENDER.md)).
 - **Three-minute tour**
   1. `/try`: pick a basket and a floor and run the backtest simulator. No wallet needed ([`apps/web/app/try/page.tsx`](apps/web/app/try/page.tsx)).
   2. `/app/position?v=<vault>` (reached from `/app/positions`): on a position, look at the Binance price check, company card and candles. They read `GET /v1/market`, `/v1/market/:symbol/candles` ([`apps/api/src/app.ts`](apps/api/src/app.ts)).
   3. `/docs/binance`: live table of every Binance Web3 module, with call counts from `GET /v1/binance/status`.
   4. `/docs/agents`: how an agent uses the MCP server, the skill and the keeper.
-- **Point an MCP client at Floor:** Streamable HTTP, stateless, URL `https://floor-server-wb4i.onrender.com/mcp`. Check it with `curl -s -X POST <url> -H 'content-type: application/json' -H 'accept: application/json, text/event-stream' -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`. Tools return unsigned transactions only ([tool list](#agents-mcp-api-x402-and-b402)).
+- **Point an MCP client at Floor:** Streamable HTTP, stateless, URL `https://floor-server-tfc6.onrender.com/mcp`. Check it with `curl -s -X POST <url> -H 'content-type: application/json' -H 'accept: application/json, text/event-stream' -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`. Tools return unsigned transactions only ([tool list](#agents-mcp-api-x402-and-b402)).
 - **Contracts on BscScan (chain 56):** [FloorFactory](https://bscscan.com/address/0x1147d482fD08DDd7F377838efb610B606B3Ad765#code), [FloorLens](https://bscscan.com/address/0x63Ae440B9D309959442eaD3E08cBC3A025C67780#code), [FloorVault implementation](https://bscscan.com/address/0xEA0603a83BCf28a1D57d8534971149eACD874055#code). Source: [`packages/contracts/deployments/56.json`](packages/contracts/deployments/56.json).
 - **Binance Web3 integration depth:** see [the table below](#binance-web3-integration).
 - **DX report:** [`dx/human/`](dx/human/) (written by the team).
@@ -293,7 +293,7 @@ Floor is built to be used by agents as well as people. State-changing tools only
 
 | Surface | Where | Notes |
 | --- | --- | --- |
-| MCP server | [`apps/mcp`](apps/mcp), `POST /mcp` (Streamable HTTP, stateless), default port 8788. Hosted: `https://floor-server-wb4i.onrender.com/mcp` | 9 tools, below |
+| MCP server | [`apps/mcp`](apps/mcp), `POST /mcp` (Streamable HTTP, stateless), default port 8788. Hosted: `https://floor-server-tfc6.onrender.com/mcp` | 9 tools, below |
 | REST API | [`apps/api`](apps/api), default port 8787 | Reads, unsigned tx builders, one paid route |
 | Agent skill | [`skills/floor/SKILL.md`](skills/floor/SKILL.md) | Confirm-then-sign workflow and honest-claim rules |
 | Payments | [`packages/x402`](packages/x402) | b402 on `eip155:56` (x402 v2 wire format). |
