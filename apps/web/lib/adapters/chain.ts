@@ -63,7 +63,12 @@ async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
   let err: unknown;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const r = await fetch(`${API_URL}${path}`, { ...init, signal: AbortSignal.timeout(30_000) });
+      const r = await fetch(`${API_URL}${path}`, {
+        ...init,
+        // ngrok free tunnels interpose a browser-warning page unless this header is set.
+        headers: { "ngrok-skip-browser-warning": "1", ...(init?.headers as Record<string, string> | undefined) },
+        signal: AbortSignal.timeout(30_000),
+      });
       if (!r.ok) throw new Error(`API ${r.status}`);
       return (await r.json()) as T;
     } catch (e) {
@@ -279,7 +284,7 @@ export function chainSource(): PositionSource {
       const [runs, open, hb] = await Promise.all([
         chainKeeperRuns(),
         readIsTradingOpen(c, d.factory, block.timestamp),
-        API_URL ? fetch(`${API_URL}/healthz`).then((r) => r.json() as Promise<unknown>).then(heartbeatAge).catch(() => null) : Promise.resolve(null),
+        API_URL ? fetch(`${API_URL}/healthz`, { headers: { "ngrok-skip-browser-warning": "1" } }).then((r) => r.json() as Promise<unknown>).then(heartbeatAge).catch(() => null) : Promise.resolve(null),
       ]);
       return toKeeperStatus(runs, Number(block.timestamp), open, hb);
     },

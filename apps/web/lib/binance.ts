@@ -111,7 +111,7 @@ export function parseStatus(j: unknown): BinanceStatus | null {
 async function get<T>(path: string, parse: (j: unknown) => T | null, signal?: AbortSignal): Promise<Fetched<T>> {
   let res: Response;
   try {
-    res = await fetch(`${API_URL}${path}`, { signal, headers: { accept: "application/json" } });
+    res = await fetch(`${API_URL}${path}`, { signal, headers: { accept: "application/json", "ngrok-skip-browser-warning": "1" } });
   } catch {
     return { ok: false, kind: "network" };
   }

@@ -24,3 +24,6 @@ local/logs/
 local/.run/
 local/.work/
 local/deployment.json
+
+# local judging backend state: logs, pids, bins, env overrides
+.judging/
