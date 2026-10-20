@@ -160,7 +160,7 @@ export function createApp(deps: AppDeps): Hono {
 
   // CORS only for the configured web origins. None configured: no CORS headers.
   if (deps.corsOrigins?.length) {
-    app.use('*', cors({ origin: deps.corsOrigins, allowMethods: ['GET', 'POST', 'OPTIONS'], allowHeaders: ['content-type', 'payment-signature'], exposeHeaders: ['payment-required', 'payment-response', 'retry-after'], maxAge: 600 }));
+    app.use('*', cors({ origin: deps.corsOrigins, allowMethods: ['GET', 'POST', 'OPTIONS'], allowHeaders: ['content-type', 'payment-signature', 'ngrok-skip-browser-warning'], exposeHeaders: ['payment-required', 'payment-response', 'retry-after'], maxAge: 600 }));
   }
   app.use('*', bodyLimit({ maxSize: 32 * 1024, onError: (c) => c.json({ error: { code: 'payload_too_large', message: 'body over 32 KB' } }, 413) }));
   app.use('*', async (c, next) => {
